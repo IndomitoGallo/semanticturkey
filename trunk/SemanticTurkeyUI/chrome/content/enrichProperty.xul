@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="enrichProperty.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<window id="properties" title=""
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+        width="600"
+        height="600" 
+        >
+
+<script language="JavaScript" type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/captain.js"/>
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://global/content/nsTransferable.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/mylistHandler.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/enrichProperty.js"/> 
+<hbox flex="1" orient ="vertical"> 
+<rows id="clsTree" >
+    		<row>
+ 	 			<toolbox>
+				    <toolbar id="property-toolbar">
+				    	<checkbox label="Show all classes" id="checkAll" oncommand="showAllClasses();"/>
+					</toolbar>
+				</toolbox>
+			</row>
+		</rows>
+<box flex="1" orient ="horizontal">
+		<tree hidecolumnpicker="true" id="enrichPropertyTree" flex="1" 
+			ondraggesture="treeDragGesture(event)" ondragenter="treeDragEnter(event)" 
+ 			ondragover="return DragOverContentArea(event);" ondragexit="treeDragExit(event)" ondragdrop="treeDragDrop(event);">
+  		<treecols>
+    		<treecol id="category"  label= "Classes" primary="true" flex="1">
+    		</treecol>
+  		</treecols>
+ 	 	<treechildren id="22">
+ 		</treechildren>
+		</tree> 
+<splitter orient ="horizontal" state="open" collapse="after"
+				resizeafter="closest">
+			</splitter> 	 
+					 <listbox id="InstancesList"
+					context="clipmenulist" ondraggesture="listDragGesture(event)"
+					ondragenter="listDragEnter(event)"
+					ondragover="return listDragOverContentArea(event);"
+					ondragexit="listDragExit(event)"
+					ondragdrop="listDragDrop(event);"
+					onclick="listclick(event);">
+					
+					<listhead>
+						<listheader>
+							<listitem-iconic>
+								<image src= "images/individual.png"/>
+								<label value="Instances"/>
+							</listitem-iconic>
+						</listheader>		
+					</listhead>
+							
+					</listbox> 	
+								
+</box>
+</hbox>
+<splitter state="open" collapse="after"
+				resizeafter="closest">
+</splitter>						
+<hbox>
+<vbox orient ="horizontal" flex ="1">	
+	<button  id="Bind" label="Bind to new individual for selected Class"  onclick="bind();" disabled="false"/>
+<spacer flex ="1"/>
+	<button  id="cancel" label="Cancel" class="dialog" onclick="onCancel();" />
+<spacer flex ="1"/>
+	<button  id="Add" label="Add new annotation for selected instance"  onclick="annotateInst();" disabled="false"/>
+</vbox>
+</hbox>
+<script type="application/x-javascript">	
+	<![CDATA[
+		setPanel();
+		
+		function getthetree() {
+			return document.getElementById('enrichPropertyTree');
+		}
+		function getPanelTree(){
+			return panelTree;
+		}
+		function gettheList(){
+			return document.getElementById('InstancesList');
+		}
+		function getBindBtn(){
+			return  document.getElementById('Bind');
+		}
+		function getAddBtn(){
+			return  document.getElementById('Add');
+		}
+		
+		]]>
+</script>
+</window>
