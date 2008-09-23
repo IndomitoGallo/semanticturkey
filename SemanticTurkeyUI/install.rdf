@@ -9,11 +9,11 @@
 -->
     <!-- The name of the addon intended for display in the UI.  -->
     <em:id>semanticturkey@art.uniroma2.it</em:id>
-    <em:version>0.6.2</em:version>
+    <em:version>0.6.3</em:version>
     <!-- The 2 declares that it is installing an extension -->
     <em:type>2</em:type>
     <em:creator>University of Rome, Tor Vergata</em:creator>
-    <em:description>Semantic Turkey: a Semantic Bookmarking and Editing tool</em:description>
+    <em:description>Semantic Turkey: a Semantic Bookmarking and Ontology Editing tool</em:description>
     
     <!-- A link to the addon's home page intended for display in the user interface. -->       
     <em:homepageURL>http://semanticturkey.uniroma2.it</em:homepageURL>
@@ -28,7 +28,6 @@
      --> 
     <em:optionsURL/>
     <!-- A link to a custom Update Manifest file that specifies available updates to the addon. -->
-    <em:updateURL/>
     
     <!-- 
     	Target application is Firefox. You can try specifying other Mozilla
@@ -69,6 +68,7 @@
         </rdf:Description>
     </em:file>
 
-  <em:hidden/><em:updateKey/></rdf:Description>
+  	<em:hidden/>
+  </rdf:Description>
 
 </rdf:RDF>
