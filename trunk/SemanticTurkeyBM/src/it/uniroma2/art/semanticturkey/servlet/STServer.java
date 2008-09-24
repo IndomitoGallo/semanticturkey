@@ -2,7 +2,7 @@
   * The contents of this file are subject to the Mozilla Public License
   * Version 1.1 (the "License");  you may not use this file except in compliance
   * with the License.  You may obtain a copy of the License at
-  * http//www.mozilla.org/MPL/
+  * http://www.mozilla.org/MPL/
   *
   * Software distributed under the License is distributed on an "AS IS" basis,
   * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
@@ -15,9 +15,9 @@
   * All Rights Reserved.
   *
   * SemanticTurkey was developed by the Artificial Intelligence Research Group
-  * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
   * Current information about SemanticTurkey can be obtained at 
-  * http//ai-nlp.info.uniroma2.it/software/...
+  * http://semanticturkey.uniroma2.it
   *
   */
 
