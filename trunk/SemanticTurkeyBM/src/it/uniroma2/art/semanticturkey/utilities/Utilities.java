@@ -34,6 +34,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 
 /**
@@ -42,6 +45,46 @@ import java.net.URL;
  */
 public class Utilities {
 
+
+	
+	public static void download(URL url, Proxy proxy, String destinationFile) throws IOException {
+	    HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);    
+	    connection.setRequestProperty("Range", "bytes=0-");
+	    connection.connect();
+	    
+	    // check if server response is positive: in this case, the response value
+	    // should be in the interval between 200 and 299 (thus the result of a division by 100 is 2)
+	    // if the response is negative, throws an exception 
+	    if (connection.getResponseCode() / 100 != 2) 
+	    	throw new IOException(connection.getResponseMessage());
+	    
+	    // used to check contentLength
+	    /*int contentLength = connection.getContentLength();   
+	    // se il numero di byte e' zero o negativo c'e' qualcosa che non va...
+	    if (contentLength < 1) {
+	        System.err.println("Errore, c'e' qualcosa che non va!");
+	        return;
+	    }
+	    */
+	    	    
+	    RandomAccessFile file = new RandomAccessFile(destinationFile, "rw");
+	    file.seek(0);
+	   
+	    InputStream inStream = connection.getInputStream();
+	    BufferedInputStream bufStream=new BufferedInputStream(inStream);
+	    
+	    byte[] buffer = new byte[1024];
+	    
+	    // download cycle
+	    while (true) {
+	        int bytesRead = bufStream.read(buffer,0,1024);	        
+	        if (bytesRead == -1) break;  
+	        file.write(buffer, 0, bytesRead);
+	    }
+	    
+	}
+	
+	
 	
 	public static void download(URL url, String destinationFile) throws IOException {
 		InputStream is = (InputStream)url.openStream();
