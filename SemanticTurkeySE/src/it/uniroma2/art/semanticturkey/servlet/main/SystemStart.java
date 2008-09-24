@@ -8,16 +8,16 @@
   * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
   * the specific language governing rights and limitations under the License.
   *
-  * The Original Code is Semantic Turkey.
+  * The Original Code is SemanticTurkey.
   *
   * The Initial Developer of the Original Code is University of Roma Tor Vergata.
-  * Portions created by University of Roma Tor Vergata are Copyright (C) 2008.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
   * All Rights Reserved.
   *
-  * Semantic Turkey was developed by the Artificial Intelligence Research Group
-  * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
-  * Current information about Semantic Turkey can be obtained at 
-  * http//ai-nlp.info.uniroma2.it/software/...
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
   *
   */
 

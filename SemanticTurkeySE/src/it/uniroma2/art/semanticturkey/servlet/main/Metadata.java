@@ -15,9 +15,9 @@
   * All Rights Reserved.
   *
   * SemanticTurkey was developed by the Artificial Intelligence Research Group
-  * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
   * Current information about SemanticTurkey can be obtained at 
-  * http//ai-nlp.info.uniroma2.it/software/...
+  * http://semanticturkey.uniroma2.it
   *
   */
 
@@ -90,7 +90,7 @@ public class Metadata extends InterfaceServiceServlet{
             return setBaseURI(_oReq.getParameter("uri"));
         if ( request.equals("get_baseuri") )
             return getBaseURI();
-        if ( request.equals("set_baseuridnspace") ) { 
+        if ( request.equals("set_baseuridnspace") ) {
             String baseURI = _oReq.getParameter("baseuri");
             String defaultNamespace = _oReq.getParameter("namespace");
             return setBaseURIAndDefaultNamespace(baseURI, defaultNamespace);

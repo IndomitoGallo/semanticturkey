@@ -8,16 +8,16 @@
   * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
   * the specific language governing rights and limitations under the License.
   *
-  * The Original Code is SemanticTurkeySE.
+  * The Original Code is SemanticTurkey.
   *
   * The Initial Developer of the Original Code is University of Roma Tor Vergata.
-  * Portions created by University of Roma Tor Vergata are Copyright (C) 2008.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
   * All Rights Reserved.
   *
-  * SemanticTurkeySE was developed by the Artificial Intelligence Research Group
-  * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
-  * Current information about SemanticTurkeySE can be obtained at 
-  * http//ai-nlp.info.uniroma2.it/software/...
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
   *
   */
 
@@ -139,7 +139,7 @@ public abstract class Resource extends InterfaceServiceServlet {
         while (stit.hasNext()) {
             ARTStatement st = stit.next();
             ARTResource valuedProperty = st.getPredicate();
-            if (!valuedProperty.equals(RDFS.Res.DOMAIN) && !valuedProperty.equals(RDFS.Res.RANGE) && !valuedProperty.equals(RDF.Res.TYPE) && !valuedProperty.equals(RDFS.Res.SUBCLASSOF) && !valuedProperty.equals(RDFS.Res.SUBPROPERTYOF) && ( Config.isAdminStatus() || !STVocabUtilities.isSystemResource(valuedProperty)) ) {    
+            if (!valuedProperty.equals(RDFS.Res.DOMAIN) && !valuedProperty.equals(RDFS.Res.RANGE) && !valuedProperty.equals(RDF.Res.TYPE) && !valuedProperty.equals(OWL.Res.INVERSEOF) && !valuedProperty.equals(RDFS.Res.SUBCLASSOF) && !valuedProperty.equals(RDFS.Res.SUBPROPERTYOF) && ( Config.isAdminStatus() || !STVocabUtilities.isSystemResource(valuedProperty)) ) {    
                 s_logger.debug("adding " + st.getObject() + " to " + valuedProperty + " bucket");
                 properties.add(valuedProperty);
                 propertyValuesMap.put(valuedProperty, st.getObject());     
@@ -328,13 +328,17 @@ public abstract class Resource extends InterfaceServiceServlet {
         }
         ARTStatementIterator iterator = repository.getStatements(property, OWL.Res.INVERSEOF, null);
         if (iterator.hasNext()) {
-            ARTResource inverseProp = iterator.next().getObject().asResource();
-            Element transitivePropElement = XMLHelp.newElement(facetsElement, "inverseOf");
-            transitivePropElement.setAttribute("value", repository.getQName(inverseProp.getURI()) ); 
-            if (repository.hasExplicitStatement(property, OWL.Res.INVERSEOF, inverseProp))
-                transitivePropElement.setAttribute("explicit", "true" );
-            else transitivePropElement.setAttribute("explicit", "false" );
+            Element inverseHeaderElement = XMLHelp.newElement(facetsElement, "inverseOf");
+            while (iterator.hasNext()) {
+                ARTResource inverseProp = iterator.next().getObject().asResource();
+                Element transitivePropElement = XMLHelp.newElement(inverseHeaderElement, "Value");
+                transitivePropElement.setAttribute("value", repository.getQName(inverseProp.getURI()) ); 
+                if (repository.hasExplicitStatement(property, OWL.Res.INVERSEOF, inverseProp))
+                    transitivePropElement.setAttribute("explicit", "true" );
+                else transitivePropElement.setAttribute("explicit", "false" );
+            }
         }
+        
     }
     
     
