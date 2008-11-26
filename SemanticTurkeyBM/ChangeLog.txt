@@ -1,4 +1,14 @@
-version: 0.6.2
+version 0.6.5
+date: 26-11-2008
+fixed java 5 vs 6 compatibility issues
+
+
+version: 0.6.4
+date: 24-09-2008
+small fix in "update mirror ontology" functionality 
+
+
+version: 0.6.2 / 0.6.3
 date: 23-09-2008
 comments: This release won't be changed (at least, hope so) for a while.
   * Final check of all UI functionalities.
@@ -6,6 +16,7 @@ comments: This release won't be changed (at least, hope so) for a while.
   * fixed bug when asking baseuri during first start: now if the submitted string is not a valid URI, it continues to
     ask for an baseuri (previously, it tried to start the server, but failed to start the ontology) 
   * Submission of source code to the project site on: http://code.google.com/p/semanticturkey/
+  * 0.6.3addenda: just changed some info in the install.rdf file
    
 
 version: 0.5.6
