@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="property.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<window id="properties" title="Property Dialog"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="600" height="600"
+>
+
+
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://global/content/nsTransferable.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/captain.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/repository.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/initialize.js"/>
+<script type="application/x-javascript">
+   <![CDATA[    
+     if(window.arguments!=null){
+	     var subjectInstanceName = window.arguments[0].subjectInstanceName;	   
+	     var objectInstanceName = window.arguments[0].objectInstanceName;	   
+	     var parentClsName = window.arguments[0].parentClsName;                           
+	     var paneltree =  window.arguments[0].tree;
+	     var index = null;           
+ 		httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=property&request=getproperties&instanceQName="+encodeURIComponent(subjectInstanceName)+"&method=templateandvalued"); 
+      }else{
+      	//httpGetC("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=property");
+      	httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=property");
+   	}
+       
+      function getParentClsName(){
+      	return parentClsName;
+      }              
+      function getthetree(){
+      	return document.getElementById('myPropertyTree');
+      }
+      function getCallPanel(){
+			return "property";
+		}
+      function getpaneltree() {
+      	return paneltree;
+      }
+                              
+   ]]>
+</script>
+<hbox flex="1" > 
+<vbox flex="1" orient="vertical">
+<grid flex="0">
+  <columns>
+    <column flex="0"/>
+  </columns>
+  <rows>
+    <row> 
+     <toolbox>
+	    <toolbar id="findfiles-toolbar">
+	     	<toolbarbutton id="createObjectProperty" image="images/propObject_create.png" onclick="getthetree().createProperty('ObjectProperty');" tooltiptext="Create Object Property"/>
+		 	<toolbarbutton id="createDatatypeProperty" image="images/propDatatype_create.png" onclick="getthetree().createProperty('DatatypeProperty');" tooltiptext="Create Datatype Property"/>
+		 	<toolbarbutton id="createAnnotationProperty" image="images/propAnnotation_create.png" onclick="getthetree().createProperty('AnnotationProperty');" tooltiptext="Create Annotation Property"/>
+		 	<toolbarbutton id="createSubProperty"  image="images/prop_addSubProperty.png" onclick="getthetree().addSubProperty();" tooltiptext="Create SubProperty"/>
+			<toolbarbutton id="removeProperty"  image="images/prop_delete.png" onclick="getthetree().deleteProperty();" tooltiptext="Remove Property"/>
+		</toolbar>
+	</toolbox>
+</row>
+ </rows>
+</grid>
+<popupset>
+	<popup id="clipmenu" onpopupshowing="javascript:;">
+		<menuitem oncommand="getthetree().addSubProperty();">
+		<menuitem-iconic >
+				<image src="images/prop_addSubProperty.png"/>
+				<label value="Add SubProperty"/> 						
+			</menuitem-iconic>
+		</menuitem>	
+		<menuitem id="modifyName" label="Modify Property" oncommand="getthetree().modifyProperty();">
+		<menuitem-iconic>
+				<image src="images/empty20x20.png" flex="0"/> 
+				<label value="Modify Property"/> 						
+			</menuitem-iconic>
+		</menuitem>
+		<menuitem id="removeItem" oncommand="getthetree().deleteProperty();">
+		<menuitem-iconic >
+				<image src="images/prop_delete.png"/>
+				<label value="Remove Property"/> 						
+			</menuitem-iconic>		
+		</menuitem>	
+		<menuitem label="Add a Synonym" oncommand="getthetree().addSynonym();">
+		<menuitem-iconic>
+				<image src="images/empty20x20.png" flex="0"/> 
+				<label value="Add Synonym"/> 						
+			</menuitem-iconic>
+		</menuitem>
+	</popup>
+</popupset>
+<tree hidecolumnpicker="true" id="myPropertyTree" flex="1" context="clipmenu"
+ondraggesture="treeDragGesture(event)" ondragenter="treeDragEnter(event)" 
+ondragover="return DragOverContentArea(event);" ondragexit="treeDragExit(event)" 
+ondragdrop="treeDragDrop(event);">
+<treecols width="1200">
+  <treecol id="category"  label= "Property" primary="true" flex="1">
+   </treecol>
+  		</treecols>
+ 	<treechildren id="22">
+ 		</treechildren>
+	
+</tree>
+</vbox>
+</hbox>
+<splitter orient ="vertical" state="open" collapse="after"
+				resizeafter="closest"
+				resizebefore="farthest">
+				</splitter>
+<hbox flex="0">
+	<vbox flex="0">
+	<textbox value="Enter query..." id="ontosearch"
+				onfocus="this.style.color='red'; this.value='';"
+				onblur="this.style.color='black'; this.value='Search element...';"
+				onkeypress="if(event.keyCode == 13){OntologySearch.searchProperty(this.value)}" />
+				</vbox>
+			</hbox>
+</window>
