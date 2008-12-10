@@ -1,3 +1,9 @@
+version 0.6.6beta build  
+date: XX-XX-200X
+- PluginManager now exports more packages than before, to allow wider reuse of libraries already bundled with Semantic Turkey
+- Support for changing list of available languages (for annotation properties) through the options menu
+
+
 version 0.6.5
 date: 26-11-2008
 fixed java 5 vs 6 compatibility issues
