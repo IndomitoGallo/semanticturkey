@@ -237,6 +237,7 @@ public class PluginManager {
 		            "org.osgi.service.url; version=1.0.0," +
 		            "org.w3c.dom," +
 		            "org.xml.sax," +
+		            "org.xml.sax.helpers," +
 		            "it.uniroma2.art.semanticturkey," +
 		            "it.uniroma2.art.semanticturkey.exceptions," +
 		            "it.uniroma2.art.semanticturkey.filter," +
@@ -255,11 +256,17 @@ public class PluginManager {
 		            "it.uniroma2.art.ontapi.vocabulary," +
 		            "it.uniroma2.art.ontapi.utilities," +
 		            "javax.servlet.http," +
+		            "javax.xml.bind," +
 		            "javax.xml.parsers," +
 		            "javax.xml.transform," +
+		            "javax.xml.transform.dom," +
+		            "javax.xml.transform.sax," +
+		            "javax.xml.transform.stream,"+
 		            "org.apache.log4j," +
 		            "org.apache.xerces," +
 		            "org.apache.xerces.dom," +
+		            "org.apache.xerces.parsers," +
+		            "org.apache.xml.serialize," +
 		            "org.apache.commons.collections," + 
 		            "org.apache.commons.collections.bidimap," +
 		            "org.apache.commons.collections.iterators," +
