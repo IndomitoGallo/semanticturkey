@@ -274,12 +274,6 @@ const langsPrefsEntry="extensions.semturkey.annotprops.langs";
 			param.SetString(1, parameters.state);
 			param.SetString(2, parameters.repositoryImplementation);
 	      	win = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher); 
-	    	win.openWindow(null, "chrome://semantic-turkey/content/initialize.xul", "initialize","chrome,modal,centerscreen",param);
-	    	//NScarpato 02/12/2008 add default language property and accepted languages property 
-	    	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
- 			prefs.setCharPref(langsPrefsEntry,"de,en,es,fr,it,nl,pt,ru");
- 			var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
- 			prefs.setCharPref(defaultLangsPrefsEntry,"en");	 
- 			
+	    	win.openWindow(null, "chrome://semantic-turkey/content/initialize.xul", "initialize","chrome,modal,centerscreen",param); 			
       	}
       }
