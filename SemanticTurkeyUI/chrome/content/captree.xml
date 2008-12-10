@@ -411,7 +411,7 @@
 		var treerow = currentelement.getElementsByTagName('treerow')[0];
     	var treecell = treerow.getElementsByTagName('treecell')[0];
     	var className = treecell.getAttribute("label");  	    	    
-	    httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=graph&clsQName="+className, false);	    
+	    httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=graph&clsQName="+encodeURIComponent(className), false);	    
 	   	window.content.document.location.href = "http://127.0.0.1:1979/semantic_turkey/resources/graph/Proxy?URL=http://127.0.0.1:1979/semantic_turkey/resources/applet/TGLinkBrowser.html";   
 	   
            ]]>

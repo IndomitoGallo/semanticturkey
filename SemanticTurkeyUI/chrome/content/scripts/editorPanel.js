@@ -610,9 +610,11 @@ function insertDomain(){
     	parameters.selectedProp=selectedProp;
     	parameters.selectedPropType=selectedPropType;
     	parameters.oncancel=false;
+    	parameters.source="AddNewProperty";
     	window.openDialog("chrome://semantic-turkey/content/propertyTree.xul","_blank","modal=yes,resizable,centerscreen",parameters);
+    	var type= "owl:"+parameters.selectedPropType;
     	if(parameters.oncancel==false){
-    		createAndAddPropValue(parameters.selectedProp,"owl:"+parameters.selectedPropType);
+    		createAndAddPropValue(parameters.selectedProp,type);
     	}
     }
     /**
