@@ -132,6 +132,11 @@ Compiler options:
             <fileset dir="${data}" includes="**" />
         </copy>
     	
+    	<mkdir dir="${dist}/defaults"/>
+    	<copy todir="${dist}/defaults">
+            <fileset dir="${src.extension}/defaults" includes="**" />
+        </copy>    	
+    	
         <!-- <copy file="${xpcom}/firefoxClassLoader.jar" tofile="${dist}/components/firefoxClassLoader.jar" /> -->
     	<copy file="${xpcom}/javaFirefoxExtensionUtils.jar" tofile="${dist}/components/javaFirefoxExtensionUtils.jar" />
 
