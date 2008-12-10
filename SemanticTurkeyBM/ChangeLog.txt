@@ -2,6 +2,7 @@ version 0.6.6beta build
 date: XX-XX-200X
 - PluginManager now exports more packages than before, to allow wider reuse of libraries already bundled with Semantic Turkey
 - Support for changing list of available languages (for annotation properties) through the options menu
+- modified build file to include the defaults directory from UI project into the xpi
 
 
 version 0.6.5
