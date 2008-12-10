@@ -26,7 +26,7 @@
        If this property is specified, when the extension is selected in the Extensions list, 
        the Options button is enabled and will show this. 
      --> 
-    <em:optionsURL/>
+    <em:optionsURL>chrome://semantic-turkey/content/options.xul</em:optionsURL>
     <!-- A link to a custom Update Manifest file that specifies available updates to the addon. -->
     
     <!-- 

@@ -24,8 +24,9 @@
  * setPanel
  * @param   
  */
+ const langsPrefsEntry="extensions.semturkey.annotprops.langs";
  function setPanel() {
- 	if(window.arguments[0].typeValue=="owl:AnnotationProperty"){
+ 	if(window.arguments[0].typeValue=="owl:AnnotationProperty" || window.arguments[0].typeValue=="owl:AnnotationProperty_noexpl"){
 	 	langLbl=document.createElement("label");
 	 	langLbl.setAttribute("id","lblvalue");
 	 	langLbl.setAttribute("value","Insert Annotation language:");
@@ -33,31 +34,16 @@
 	 	row1.appendChild(langLbl);
 	 	langMenulist = document.createElement("menulist");
 	 	langMenulist.setAttribute("id","langMenu");
+	 	langMenulist.setAttribute("label","select Annotation language");
 	 	langMenupopup = document.createElement("menupopup");
-	 	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","de");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","en");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","es");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","fr");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","it");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","nl");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","pt");
-    	langMenupopup.appendChild(langMenuitem);
-    	langMenuitem = document.createElement("menuitem"); 
-    	langMenuitem.setAttribute("label","ru");
-    	langMenupopup.appendChild(langMenuitem);
+	 	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+ 		var langList=prefs.getCharPref(langsPrefsEntry).split(",");
+ 		for ( var i = 0; i < langList.length; i++ )
+      	{
+   			langMenuitem = document.createElement("menuitem"); 
+    		langMenuitem.setAttribute("label",langList[i]);
+    		langMenupopup.appendChild(langMenuitem);
+      	}
 	 	row2=document.createElement("row");
 	 	langMenulist.appendChild(langMenupopup);
 	 	row2.appendChild(langMenulist);
@@ -89,7 +75,7 @@
 	parameters.rowBox=window.arguments[0].rowsBox;
 	propValue=document.getElementById("newValue").value;
 	parameters.propValue=propValue;
-	if(window.arguments[0].typeValue=="owl:AnnotationProperty"){
+	if(window.arguments[0].typeValue=="owl:AnnotationProperty"|| window.arguments[0].typeValue=="owl:AnnotationProperty_noexpl"){
 		menu=document.getElementById("langMenu");      
 		lang=menu.selectedItem.label;
 		//httpGetP("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=property&request=createAndAddPropValue&instanceQName="+encodeURIComponent(window.arguments[0].sourceElementName)+"&propertyQName="+encodeURIComponent(window.arguments[0].predicatePropertyName)+"&value="+encodeURIComponent(propValue)+"&rangeClsQName="+encodeURIComponent(parameters.range)+"&lang="+encodeURIComponent(lang),false,parameters);

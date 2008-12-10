@@ -93,11 +93,9 @@ function httpGet(aURL, async,parameters) {
 	
 	//nasty hack: in Firefox http.open() with two parameters behaves as if async were true, but if you called httpReq.open("GET", aURL, "undefined") then it would behave as if async were false 
 	if (typeof async == 'undefined') {
-		_printToJSConsole("siamo in undefined AAAAAA");
 		httpReq.open("GET", aURL);
 	}
 	else {
-		_printToJSConsole("AAAA async è definito come " + async);
 		httpReq.open("GET", aURL, async);
 	}
 	

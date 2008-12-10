@@ -19,11 +19,15 @@
   * Current information about SemanticTurkey can be obtained at 
   * http://semanticturkey.uniroma2.it
   *
-  */ 
+  */
+const langsPrefsEntry="extensions.semturkey.annotprops.langs";
+ const defaultLangsPrefsEntry="extensions.semturkey.annotprops.defaultlang";
 /**
  * @author NScarpato - ATurbati 28/04/2008
  * populateInitializePanel 
  */
+ 
+ 
  function populateInitializePanel() {
  	if ("arguments" in window &&   window.arguments[0] instanceof Components.interfaces.nsIDialogParamBlock) {
 	    baseuri = window.arguments[0].GetString(0);
@@ -270,6 +274,12 @@
 			param.SetString(1, parameters.state);
 			param.SetString(2, parameters.repositoryImplementation);
 	      	win = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher); 
-	    	win.openWindow(null, "chrome://semantic-turkey/content/initialize.xul", "initialize","chrome,modal,centerscreen",param); 
+	    	win.openWindow(null, "chrome://semantic-turkey/content/initialize.xul", "initialize","chrome,modal,centerscreen",param);
+	    	//NScarpato 02/12/2008 add default language property and accepted languages property 
+	    	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+ 			prefs.setCharPref(langsPrefsEntry,"de,en,es,fr,it,nl,pt,ru");
+ 			var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+ 			prefs.setCharPref(defaultLangsPrefsEntry,"en");	 
+ 			
       	}
       }

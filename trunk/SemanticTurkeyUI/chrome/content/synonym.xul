@@ -27,6 +27,7 @@
 <dialog id="properties" title="Add Synonym Dialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"	
 	buttons="accept,cancel"         
+	onload="init()"
 	ondialogaccept="onAccept()"
 	width="300"
 	height="200"
@@ -37,7 +38,20 @@
 <script type="application/x-javascript">
    <![CDATA[
       var name = window.arguments[0].name; 
-                         
+      //NScarpato 04/12/2008
+      const langsPrefsEntry="extensions.semturkey.annotprops.langs";
+      function init(){
+      	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+ 	  	var langList=prefs.getCharPref(langsPrefsEntry).split(",");
+ 	  	var langMenupopup=document.getElementById("languages");
+ 	  	var langMenuitem = document.createElement("menuitem");	
+ 	  	for ( var i = 0; i < langList.length; i++ )
+      	{
+   			langMenuitem.setAttribute("label",langList[i]);
+    		langMenupopup.appendChild(langMenuitem);
+    		langMenuitem = document.createElement("menuitem");
+      	}
+ 	  }                   
             
       function onAccept() {      		
 	var textbox = document.getElementById("name");	
@@ -51,10 +65,8 @@
 
 <label control="name" value="Add a synonym:"/>
 <textbox id="name"/>
-<menulist id="menu" label="language">
-  <menupopup>
-    <menuitem label="en"/>
-    <menuitem label="it"/>    
+<menulist id="menu" label="select synonym language">
+  <menupopup id="languages">    
   </menupopup>
 </menulist>
 </dialog>
