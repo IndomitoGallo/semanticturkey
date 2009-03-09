@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!-- <?xml-stylesheet href="annotator.css" type="text/css"?> -->
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<dialog id="properties" title="Modify dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"	
+	buttons="accept,cancel"         
+	ondialogaccept="onAccept()"
+	width="300"
+	height="200"
+>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+
+<script type="application/x-javascript">
+   <![CDATA[
+    
+      
+      var name = window.arguments[0].name;
+      var tree = window.arguments[0].tree;	
+        _printToJSConsole("tree in modify Name"+ tree);   
+      var numInst = windows.arguments[0].numInst;                     
+      function getTree() {
+      	return tree;
+      }
+      function getnumInst() {
+      	return numInst;
+      }
+      function onAccept() {      		
+			var textbox = document.getElementById("name");	
+			var newName =textbox.value;
+			var parameters = new Object();
+			parameters.tree=getTree();
+			parameters.numInst=window.arguments[0].numInst;
+  			httpGetP("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=modifyName&name=" + encodeURIComponent(name) + "&newName=" + encodeURIComponent(newName), false,parameters);
+  			_printToJSConsole("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=modifyName&name=" + encodeURIComponent(name) + "&newName=" + encodeURIComponent(newName));      	
+      }
+                  
+      
+   ]]>
+</script> 
+
+<label control="name" value="Insert a new name:"/>
+<textbox id="name"/>
+
+</dialog>
+
+

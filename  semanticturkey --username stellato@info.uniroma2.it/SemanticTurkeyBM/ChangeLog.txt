@@ -1,0 +1,62 @@
+version 0.6.6
+date: 09-03-2009
+  * set an extension point in the javascript-FireFox side for registering different annotation services. They can then be switched
+    through the options menu. The default one is defAnnot. RangeAnnotator extension now provides the xpointer annotation function.
+  * modified build file to include the defaults directory from UI project into the xpi
+  * UI modifications:
+    * web page links now opened in new tab and not in a new FF window
+    * fixed a bug in create subproperty
+    * added support for changing the supported languages for annotation properties 
+    * added a dedicated error message (linking to an help page in the official site) when mozilla-java bridge fails to initialize
+
+version 0.6.5
+date: 26-11-2008
+fixed java 5 vs 6 compatibility issues
+
+
+version: 0.6.4
+date: 24-09-2008
+small fix in "update mirror ontology" functionality 
+
+
+version: 0.6.2 / 0.6.3
+date: 23-09-2008
+comments: This release won't be changed (at least, hope so) for a while.
+  * Final check of all UI functionalities.
+  * fixed bug in Update Ontology Mirror and added new update options: from web, from web (alt url), from local file
+  * fixed bug when asking baseuri during first start: now if the submitted string is not a valid URI, it continues to
+    ask for an baseuri (previously, it tried to start the server, but failed to start the ontology) 
+  * Submission of source code to the project site on: http://code.google.com/p/semanticturkey/
+  * 0.6.3addenda: just changed some info in the install.rdf file
+   
+
+version: 0.5.6
+date: 16-09-2008
+comments:
+  * semanticturkey.uniroma2.it (official site of SemanticTurkey) opened to public access
+  * first submission to Mozilla Addons Site (Sandbox)
+
+
+...lot of different versions in the meanwhile...
+
+
+version: 0.2
+date: 03-01-2007
+comments: 
+  * the project has been completely rebuilt, to offer a full OWL/RDFS compliant bookmarking tool for Firefox
+
+
+version: 0.1.1
+date: 27-10-2006 23:00
+comments: 1) official name of the project is established: Semantic Turkey !!!!
+	  2) just changed install.rdf file to make SemanticTurkey compliant with Mozilla 2.0
+	  3) changed project name and other tags in install.rdf
+note:	  meta-engine is still the name of the main directory of the extension
+
+
+version: 0.1.0
+date: 21-09-2006
+comments: Semantic Turkey was born!!! temp name was: Firefox Annotator (meta-engine inside the project)
+acknowledgements: thanks to Donato Griesi for realizing the first system implementation of 
+		  the Firefox Semantic Annotation Engine, whose Architecture has been designed inside the labs
+		  of the Artificial Intelligence Group of the University of Rome Tor Vergata
