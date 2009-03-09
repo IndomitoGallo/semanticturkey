@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<bindings id="propertyBindings"
+   xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <binding id="myAddPropertyTree" extends="chrome://global/content/bindings/tree.xml#tree">
+    <content>
+      <children includes="treecols"/>
+      <xul:stack flex="1">
+        <xul:treerows class="tree-rows" flex="1">
+          <children/>
+        </xul:treerows>
+      </xul:stack>
+    </content>
+    <implementation>
+      <field name="itemid">5</field>
+      <field name="rowid">5</field>
+      <field name="treechildrenid">0</field>
+      <field name="cnt">0</field>
+	
+	
+	<method name="createProperty">
+	<parameter name="propType"/>
+	<body>
+	<![CDATA[
+		var tree = document.getElementById('myAddPropertyTree');
+		var parameters = new Object();
+		parameters.tree = tree;		
+		parameters.propType=propType;
+		parameters.type="property";
+		window.openDialog("chrome://semantic-turkey/content/createProperty.xul","_blank","modal=yes,resizable,centerscreen",parameters);   
+		]]>
+	</body>
+	</method>
+	
+	<method name="addSubProperty">
+	<body>
+	<![CDATA[
+		var tree = document.getElementById('myAddPropertyTree');
+		try{
+			var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		}
+		catch(e){
+	    	alert("Please Select a Property");
+	    	return;
+	    }
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	
+	    var iconicName = treecell.getAttribute("label");
+		var propType = treecell.getAttribute("properties");
+		var parameters = new Object();
+		parameters.propType=propType;
+		parameters.iconicName = iconicName;		
+		parameters.tree = tree;		
+		parameters.parentTreecell= treecell;
+		parameters.type="subProperty";
+		window.openDialog("chrome://semantic-turkey/content/createProperty.xul","_blank","modal=yes,resizable,centerscreen",parameters);   
+
+		]]>
+	</body>
+	</method>
+	
+	<method name="modifyProperty">
+	</method>
+	
+	<method name="deleteProperty">
+	<body>
+	<![CDATA[
+		var tree = document.getElementById('myAddPropertyTree');
+		try{
+			var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		}
+		catch(e){
+	    	alert("Please Select a Property");
+	    	return;
+	    }
+	    
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	    
+		var treechildren = currentelement.getElementsByTagName('treechildren')[0];
+		var parameters = new Object();
+		parameters.tree = tree;	
+		var deleteForbidden = treecell.getAttribute("deleteForbidden");
+		if(deleteForbidden=="false"){
+			var name = treecell.getAttribute("label");
+			parameters.currentelement=currentelement;
+			parameters.name = name;
+			var parent = currentelement.parentNode.parentNode.parentNode.parentNode;
+			parentcell=parent.getElementsByTagName('treecell')[0];
+			var parentLabel = parentcell.getAttribute("label");
+			parameters.parentIconicName=parentLabel;
+			httpGetP("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=delete&name="+encodeURIComponent(name)+"&type=Property",false,parameters);	
+		}else{
+			alert("You cannot delete this property, it's a property that belongs to the top ontology!");
+		}
+		]]>
+	</body>
+	</method>
+	
+	<method name="addSynonym">
+	</method>
+	
+	<method name="getCellNodeAt">
+        <parameter name="row"/>
+        <parameter name="col"/>
+        <body>
+          var view;
+          try {
+            view = this.contentView;
+          } catch (ex){}
+          if (view){
+            var elem = view.getItemAtIndex(row);
+            if (elem){
+              var pos = ((document.getElementById(col).ordinal - 1) >> 1);
+              return elem.firstChild.childNodes[pos];
+            }
+          }
+          return null;
+        </body>
+      </method>
+      <!-- NScarpato 13/06/2007 Metodo per ricavare l'elemento della'albero dalla label -->
+		<method name="selectElementClass">
+        <parameter name="tree"/>
+        <parameter name="findName"/>
+        <body>
+        <![CDATA[
+		var index = 0;
+		while (tree.treeBoxObject.view.getItemAtIndex(index)!=null)
+		{
+			var current = tree.treeBoxObject.view.getItemAtIndex(index);
+			var treerow = current.getElementsByTagName('treerow')[0];
+	    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	
+			var label=treecell.getAttribute("label");
+			if(label.indexOf('(')>-1){
+				label=label.substring(0, label.indexOf('('));
+			}
+			if(label==findName){
+				tree.view.selection.clearSelection();
+				tree.view.selection.toggleSelect(index);
+				tree.boxObject.scrollToRow(index);
+				return;
+			}
+			index++;
+		}
+		]]>
+		</body>
+		</method>
+			</implementation>
+			
+	</binding>
+</bindings>
+

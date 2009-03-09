@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<dialog id="properties" title="Search Dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="600" height="600"
+	buttons="accept,cancel"  
+	ondialogaccept="onAccept()"       
+>
+<hbox flex="1"> 
+	<vbox flex="1">
+	<description value="Maybe you are searching for:"/>
+	<splitter state="open" collapse="after"
+				resizeafter="closest">
+	</splitter>
+		<listbox id="SearchList"
+		ondblclick="listdblclick(event);">
+			<listhead>
+				<listheader>
+					<listitem label="Similar Element"/>
+				</listheader>		
+			</listhead>			
+		</listbox> 
+	</vbox>
+</hbox>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+<script type="application/x-javascript">	
+	<![CDATA[
+		var list="";
+		var foundList = window.arguments[0].foundList;
+		var tree = window.arguments[0].tree;
+		var callPanel=window.arguments[0].callPanel;
+		if(callPanel=="class"){
+			var list = window.arguments[0].list;
+		}
+		initList(foundList,callPanel);
+		
+		function getCallPanel(){
+			return callPanel;
+		}
+		function gettheList() {
+			return list;
+		}
+		function getSearchList() {
+			return document.getElementById('SearchList');
+		}
+		function getthetree() {
+			return tree;
+		}
+		
+	]]>
+</script>
+
+</dialog>
