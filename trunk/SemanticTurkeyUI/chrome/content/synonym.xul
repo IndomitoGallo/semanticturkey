@@ -39,18 +39,24 @@
    <![CDATA[
       var name = window.arguments[0].name; 
       //NScarpato 04/12/2008
-      const langsPrefsEntry="extensions.semturkey.annotprops.langs";
+      var langsPrefsEntry="extensions.semturkey.annotprops.langs";
+      var defaultLangPref="extensions.semturkey.annotprops.defaultlang";
       function init(){
       	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
  	  	var langList=prefs.getCharPref(langsPrefsEntry).split(",");
+ 	  	langList.sort();
  	  	var langMenupopup=document.getElementById("languages");
  	  	var langMenuitem = document.createElement("menuitem");	
  	  	for ( var i = 0; i < langList.length; i++ )
       	{
    			langMenuitem.setAttribute("label",langList[i]);
+   			langMenuitem.setAttribute("id",langList[i]);
     		langMenupopup.appendChild(langMenuitem);
     		langMenuitem = document.createElement("menuitem");
       	}
+      	var menu = document.getElementById("menu"); 
+      	var defaultLang=prefs.getCharPref(defaultLangPref);
+      	menu.selectedItem=document.getElementById(defaultLang);
  	  }                   
             
       function onAccept() {      		

@@ -392,8 +392,7 @@
 	   var parameters = new Object();
 		parameters.instanceName = instanceName;
 		window.openDialog("chrome://semantic-turkey/content/urlPage.xul","_blank","modal=yes,resizable,centerscreen", parameters);			
-	 	//window.content.document.location.href = "chrome://semantic-turkey/content/urlPage.xul?instanceName="+instanceName;
-	  //window.content.document.location.href = "http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=page&instanceName=" + instanceName;	    			    
+	 	    
            ]]>
 				</body>
 			</method>
@@ -600,6 +599,7 @@
 		var treerow = currentelement.getElementsByTagName('treerow')[0];
     	var treecell = treerow.getElementsByTagName('treecell')[0]; 	    						
 		var parameters = new Object();
+		
 		var modify =treecell.getAttribute("deleteForbidden");
 		if(modify=="false"){
 			var name = treecell.getAttribute("label");		
@@ -608,7 +608,8 @@
 	       	}
 	       	parameters.name = name;
 			parameters.numInst = treecell.getAttribute("numInst");
-			parameters.tree = tree;			
+			parameters.tree = tree;
+			parameters.sourceType="Class";			
 			window.openDialog("chrome://semantic-turkey/content/modifyName.xul", "showmore", "chrome",parameters);
 		}else{
 			alert("You cannot modify this class, it's a class that belongs to the top ontology!");

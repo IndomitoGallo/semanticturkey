@@ -76,7 +76,7 @@
 			</columns>
 			<rows>
 				<row>
-					<button id="createProperty" label="OK"
+					<button id="createLang" label="OK"
 						flex="1" onclick="onLangAccept();">
 					</button>
 					<button id="cancel" label="Cancel" flex="1"

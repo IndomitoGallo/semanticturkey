@@ -54,8 +54,8 @@
 			var parameters = new Object();
 			parameters.tree=getTree();
 			parameters.numInst=window.arguments[0].numInst;
-			_printToJSConsole("parameters in modify name "+parameters+"tree "+parameters.tree);
-  			httpGetP("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=modifyName&name=" + encodeURIComponent(name) + "&newName=" + encodeURIComponent(newName), false,parameters);      	
+  			httpGetP("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=modifyName&name=" + encodeURIComponent(name) + "&newName=" + encodeURIComponent(newName), false,parameters);
+  			_printToJSConsole("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=modifyName&name=" + encodeURIComponent(name) + "&newName=" + encodeURIComponent(newName));      	
       }
                   
       

@@ -1,7 +1,8 @@
 /**
  * onAccept
- * @param {bool} 
+ * 
+ * @param {bool}
  */
- function onAccept() {
- 	
- }
+function onAccept() {
+
+}

@@ -61,7 +61,7 @@
       	 if(type=="siblingClass" && isRootNode =="true"){
 	  		httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=createClass&superClassName=owl:Thing&newClassName=" + encodeURIComponent(textbox.value),false,parameters);	  		
 	  	}else{	  
-      	httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=createClass&superClassName=" + encodeURIComponent(name)+ "&newClassName=" + encodeURIComponent(textbox.value),false,parameters);
+      		httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=createClass&superClassName=" + encodeURIComponent(name)+ "&newClassName=" + encodeURIComponent(textbox.value),false,parameters);
       	}
       }
               

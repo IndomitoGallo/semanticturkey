@@ -4,19 +4,28 @@
 title="Semantic Turkey Options" width="600" height="300" onload="populatePreferecesPanel()">
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/options.js"/>
     
-    <prefpane id="pane1" label="Semantic Turkey Annotation Options">
-   <!-- <label value="The extensions of semantic Turkey will provide other options of annotation"/> -->
     
+   <!-- <label value="The extensions of semantic Turkey will provide other options of annotation"/> -->
     <preferences id="preferences_list">
       <preference id="annotate" name="extensions.semturkey.extpt.annotate" type="string"/>
+      <preference id="annotateList" name="extensions.semturkey.extpt.annotateList" type="string"/>
       <preference id="default_language" name="extensions.semturkey.annotprops.defaultlang" type="string"/>
       <preference id="languages_list" name="extensions.semturkey.annotprops.langs" type="string"/>
     </preferences>
-    <label value='Annotation Options' class="head-1"/>
-   <radiogroup id="annotationOption_group">
-   </radiogroup>
+    <prefpane id="pane1" label="Semantic Turkey Annotation Options">
+    <label value='Default Annotation Function' class="head-1"/>
+    <hbox id="default_ann_box">
+   <button id="changeDefaultAnn" label="Change Default Annotation" onclick="changeDefaultAnnotation();"/>
+   </hbox>
    <separator orient="orizontal" class="groove"/>
-   <label value='Default Language' class="head-1"/>
+    <box>
+    <label value='Annotation Options' class="title"/>
+   </box>
+   <listbox id="annotationOptions">
+   </listbox>
+   </prefpane>
+  <prefpane id="pane2" label="Semantic Turkey Languages Options">
+     <label value='Default Language' class="head-1"/>
    <hbox id="default_language_box">
    <button id="changeDefault" label="Change Default Language" onclick="changeDefaultLanguage();"/>
    </hbox>
@@ -24,6 +33,7 @@ title="Semantic Turkey Options" width="600" height="300" onload="populatePrefere
    <box>
    <label value='Available Languages list' class="title"/>
    <toolbarbutton label="+" onclick="addLanguage();"/>
+    <toolbarbutton label="-" onclick="removeLanguage();"/>
    </box>
    <listbox id="languagesOption" rows="5">
 	</listbox>
