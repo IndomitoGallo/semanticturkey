@@ -1,0 +1,5 @@
+#    content: type of material within a chrome package
+#    SemanticTurkeyUI: name of the chrome package
+#    content/SemanticTurkeyUI/: location of the chrome packages' files
+content SemanticTurkeyUI content/SemanticTurkeyUI/
+locale SemanticTurkeyUI en_US locale/en_US/SemanticTurkeyUI/
