@@ -32,8 +32,7 @@
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/contextMenu.js"/>    
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/trigger.js"/>    
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/window.js"/> 
-    <!--<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/statusBar.js"/>-->    
-    <!--<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/http.js"/>-->    
+    <!--<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/statusBar.js"/>-->        
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/fileChooser.js"/>
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/repository.js"/>
@@ -41,7 +40,7 @@
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/>
     <script type="application/x-javascript">        
 	JavaFirefoxExtension.initialize();     
-    </script>
+	</script>
 
    <!-- <menupopup id="menu_ToolsPopup">
         <menuitem
@@ -85,7 +84,7 @@
 	
 
 	<menupopup id="menu_ToolsPopup">
-		<menu id ="Principale" label="Semantic Turkey" position="1">
+		<menu id ="Principale" label="Semantic Turkey" position="8" class="menuitem-iconic">
 			<menupopup id="menu_ToolsPopup2">
 				<menuitem key="key_openSageSidebar" observes="viewSageSidebar"/>
 				<menuitem key="key_openSageSidebar2" observes="viewSageSidebar2"/>

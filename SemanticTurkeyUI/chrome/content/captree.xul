@@ -31,8 +31,8 @@
    width="600"
    height="600">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
-<script src="chrome://global/content/nsDragAndDrop.js"/>
-<script src="chrome://global/content/nsTransferable.js"/> 
+<!--<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://global/content/nsTransferable.js"/>--> 
 
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/captain.js"/>
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
@@ -43,16 +43,16 @@
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/>
 <script type="application/x-javascript">	
 	<![CDATA[
-		function getthetree() {
-			return document.getElementById('outlineTree');
-		}
-		
 		//httpGetC("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=cls");
 		httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=cls");
 		//NScarpato
+		function getthetree() {
+		 	return document.getElementById('outlineTree');
+		}
 		function gettheList() {
 			return document.getElementById('InstancesList');
 		}
+		
 		 function getCallPanel(){
 			return "class";
 		}	

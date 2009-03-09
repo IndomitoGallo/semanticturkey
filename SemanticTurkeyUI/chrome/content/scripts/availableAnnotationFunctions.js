@@ -19,30 +19,29 @@
  * http://semanticturkey.uniroma2.it
  * 
  */
-const langsPrefsEntry = "extensions.semturkey.annotprops.langs";
-const defaultLangsPrefsEntry = "extensions.semturkey.annotprops.defaultlang";
+const annotateListEntry = "extensions.semturkey.extpt.annotateList";
+const defaultAnnotatePrefsEntry = "extensions.semturkey.extpt.annotate";
 
 function populatePanel() {
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefBranch);
-	var langList = prefs.getCharPref(langsPrefsEntry).split(",");
-	var langlistbox = document.getElementById("languages");
-	var langListItem = document.createElement("listitem");
-	langList.sort();
-	for (var i = 0; i < langList.length; i++) {
-		langListItem.setAttribute("label", langList[i]);
-		langlistbox.appendChild(langListItem);
-		langListItem = document.createElement("listitem");
+	var annList = prefs.getCharPref(annotateListEntry).split(",");
+	var annListbox = document.getElementById("annotationFunctions");
+	var annListItem = document.createElement("listitem");
+	for (var i = 0; i < annList.length; i++) {
+		annListItem.setAttribute("label", annList[i]);
+		annListbox.appendChild(annListItem);
+		annListItem = document.createElement("listitem");
 	}
 }
 
 function accept() {
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefBranch);
-		var selectedItem = document.getElementById("languages").selectedItem;
-		newDefLang = selectedItem.getAttribute("label");
-		prefs.setCharPref(defaultLangsPrefsEntry, newDefLang);
-		var txt = window.arguments[0].txt;
-		txt.value = newDefLang;	
+			.getService(Components.interfaces.nsIPrefBranch);
+	var selectedItem = document.getElementById("annotationFunctions").selectedItem;
+	newDefLang = selectedItem.getAttribute("label");
+	prefs.setCharPref(defaultAnnotatePrefsEntry, newDefLang);
+	var txt = window.arguments[0].txt;
+	txt.value = newDefLang;
 	close();
 }

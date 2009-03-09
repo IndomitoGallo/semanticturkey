@@ -36,6 +36,7 @@
 </vbox>
 </hbox>
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/urlPage.js"/>
 <script type="application/x-javascript">	
 	<![CDATA[
 		

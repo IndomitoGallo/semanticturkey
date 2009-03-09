@@ -28,7 +28,7 @@ tree {
 
 /* display folder icons in front of the treecell text */
 
-treechildren::-moz-tree-image { 
+treechildren::-moz-tree-image(Property) { 
 	list-style-image: url("images/prop.png"); 
 	} 
 treechildren::-moz-tree-image(ObjectProperty) { 
@@ -40,6 +40,19 @@ treechildren::-moz-tree-image(DatatypeProperty) {
 treechildren::-moz-tree-image(AnnotationProperty) { 
 	list-style-image: url("images/propAnnotation.png");
 }
+treechildren::-moz-tree-image(Property_noexpl) { 
+	list-style-image: url("images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(ObjectProperty_noexpl) { 
+	list-style-image: url("images/propObject_imported.png");
+}
+treechildren::-moz-tree-image(DatatypeProperty_noexpl) { 
+	list-style-image: url("images/propDatatype_imported.png");
+}
+treechildren::-moz-tree-image(AnnotationProperty_noexpl) { 
+	list-style-image: url("images/propAnnotation_imported.png");
+}
+
 
 treechildren::-moz-tree-column {
   	background-color: #ffffff;

@@ -184,7 +184,7 @@
 				}
 				// set open status of the item
 				currentitem.setAttribute("open", "true");
-			}
+			
         ]]>
         </body>
       </method>
