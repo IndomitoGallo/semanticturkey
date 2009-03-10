@@ -9,7 +9,7 @@
 -->
     <!-- The name of the addon intended for display in the UI.  -->
     <em:id>semanticturkey@art.uniroma2.it</em:id>
-    <em:version>0.6.6</em:version>
+    <em:version>0.6.7</em:version>
     <!-- The 2 declares that it is installing an extension -->
     <em:type>2</em:type>
     <em:creator>University of Rome, Tor Vergata</em:creator>

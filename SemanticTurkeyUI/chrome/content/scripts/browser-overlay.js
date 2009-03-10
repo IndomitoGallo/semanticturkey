@@ -89,8 +89,9 @@ JavaFirefoxExtension._packageLoader = function(urlStrings, trace) {
 	JavaFirefoxExtension._trace("packageLoader {");
 
 	var toUrlArray = function(a) {
-		var urlArray = java.lang.reflect.Array.newInstance(java.net.URL,
-				a.length);
+		//var urlArray = java.lang.reflect.Array.newInstance(java.net.URL, a.length);
+		var dummyUrl = new java.net.URL("http://abc.xyz.org");
+		var urlArray = java.lang.reflect.Array.newInstance(dummyUrl.getClass(), a.length); 
 		for (var i = 0; i < a.length; i++) {
 			var url = a[i];
 			java.lang.reflect.Array.set(urlArray, i, (typeof url == "string")
