@@ -220,7 +220,8 @@ function WrappedPackages(classLoader) {
 			.newInstance();
 
 	var argumentsToArray = function(args) {
-		var a = java.lang.reflect.Array.newInstance(java.lang.Object,
+		var dummyObject = new java.lang.Object(); 
+		var a = java.lang.reflect.Array.newInstance(dummyObject.getClass(),
 				args.length);
 		for (var i = 0; i < args.length; i++) {
 			java.lang.reflect.Array.set(a, i, args[i]);
