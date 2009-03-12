@@ -77,7 +77,13 @@ function onAccept() {
 		var annComponent = Components.classes["@art.info.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		AnnotFunctionList[defaultAnnotFun][0]();
+		if( AnnotFunctionList[defaultAnnotFun] != null){
+			AnnotFunctionList[defaultAnnotFun][0]();
+		}else{
+			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
+			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
+		}
 		
 	} else if (sindex == 1) { // user chooses to add the annotation as a new
 								// instance for a given property. A class tree

@@ -19,17 +19,17 @@
  * http://semanticturkey.uniroma2.it
  * 
  */
-const annotateListEntry = "extensions.semturkey.extpt.annotateList";
+
 const defaultAnnotatePrefsEntry = "extensions.semturkey.extpt.annotate";
 
 function populatePanel() {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefBranch);
-	var annList = prefs.getCharPref(annotateListEntry).split(",");
+	var annComponent = Components.classes["@art.info.uniroma2.it/semanticturkeyannotation;1"]
+			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
+	var annList=annComponent.wrappedJSObject.getList();
 	var annListbox = document.getElementById("annotationFunctions");
 	var annListItem = document.createElement("listitem");
-	for (var i = 0; i < annList.length; i++) {
-		annListItem.setAttribute("label", annList[i]);
+	for (var annFunName in annList) {  
+		annListItem.setAttribute("label", annFunName);
 		annListbox.appendChild(annListItem);
 		annListItem = document.createElement("listitem");
 	}

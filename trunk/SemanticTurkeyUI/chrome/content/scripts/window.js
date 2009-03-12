@@ -44,7 +44,7 @@ function examplePageLoad(event) {
 			_printToJSConsole("list: " + list.length);
 
 			var url = gBrowser.selectedBrowser.currentURI.spec;
-			url = url.replace("&", "%26");
+			//url = url.replace("&", "%26");
 			httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=annotation&request=chkAnnotations&urlPage="
 					+ encodeURIComponent(url));
 		}
@@ -91,7 +91,14 @@ function viewAnnotationOnPage() {
 		var annComponent = Components.classes["@art.info.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		AnnotFunctionList[defaultAnnotFun][1]();
+		if( AnnotFunctionList[defaultAnnotFun] != null){
+			AnnotFunctionList[defaultAnnotFun][1]();
+		}else{
+			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
+			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
+		}
+		
 }
 
 // When no longer needed
