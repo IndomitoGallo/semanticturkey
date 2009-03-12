@@ -324,7 +324,7 @@ function highlightAnnFunction() {
 	// NScarpato add highlith for all occurence of annotations
 	// findTextannotation(currentdoc, annotationValue);
 	var url = gBrowser.selectedBrowser.currentURI.spec;
-	url = url.replace("&", "%26");
+	//url = url.replace("&", "%26");
 	httpGet("http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?service=annotation&request=getPageAnnotations&urlPage="
 			+ encodeURIComponent(url));
 }
@@ -342,7 +342,7 @@ function listDragDrop(event,document) {
 		var topWindowOfType = windowManager
 				.getMostRecentWindow("navigator:browser");
 		var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;
-		tabWin = tabWin.replace(/&/g, "%26");
+		//tabWin = tabWin.replace(/&/g, "%26");
 		var contentDocument = topWindowOfType.gBrowser.selectedBrowser.contentDocument;
 		var titleNodes = contentDocument.getElementsByTagName('title');
 		var title = "";
@@ -600,7 +600,7 @@ event.stopPropagation(); // This line was in an example, will test if we
 			temp = temp.getElementsByTagName("treerow")[0];
 			var parentcell = temp.getElementsByTagName("treecell")[0];
 
-			tabWin = tabWin.replace(/&/g, "%26");
+			//tabWin = tabWin.replace(/&/g, "%26");
 			var parameters = new Object();
 			parameters.subjectInstanceName = trecell.getAttribute("label");
 			parameters.parentClsName = parentcell.getAttribute("label");

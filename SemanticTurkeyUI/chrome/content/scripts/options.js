@@ -28,15 +28,20 @@ const defaultAnnPrefsEntry = "extensions.semturkey.extpt.annotate";
  * @author Scarpato Noemi 05/12/2008 Init preferences panel
  */
 function populatePreferecesPanel() {
+	document.getElementById("pane1").setAttribute("selected",true);
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefBranch);
 	// Available Annotation options
-	var annList = prefs.getCharPref(annPrefsEntry).split(",");
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefBranch);
+	var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
+	var annComponent = Components.classes["@art.info.uniroma2.it/semanticturkeyannotation;1"]
+			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
+	var annList=annComponent.wrappedJSObject.getList();
 	var annlistbox = document.getElementById("annotationOptions");
 	var annListItem = document.createElement("listitem");
-	annList.sort();
-	for (var i = 0; i < annList.length; i++) {
-		annListItem.setAttribute("label", annList[i]);
+	for (var annFunName in annList) {  
+		annListItem.setAttribute("label", annFunName);
 		annlistbox.appendChild(annListItem);
 		annListItem = document.createElement("listitem");
 	}
@@ -84,14 +89,27 @@ function changeDefaultLanguage() {
 }
 
 function changeDefaultAnnotation() {
-	parameters = new Object();
+	if(document.getElementById("pane1").selected){
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefBranch);
+		var selectedItem = document.getElementById("annotationOptions").selectedItem;
+		if(selectedItem!=null){
+			newDefAnn = selectedItem.getAttribute("label");
+			prefs.setCharPref(defaultAnnPrefsEntry, newDefAnn);
+			var txtAnn = document.getElementById("default_AnnST");
+			txtAnn.value = newDefAnn;
+		}
+	}else{
+		close();
+	}
+	/*parameters = new Object();
 	var txtAnn = document.getElementById("default_AnnST");
 	parameters.txt = txtAnn;
-	parameters.action = "changeLanguage";
+	
 	window
 			.openDialog(
 					"chrome://semantic-turkey/content/availableAnnotationFunctions.xul",
-					"_blank", "modal=yes,resizable,centerscreen", parameters);
+					"_blank", "modal=yes,resizable,centerscreen", parameters);*/
 }
 
 function addLanguage() {

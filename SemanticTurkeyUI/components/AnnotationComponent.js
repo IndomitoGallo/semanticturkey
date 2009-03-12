@@ -165,23 +165,21 @@ AnnotationComponent.prototype._trace = function(msg) {
  *@param classAnnFunction drag_drop on class
  *@param propAnnFunction drag_drop on instance and enrichment of a property*/
 AnnotationComponent.prototype.register = function(annFunctionName,lexAnnFunction,highlightAnnFunction,listAnnFunction,classAnnotationFunction) {
-		if (!checkRegister(annFunctionName)) {
+		//if (!checkRegister(annFunctionName)) {
 			var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 					.getService(Components.interfaces.nsIPrefBranch);
-			var annotList = prefs
+			/*var annotList = prefs
 					.getCharPref("extensions.semturkey.extpt.annotateList");
 			prefs.setCharPref("extensions.semturkey.extpt.annotateList",
-					annotList + "," + annFunctionName);
-			prefs.setCharPref("extensions.semturkey.extpt.annotate",
-					annFunctionName);
-	} else {
-			_printModuleToJSConsole("already_register");
-		}	
-		//TODO add 	propAnnFunction and classAnnFunction
+					annotList + "," + annFunctionName);*/
+			//prefs.setCharPref("extensions.semturkey.extpt.annotate",
+				//	annFunctionName);
+	//} else {
+		//	_printModuleToJSConsole("already_register");
+		//}	
+		//TODO add 	propAnnFunction 
 		AnnotFunctionList[annFunctionName]=[lexAnnFunction,highlightAnnFunction,listAnnFunction,classAnnotationFunction];
-		  for ( var functionName in AnnotFunctionList) {  
-			   _printModuleToJSConsole(functionName + ' - ' + AnnotFunctionList[functionName] + ' ');
-		  } 
+		 
 		return true;
 };
 AnnotationComponent.prototype.getList = function(){

@@ -213,7 +213,14 @@ var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 		var annComponent = Components.classes["@art.info.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		AnnotFunctionList[defaultAnnotFun][3](event,this.document);
+		if( AnnotFunctionList[defaultAnnotFun] != null){
+			AnnotFunctionList[defaultAnnotFun][3](event,this.document);
+		}else{
+			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
+			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
+		}
+		
 		
 }
 function gettheList() {
