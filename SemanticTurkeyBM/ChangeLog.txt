@@ -1,8 +1,9 @@
-version 0.7 (currently in beta: 10-03-2009)
-date: XX-XX-200X
-  * set compatibility to FF 3.1 (still not implemented)
+
+version 0.6.7
+date: 12-03-2009
   * deregistration mechanism for Semantic Turkey Annotation Extension
   * bugfix in url escaping when taking bookmarks
+  * fixed firefox-java compatibility with Java Plugin 1.6.12
 
 version 0.6.6
 date: 09-03-2009
