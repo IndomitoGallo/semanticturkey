@@ -53,7 +53,7 @@ JavaFirefoxExtension.initialize = function() {
 			prompts.alert(null, "Semantic Turkey Initialization Error", "Hi, there appears to be a problem with the xpcom bridge between mozilla and java.\n"
 					+ "maybe this is not related to Semantic Turkey, and that something is wrong in the configuration of your host.\n\n"
 					+ "Please give a look at this page:\n"
-					+ "http://semanticturkey.uniroma2.it/documentation/#requirements\n"
+					+ "http://semanticturkey.uniroma2.it/documentation/ffox-java_help.jsf\n"
 					+ "and check if you need to change anything in your configuration.\n\n"
 					+ "The following exception has been thrown:\n"
 					+ bridge.wrappedJSObject.error);			
