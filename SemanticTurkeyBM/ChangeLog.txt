@@ -1,3 +1,8 @@
+version 0.7 (currently in beta: 10-03-2009)
+date: XX-XX-200X
+  * set compatibility to FF 3.1 (still not implemented)
+  * added import of package "org.osgi.util.tracker" in PluginManager for OSGi
+
 
 version 0.6.7
 date: 12-03-2009

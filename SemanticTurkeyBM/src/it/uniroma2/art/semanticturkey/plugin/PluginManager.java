@@ -235,6 +235,7 @@ public class PluginManager {
 		            "org.osgi.service.packageadmin; version=1.2.0," +
 		            "org.osgi.service.startlevel; version=1.0.0," +
 		            "org.osgi.service.url; version=1.0.0," +
+		            "org.osgi.util.tracker," +
 		            "org.w3c.dom," +
 		            "org.xml.sax," +
 		            "org.xml.sax.helpers," +
