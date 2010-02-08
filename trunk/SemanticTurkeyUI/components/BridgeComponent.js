@@ -4,9 +4,6 @@
  * for interfacing firefox with java
  */
 
-function _printToJSConsole(msg) {
-	// Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService).logStringMessage(msg);
-}
 
 /*----------------------------------------------------------------------
  * The Module (instance factory)
@@ -22,7 +19,7 @@ var BridgeModule = {
 	 */
 	_myComponentID : Components.ID("{964308f5-dcf2-44fa-8bb1-af4c0555757f}"),
 	_myName : "The component for bridging to Java",
-	_myContractID : "@art.info.uniroma2.it/semanticturkey;1",
+	_myContractID : "@art.uniroma2.it/semanticturkey;1",
 
 	/*
 	 * This flag specifies whether this factory will create only a single
@@ -83,7 +80,7 @@ var BridgeModule = {
 		 */
 		return true;
 	}
-}
+};
 
 /*
  * This function NSGetModule will be called by Firefox to retrieve the module
@@ -118,7 +115,7 @@ function BridgeComponent() {
 /*
  * nsISupports.QueryInterface
  */
-BridgeComponent.prototype.QueryInterface = function(iid) {
+BridgeComponent.prototype.QueryInterface = function(iid) {	 
 	/*
 	 * This code specifies that the component supports 2 interfaces:
 	 * nsISemanticTurkey and nsISupports.
@@ -152,29 +149,28 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 		 */
 		var javaPath = extensionPath + "components/lib/";
 		var jarFilepaths = [
-				javaPath + "classes/", // semantic turkey classes, when
-										// deployed in a folder
-				javaPath + "semturkey.jar", // semantic turkey classes, when
-											// embedded in a jar
-				javaPath + "artontapi-1.0.jar", javaPath + "log4j-1.2.13.jar",
-				javaPath + "commons-logging.jar", javaPath + "googleapi.jar",
-				javaPath + "xercesImpl.jar",
-				javaPath + "javax.servlet-5.1.4.jar",
-				javaPath + "jetty-5.1.4.jar",
-				javaPath + "secondstring-20030401.jar",
-				javaPath + "commons-collections-3.2.jar",
-				javaPath + "felix.jar" // OSGI framework
+		    				javaPath + "classes/", // semantic turkey classes, when deployed in a folder
+		    				javaPath + "resources/", // semantic turkey resources (ex: logj4 property file)
+		    				javaPath + "semturkey.jar", // semantic turkey classes, when embedded in a jar
+		    				javaPath + "org.apache.felix.main-2.0.1.jar",
+		    				javaPath + "google-collections-1.0-rc1.jar",
+		    				javaPath + "javax.servlet-5.1.12.jar",
+		    				javaPath + "jetty-5.1.10.jar",
+		    				javaPath + "log4j-1.2.14.jar",
+		    				javaPath + "owlart-api-2.0.1.jar",
+		    				javaPath + "secondstring-2006.06.15.jar",
+		    				javaPath + "servlet-api-2.4.jar",
+		    				javaPath + "slf4j-api-1.5.6.jar",
+		    				javaPath + "slf4j-log4j12-1.5.6.jar",
+		    				javaPath + "jcl-over-slf4j-1.5.6.jar"
 		];
 		this._packages = this._packageLoader(jarFilepaths, this._traceFlag);
 
 		/*
 		 * Initialization through a static method
 		 */
-		this
-				._trace("Initialize: "
-						+ this._packages
-								.getClass("it.uniroma2.art.semanticturkey.SemanticTurkey")
-								.m("initialize")(extensionPath));
+		this._trace("Initialize: "
+			+ this._packages.getClass("it.uniroma2.art.semanticturkey.SemanticTurkey").m("initialize")(extensionPath));
 
 		/*
 		 * Create a sample Java object
@@ -190,22 +186,21 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 	}
 	// NScarpato 28/04/2008 add start function for check repository and baseuri
 	try {
-		var stloader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-				.getService(Components.interfaces.mozIJSSubScriptLoader);
-		stloader
-				.loadSubScript('chrome://semantic-turkey/content/scripts/initialize.js');
-		var stloader2 = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-				.getService(Components.interfaces.mozIJSSubScriptLoader);
-		stloader2
-				.loadSubScript('chrome://semantic-turkey/content/http/http.js');
-		startST();
+		
+		var stloader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+		this._trace("Java BridgeComponent: dynamically loading system-start.js");
+		stloader.loadSubScript('chrome://semantic-turkey/content/system-start/system-start.js');
+		this._trace("Java BridgeComponent: starting ST");
+		//art_semanticturkey.startST();
+		this._trace("Java BridgeComponent: ST started");
 
 	} catch (e) {
-		this._trace("start function not found ");
+		this._trace("javascript error during Bridge Component initialization procedure");
 		this._fail(e);
+		// art_semanticturkey.Logger.debug.printException(e);
 		this._trace(this.error);
 	}
-	this._trace("} BridgeComponent.initialize");
+	this._trace("} BridgeComponent.initialized");
 	return this._initialized;
 };
 
@@ -230,7 +225,7 @@ BridgeComponent.prototype._fail = function(e) {
 		this.error = e + ": " + e.getMessage() + "\n";
 		while (e.getCause() != null) {
 			e = e.getCause();
-			this.error += "caused by " + e + ": " + e.getMessage() + "\n";
+			this.error += "caused by " + e + ": " + e.getMessage() ;
 		}
 	} else {
 		this.error = e;
@@ -238,10 +233,10 @@ BridgeComponent.prototype._fail = function(e) {
 };
 
 BridgeComponent.prototype._trace = function(msg) {
-	if (this._traceFlag) {
-		_printToJSConsole(msg);
-	}
-}
+	Components.classes["@mozilla.org/consoleservice;1"]
+	       			.getService(Components.interfaces.nsIConsoleService)
+	       			.logStringMessage(msg);
+};
 
 /*
  * Get the file path to the installation directory of this extension.

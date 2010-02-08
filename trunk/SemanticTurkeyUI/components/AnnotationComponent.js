@@ -31,16 +31,16 @@ var nsISupports = Components.interfaces.nsISupports;
 
 // UUID uniquely identifying our component
 var myUUid = generateMyUUID();
-//http://www.famkruithof.net/uuid/uuidgen
-//a4bd5780-fe6f-11dd-87af-0800200c9a66
+// http://www.famkruithof.net/uuid/uuidgen
+// a4bd5780-fe6f-11dd-87af-0800200c9a66
 
-//array that contains the registered annotation function
-var AnnotFunctionList = new Object(); 
+// array that contains the registered annotation function
+var AnnotFunctionList = new Array();
 
 var AnnotationModule = {
 	_myComponentID : Components.ID("{a4bd5780-fe6f-11dd-87af-0800200c9a66}"),
 	_myName : "The mange annnotation component",
-	_myContractID : "@art.info.uniroma2.it/semanticturkeyannotation;1",
+	_myContractID : "@art.uniroma2.it/semanticturkeyannotation;1",
 	// important this module can be instantiate only one time
 	_singleton : true,
 	_myFactory : {
@@ -95,10 +95,10 @@ var AnnotationModule = {
 		 */
 		return true;
 	}
-}
+};
 
 /**
- * @author NScarpato return the annotaiton module
+ * @author NScarpato return the annotation module
  * @return Annotation Module
  */
 function NSGetModule(compMgr, fileSpec) {
@@ -138,7 +138,6 @@ AnnotationComponent.prototype.QueryInterface = function(iid) {
  * Initializes this component, including loading JARs.
  */
 
-
 AnnotationComponent.prototype._fail = function(e) {
 	if (e.getMessage) {
 		this.error = e + ": " + e.getMessage() + "\n";
@@ -155,34 +154,57 @@ AnnotationComponent.prototype._trace = function(msg) {
 	if (this._traceFlag) {
 		_printModuleToJSConsole(msg);
 	}
-}
+};
 
 /**
- * register the function related to annotation mode 
- *@param annFunctionName 
- *@param lexAnnFunction drag_drop on instance and annotated lexicalization
- *@param highlightAnnFunction highlight of range annotation
- *@param classAnnFunction drag_drop on class
- *@param propAnnFunction drag_drop on instance and enrichment of a property*/
-AnnotationComponent.prototype.register = function(annFunctionName,lexAnnFunction,highlightAnnFunction,listAnnFunction,classAnnotationFunction) {
-		//if (!checkRegister(annFunctionName)) {
-			var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-					.getService(Components.interfaces.nsIPrefBranch);
-			/*var annotList = prefs
-					.getCharPref("extensions.semturkey.extpt.annotateList");
-			prefs.setCharPref("extensions.semturkey.extpt.annotateList",
-					annotList + "," + annFunctionName);*/
-			//prefs.setCharPref("extensions.semturkey.extpt.annotate",
-				//	annFunctionName);
-	//} else {
-		//	_printModuleToJSConsole("already_register");
-		//}	
-		//TODO add 	propAnnFunction 
-		AnnotFunctionList[annFunctionName]=[lexAnnFunction,highlightAnnFunction,listAnnFunction,classAnnotationFunction];
-		 
-		return true;
+ * register the function related to annotation mode
+ * 
+ * @param annFunctionName
+ * @param lexAnnFunction
+ *            drag_drop on instance and annotated lexicalization
+ * @param highlightAnnFunction
+ *            highlight of range annotation
+ * @param classAnnFunction
+ *            drag_drop on class
+ * @param propAnnFunction
+ *            drag_drop on instance and enrichment of a property
+ */
+AnnotationComponent.prototype.register = function(annFunctionName,
+		furtherAnnotation, highlightAnnFunction, listAnnFunction,
+		classAnnotationFunction, listDragDropEnrichProp,  listDragDropBind,  listDragDropAnnotateInst) {
+	// if (!checkRegister(annFunctionName)) {
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefBranch);
+	/*
+	 * var annotList = prefs
+	 * .getCharPref("extensions.semturkey.extpt.annotateList");
+	 * prefs.setCharPref("extensions.semturkey.extpt.annotateList", annotList +
+	 * "," + annFunctionName);
+	 */
+	// prefs.setCharPref("extensions.semturkey.extpt.annotate",
+	// annFunctionName);
+	// } else {
+	// _printModuleToJSConsole("already_register");
+	// }
+	// TODO add propAnnFunction
+	AnnotFunctionList[annFunctionName] = new Array();
+	AnnotFunctionList[annFunctionName]["furtherAnnotation"] = furtherAnnotation;
+	
+	AnnotFunctionList[annFunctionName]["highlightAnnotation"] = highlightAnnFunction;
+	
+	AnnotFunctionList[annFunctionName]["listDragDrop"] = listAnnFunction;
+	
+	AnnotFunctionList[annFunctionName]["listDragDropEnrichProp"] = listDragDropEnrichProp;
+	
+	AnnotFunctionList[annFunctionName]["listDragDropBind"] = listDragDropBind;
+	
+	AnnotFunctionList[annFunctionName]["listDragDropAnnotateInst"] = listDragDropAnnotateInst;
+	
+	AnnotFunctionList[annFunctionName]["classDragDrop"] = classAnnotationFunction;
+	
+	return true;
 };
-AnnotationComponent.prototype.getList = function(){
+AnnotationComponent.prototype.getList = function() {
 	return AnnotFunctionList;
 };
 
@@ -207,10 +229,11 @@ function generateMyUUID() {
  */
 function checkRegister(annFunctionName) {
 	var annPrefsEntry = "extensions.semturkey.extpt.annotateList";
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefBranch);
 	// Available Annotation options
 	var annList = prefs.getCharPref(annPrefsEntry).split(",");
-	for (var i = 0; i < annList.length; i++) {
+	for ( var i = 0; i < annList.length; i++) {
 		if (annList[i] == annFunctionName)
 			return true;
 	}
@@ -219,7 +242,9 @@ function checkRegister(annFunctionName) {
 }
 
 function _printModuleToJSConsole(msg) {
-	/*Components.classes["@mozilla.org/consoleservice;1"]
-		.getService(Components.interfaces.nsIConsoleService)
-	.logStringMessage(msg);*/
+	/*
+	 * Components.classes["@mozilla.org/consoleservice;1"]
+	 * .getService(Components.interfaces.nsIConsoleService)
+	 * .logStringMessage(msg);
+	 */
 }
