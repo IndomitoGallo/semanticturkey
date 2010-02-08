@@ -1,0 +1,5 @@
+treechildren::-moz-tree-image { list-style-image: url("images/istogramma.png"); } 
+
+treechildren::-moz-tree-cell-text {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}

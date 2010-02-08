@@ -1,0 +1,641 @@
+<?xml version="1.0"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<bindings id="treeBindings"
+   xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <binding id="mytree" extends="chrome://global/content/bindings/tree.xml#tree">
+    <content>
+      <children includes="treecols"/>
+      <xul:stack flex="1">
+        <xul:treerows class="tree-rows" flex="1">
+          <children/>
+        </xul:treerows>
+      </xul:stack>
+    </content>
+    <implementation>
+      <field name="itemid">5</field>
+      <field name="rowid">5</field>
+      <field name="treechildrenid">0</field>
+      <field name="cnt">0</field>
+
+      <method name="getparentid">
+        <parameter name="tree"/>
+        <parameter name="currentindex"/>
+        <body>
+        <![CDATA[
+			var currentlevel = tree.treeBoxObject.view.getLevel(currentindex);
+			var variantlevel = currentlevel
+			if (currentlevel > 0)
+			{
+ 				while (tree.treeBoxObject.view.getLevel(currentindex) == currentlevel && currentindex >= 0)
+				{
+					currentindex--;
+				}
+				if (tree.treeBoxObject.view.getLevel(currentindex)==currentlevel-1) 
+					return tree.treeBoxObject.view.getItemAtIndex(currentindex).getAttribute("id");
+			}
+        ]]>
+        </body>
+      </method>
+	<!-- NScarpato 22/05/2007 Metodo per ricavare l'elemento della'albero dalla label 
+		 NScarpato 14/01/2010 Moved into ontologySearch.js
+		<method name="selectElementClass">
+        <parameter name="tree"/>
+        <parameter name="findName"/>
+        <body>
+        <![CDATA[
+		var index = 0;
+		while (tree.treeBoxObject.view.getItemAtIndex(index)!=null)
+		{
+			var current = tree.treeBoxObject.view.getItemAtIndex(index);
+			var treerow = current.getElementsByTagName('treerow')[0];
+	    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	
+			var label=treecell.getAttribute("label");
+			if(label.indexOf('(')>-1){
+				label=label.substring(0, label.indexOf('('));
+			}
+			if(label==findName){
+				tree.view.selection.clearSelection();
+				tree.view.selection.toggleSelect(index);
+				tree.boxObject.scrollToRow(index);
+				return;
+			}
+			index++;
+		}
+		]]>
+        </body>
+      </method> -->
+      <method name="CategoriesToPopup">
+        <parameter name="tree"/>
+        <parameter name="menuname"/>
+        <body>
+        <![CDATA[
+			var index = 0;
+			while (tree.treeBoxObject.view.getItemAtIndex(index)!=null)
+			{
+				var current = tree.treeBoxObject.view.getItemAtIndex(index);
+				var parent_tree = current.parentNode;
+				
+				var parentid = this.getparentid(tree,index);
+				if (parentid==null) parentid = "categorytreechildren";
+				var parent_menu = document.getElementById(menuname + parentid);
+			
+				var cellcontent = tree.treeBoxObject.view.getCellText(index,'category');
+										
+				if (current.getAttribute("container","true"))
+				{
+					var menu = document.createElement("menu");
+					menu.setAttribute("label",cellcontent);
+					var mpopup = document.createElement("menupopup");
+					mpopup.setAttribute("id", menuname + current.getAttribute("id"));
+					menu.appendChild(mpopup);
+					parent_menu.appendChild(menu);
+				}
+				else
+				{
+					var mi = document.createElement("menuitem");
+                    mi.setAttribute("label",cellcontent);
+                    parent_menu.appendChild(mi);
+				}
+				index++;
+			}
+        ]]>
+        </body>
+      </method>
+
+      <method name="deleteCategoriesFromPopup">
+        <parameter name="tree"/>
+        <parameter name="menuname"/>
+        <body>
+        <![CDATA[
+			var firstitem = document.getElementById(menuname + "categorytreechildren").firstChild;
+			document.getElementById(menuname + "categorytreechildren").removeChild(firstitem);
+			this.cnt = 0;
+        ]]>
+        </body>
+      </method>
+
+      <method name="BuildPopups">
+        <body>
+        <![CDATA[
+			getthetree().deleteCategoriesFromPopup(getthetree(),'copyto_');
+			getthetree().CategoriesToPopup(getthetree(),'copyto_');
+        ]]>
+        </body>
+      </method>
+
+      <method name="RenameCurrent">
+        <parameter name="treename"/>
+        <parameter name="cellname"/>
+        <body>
+        <![CDATA[
+			var tree = document.getElementById(treename);
+			var currentitem = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+			var currentlabel = tree.treeBoxObject.view.getCellText(tree.currentIndex,cellname);
+			var newlabel = prompt("Please enter the new categoryname",currentlabel);
+
+			if (newlabel!=false) {
+				var currentcell = document.getElementById("cell-of-" + currentitem.getAttribute("id"));
+				currentcell.setAttribute("label",newlabel);
+			}
+			this.BuildPopups();
+        ]]>
+        </body>
+      </method>
+
+      <method name="DeleteCurrent">
+        <parameter name="treename"/>
+        <body>
+        <![CDATA[
+			if (confirm("Are you sure you want to delete this category?")==true) {
+				var tree = document.getElementById(treename);
+				var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+				currentelement.parentNode.removeChild(currentelement);
+			}
+        ]]>
+        </body>
+      </method>
+
+      <method name="CreateSubTree">
+        <parameter name="treeid"/>
+        <parameter name="content"/>
+        <body>
+        <![CDATA[				
+			var tree = document.getElementById(treeid);
+			var currentitem = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+			alert("currentIndex: " + tree.currentIndex);
+			var currentid = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex).getAttribute("id");			
+			if (currentid != ""){ 
+				content = prompt('Please enter a categoryname','undefined');
+				var parentid = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex).parentNode.getAttribute("id");
+				var parent = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex).parentNode;
+				// create Treerow with id (rowid is a global variable so that we do not use the same id twice)
+				var tr = document.createElement("treerow");
+				tr.setAttribute("id", "treerow" + this.rowid);
+				var tc = document.createElement("treecell");
+				tc.setAttribute("label", content);
+				tc.setAttribute("id","cell-of-treeitem" + this.itemid);
+				tr.appendChild(tc);
+				this.rowid++;
+				// create treeitem with id (itemid is a global variable so that we do not use the same id twice)
+				var ti = document.createElement("treeitem");
+				ti.setAttribute("id", "treeitem" + this.itemid);
+				ti.appendChild(tr);
+				this.itemid++;
+				// we distinguish the case that
+				//		the container of the item is empty --> create new treechildren object and append item
+				//		a treechildren-object already exists --> get the id and append new item to this one
+				if (currentitem.getAttribute("container") != "true") {
+					currentitem.setAttribute("container", "true");
+					var tch = document.createElement("treechildren");
+					tch.setAttribute("id", "treechildren" + this.treechildrenid);
+					tch.appendChild(ti);
+					this.treechildrenid++;
+					currentitem.appendChild(tch);
+				} else {
+					var existingtreechildren = document.getElementById(currentitem.childNodes.item(0).getAttribute("id"));
+					existingtreechildren.appendChild(ti);
+				}
+				// set open status of the item
+				currentitem.setAttribute("open", "true");
+			}
+        ]]>
+        </body>
+      </method>
+
+      <method name="topcategory">
+        <parameter name="childrenobject"/>
+        <parameter name="content"/>
+        <body>
+        <![CDATA[
+			thetree = document.getElementById(childrenobject);
+			var tr = document.createElement("treerow");
+			tr.setAttribute("id", "treerow" + this.rowid);
+			this.rowid++;
+			var tc = document.createElement("treecell");
+			tc.setAttribute("label", content);
+			tc.setAttribute("id","cell-of-treeitem" + this.itemid);
+			tr.appendChild(tc);
+			this.rowid++;
+			var ti = document.createElement("treeitem");
+			ti.setAttribute("id", "treeitem" + this.itemid);
+			ti.appendChild(tr);
+			this.itemid++;
+			thetree.appendChild(ti);
+        ]]>
+        </body>
+      </method>
+
+      <method name="Move">
+        <parameter name="treename"/>
+        <parameter name="direction"/>
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+			var tree = document.getElementById(treename);
+			var idx = tree.currentIndex;
+			var dir = 1;
+			if (direction == "up") {
+				dir = -1;
+			}	
+			var currentitem = tree.treeBoxObject.view.getItemAtIndex(idx);
+			var previousitem = tree.treeBoxObject.view.getItemAtIndex(idx + dir);
+			var parent = currentitem.parentNode;
+
+			if (direction == "up") {
+				if (previousitem.parentNode == currentitem.parentNode) {
+					parent.insertBefore(currentitem, previousitem);
+				} else {
+					var tmp = previousitem.parentNode.parentNode;
+					var ourobj = tmp;
+					while (tmp.id != "outlineTree") {
+						tmp = tmp.parentNode;
+						if (currentitem.parentNode == tmp.parentNode) {
+							ourobj = tmp;
+						}
+					}					
+					parent.insertBefore(currentitem, ourobj);
+				}
+			} else {
+				if (previousitem.parentNode == currentitem.parentNode) {
+					parent.insertBefore(previousitem, currentitem);
+				} else {
+					var previousitem = tree.treeBoxObject.view.getItemAtIndex(idx + dir + 1);
+					var i = 1;
+					var ourobj;
+					while (previousitem && ( previousitem.parentNode != currentitem.parentNode ) ) {
+						i++;
+						previousitem = tree.treeBoxObject.view.getItemAtIndex(idx + dir + i);	
+					}
+					if (previousitem) {
+						parent.insertBefore(previousitem, currentitem);
+					}
+					
+				}
+			
+			}
+        ]]>
+        </body>
+      </method>
+
+      <method name="getCellNodeAt">
+        <parameter name="row"/>
+        <parameter name="col"/>
+        <body>
+          var view;
+          try {
+            view = this.contentView;
+          } catch (ex){}
+          if (view){
+            var elem = view.getItemAtIndex(row);
+            if (elem){
+              var pos = ((document.getElementById(col).ordinal - 1) >> 1);
+              return elem.firstChild.childNodes[pos];
+            }
+          }
+          return null;
+        </body>
+      </method>
+
+      
+      <!-- Daniele Bagni, Marco Cappella (2009): metodo per visualizzare i contesti di un' istanza -->
+    <method name="viewContextsInst">
+      	<parameter name="server"/>
+	<body>
+	<![CDATA[      		
+		var list = gettheList();
+		var resource = list.selectedItem.label;	
+		if(resource.indexOf('(')>-1){
+			resource=resource.substring(0, resource.indexOf('('));
+		}
+		var parameters = new Object();
+		parameters.server=server;	
+		parameters.resource=resource;	
+		window.openDialog("chrome://semantic-turkey/content/resourceUsers.xul","_blank","modal=yes,resizable,centerscreen", parameters);
+	]]>
+	</body>
+	 </method> 
+	 <!-- Daniele Bagni, Marco Cappella (2009): metodo per visualizzare i contesti di una classe -->
+	<method name="viewContexts">
+		<parameter name="treename"/>
+      	<parameter name="server"/>
+	<body>
+	<![CDATA[      		
+		var tree = document.getElementById(treename); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 
+    	var resource = treecell.getAttribute("label");
+    	if(resource.indexOf('(')>-1){
+				resource=resource.substring(0, resource.indexOf('('));
+		}		
+		var parameters = new Object();
+		parameters.server=server;	
+		parameters.resource=resource;	
+		window.openDialog("chrome://semantic-turkey/content/resourceUsers.xul","_blank","modal=yes,resizable,centerscreen", parameters);
+	]]>
+	</body>
+      </method>    
+      
+    <!-- Daniele Bagni, Marco Cappella (2009): metodo per associare un commento ad una risorsa o visualizzarne i commenti associati -->
+    <method name="commentsManagement">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[      		
+		var tree = document.getElementById(treename); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 
+    	var elementname = treecell.getAttribute("label");	
+    	var found = 0;
+    	var i=0;
+    	for(i=0;i<elementname.length;i++){
+    		if(elementname.substr(i,1)=="(")
+    			found = i;
+    	}
+    	if(found>0){
+ 		   	elementname =  elementname.substr(0,found);   						
+		}
+		
+		var parameters = new Object();
+		
+		parameters.subject = type+elementname;		
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumCommentsManagement.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+    ]]>
+	</body>
+    </method>   
+      
+    <!-- Daniele Bagni, Marco Cappella (2009): metodo per inserire un sondaggio o visualizzare tutti i sondaggi inseriti nel forum dell'ontologia -->
+    <method name="pollsManagement">
+      	<parameter name="server"/>
+	<body>
+	<![CDATA[      			    						
+		var parameters = new Object();	
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumPollsManagement.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+    ]]>
+	</body>
+    </method>  
+ 
+ 	<!-- Daniele Bagni, Marco Cappella (2009): metodo per visualizzare e votare gli standard poll associati ad ogni tripla relativa alla risorsa selezionata -->
+ 	<method name="standardPollsInstance">
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[ 
+ 		
+ 		var list = gettheList();
+		var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+    	var topWindowOfType = windowManager.getMostRecentWindow("navigator:browser");
+        var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;	    	    
+	   	var elementname = list.selectedItem.label;	
+ 		var parameters = new Object();
+		parameters.subject = type+elementname+"-StandardPoll";	
+		parameters.name = elementname;
+		parameters.type = type;
+		parameters.server =server;
+		
+		window.openDialog("chrome://semantic-turkey/content/jforumStandardPolls.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+	]]>
+	</body>
+    </method> 
+    
+    <!-- Daniele Bagni, Marco Cappella (2009): metodo per visualizzare e votare gli standard poll associati ad ogni tripla relativa alla risorsa selezionata -->
+ 	 <method name="standardPolls">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[ 
+		var tree = document.getElementById(treename); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 
+    	var elementname = treecell.getAttribute("label");	
+    	var found = 0;
+    	var i=0;
+    	for(i=0;i<elementname.length;i++){
+    		if(elementname.substr(i,1)=="(")
+    			found = i;
+    	}
+    	if(found>0){
+ 		   	elementname =  elementname.substr(0,found);   						
+		}
+		
+		var parameters = new Object();
+		
+		parameters.subject = type+elementname+"-StandardPoll";	
+		parameters.name = elementname;
+		parameters.type = type;
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumStandardPolls.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+	]]>
+	</body>
+    </method> 
+    
+    	
+ 
+  <!-- Daniele Bagni, Marco Cappella (2009): metodo per associare un commento ad una risorsa o visualizzarne i commenti associati -->
+    <method name="commentsManagementInstance">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[      		
+		var list = gettheList();
+		var instanceName = list.selectedItem.label;	    						
+		var parameters = new Object();
+		parameters.subject = type+instanceName;		
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumCommentsManagement.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+    ]]>
+	</body>
+    </method> 
+ 
+  <method name="DeepDeleteInstance">
+   <parameter name="server"/>
+	<body>
+	<![CDATA[
+	    if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+		Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+		Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+	    
+		var list = gettheList();
+		var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+    	var topWindowOfType = windowManager.getMostRecentWindow("navigator:browser");
+        var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;	    	    
+	   	var instanceName = list.selectedItem.label;	
+   	    var instIndex = list.selectedIndex;
+   	    numTotInst = list.getElementsByTagName('listheader')[0].getAttribute("numTotInst");
+   	    var parameters = new Object();
+		parameters.list = list;		
+		parameters.tree = getthetree();	
+		parameters.instName = instanceName;	
+	    parameters.instIndex = instIndex;
+	    parameters.numTotInst=numTotInst;
+	    parameters.deleteType="deepDelete";
+	    //Daniele Bagni, Marco Cappella (2009): server scelto in base alla modalità in cui si opera
+	    art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=delete&request=deepDelete&name=" + encodeURIComponent(instanceName)+"&type=Instance",false,parameters);
+	   ]]>
+	</body>
+      </method>
+      <method name="SemanticNavigation">      
+      <parameter name="server"/>   
+	<body>
+           <![CDATA[	
+       
+	    
+	    art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=graph&request=graph", false);
+		
+		
+		window.content.document.location.href = "http://"+server+":1979/semantic_turkey/resources/graph/Proxy?URL=http://"+server+":1979/semantic_turkey/resources/applet/TGLinkBrowser.html";   
+	   
+	 
+	  	    			    
+           ]]>
+	</body>
+      </method>
+      
+
+     
+     
+      
+      <!--  Daniele Bagni, Marco Cappella (2009): metodo per aggiungere una classe al core dell'ontologia -->
+      <method name="freezeClass">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+			<body>
+				<![CDATA[
+	
+					var tree;
+					try{
+						tree = document.getElementById(treename);
+						var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+					}
+					catch(e){
+				    	alert("Please Select a Class");
+				    	return;
+				    }
+				    var treerowp =currentelement.parentNode.parentNode;
+					var treerow = currentelement.getElementsByTagName('treerow')[0];
+	    			var treecell = treerow.getElementsByTagName('treecell')[0]; 	    
+					var treecellp = treerowp.getElementsByTagName('treecell')[0];
+					var name = treecell.getAttribute("label");
+					var parentName;
+					if(treecell.getAttribute("isRootNode")=="false"){
+	    	    		parentName =treecellp.getAttribute("label");
+	    	    	}else{
+	    	    		parentName ="owl:Thing";
+	    	    	}
+	    	    	
+	    	    	if(name.indexOf('(')>-1){
+						name=name.substring(0, name.indexOf('('));
+					}
+					if(parentName.indexOf('(')>-1){
+						parentName=parentName.substring(0, parentName.indexOf('('));
+					}
+	    	    	var parameters = new Object();
+	    	    	parameters.name = name;
+	    	    	parameters.parentName=parentName;
+	    	    	parameters.type = type;
+	    	    	parameters.server = server;
+	    	    	parameters.tree = tree;
+	    	    	window.openDialog("chrome://semantic-turkey/content/chooseFreeze.xul","_blank","modal=yes,resizable,centerscreen",parameters);
+					
+				]]>
+			</body>
+      </method>
+		
+	<!-- Daniele Bagni, Marco Cappella (2009):	metodo per aggiungere un'istanza al core dell'ontologia -->
+	<method name="freezeInstance">
+		<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[ 
+ 		var tree = document.getElementById(treename); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	    						
+			
+ 		var list = gettheList();
+		var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+    	var topWindowOfType = windowManager.getMostRecentWindow("navigator:browser");
+        var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;	    	    
+	   	var elementname = list.selectedItem.label;
+	   	var parentName = treecell.getAttribute("label");
+	   	if(parentName.indexOf('(')>-1){
+				parentName=parentName.substring(0, parentName.indexOf('('));
+		}	
+ 		var parameters = new Object();
+		parameters.parentName = parentName;
+		parameters.name = elementname;
+		parameters.type = type;
+		parameters.server =server;
+		parameters.list =list;
+		window.openDialog("chrome://semantic-turkey/content/chooseFreeze.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+	]]>
+	</body>
+    </method> 
+	  
+		
+		<method name="getInstancesProperty">
+		<parameter name="server"/>
+				<body>
+					<![CDATA[
+					var list = document.getElementById('InstancesList');
+	    			var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+    				var topWindowOfType = windowManager.getMostRecentWindow("navigator:browser");
+        			var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;	    	    
+	    			var parameters = new Object();
+	    			parameters.subjectInstanceName = list.selectedItem.label;
+					parameters.parentClsName = list.getElementsByTagName('listheader')[0].getAttribute("parentCls");  
+					parameters.tree = list;
+					//Daniele Bagni, Marco Cappella (2009): server scelto in base alla modalità in cui si opera
+					parameters.server = server;
+					window.openDialog("chrome://semantic-turkey/content/property/property.xul","_blank","modal=yes,resizable,centerscreen",parameters);   
+               		]]>
+				</body>
+			</method>
+				
+		
+		</implementation>
+			
+		
+		<handlers>
+			 	     		 
+		
+					<!-- NScarpato 24/02/2007 Aggiunto evento dblClick che apre pannello di Editing(editorPanel)-->	
+		<handler event="dblclick" button="0">
+       	   
+			</handler>
+		</handlers>
+	</binding>
+</bindings>
+

@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+<!-- Daniele Bagni, Marco Cappella (2009): finestra per la registrazione al server di semantic turkey -->
+<window id="registration" title="Registration Window"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"        
+    width="400"
+    height="220"  
+>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/Thread.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/daemonThread.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userProperties.js"/>
+<script type="application/x-javascript">
+   <![CDATA[
+      if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+      
+      
+      function register() {      		
+		
+		var server = readServer();
+      	var username = document.getElementById("username").value;	
+      	var password = document.getElementById("password").value;	
+      	var mail = document.getElementById("mail").value;	
+      	if(username=="" || password=="" || mail==""){
+      		alert("Error: you must insert all the values");
+      		
+      	}
+      	else{
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=registration&username="+username+"&password="+password+"&email="+mail);
+			
+		}
+      }
+       
+       
+       function forumRegister(){
+      	document.getElementById("RegisterF").disabled=true;
+      	var parametersJ = new Object();
+		parametersJ.username = document.getElementById("username").value;
+		parametersJ.password = document.getElementById("password").value;
+		parametersJ.mail =  document.getElementById("mail").value;
+		window.openDialog("chrome://semantic-turkey/content/jforumRegistration.xul","_blank","modal=yes,resizable,centerscreen", parametersJ);		
+		document.getElementById("RegisterF").disabled=false;
+      }        
+   ]]>
+</script> 
+
+<groupbox>
+  <caption class="header" label=" - Registration - " image="images/st_favicon.png"/>
+
+
+<vbox id="myPanel" align="center" flex="1">
+	<hbox id="myPanel" align="center" flex="1">
+    	<label value="Please enter username and password:"/>
+    </hbox>
+</vbox>
+<separator orient="orizontal" class="groove">
+</separator>
+<vbox id="myPanel" align="center" flex="1">
+	<hbox id="myPanel" align="center" flex="1">
+    	
+    	<vbox id="myPanel" align="center" flex="1">
+    	<label value="Username:"/>
+    	<separator orient="orizontal" class="groove">
+</separator>
+	    <label value="Password:"/>
+	    <separator orient="orizontal" class="groove">
+</separator>
+	    <label value="E-mail:"/>
+	    </vbox>
+	    <vbox id="myPanel" align="center" flex="1">
+    	<textbox  maxlength="40" id="username"/>
+		<textbox  maxlength="40" id="password" type="password"/>
+	    <textbox  maxlength="40" id="mail"/>
+	    </vbox>
+	</hbox>
+</vbox>
+
+</groupbox>
+
+
+
+
+
+
+
+<vbox id="myPanel" align="center" flex="1">
+<hbox id="myPanel" align="center" flex="1">
+<button image="images/st_favicon.png" id="Register" label="  Register ST" oncommand="register()"/>
+<button image="images/istogramma.png" id="RegisterF" label="  Register Forum" oncommand="forumRegister()" />
+<button id="Cancel" label="Cancel" oncommand="window.close()"/>
+</hbox>
+</vbox>
+</window>
+
+
+

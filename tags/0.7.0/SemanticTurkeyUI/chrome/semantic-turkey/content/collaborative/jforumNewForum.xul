@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<!-- Daniele Bagni, Marco Cappella (2009):finestra per la creazione di un nuovo forum associato alla nuova ontologia creata -->
+<window id="newforum" title="New Forum Window"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"        
+    width="400"
+    height="315"  
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    onunload="alertIfX();"
+>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontName.js"/>
+
+
+<groupbox>
+  <caption class="header" label=" - New Forum - " image="images/istogramma.png"/>
+
+<label control="newThread" value="Insert a description of the ontology:"/>
+<separator orient="orizontal" class="groove">
+</separator>
+
+<vbox id="myPanel" align="center" flex="1">
+<hbox id="myPanel" align="center" flex="1">
+<html:form id="formNewForum" action="/jforum.page" method="post" name="form" accept-charset="UTF-8" onSubmit="return checkInput();" enctype="multipart/form-data">
+<html:input type="hidden" name="action" value="insertSave" />
+<html:input type="hidden" name="module" value="myServ" />
+<html:input type="hidden" name="groups" value="2"/>
+<html:input type="hidden" name="groups" value="1"/>
+<html:input id="forum_name" type="hidden" name="forum_name" value="" />
+<html:input type="hidden" name="moderate" value="0"/>
+<html:input type="hidden" name="categories_id" value="2"/>
+<html:textarea name="description" cols="40" rows="10" class="post" style="width: 100%" onKeyDown="limitTextArea(this, 255);" onKeyUp="limitTextArea(this, 255);"></html:textarea>
+<html:input type="hidden" name="mail_integration" value="1"/>
+<html:input type="hidden" name="forum_email" value=""/>
+<html:input type="hidden" name="pop_host" value=""/>
+<html:input type="hidden" name="pop_port" value=""/>
+<html:input type="hidden" name="pop_username" value=""/>
+<html:input type="hidden" name="pop_password" value=""/>
+<html:input type="hidden" name="requires_ssl" value="1" />
+	
+<html:table>
+	<html:tr align="center">
+		<html:input class="mainoption" id="btnSubmit" accesskey="s" tabindex="6" type="submit" value="Submit" name="post" onclick="windowMan()"/>
+
+	</html:tr>
+
+</html:table>
+</html:form>
+</hbox>
+</vbox>
+</groupbox>
+<script language="javascript" type="text/javascript">
+<![CDATA[
+	var server = window.arguments[0].server;
+	var ontName = window.arguments[0].ontName;
+	document.getElementById("formNewForum").action="http://"+server+":1979/jforum/jforum.page";
+	document.getElementById("forum_name").value=ontName;
+	var xpress="true";
+	
+	//Daniele Bagni, Marco Cappella (2009):in caso di chiusura della finestra con la X si visualizza un warning
+	function alertIfX(){
+		if(xpress=="true")
+			alert('You will have to create the forum manually to vote and insert comments to the resources of the ontology!');
+		printToJSConsole("Close Ontology Select");
+	}
+	
+	function windowMan(){
+	
+		xpress="false";
+		window.resizeTo(900,500);
+		window.moveTo(100, 80);
+		
+	}
+]]>
+</script>
+
+</window>

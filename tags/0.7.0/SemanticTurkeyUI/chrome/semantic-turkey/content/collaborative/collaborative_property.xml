@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<bindings id="propertyBindings"
+   xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <binding id="myPropertyTree" extends="chrome://global/content/bindings/tree.xml#tree">
+    <content>
+      <children includes="treecols"/>
+      <xul:stack flex="1">
+        <xul:treerows class="tree-rows" flex="1">
+          <children/>
+        </xul:treerows>
+      </xul:stack>
+    </content>
+    <implementation>
+      <field name="itemid">5</field>
+      <field name="rowid">5</field>
+      <field name="treechildrenid">0</field>
+      <field name="cnt">0</field>
+	
+	
+	
+	
+	
+	
+	<method name="viewContexts">
+	<parameter name="server"/>
+	<body>
+	<![CDATA[
+		var tree = document.getElementById('myPropertyTree');
+		try{
+			var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		}
+		catch(e){
+	    	alert("Please Select a Property");
+	    	return;
+	    }
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	
+	    var resource = treecell.getAttribute("label");
+		var parameters = new Object();
+		parameters.server=server;	
+		parameters.resource=resource;	
+		window.openDialog("chrome://semantic-turkey/content/resourceUsers.xul","_blank","modal=yes,resizable,centerscreen", parameters);
+		]]>
+	</body>
+	</method>
+	
+	
+	
+		<method name="commentsManagement">
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[      		
+		var tree = document.getElementById('myPropertyTree'); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 	    						
+		var parameters = new Object();
+		parameters.subject = type+treecell.getAttribute("label");		
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumCommentsManagement.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+    ]]>
+	</body>
+    </method>   
+      
+    <method name="pollsManagement">
+      	<parameter name="server"/>
+	<body>
+	<![CDATA[      			    						
+		var parameters = new Object();	
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumPollsManagement.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+    ]]>
+	</body>
+    </method> 
+	
+	<method name="standardPolls">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+	<body>
+	<![CDATA[ 
+		var tree = document.getElementById(treename); //prende in ingresso l'albero attraverso il suo Id, in realtà so già qual'è (dubbia utilità della variabile treename)
+	    var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+		var treerow = currentelement.getElementsByTagName('treerow')[0];
+    	var treecell = treerow.getElementsByTagName('treecell')[0]; 
+    	var elementname = treecell.getAttribute("label");	
+    	var found = 0;
+    	var i=0;
+    	for(i=0;i<elementname.length;i++){
+    		if(elementname.substr(i,1)=="(")
+    			found = i;
+    	}
+    	if(found>0){
+ 		   	elementname =  elementname.substr(0,found);   						
+		}
+		
+		var parameters = new Object();
+		
+		parameters.subject = type+elementname+"-StandardPoll";	
+		parameters.name = elementname;
+		parameters.type = type;
+		parameters.server=server;
+		window.openDialog("chrome://semantic-turkey/content/jforumStandardPolls.xul","_blank","modal=yes,resizable,centerscreen", parameters);		
+	]]>
+	</body>
+    </method> 
+	 <method name="freezeProp">
+      	<parameter name="treename"/>
+      	<parameter name="server"/>
+      	<parameter name="type"/>
+			<body>
+				<![CDATA[
+	
+					var tree;
+					try{
+						tree = document.getElementById(treename);
+						var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+					}
+					catch(e){
+				    	alert("Please Select a Class");
+				    	return;
+				    }
+				    var treerowp =currentelement.parentNode.parentNode;
+				
+					var treerow = currentelement.getElementsByTagName('treerow')[0];
+	    			var treecell = treerow.getElementsByTagName('treecell')[0]; 	    
+					var treecellp = treerowp.getElementsByTagName('treecell')[0];
+					var name = treecell.getAttribute("label");
+					var parentName;
+					var propertytype;
+					if(treecell.getAttribute("isRootNode")=="false"){
+						propertytype="subproperty"
+	    	    		parentName =treecellp.getAttribute("label");
+	    	    	}else{
+	    	    		propertytype="property"
+	    	    		parentName =null;
+	    	    	}
+	    	    	if(name.indexOf('(')>-1){
+						name=name.substring(0, name.indexOf('('));
+					}
+					if(propertytype!="property"){
+						if(parentName.indexOf('(')>-1){
+							parentName=parentName.substring(0, parentName.indexOf('('));
+						}
+					}
+					
+					var ptype = treecell.getAttribute("properties");
+				
+	    	    	var parameters = new Object();
+	    	    	parameters.name = name;
+	    	    	parameters.parentName=parentName;
+	    	    	parameters.type = type;
+	    	    	parameters.ptype = ptype;
+	    	    	parameters.server = server;
+	    	    	parameters.tree = tree;
+	    	    	parameters.propertytype=propertytype;
+	    	    	parameters.treecellp = treecellp;
+	    	    	window.openDialog("chrome://semantic-turkey/content/chooseFreeze.xul","_blank","modal=yes,resizable,centerscreen",parameters);
+					
+				]]>
+			</body>
+      </method>
+	</implementation>
+	</binding>
+</bindings>
+

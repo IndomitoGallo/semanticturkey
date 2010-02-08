@@ -1,0 +1,318 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<!-- Daniele Bagni, Marco Cappella (2009): Finestra che consente di scegliere se la risorsa selezionata va aggiunta alla propria versione o (solo amministratore) al core dell'ontologia -->
+<window id="chooseFreeze" title="Freeze Panel"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"        
+    width="350"
+    height="129"  
+    onunload="onclosewin();"
+>
+
+<groupbox>
+  <caption class="header" label=" - Freeze - " image="images/snow.png"/>
+
+<vbox  id="choose" align="center" flex="1">
+<hbox  align="center" flex="1">
+<label value="Choose the ontology to which add the resource:"/>
+</hbox>
+</vbox>
+
+<vbox id="loading" align="center" flex="1" hidden="true">
+	<hbox id="myPanel" align="center" flex="1">
+    	<label value="Loading.."/>
+    </hbox>
+</vbox>
+
+<separator orient="orizontal" class="groove">
+</separator>
+<vbox  id="choose1" align="center" flex="1">
+<hbox  align="center" flex="1">
+<button id="buttonMy" label="My Ontology" oncommand="addToMyOntology()"/>
+<button id="buttonCore" label="Core" oncommand="addToCore()"/>
+</hbox>
+</vbox>
+
+
+<vbox id="loading1" align="center" flex="1" hidden="true">
+	<hbox id="myPanel" align="center" flex="1">
+    	<button label="Wait" disabled="true"/>
+    </hbox>
+</vbox>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userType.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userProperties.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/editorPanel.js"/>
+<script type="application/x-javascript">
+   <![CDATA[
+     if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+	 Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+	 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+      
+     var list = window.arguments[0].list;
+     var tree = window.arguments[0].tree;
+     var name = window.arguments[0].name;
+     var parentName = window.arguments[0].parentName;
+     var type = window.arguments[0].type;
+     var ptype = window.arguments[0].ptype;
+     var server = window.arguments[0].server;
+     var operation = window.arguments[0].operation;
+     var userType = readUserType();
+	if(userType!="Admin"){
+		
+		document.getElementById('buttonCore').disabled=true;
+	}
+	//Daniele Bagni, Marco Cappella (2009): la risorsa selezionata viene aggiunta al core dell'ontologia
+     function addToCore(){
+     	document.getElementById("loading").setAttribute("hidden","false");
+     	document.getElementById("loading1").setAttribute("hidden","false");
+     	document.getElementById("choose").setAttribute("hidden","true");
+     	document.getElementById("choose1").setAttribute("hidden","true");
+     	var parameters = new Object();
+   	    parameters.sourceElementName = window.arguments[0].sourceElementName
+     	parameters.selItem =window.arguments[0].selItem;
+     	parameters.color = "base";
+     	if(operation=="editorPanel"){
+     		var sourceType=window.arguments[0].type;
+     		var sourcename=window.arguments[0].source;
+     		if(sourceType=="subClass"){
+     			var superClass=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newClassName="+sourcename+"&superClassName="+superClass,false,parameters); 
+     		}
+     		else if(sourceType=="subProperty"){
+     			var superProperty=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newPropertyName="+sourcename+"&superPropertyName="+superProperty,false,parameters); 
+     		}
+     		else if(sourceType=="propertyDomain"){
+     			var domain=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newPropertyName="+sourcename+"&domainName="+domain,false,parameters); 
+     		}
+     		else if(sourceType=="propertyRange"){
+     			var range=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newPropertyName="+sourcename+"&rangeName="+range,false,parameters); 
+     		}
+     		else if(sourceType=="Individual"){
+     			var value=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&request=create_type&indqname="+sourcename+"&typeqname="+value,false,parameters); 
+     		}
+     		else if(sourceType=="propertyValue"){
+     			var value=window.arguments[0].value;
+     			var propertyQName = window.arguments[0].propertyQName; 			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&request=addpropValue&indqname="+sourcename+"&propqname="+propertyQName+"&valueqname="+value,false,parameters); 
+     		}
+     		else if(sourceType=="Property"){
+     			
+			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newPropertyName="+sourcename,false,parameters); 
+     		}
+     		else{
+     			
+			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&func="+sourceType+"&newClassName="+sourcename,false,parameters); 
+     		}
+     		window.close();
+     	}
+     	else{
+     		core();
+		}
+	}
+	function core(){
+     	if(type=="class"){
+     		art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&Operation=addToCore&Resource="+type+"&nameClass="+name+"&nameSuperClass="+parentName);
+		}else if(type=="instance")	{
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&Operation=addToCore&Resource="+type+"&clsName="+parentName+"&instanceName="+name);
+   		}else if(type=="property")	{
+   			if(ptype.substring(0,4)=="base")
+				ptype=ptype.substring(4);
+			else if(ptype.substring(0,1)=="c" && ((ptype.substring(1,2)>="0") && (ptype.substring(1,2)<="9"))){
+				var c =ptype.substring(2,3);
+				if((c >= "0") && (c <= "9")){
+					ptype=ptype.substring(3);
+				}
+				else{
+					ptype=ptype.substring(2);
+				}
+			}
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=ontCoreManagement&Operation=addToCore&Resource="+type+"&propertyName="+name+"&propertyType="+ptype+"&superPropertyName="+parentName);
+   		}
+   	 }
+   	 
+   	  function addToMyOntology(){
+   	    document.getElementById("loading").setAttribute("hidden","false");
+     	document.getElementById("loading1").setAttribute("hidden","false");
+     	document.getElementById("choose").setAttribute("hidden","true");
+     	document.getElementById("choose1").setAttribute("hidden","true");
+   	    var parameters = new Object();
+   	    parameters.sourceElementName = window.arguments[0].sourceElementName
+     	parameters.selItem =window.arguments[0].selItem;
+     	var hashUser = readUserHash();
+     	var ress = readProp();
+     	var userColor;
+		for(var it= 0;it<ress.hash.length;it++){
+			if(hashUser==ress.hash[it]){
+				userColor=ress.colors[it];
+				break;
+			}
+		}
+     	parameters.color =userColor;
+     	if(operation=="editorPanel"){
+     		var sourceType=window.arguments[0].type;
+     		var sourcename=window.arguments[0].source;
+     		if(sourceType=="subClass"){
+     			var superClass=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=createClass&func="+sourceType+"&newClassName="+sourcename+"&superClassName="+superClass,false,parameters); 
+     		}
+     		else if(sourceType=="propertyDomain"){
+     			var domain=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&func="+sourceType+"&newPropertyName="+sourcename+"&domainName="+domain,false,parameters); 
+     		}
+     		else if(sourceType=="propertyRange"){
+     			var range=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&func="+sourceType+"&newPropertyName="+sourcename+"&rangeName="+range,false,parameters); 
+     		}
+     		else if(sourceType=="subProperty"){
+     			var superProperty=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&func="+sourceType+"&newPropertyName="+sourcename+"&superPropertyName="+superProperty,false,parameters); 
+     		}
+     		else if(sourceType=="Individual"){
+     			var value=window.arguments[0].value;
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=individual&request=create_type&indqname="+sourcename+"&typeqname="+value,false,parameters); 
+     		}
+     		else if(sourceType=="propertyValue"){
+     			var value=window.arguments[0].value;
+     			var propertyQName = window.arguments[0].propertyQName; 			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=individual&request=addpropValue&indqname="+sourcename+"&propqname="+propertyQName+"&valueqname="+value,false,parameters); 
+     		}
+     		else if(sourceType=="Property"){
+     			
+			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&func="+sourceType+"&newPropertyName="+sourcename,false,parameters); 
+     		}
+     		else{
+     			
+			
+     			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=createClass&func="+sourceType+"&newClassName="+sourcename,false,parameters); 
+     		}
+     		window.close();
+     	}
+     	else{
+     		MyOntology();
+		}
+	}
+   	 //Daniele Bagni, Marco Cappella (2009): la risorsa selezionata viene aggiunta alla propria versione dell'ontologia
+     function MyOntology(){
+     
+     	if(type=="class"){  
+      		art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=createClass&myOnt=yes&superClassName=" + parentName+ "&newClassName=" + name);
+    
+      		
+		}else if(type=="instance")	{
+			var result = readProp();
+			var request="http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=cls&type=instanceOptionTree&my_inst=yes&clsName=" + parentName + "&instanceName=" + name;
+			var tt=0;
+			var ts=0;
+			var userHashValue=readUserHash();
+			var foundUser=false;
+			var newUsers = new Array();
+			var newHash = new Array();
+			var newColors = new Array();
+			for(tt = 0;tt<result.hash.length;tt++){
+				if(result.colors[tt]!="No"){
+					request= request+"&hash_"+(tt-ts)+"="+result.hash[tt];
+					if(result.hash[tt]==userHashValue){
+						foundUser=true;
+					}
+				}
+				else ts++;
+				newUsers[tt]= result.users[tt];
+				newHash[tt]=result.hash[tt];
+				newColors[tt]=result.colors[tt];
+			}
+			if(!foundUser){
+				request= request+"&hash_"+(tt-ts)+"="+userHashValue;
+				newUsers[tt]= readUserName();
+				newHash[tt]=userHashValue;
+				newColors[tt]=9;
+				writeProp(newUsers,newHash,newColors);
+			}						
+			art_semanticturkey.HttpMgr.GETP(request, false);
+		}
+		else if(type=="property")	{
+		
+			if(ptype.substring(0,4)=="base")
+				ptype=ptype.substring(4);
+			else if(ptype.substring(0,1)=="c" && ((ptype.substring(1,2)>="0") && (ptype.substring(1,2)<="9"))){
+				var c =ptype.substring(2,3);
+				if((c >= "0") && (c <= "9")){
+					ptype=ptype.substring(3);
+				}
+				else{
+					ptype=ptype.substring(2);
+				}
+			}
+		   var parameters = new Object();
+		  parameters.iconicName = parentName;
+		  parameters.parentTreecell = window.arguments[0].treecellp;                         
+		  parameters.tree=tree;
+		  parameters.propType=ptype;
+		  parameters.typeP=window.arguments[0].propertytype;
+	      if(parentName==null){
+		  		art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&request=addProperty&my_prop=yes&ropertyQName=" + name+"&propertyType=" + ptype,false,parameters);	  		
+		  		
+		  	}else{	
+				art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&request=addProperty&my_prop=yes&propertyQName=" + name+"&superPropertyQName="+parentName+"&propertyType=" + ptype,false,parameters);  		
+		  		
+					  		
+	      	}
+	      	
+			
+	      	
+		}
+     }
+     
+     //Daniele Bagni, Marco Cappella (2009): alla chiusura della finestra viene comunicato al server che deve avvisare gli altri utenti che � stata applicata una modifica all'ontologia
+     function onclosewin(){
+     	art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=refresh&update=yes");
+
+     }
+     
+     function getthetree() {
+      	return tree;
+      }
+      
+      function getthelist() {
+      	return list;
+      }
+              
+   ]]>
+</script> 
+
+
+</groupbox>
+</window>
+
+

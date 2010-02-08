@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="SPARQL.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+<!-- Daniele Bagni, Marco Cappella (2009): finestra per l'invio di una mail a uno degli utenti registrati al server selezionato del tacchino -->
+<window id="SPARQLResult" title="SPARQL Dialog" flex="1"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="650"
+    height="400"  
+	 xmlns:html="http://www.w3.org/1999/xhtml"
+>
+
+
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://global/content/nsTransferable.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/classDragDrop.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/repository.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userType.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userProperties.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/instanceEvents.js" />
+
+
+<groupbox flex="1">
+  <caption class="header" label=" - Send Mail - " image="images/st_favicon.png"/>
+
+
+<vbox id="myPanel" align="center" flex="1">
+	<hbox id="myPanel" align="center" flex="1">
+    	
+    	<vbox id="myPanel" align="center" flex="1">
+    	<label value="A:"/>
+    	<separator orient="orizontal" class="groove">
+		</separator>
+	    <label value="Subject:"/>
+	    </vbox>
+	    <vbox id="myPanel" align="center" flex="1">
+	    <menulist width="300" id="ADest" onclick="enableDisable();">
+			<menupopup id="popupADest">
+			</menupopup>
+		</menulist>
+    	<textbox  width="300" maxlength="100" id="subject" onclick="enableDisable();"/>
+	    </vbox>
+	</hbox>
+	<html:textarea style="font-size:11px;" id="textAreaQuery" class="message"  rows="15"  cols="85" onkeyup="enableDisable();"></html:textarea> 
+	<hbox id="myPanel" align="center" flex="1">
+	<html:a align="center" onmouseover="colorText('over');" onmouseout="colorText('out');" style="font-size:14px; border: black; background-color: silver;color:black; font-weight: bold;" id="submitMail" href="mailto:destinatario@qualcosa.it?subject=Osservazioni e commenti">-- Submit --</html:a> 
+	</hbox>
+</vbox>
+
+</groupbox>
+
+<script type="application/x-javascript">
+   <![CDATA[
+   if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+   
+   		var server = readServer();
+   		art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=userManagement");
+   		var mailAddress="";
+	    function enableDisable(){
+		
+			document.getElementById("submitMail").setAttribute("href","mailto:"+mailAddress+"?subject="+document.getElementById('subject').value+"&body="+document.getElementById('textAreaQuery').value);
+		}
+		function selectA(mailAdd){
+			mailAddress=mailAdd;
+		}
+		function colorText(where){
+			if(where=="over")
+				document.getElementById("submitMail").setAttribute("style","font-size:14px; background-color: silver;border: yellow;color:yellow; font-weight: bold;");
+			else
+				document.getElementById("submitMail").setAttribute("style","font-size:14px; background-color: silver;border: black;color:black; font-weight: bold;");
+		}
+      ]]>
+</script> 
+
+</window>

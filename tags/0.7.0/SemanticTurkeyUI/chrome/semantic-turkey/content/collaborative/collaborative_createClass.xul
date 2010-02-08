@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="captree.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<dialog id="properties" title="Create Class Dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"	
+	buttons="accept,cancel"         
+	ondialogaccept="onAccept();"
+	width="300"
+	height="200"
+>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/createClass.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/EventObjects.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userType.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userProperties.js"/>
+<script type="application/x-javascript">
+   <![CDATA[
+   var create ="yes";
+      var iconicName = window.arguments[0].iconicName;
+      var tree = window.arguments[0].tree;	
+	  var parentTreecell = window.arguments[0].parentTreecell;
+	  var isRootNode = window.arguments[0].isRootNode;
+	  var type =window.arguments[0].type;
+	  var server = window.arguments[0].server;
+	 
+	  var name = iconicName;
+	  if(name.indexOf('(')>-1){
+				name=name.substring(0, name.indexOf('('));
+	  }
+	  var parameters = new Object();
+	  parameters.iconicName = iconicName;
+	  parameters.parentTreecell = parentTreecell;                         
+	  parameters.tree=tree;
+	  parameters.isRootNode=isRootNode;
+	  parameters.type=type;
+      
+      
+     
+   ]]>
+</script> 
+
+<groupbox>
+  <caption class="header" label=" - Create Class - " image="images/st_favicon.png"/>
+<vbox id="myPanel" align="center" flex="1">
+
+<hbox id="myPanel" align="center" flex="1">
+<label control="name" value="Insert class name:"/>
+</hbox>	
+<hbox id="myPanel" align="center" flex="1">
+<textbox id="name"/>
+</hbox>
+<!-- <hbox id="myPanel" align="center" flex="1">
+<button image="images/class_create.png" label="  Create Class" oncommand="onAccept()"/>
+</hbox> -->
+</vbox>
+</groupbox>
+
+</dialog>
