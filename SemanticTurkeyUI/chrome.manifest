@@ -1,11 +1,16 @@
 #
-# Chrome Manifest file (for Firefox 1.1+)
+# Chrome Manifest file (for Firefox 3.5+)
 #
 
 # WARNING: don't forget the '/' at the end of the paths or it won't work!!
 
 overlay    chrome://browser/content/browser.xul chrome://semantic-turkey/content/browser-overlay.xul
 content    semantic-turkey chrome/semantic-turkey/content/
+
+
+# modules dir
+resource   stmodules	modules/
+resource   stservices	modules/services/
 
 skin       semantic-turkey  classic/1.0  chrome/semantic-turkey/skin/classic/
 

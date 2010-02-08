@@ -1,8 +1,43 @@
-version 0.7 (currently in beta: 10-03-2009)
-date: XX-XX-200X
-  * set compatibility to FF 3.1 (still not implemented)
+version 0.7
+date: 08-02-2008
+  * major release with lot of new features and strong modification of the whole system
+  * Main System:
+    * Project-based ontology management. Now users can run ST in the traditional single-project continuous-editing
+      of previous versions, or open specific new projects and decide if they need to be saved each time, or if
+      they just are edited in real-time
+    * java packages are now exported to OSGi according to three different export-list files: 1) inside the
+      felix jar, which contains javax.* packages to be exported specifically tailored for the version of the
+      run-time Java VM; 2) a file inside semantic-turkey jar, exporting packages used by Semantic Turkey
+      which need to be provided at the hand of extension developers 3) a further external file which can be
+      used by extension developers to add new libraries which may be required by their extension
+    * SPARQL Panel
+  * Firefox Layer: almost completely rewritten, in light of a more mature support for extensions.
+    It now features:
+    * cleaner and "starting-to-be-documented" code :-)
+    * exploitation of modules support introduced with Firefox 3.0
+    * "http transparent" API based on the same "service" structure of the service layer
+    * events mechanism for triple-level and higher-level actions
+    * set compatibility to FireFox 3.5 (beware, as for all FF3.5 extensions, this won't be back-compatible with 
+      previous versions of Firefox)
+  * Service Layer:
+    * uses new OWL Art API (see Persistence Layer)
+  * Persistence:
+    * new OWL Art API. Bundled with ST there is now a Sesame2 implementation of these API.
+    * dedicated ...
+  * Support for testing:
+    * a purely command line client-server java version of Semantic Turkey can be run in two modes:
+      * direct mode: you can test immediately any code modification you do/extension you add from the compiled
+        classes in your development environment
+      * http mode: this mode allows the developer to completely recreate the same environment of a built xpi
+        so services and persistence components are loaded from felix environment (and thus need to be bundled
+        as a felix service bundle) and all communication is handled through http with a running instance of
+        Semantic Turkey
+      * code for the two kind of testing is the same, as everything is modeled according to a common testing
+        interface
   * added import of package "org.osgi.util.tracker" in PluginManager for OSGi
-
+  * ISSUES:
+    * this version is compatible only with older java plugin (needs for "enable new java plugin" checkbox
+      to be disabled in the Java Control Panel), but has been tested extensively with different java versions
 
 version 0.6.7
 date: 12-03-2009

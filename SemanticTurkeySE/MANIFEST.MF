@@ -1,32 +1,67 @@
 Manifest-Version: 1.0
-Bundle-Activator: it.uniroma2.art.semanticturkey.servlet.main.ServletBundle
-Import-Package: org.osgi.framework,
- org.w3c.dom,
- org.xml.sax,
- it.uniroma2.art.ontapi,
- it.uniroma2.art.ontapi.vocabulary,
- it.uniroma2.art.ontapi.exceptions,
- it.uniroma2.art.ontapi.filter,
- it.uniroma2.art.ontapi.utilities,
+Export-Package: it.uniroma2.art.semanticturkey.servlet.main;uses:="org
+ .apache.commons.logging,it.uniroma2.art.semanticturkey.utilities,it.u
+ niroma2.art.semanticturkey.ontology,org.w3c.dom,it.uniroma2.art.seman
+ ticturkey.plugin.extpts,it.uniroma2.art.semanticturkey.servlet,it.uni
+ roma2.art.semanticturkey.resources,javax.servlet.http,it.uniroma2.art
+ .owlart.models,javax.xml.transform,it.uniroma2.art.owlart.exceptions,
+ it.uniroma2.art.owlart.navigation,it.uniroma2.art.owlart.model,it.uni
+ roma2.art.semanticturkey,it.uniroma2.art.semanticturkey.vocabulary,it
+ .uniroma2.art.owlart.utilities,com.google.common.collect,com.google.c
+ ommon.base,it.uniroma2.art.semanticturkey.filter,it.uniroma2.art.owla
+ rt.filter,it.uniroma2.art.owlart.vocabulary,it.uniroma2.art.semantict
+ urkey.exceptions,it.uniroma2.art.owlart.io,it.uniroma2.art.semantictu
+ rkey.project,org.osgi.framework,it.uniroma2.art.semanticturkey.plugin
+ ,javax.xml.datatype"
+Private-Package: it.uniroma2.art.semanticturkey.servlet.main,
+Built-By: Odnamar
+Tool: Bnd-0.0.311
+Bundle-Name: Semantic Turkey SE
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.6.0_04
+Bundle-Version: 0.7.0
+Bnd-LastModified: 1247766763004
+Bundle-ManifestVersion: 2
+Bundle-Activator: it.uniroma2.art.semanticturkey.servlet.main.ServletB
+ undle
+Bundle-Description: The set of basic services normally bundled with th
+ e default Semantic Turkey XPI
+Import-Package: com.google.common.base,
+ com.google.common.collect,
+ it.uniroma2.art.owlart.exceptions,
+ it.uniroma2.art.owlart.filter,
+ it.uniroma2.art.owlart.io,
+ it.uniroma2.art.owlart.model,
+ it.uniroma2.art.owlart.models,
+ it.uniroma2.art.owlart.models.impl,
+ it.uniroma2.art.owlart.navigation,
+ it.uniroma2.art.owlart.query,
+ it.uniroma2.art.owlart.query.io,
+ it.uniroma2.art.owlart.resources,
+ it.uniroma2.art.owlart.utilities,
+ it.uniroma2.art.owlart.vocabulary,
  it.uniroma2.art.semanticturkey,
  it.uniroma2.art.semanticturkey.exceptions,
  it.uniroma2.art.semanticturkey.filter,
+ it.uniroma2.art.semanticturkey.ontology,
  it.uniroma2.art.semanticturkey.plugin,
  it.uniroma2.art.semanticturkey.plugin.extpts,
- it.uniroma2.art.semanticturkey.repository,
- it.uniroma2.art.semanticturkey.repository.utilities,
+ it.uniroma2.art.semanticturkey.project,
  it.uniroma2.art.semanticturkey.resources,
  it.uniroma2.art.semanticturkey.servlet,
+ it.uniroma2.art.semanticturkey.servlet.main,
  it.uniroma2.art.semanticturkey.utilities,
  it.uniroma2.art.semanticturkey.vocabulary,
  javax.servlet.http,
+ javax.xml.datatype,
  javax.xml.parsers,
  javax.xml.transform,
- org.apache.log4j,
- org.apache.xerces,
- org.apache.xerces.dom,
- org.apache.commons.collections,
- org.apache.commons.collections.iterators,
- org.apache.commons.collections.functors,
- org.apache.commons.collections.map,
-Export-Package: it.uniroma2.art.semanticturkey.servlet.main
+ org.slf4j,
+ org.slf4j.helpers,
+ org.slf4j.impl,
+ org.slf4j.spi,
+ org.osgi.framework;version="1.4",
+ org.w3c.dom,
+ org.xml.sax
+Bundle-SymbolicName: it.uniroma2.art.semanticturkey.services-extension
+

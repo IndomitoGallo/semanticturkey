@@ -6,12 +6,15 @@
     |
     +-->
 
-<project default="final" basedir="." name="SemanticTurkey">
+<project default="final" basedir="." name="SemanticTurkey" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+	<path id="maven-ant-tasks.classpath" path="antlib/maven-ant-tasks-2.0.10.jar" />
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
 
 
-    <target name="start" depends="init">
-    
-<echo>======================================================================
+	<target name="start" depends="init">
+
+		<echo>======================================================================
                ${fullname} ${version} [${year}]
 ======================================================================
 Building with ${ant.version}
@@ -26,153 +29,150 @@ Compiler options:
  - deprecation ... [${compiler.deprecation}]
 ======================================================================
 </echo>
-    </target>
+	</target>
 
-    <target name="init">
-        <!-- Set the timestamps -->
-        <tstamp/>
-    
-        <property environment="env" />
-    
-        <!-- Get the build properties from an external file -->
-        <property file="build.properties"/>
-        
-        <!-- Set classpath -->
-        <path id="classpath">
-            <fileset dir="${lib}">
-            <include name="*.jar"/>
-            </fileset>
-            <path location="${build}"/>
-        </path>
-    </target>
+	<target name="init">
+		<!-- Set the timestamps -->
+		<tstamp>
+		    <format property="builddate" pattern="yyyy-MM-d"/>
+		</tstamp>
 
-<!-- === Preparation ============================================= -->
+		<property environment="env" />
 
-    <target name="prepare" depends="init">
-        <mkdir dir="${build}"/>
-    </target>
+		<!-- Get the build properties from an external file -->
+		<property file="build.properties" />
 
+		<!-- Set classpath -->
+		<path id="classpath">
+			<fileset dir="${lib}">
+				<include name="*.jar" />
+			</fileset>
+			<path location="${build}" />
+		</path>
+	</target>
 
-<!-- === Compile BM Java Code ================================================= -->
+	<!-- === Preparation ============================================= -->
 
-    <target name="bm_compile" depends="init">
-        <mkdir dir="${build}"/>
-        <javac sourcepath="" 
-            srcdir="${src}"
-            destdir="${build}"
-            debug="${compiler.debug}"
-            optimize="${compiler.optimize}"
-            deprecation="${compiler.deprecation}"
-            target="1.5"
-            source="1.5"
-            nowarn="${compiler.nowarn}"
-            compiler="${compiler}"
-            classpathref="classpath">
-            
-            <include name="**/*.java"/>
-        </javac>
-        <copy todir="${build}">
-            <fileset dir="${src}" includes="**/*.properties" />
-            <filterset>
-                <filter token="version" value="${version}"/>
-                <filter token="fullname" value="${fullname}"/>
-            </filterset>
-        </copy>
-    </target>
-
-	
-<!-- === Compile and Generate JAR from SE Project ================================================= -->
-
-    <target name="se_jar" depends="bm_compile">
-    		<mkdir dir="${se.build}"/>
-        <javac sourcepath="" 
-            srcdir="${se.src}"
-            destdir="${se.build}"
-            debug="${compiler.debug}"
-            optimize="${compiler.optimize}"
-            deprecation="${compiler.deprecation}"
-            target="1.5"
-            source="1.5"
-            nowarn="${compiler.nowarn}"
-            compiler="${compiler}"
-            classpathref="classpath">
-           
-        	<!-- include name="**/*.java"/ there should be no need for it! --> 
-        </javac>
-    	<echo message="${se.build}"/>
-		  <jar destfile="${extensions.dir.servlets}/servlet.jar" manifest="${se.project.location}/MANIFEST.MF"> 
-				<fileset dir="${se.build}"/>
-  		</jar>    	    	
-    </target>	
+	<target name="prepare" depends="init">
+		<mkdir dir="${build}" />
+	</target>
 
 
-<!-- === Prepare The Distribution ================================================= -->
+	<!-- === Build Library Dir from Maven Dependencies ============================================= -->
 
-    <target name="dist" depends="se_jar" description="Compiles the Services Extensions (SE) Project and packages a jar inside the BM Project">
-        <mkdir dir="${dist}"/>
-        
-        <copy todir="${dist}/chrome/semantic-turkey">
-            <fileset dir="${src.extension}/chrome"
-                includes="**" />
-        </copy>
-        
-        <copy todir="${dist}/components">
-            <fileset dir="${src.extension}/components" includes="*.js" />
-            <fileset dir="${src.extension}/components" includes="*.xpt" />
-        </copy>
-        
-    	<mkdir dir="${dist}/components/lib"/>
-        <zip zipfile="${dist}/components/lib/${semturkeyjarname}.jar" basedir="${build}" includes="**"/>
-    	
-        <copy todir="${dist}/components/lib">
-            <fileset dir="${lib}" includes="**" />
-        </copy>
-        
-    	<copy todir="${dist}/components/data">
-            <fileset dir="${data}" includes="**" />
-        </copy>
-    	
-    	<mkdir dir="${dist}/defaults"/>
-    	<copy todir="${dist}/defaults">
-            <fileset dir="${src.extension}/defaults" includes="**" />
-        </copy>    	
-    	
-        <!-- <copy file="${xpcom}/firefoxClassLoader.jar" tofile="${dist}/components/firefoxClassLoader.jar" /> -->
-    	<copy file="${xpcom}/javaFirefoxExtensionUtils.jar" tofile="${dist}/components/javaFirefoxExtensionUtils.jar" />
+	<target name="buildlib" depends="prepare">
+		<artifact:pom id="stpom" file="pom.xml" />
+		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" />
+		<copy todir="${lib}">
+			<fileset refid="dependency.fileset" />
+			<!--
+    	  <mapper classpathref="maven-ant-tasks.classpath"
+    	          classname="org.apache.maven.artifact.ant.VersionMapper"
+    	          from="${stdeps}" to="flatten" />
+    	      -->
+			<mapper type="flatten" />
+		</copy>
+	</target>
 
-        <copy file="${src.extension}/install.rdf" tofile="${dist}/install.rdf" />
-        <copy file="${src.extension}/chrome.manifest" tofile="${dist}/chrome.manifest"/>
+	<!-- === Compile BM Java Code ================================================= -->
 
-        
-        <!-- Copy the Plugins TODO: remove this and organize better -->
-    	<!-- SemanticTurkey è una nuova cartella creata appositamente da A.Turbati e che viene poi ispezionata dal plugin manager per installare i bundle -->
-    	<!-- il plugin manager cerca dentro la cartella SemanticTurkey di TUTTE le estensioni di Firefox per dei bundle da installare -->
-    	   		
-    	<copy todir="${dist}/${extensions.dir}">
-    	    <fileset dir="${extensions.dir}"/>
-    	</copy>
+	<target name="bm_compile" depends="buildlib">
+		<mkdir dir="${build}" />
+		<javac sourcepath="" srcdir="${src}" destdir="${build}" debug="${compiler.debug}" optimize="${compiler.optimize}" deprecation="${compiler.deprecation}" target="1.5" source="1.5" nowarn="${compiler.nowarn}" compiler="${compiler}" classpathref="classpath">
+			<include name="**/*.java" />
+		</javac>
+		<copy todir="${build}">
+			<fileset dir="${src}" includes="**/*.properties" />
+			<filterset>
+				<filter token="version" value="${version}" />
+				<filter token="fullname" value="${fullname}" />
+			</filterset>
+		</copy>
+		<copy todir="${build}">
+			<fileset dir="${src.resources}" includes="**/*.properties" />
+		</copy>
+	</target>
 
-    	
-			<!-- touch the directory so that firefox registry reloads (helps during development) -->
-			<touch>
-			    <fileset dir="${dist}"/>
-			</touch>
-    </target>
 
-<!-- === Package The Distribution XPI ================================================= -->
+	<!-- === Compile and Generate JAR from SE Project ================================================= -->
 
-    <target name="xpi" depends="dist" description="Create the XPI extension">
-        <zip zipfile="${dist.target}/${dist.name}.xpi" basedir="${dist}" includes="**"/>
-    </target>
-	
-<!-- === Delete the distribution folder ================================================= -->	
-	
-		<target name="delete_dist" depends="xpi" description="deletes the distribution folder">
-			<delete dir="${dist}"/>
-		</target>
+	<target name="se_jar" depends="bm_compile">
+		<mkdir dir="${se.build}" />
+		<javac sourcepath="" srcdir="${se.src}" destdir="${se.build}" debug="${compiler.debug}" optimize="${compiler.optimize}" deprecation="${compiler.deprecation}" target="1.5" source="1.5" nowarn="${compiler.nowarn}" compiler="${compiler}" classpathref="classpath">
 
-<!-- === Final Empty Task ================================================= -->		
-	
-	<target name="final" depends="delete_dist"/>
-	
+			<!-- include name="**/*.java"/ there should be no need for it! -->
+		</javac>
+		<echo message="${se.build}" />
+		<jar destfile="${extensions.dir.servlets}/${se.bundle.basename}-${stpom.version}.jar" manifest="${se.project.location}/MANIFEST.MF">
+			<fileset dir="${se.build}" />
+		</jar>
+	</target>
+
+
+	<!-- === Prepare The Distribution ================================================= -->
+
+	<target name="dist" depends="se_jar" description="Compiles the Services Extensions (SE) Project and packages a jar inside the BM Project">
+		<mkdir dir="${dist}" />
+
+		<copy todir="${dist}/chrome/semantic-turkey">
+			<fileset dir="${src.extension}/chrome/semantic-turkey" includes="**" />
+		</copy>
+
+		<copy todir="${dist}/components">
+			<fileset dir="${src.extension}/components" includes="*.js" />
+			<fileset dir="${src.extension}/components" includes="*.xpt" />
+		</copy>
+
+		<mkdir dir="${dist}/components/lib" />
+		<zip zipfile="${dist}/components/lib/${semturkeyjarname}.jar" basedir="${build}" includes="**" />
+
+		<copy todir="${dist}/components/lib">
+			<fileset dir="${lib}" includes="**" />
+		</copy>
+
+		<copy todir="${dist}/components/data">
+			<fileset dir="${data}" includes="**" />
+		</copy>
+
+		<mkdir dir="${dist}/defaults" />
+		<copy todir="${dist}/defaults">
+			<fileset dir="${src.extension}/defaults" includes="**" />
+		</copy>
+
+		<mkdir dir="${dist}/modules" />
+		<copy todir="${dist}/modules">
+			<fileset dir="${src.extension}/modules" includes="**" />
+		</copy>
+
+		<copy file="${xpcom}/javaFirefoxExtensionUtils.jar" tofile="${dist}/components/lib/javaFirefoxExtensionUtils.jar" />
+
+		<copy file="${src.extension}/install.rdf" tofile="${dist}/install.rdf" />
+		<copy file="${src.extension}/chrome.manifest" tofile="${dist}/chrome.manifest" />
+
+		<copy todir="${dist}/${extensions.dir}">
+			<fileset dir="${extensions.dir}" />
+		</copy>
+
+		<!-- touch the directory so that firefox registry reloads (helps during development) -->
+		<touch>
+			<fileset dir="${dist}" />
+		</touch>
+	</target>
+
+	<!-- === Package The Distribution XPI ================================================= -->
+
+	<target name="xpi" depends="dist" description="Create the XPI extension">
+		<zip zipfile="${dist.target}/${name}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="${dist}" includes="**" />
+	</target>
+
+	<!-- === Delete the distribution folder ================================================= -->
+
+	<target name="delete_dist" depends="xpi" description="deletes the distribution folder">
+		<delete dir="${dist}" />
+	</target>
+
+	<!-- === Final Empty Task ================================================= -->
+
+	<target name="final" depends="delete_dist" />
+
 </project>
