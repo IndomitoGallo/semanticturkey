@@ -1,0 +1,333 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="SPARQL.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<!-- Daniele Bagni, Marco Cappella (2009): Finestra che presenta un form di supporto per la formulazione e l'inoltro di query SPARQL -->
+<window id="SPARQLResult" title="SPARQL Dialog" flex="1"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+
+	 xmlns:html="http://www.w3.org/1999/xhtml"
+>
+
+
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://global/content/nsTransferable.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/classDragDrop.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/repository.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/initialize.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userType.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userProperties.js"/>
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/instanceEvents.js" />
+<script type="application/x-javascript">
+   <![CDATA[
+
+          
+   ]]>
+</script>
+<hbox flex="1" align="center" id = "IndexHbox" hidden="true"> 
+<vbox flex="1" orient="vertical" align="center">
+ <separator orient="orizontal" class="groove">
+</separator>
+<vbox  align="center" flex="1">
+ <label class="header" value="You must login!!" id = "labelSPARQL"/>
+ </vbox>
+ <separator orient="orizontal" class="groove">
+</separator>
+</vbox>
+</hbox>
+
+<hbox flex="1" id="mainVbox" > 
+<vbox flex="1" orient="vertical">
+<vbox  align="center" >
+<groupbox flex="1">
+  <caption class="header" label=" - Insert Query Data - " image="images/st_favicon.png"/>
+
+<hbox  align="center" flex="1">
+
+<vbox  align="center" >
+ <label class="header" value="Select Standard Prefix:"/>
+<button id="rdfPrefix" label="RDF" oncommand="addRDFPrefix()"/>
+<button id="rdfsPrefix" label="RDFS" oncommand="addRDFSPrefix()"/>
+<button id="xsdPrefix" label="XSD" oncommand="addXSDPrefix()"/>
+<button id="owlPrefix" label="OWL" oncommand="addOWLPrefix()"/>
+<button id="annPrefix" label="ANN" oncommand="addANNPrefix()"/>
+<button id="myPrefix" label="MY" oncommand="addMYPrefix()"/>
+
+ <label class="header" value="Add:"/>
+<menulist>
+	<menupopup>
+		<menuitem label = "Select" onclick="addToText('SELECT ?x ')"/>
+		<menuitem label = "Describe" onclick="addToText('DESCRIBE ?x ')"/>
+		<menuitem label = "Construct" onclick="addToText('CONSTRUCT { } ')"/>
+		<menuitem label = "Ask" onclick="addToText('ASK ')"/>
+	</menupopup>
+</menulist>
+<button id="rdfsPrefix" label="FROM" oncommand="addFROM()"/>
+<button id="rdfsPrefix" label="WHERE" oncommand="addWHERE()"/>
+
+ </vbox>
+<html:textarea style="font-size:11px;" id="textAreaQuery" class="message"  rows="20"  cols="85" onkeyup="enableDisable();"></html:textarea> 
+<vbox id="checkboxes">
+ <label class="header" value="FROM users:"/>
+</vbox>
+</hbox>
+</groupbox>
+ </vbox>
+  <splitter orient ="vertical" state="open" collapse="after"
+				resizeafter="closest"
+				resizebefore="closest">
+				</splitter>
+<hbox flex="1" id="SPARQLvbox" > 
+
+   <label class="header" value="" id="labelask" hidden="true"/>
+   <label class="header" value="    >>>   Results of the query   >>>   " id="textAreaResult1" hidden="true"/>
+   <textbox rows="20"  cols="115" id="textAreaResult" multiline="true" style="font-size:11px;" value="" hidden="true"/>
+
+   <tree hidecolumnpicker="true"  context="clipmenu" id="SPARQLTree" disabled="false" flex="1" >
+  		<treecols>
+    		<treecol label="Results" primary="true" flex="1"/>
+  		</treecols>
+  		<treechildren>
+  			<treeitem>
+  				<treerow>
+  					<treecell label="No Results" />
+  				</treerow>
+  			</treeitem>
+  		</treechildren>
+  </tree> 
+			
+
+</hbox>
+</vbox>
+</hbox>
+
+<script type="application/x-javascript">
+   <![CDATA[
+    	//Daniele Bagni, Marco Cappella (2009): creazione elementi di supporto alla formulazione della query
+   		var server = readServer();
+   		art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=sparql");
+   		var ontologyNamespace;
+   		
+   		var rdfNamespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+   		var rdfsNamespace = "http://www.w3.org/2000/01/rdf-schema#";
+   		var xsdNamespace = "http://www.w3.org/2001/XMLSchema#";
+   		var owlNamespace = "http://www.w3.org/2002/07/owl#";
+   		var annNamespace = "http://art.uniroma2.it/ontologies/annotation#";
+   		var SPARQLTree = document.getElementById("SPARQLTree");
+   		var mainVbox = document.getElementById("mainVbox");
+   		var IndexHbox= document.getElementById("IndexHbox");
+   		var textAreaSPARQL = document.getElementById("textAreaQuery");
+   		var swap = readSwap();
+   		
+   		if(swap=="0"){
+			mainVbox.hidden = true;
+			IndexHbox.hidden = false;
+			
+   		}
+   		
+   		var lstb = document.createElement("listbox");
+   		lstb.setAttribute("width","60");
+   		lstb.setAttribute("height","120");
+   		var vboxcheck = document.getElementById("checkboxes");
+   		vboxcheck.appendChild(lstb);
+   		var result = readProp();
+   		var checkR = document.createElement("listitem");
+   		checkR.setAttribute("label","Core");
+   		checkR.setAttribute("class","header");
+   		checkR.setAttribute("onclick","addContext('ResourceBase');")
+   		lstb.appendChild(checkR);
+   		for(var j=0; j<result.users.length;j++){
+   		
+   			var check = document.createElement("listitem");
+   			check.setAttribute("label",result.users[j]);
+   			check.setAttribute("class","header");
+   			check.setAttribute("onclick","addContext("+result.hash[j]+");")
+   			
+   			lstb.appendChild(check);
+   		}
+   		var lab1 = document.createElement("label");
+   		lab1.setAttribute("value"," ");
+   		var lab = document.createElement("label");
+   		lab.setAttribute("value","Press to submit:");
+   		lab.setAttribute("class","header");
+   		vboxcheck.appendChild(lab1);
+   		vboxcheck.appendChild(lab);
+   		var button = document.createElement("button");
+   		button.setAttribute("id","submitQuery");
+   		button.setAttribute("label","Submit");
+   		button.setAttribute("oncommand","submitQuery()");
+   		vboxcheck.appendChild(button);
+   		
+   		//Daniele Bagni, Marco Cappella (2009): funzione per l'aggiunta dei contesti alla query
+   		function addContext(context){
+   		
+   			if (!this.selected){
+	   			if(textAreaSPARQL.value!="")
+   					textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   				textAreaSPARQL.value=textAreaSPARQL.value+"FROM <"+ontologyNamespace+context+"> ";
+   			}
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta di una tra SELECT, DESCRIBE, ASK e CONSTRUCT al testo della query
+   		function addToText(textquery){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+textquery;
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta dell'espressione FROM <> al testo
+   		function addFROM(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+"FROM <> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta dell'espressione WHERE{} al testo
+   		function addWHERE(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+"WHERE {\n\n} ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso RDF al testo
+   		function addRDFPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX rdf: <"+rdfNamespace+"> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso RDFS al testo
+   		function addRDFSPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX rdfs: <"+rdfsNamespace+"> ";
+
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso XSD al testo
+   		function addXSDPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			   		
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX xsd: <"+xsdNamespace+"> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso OWL al testo
+   		function addOWLPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   				
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX owl: <"+owlNamespace+"> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso Annotation al testo
+   		function addANNPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   				
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX ann: <"+annNamespace+"> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): aggiunta del prefisso del namespace selezionato nel server al testo
+   		function addMYPrefix(){
+   		
+   			if(textAreaSPARQL.value!="")
+   				textAreaSPARQL.value=textAreaSPARQL.value+"\n";
+   			
+   			textAreaSPARQL.value=textAreaSPARQL.value+"PREFIX my: <"+ontologyNamespace+"> ";
+   		
+   		}
+   		
+   		//Daniele Bagni, Marco Cappella (2009): inoltro della query al server
+   		function submitQuery(){
+   		
+   			
+   			
+			var queryText = textAreaSPARQL.value;
+			queryText=queryText.replace(/#/g,"$");
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=sparql&query="+queryText);
+   			
+   		}
+   		
+   		function getSPARQLTree(){
+   			return SPARQLTree;
+   		}
+   	
+   		//Daniele Bagni, Marco Cappella (2009): abilitazione del bottone "submit" se la query non � vuota
+	    function enableDisable(){
+		
+			if(document.getElementById("textAreaQuery").value!="")
+				document.getElementById("submitQuery").disabled=false;
+			else
+				document.getElementById("submitQuery").disabled=true;
+		}
+		
+		//Daniele Bagni, Marco Cappella (2009): al doppio click su un risultato vengono mostrati i dati associati alla risorsa selezionata
+		function listdblclick(event) {
+			var parameters = new Object();
+			var elem = event.target;
+			var sourceType = elem.getAttribute("value");
+	    	parameters.sourceType = sourceType;
+	    	
+	    	parameters.sourceElement = elem;
+	    	parameters.sourceElementName = event.target.getAttribute("label");
+	    	//NScarpato 14/03/2008 need deleteForbidden attribute for instance
+	    	//parameters.deleteForbidden = event.target.getAttribute("deleteForbidden");
+	    	//parameters.sourceParentElementName = event.target.getAttribute("parentCls");
+	    	//parameters.list=document.getElementById('InstancesList');
+	    	//parameters.tree=document.getElementById('outlineTree');
+			//parameters.domain="";
+			//parameters.range="";
+			window.openDialog("chrome://semantic-turkey/content/editorPanel.xul","_blank","modal=yes,resizable,centerscreen",parameters);
+	}	
+      ]]>
+</script> 
+
+</window>

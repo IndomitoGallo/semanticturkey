@@ -1,0 +1,81 @@
+<!--+
+    |
+    |           +=======================================+
+    |           |  Semantic Turkey Extension Build System  |
+    |           +=======================================+
+    |
+    +-->
+
+<project default="final" basedir="." name="SemanticTurkey" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+	<path id="maven-ant-tasks.classpath" path="antlib/maven-ant-tasks-2.0.10.jar" />
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+
+	
+    <target name="start" depends="init">
+    
+<echo>======================================================================
+               ${fullname} ${version} [${year}]
+======================================================================
+Building with ${ant.version}
+----------------------------------------------------------------------
+Using build file ${ant.file}
+----------------------------------------------------------------------
+Running on Java version ${ant.java.version} on ${os.name}
+----------------------------------------------------------------------
+Compiler options:
+ - debug ......... [${compiler.debug}]
+ - optimize ...... [${compiler.optimize}]
+ - deprecation ... [${compiler.deprecation}]
+======================================================================
+</echo>
+    </target>
+
+    <target name="init">
+        <!-- Set the timestamps -->
+        <tstamp/>
+    
+        <property environment="env" />
+    
+        <!-- Get the build properties from an external file -->
+        <property file="build.properties"/>
+        
+        <!-- Set classpath -->
+        <path id="classpath">
+            <fileset dir="${lib}">
+            <include name="*.jar"/>
+            </fileset>
+            <path location="${build}"/>
+        </path>
+    </target>
+
+	
+<!-- === Compile and Generate JAR from SE Project ================================================= -->
+
+    <target name="se_jar" depends="init">
+    		<mkdir dir="${se.build}"/>
+        <javac sourcepath="" 
+            srcdir="${se.src}"
+            destdir="${se.build}"
+            debug="${compiler.debug}"
+            optimize="${compiler.optimize}"
+            deprecation="${compiler.deprecation}"
+            target="1.5"
+            source="1.5"
+            nowarn="${compiler.nowarn}"
+            compiler="${compiler}"
+            classpathref="classpath">
+           
+        	<!-- include name="**/*.java"/ there should be no need for it! --> 
+        </javac>
+    	<echo message="${se.build}"/>
+		  <jar destfile="C:/Users/Odnamar/AppData/Roaming/Mozilla/Firefox/Profiles/FF3.5default/extensions/semanticturkey@art.uniroma2.it/extensions/servlets/servlet.jar" manifest="${se.project.location}/MANIFEST.MF"> 
+				<fileset dir="${se.build}"/>
+  		</jar>    	    	
+    </target>	
+	
+<!-- === Final Empty Task ================================================= -->		
+	
+	<target name="final" depends="se_jar"/>
+	
+</project>

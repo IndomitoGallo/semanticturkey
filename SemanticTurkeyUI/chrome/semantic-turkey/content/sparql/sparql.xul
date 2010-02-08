@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="SPARQL.css" type="text/css"?>
+<!--  /*
+	  * The contents of this file are subject to the Mozilla Public License
+	  * Version 1.1 (the "License");  you may not use this file except in compliance
+	  * with the License.  You may obtain a copy of the License at
+	  * http://www.mozilla.org/MPL/
+	  *
+	  * Software distributed under the License is distributed on an "AS IS" basis,
+	  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+	  * the specific language governing rights and limitations under the License.
+	  *
+	  * The Original Code is SemanticTurkey.
+	  *
+	  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+	  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+	  * All Rights Reserved.
+	  *
+	  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+	  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+	  * Current information about SemanticTurkey can be obtained at 
+	  * http://semanticturkey.uniroma2.it
+	  *
+	  */ -->
+
+
+<window id="SPARQLResult" title="SPARQL Dialog" flex="1"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/sparql/sparql.js"/>
+		<vbox  id="SPARQLquery" align="center" hidden="false">
+				<groupbox flex="1">
+					<caption class="header" label=" - Insert Query Data - " image="chrome://semantic-turkey/skin/classic/images/st_favicon.png"/>
+
+					<hbox  align="center" flex="1">
+
+						<vbox  align="center" >
+							<label class="header" value="Select Standard Prefix:"/>
+							<button id="rdfPrefix" label="RDF" />
+							<button id="rdfsPrefix" label="RDFS" />
+							<button id="xsdPrefix" label="XSD" />
+							<button id="owlPrefix" label="OWL" />
+							<button id="annPrefix" label="ANN" />
+							<button id="myPrefix" label="DEF-NS" />
+
+							<label class="header" value="Add:"/>
+							<menulist>
+								<menupopup>
+									<menuitem id = "Select" label = "Select"/>
+									<menuitem id = "Describe"  label = "Describe"/>
+									<menuitem id = "Construct" label = "Construct"/>
+									<menuitem id = "Ask" label = "Ask"/>
+								</menupopup>          
+							</menulist>
+							<button id="from" label="FROM"/>
+							<label class="header" value="FROM NAMED:"/>
+							<menulist>
+								<menupopup id="from_named">
+		
+								</menupopup>          
+							</menulist>
+							<button id="where" label="WHERE"/>
+
+						</vbox>
+						<html:textarea style="font-size:11px;" id="textAreaQuery" class="message"  rows="20"  cols="85" ></html:textarea> 
+					</hbox>
+				</groupbox>
+			</vbox>
+
+			<vbox flex="1" id="SPARQLresponse" hidden = "false"> 
+
+				<label class="header" value="" id="labelask"/>
+				<label class="header" value="    >>>   Results of the query   >>>   " id="textAreaResult1" />
+				<tree hidecolumnpicker="false" id="SPARQLTree" seltype="single"  flex="1">
+					<treecols id="SPARQLTreeCols" >
+					</treecols>
+					<treechildren id="SPARQLRootTreechildren">
+  					</treechildren>
+				</tree> 
+			</vbox>
+
+			<splitter orient ="vertical" state="open" collapse="after"
+				resizeafter="closest"
+				resizebefore="closest">
+			</splitter>
+			<vbox id="buttonBox" flex="0">
+				<grid flex="1">
+					<columns>
+						<column flex="0" align="right" />
+					</columns>
+					<rows>
+						<row>
+							<button id="submitQuery" label="Submit Query" flex="0" >
+							</button>
+						</row>
+					</rows>
+				</grid>
+			</vbox>	
+	
+
+
+
+</window>

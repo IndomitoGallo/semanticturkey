@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<!-- Daniele Bagni, Marco Cappella (2009): finestra che mostra tutte le modifiche effettuate all'ontologia giorno per giorno -->
+<window id="loggingMod" title="Logging Window"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"        
+    width="750"
+    height="330"  
+    xmlns:html="http://www.w3.org/1999/xhtml"
+>
+
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/> 
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+
+<groupbox>
+  <caption class="header" label=" - Logging - " image="images/istogramma.png"/>
+
+<vbox align="center" flex="1">
+<hbox align="center" flex="1">
+<menulist id="menuDay">
+	<menupopup id="popupDay">
+	</menupopup>
+</menulist>
+<menulist id="menuMonth">
+	<menupopup id="popupMonth">
+		<menuitem value="1" label = "January" onclick="numMonth('January',1)"/>
+		<menuitem value="2" label = "February" onclick="numMonth('February',2)"/>
+		<menuitem value="3" label = "March" onclick="numMonth('March',3)"/>
+		<menuitem value="4" label = "April" onclick="numMonth('April',4)"/>
+		<menuitem value="5" label = "May" onclick="numMonth('May',5)"/>
+		<menuitem value="6" label = "June" onclick="numMonth('June',6)"/>
+		<menuitem value="7" label = "July" onclick="numMonth('July',7)"/>
+		<menuitem value="8" label = "August" onclick="numMonth('August',8)"/>
+		<menuitem value="9" label = "September" onclick="numMonth('September',9)"/>
+		<menuitem value="10" label = "October" onclick="numMonth('October',10)"/>
+		<menuitem value="11" label = "November" onclick="numMonth('November',11)"/>
+		<menuitem value="12" label = "December" onclick="numMonth('December',12)"/>
+	</menupopup>
+</menulist>
+<menulist id="menuYear">
+	<menupopup id="popupYear">
+	</menupopup>
+</menulist>
+<button label="View" onclick="viewLog();" />
+
+			
+</hbox>
+</vbox>
+<listbox id="logging" flex ="1">
+					
+					<listhead>
+						<listheader flex ="4" label="Modifies" />
+						<listheader flex ="1" label="Date" />		
+					</listhead>
+						
+</listbox>
+<vbox align="center" flex="1">
+<hbox align="center" flex="1">
+<button label="Exit" onclick="window.close()" />
+</hbox>
+</vbox>
+</groupbox>
+<script language="javascript" type="text/javascript">
+<![CDATA[
+if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+
+	var server =readServer();
+	art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=refresh&modify=yes&Date=Today");
+
+	var data = new Date();
+	var d = data.getDate();
+	var m = data.getMonth() + 1;
+	var y = (data.getFullYear ? data.getFullYear() : data.getYear());
+	if (d < 10) d = "0" + d;
+	if (m < 10) m = "0" + m;
+
+	var firstYear=2009;
+	var day=d;
+	var month = "";
+	var monthNumber = m;
+	var year = y;
+	var i=0;
+	var elemD,elemY;
+	var popupD = document.getElementById("popupDay");
+	for(i=1;i<=31;i++){
+		elemD = document.createElement("menuitem");
+		elemD.setAttribute("label",i);
+		elemD.setAttribute("onclick","numDay("+i+")");
+		if(parseInt(d)==i){
+			document.getElementById("menuDay").setAttribute("label",d);
+		}
+		popupD.appendChild(elemD);
+	}
+	var popupM = document.getElementById("popupMonth");
+	var monthslist =popupM.childNodes;
+	for(i=1;i<=monthslist.length;i++){
+		if(parseInt(m)==i){
+			month = monthslist[i-1].getAttribute("label");
+			document.getElementById("menuMonth").setAttribute("label",month);
+		}
+	}
+	var popupY = document.getElementById("popupYear");
+	for(i=firstYear;i<=firstYear+10;i++){
+		elemY = document.createElement("menuitem");
+		elemY.setAttribute("label",i);
+		elemY.setAttribute("onclick","numYear("+i+")");
+		if(parseInt(y)==i){
+			document.getElementById("menuYear").setAttribute("label",y);
+		}
+		popupY.appendChild(elemY);
+	}
+	
+	function numDay(num){
+		day = num;
+	}
+	function numMonth(num,nummonth){
+		month = num;
+		monthNumber=nummonth;
+	}
+	function numYear(num){
+		year = num;
+		
+	}
+	
+	//Daniele Bagni, Marco Cappella (2009):funzione che mostra le modifiche all'ontologia nella data selezionata
+	function viewLog(){
+		
+		
+		
+	  	var lstbox=document.getElementById("logging");
+	  	while(lstbox.hasChildNodes()){
+			lstbox.removeChild(lstbox.lastChild);
+		}
+		if(d==day && m == monthNumber && y == year){
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=refresh&modify=yes&Date=Today");
+		}else 
+			art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=refresh&modify=yes&Date="+year+monthNumber+day);
+	}
+]]>
+</script>
+
+</window>
