@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="resourceManagement.css" type="text/css"?>
+<?xul-overlay href="chrome://semantic-turkey/content/http/httpscripts.xul"?> 
+
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+<!-- Daniele Bagni, Marco Cappella (2009): finestra per la visualizzazione delle classi credute da piu' utenti -->
+<window title="Resource Management"
+   id="resource-management-main-window"
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   onload="populateResourceManagementPanel()"
+   width="600" height="300"
+   >
+   <script type="application/x-javascript" src="chrome://semantic-turkey/content/http/http.js"/>
+   <script type="application/x-javascript" src="chrome://semantic-turkey/content/http/administration.js"/>
+   <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/resourceManagement.js"/>
+   <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/selectServer.js"/>
+   <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontName.js"/>
+ <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/userType.js"/>
+   
+   <tree hidecolumnpicker="true"  context="clipmenu" id="resourceManagementTree" disabled="false" flex="1" >
+  		<treecols>
+    		<treecol id="nametype" label="Name" primary="true" flex="7"/>
+    		<splitter class="tree-splitter"/>
+    		<treecol id="numberuser" label="Users" flex="5"/>		
+  		</treecols>
+  		<treechildren></treechildren>
+  </tree> 
+  
+   
+</window>

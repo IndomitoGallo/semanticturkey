@@ -1,0 +1,917 @@
+ /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */
+tree.PropertyTree {
+  -moz-user-focus: normal !important;
+  -moz-user-select: text;
+}
+
+/* display folder icons in front of the treecell text */
+
+treechildren::-moz-tree-image(baseProperty) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c1Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c2Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c3Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c4Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c5Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c6Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c8Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c9Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c10Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c11Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c12Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c13Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+treechildren::-moz-tree-image(c14Property) { 
+	list-style-image: url("../images/prop.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	}	
+treechildren::-moz-tree-image(c1ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c2ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c3ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c4ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c5ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c6ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c8ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c9ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c10ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c11ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c12ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c13ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+treechildren::-moz-tree-image(c14ObjectProperty) { 
+	list-style-image: url("../images/propObject.png"); 
+	} 
+	
+treechildren::-moz-tree-image(baseDatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c1DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c2DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c3DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c4DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c5DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c6DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c8DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c9DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c10DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c11DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c12DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c13DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+treechildren::-moz-tree-image(c14DatatypeProperty) { 
+	list-style-image: url("../images/propDatatype.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseAnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	}
+treechildren::-moz-tree-image(c1AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c2AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c3AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c4AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c5AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c6AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c8AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c9AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c10AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c11AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c12AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c13AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+treechildren::-moz-tree-image(c14AnnotationProperty) { 
+	list-style-image: url("../images/propAnnotation.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseProperty_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c1Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c2Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c3Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c4Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c5Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c6Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c8Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c9Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c10Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c11Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c12Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c13Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c14Property_noexpl) { 
+	list-style-image: url("../images/prop_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 	
+treechildren::-moz-tree-image(c1ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c2ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c3ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c4ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c5ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c6ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c8ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c9ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c10ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c11ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c12ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c13ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c14ObjectProperty_noexpl) { 
+	list-style-image: url("../images/propObject_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseDatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	}	
+treechildren::-moz-tree-image(c1DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	}
+treechildren::-moz-tree-image(c1DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c2DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c3DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c4DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c5DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c6DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c8DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c9DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c10DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c11DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c12DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c13DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c14DatatypeProperty_noexpl) { 
+	list-style-image: url("../images/propDatatype_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(baseAnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(c1AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c2AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c3AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c4AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c5AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c6AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+
+treechildren::-moz-tree-image(c7AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c8AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c9AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c10AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c11AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c12AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c13AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 
+treechildren::-moz-tree-image(c14AnnotationProperty_noexpl) { 
+	list-style-image: url("../images/propAnnotation_imported.png"); 
+	} 	
+	
+
+treechildren::-moz-tree-cell-text {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(baseProperty) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1Property) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2Property) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3Property) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4Property) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5Property) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6Property) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7Property) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8Property) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9Property) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10Property) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11Property) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12Property) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13Property) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14Property) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+
+
+treechildren::-moz-tree-cell-text(baseObjectProperty) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1ObjectProperty) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2ObjectProperty) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3ObjectProperty) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4ObjectProperty) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5ObjectProperty) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6ObjectProperty) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7ObjectProperty) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8ObjectProperty) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9ObjectProperty) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10ObjectProperty) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11ObjectProperty) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12ObjectProperty) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13ObjectProperty) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14ObjectProperty) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+
+treechildren::-moz-tree-cell-text(baseDatatypeProperty) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1DatatypeProperty) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2DatatypeProperty) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3DatatypeProperty) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4DatatypeProperty) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5DatatypeProperty) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6DatatypeProperty) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7DatatypeProperty) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8DatatypeProperty) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9DatatypeProperty) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10DatatypeProperty) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11DatatypeProperty) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12DatatypeProperty) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13DatatypeProperty) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14DatatypeProperty) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+treechildren::-moz-tree-cell-text(baseAnnotationProperty) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1AnnotationProperty) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2AnnotationProperty) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3AnnotationProperty) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4AnnotationProperty) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5AnnotationProperty) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6AnnotationProperty) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7AnnotationProperty) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8AnnotationProperty) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9AnnotationProperty) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10AnnotationProperty) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11AnnotationProperty) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12AnnotationProperty) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13AnnotationProperty) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14AnnotationProperty) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(baseProperty_noexpl) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1Property_noexpl) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2Property_noexpl) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3Property_noexpl) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4Property_noexpl) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5Property_noexpl) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6Property_noexpl) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7Property_noexpl) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8Property_noexpl) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9Property_noexpl) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10Property_noexpl) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11Property_noexpl) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12Property_noexpl) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13Property_noexpl) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14Property_noexpl) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+
+
+treechildren::-moz-tree-cell-text(baseObjectProperty_noexpl) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1ObjectProperty_noexpl) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2ObjectProperty_noexpl) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3ObjectProperty_noexpl) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4ObjectProperty_noexpl) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5ObjectProperty_noexpl) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6ObjectProperty_noexpl) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7ObjectProperty_noexpl) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8ObjectProperty_noexpl) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9ObjectProperty_noexpl) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10ObjectProperty_noexpl) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11ObjectProperty_noexpl) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12ObjectProperty_noexpl) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13ObjectProperty_noexpl) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14ObjectProperty_noexpl) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+
+treechildren::-moz-tree-cell-text(baseDatatypeProperty_noexpl) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1DatatypeProperty_noexpl) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2DatatypeProperty_noexpl) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3DatatypeProperty_noexpl) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4DatatypeProperty_noexpl) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5DatatypeProperty_noexpl) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6DatatypeProperty_noexpl) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7DatatypeProperty_noexpl) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8DatatypeProperty_noexpl) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9DatatypeProperty_noexpl) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10DatatypeProperty_noexpl) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11DatatypeProperty_noexpl) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12DatatypeProperty_noexpl) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13DatatypeProperty_noexpl) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14DatatypeProperty_noexpl) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+
+treechildren::-moz-tree-cell-text(baseAnnotationProperty_noexpl) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1AnnotationProperty_noexpl) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2AnnotationProperty_noexpl) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3AnnotationProperty_noexpl) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4AnnotationProperty_noexpl) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5AnnotationProperty_noexpl) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6AnnotationProperty_noexpl) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7AnnotationProperty_noexpl) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8AnnotationProperty_noexpl) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9AnnotationProperty_noexpl) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10AnnotationProperty_noexpl) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11AnnotationProperty_noexpl) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12AnnotationProperty_noexpl) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13AnnotationProperty_noexpl) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14AnnotationProperty_noexpl) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
