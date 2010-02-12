@@ -138,7 +138,7 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 
 	this._traceFlag = (trace);
 
-	this._trace("BridgeComponent.initialize {");
+	this._trace("initializing js-java BridgeComponent...");
 	try {
 		this._packageLoader = packageLoader;
 

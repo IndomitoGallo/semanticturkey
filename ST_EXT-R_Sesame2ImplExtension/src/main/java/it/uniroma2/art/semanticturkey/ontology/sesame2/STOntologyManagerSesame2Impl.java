@@ -8,22 +8,20 @@
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
  * the specific language governing rights and limitations under the License.
  *
- * The Original Code is ST_EXT-R_Sesame2ImplExtension.
+ * The Original Code is ST OntologyManager - Sesame Implementation.
  *
  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
- * Portions created by University of Roma Tor Vergata are Copyright (C) 2009.
+ * Portions created by University of Roma Tor Vergata are Copyright (C) 2008.
  * All Rights Reserved.
  *
- * ST_EXT-R_Sesame2ImplExtension was developed by the Artificial Intelligence Research Group
- * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
- * Current information about ST_EXT-R_Sesame2ImplExtension can be obtained at 
- * http//ai-nlp.info.uniroma2.it/software/...
+ * The ART Ontology API - Sesame Implementation were developed by the Artificial Intelligence Research Group
+ * (art.uniroma2.it) at the University of Roma Tor Vergata
+ * Current information about the ST OntologyManager - Sesame Implementation can be obtained at 
+ * http//semanticturkey.uniroma2.it
  *
  */
 
-/*
- * Contributor(s): Armando Stellato stellato@info.uniroma2.it
- */
+
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
 import it.uniroma2.art.owlart.sesame2impl.factory.ARTModelFactorySesame2Impl;
