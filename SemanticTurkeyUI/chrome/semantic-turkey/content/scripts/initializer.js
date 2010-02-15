@@ -444,9 +444,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parameters.subjectInstanceName,
 					parameters.predicatePropertyName,
 					parameters.objectInstanceName,
-					parameters.objectClsName,
 					parameters.urlPage,
 					parameters.title,
+					parameters.objectClsName,
 					parametersLang.lang);
 	
 		} else if (parameters.propType.indexOf("owl:DatatypeProperty") != -1) {
@@ -455,9 +455,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parameters.subjectInstanceName,
 					parameters.predicatePropertyName,
 					parameters.objectInstanceName,
-					parameters.objectClsName,
 					parameters.urlPage,
-					parameters.title);
+					parameters.title,
+					parameters.objectClsName);
 		} else if (parameters.propType.indexOf("rdf:Property")!= -1) {
 			var literalsParameters = new Object();
 			literalsParameters.isLiteral = "none";
@@ -490,9 +490,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 								parameters.subjectInstanceName,
 								parameters.predicatePropertyName,
 								parameters.objectInstanceName,
-								parameters.objectClsName,
 								parameters.urlPage,
 								parameters.title,
+								parameters.objectClsName,
 								null,
 								type);
 			}
@@ -550,9 +550,9 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 						win.arguments[0].subjectInstanceName,
 						win.arguments[0].predicatePropertyName,
 						win.arguments[0].objectInstanceName,
-						selectedObjClsName,
 						win.arguments[0].urlPage,
 						win.arguments[0].title,
+						selectedObjClsName,
 						null,
 						type);
 			}
