@@ -58,7 +58,7 @@ function createFurtherAnnotation(instanceQName,text,urlPage,title) {
  * @return
  */
 function relateAndAnnotateBindAnnot(instanceQName,propertyQName,objectQName,urlPage,title,lexicalization) {
-	return relateAndAnnotate(instanceQName,propertyQName,objectQName,null,urlPage,title,null,null,lexicalization); 
+	return relateAndAnnotate(instanceQName,propertyQName,objectQName,urlPage,title,null,null,null,lexicalization); 
 }
 
 /**
@@ -76,8 +76,8 @@ function relateAndAnnotateBindAnnot(instanceQName,propertyQName,objectQName,urlP
  * @param type
  * @return
  */
-function relateAndAnnotateBindCreate(instanceQName,propertyQName,objectQName,objectClsName,urlPage,title,lang,type) {
-	return relateAndAnnotate(instanceQName,propertyQName,objectQName,objectClsName,urlPage,title,lang,type); 
+function relateAndAnnotateBindCreate(instanceQName,propertyQName,objectQName,urlPage,title,objectClsName,lang,type) {
+	return relateAndAnnotate(instanceQName,propertyQName,objectQName,urlPage,title,objectClsName,lang,type); 
 }
 
 
@@ -114,17 +114,14 @@ function relateAndAnnotateBindCreate(instanceQName,propertyQName,objectQName,obj
  * @param lexicalization
  * @return
  */
-function relateAndAnnotate(instanceQName,propertyQName,objectQName,objectClsName,urlPage,title,lang,type,lexicalization) {
+function relateAndAnnotate(instanceQName,propertyQName,objectQName,urlPage,title,objectClsName,lang,type,lexicalization) {
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var objectQName = "objectQName=" + objectQName;
 	var urlPage = "urlPage=" + urlPage;
 	var title = "title=" + title;
-	var type = "type=" +type;
-	Logger.debug("lex "+lexicalization);
 	if(typeof lexicalization != 'undefined'){
 		var op = "op=bindAnnot";
-		Logger.debug("op "+op);
 		var lex = "lexicalization=" + lexicalization;
 		return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
 	    		instanceQName,
@@ -136,12 +133,13 @@ function relateAndAnnotate(instanceQName,propertyQName,objectQName,objectClsName
 	    		op);
 	}else{
 		var op = "op=bindCreate";
-		Logger.debug("op"+op);
-		var objectClsName = "objectClsName=" + objectClsName;
 		if(lang != ""){
 			var lang = "lang=" + lang;
 			if(typeof type != 'undefined'){
-				return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+				var type = "type=" +type;
+				if(typeof objectClsName != 'undefined'){
+					var objectClsName = "objectClsName=" + objectClsName;
+					return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
 		    			instanceQName,
 		    			propertyQName,
 		    			objectQName,
@@ -151,8 +149,21 @@ function relateAndAnnotate(instanceQName,propertyQName,objectQName,objectClsName
 		    			lang,
 		    			type,
 		    			op);
-	    		} else{
+		    	}else{
 		    		return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+		    			instanceQName,
+		    			propertyQName,
+		    			objectQName,
+		    			urlPage, 
+		    			title,
+		    			lang,
+		    			type,
+		    			op);
+		    	}
+	    	} else{
+		    	if(typeof objectClsName != 'undefined'){
+					var objectClsName = "objectClsName=" + objectClsName;
+					return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
 		    			instanceQName,
 		    			propertyQName,
 		    			objectQName,
@@ -161,28 +172,62 @@ function relateAndAnnotate(instanceQName,propertyQName,objectQName,objectClsName
 		    			title,
 		    			lang,
 		    			op);
+		    	}else{
+		    		return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+		    			instanceQName,
+		    			propertyQName,
+		    			objectQName,
+		    			urlPage, 
+		    			title,
+		    			lang,
+		    			op);
 		    	}
+		    }
 		}else{
 			if(typeof type != 'undefined'){
-				return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
-		    		instanceQName,
-		    		propertyQName,
-		    		objectQName,
-		    		objectClsName, 
-		    		urlPage, 
-		    		title,
-		    		type,
-		    		op);
-	    	} else{
-		    	return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
-		    		instanceQName,
-		    		propertyQName,
-		    		objectQName,
-		    		objectClsName, 
-		    		urlPage, 
-		    		title,
-		    		op);
-	    	}
+				var type = "type=" +type;
+				if(typeof objectClsName != 'undefined'){
+					var objectClsName = "objectClsName=" + objectClsName;
+					return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+		    			instanceQName,
+		    			propertyQName,
+		    			objectQName,
+		    			objectClsName, 
+		    			urlPage, 
+		    			title,
+		    			type,
+		    			op);
+		    	}else{
+		    		return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+		    			instanceQName,
+		    			propertyQName,
+		    			objectQName,
+		    			urlPage, 
+		    			title,
+		    			type,
+		    			op);
+		    	}
+    		} else{
+	    		if(typeof objectClsName != 'undefined'){
+					var objectClsName = "objectClsName=" + objectClsName;
+					return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+	    				instanceQName,
+	    				propertyQName,
+	    				objectQName,
+	    				objectClsName, 
+	    				urlPage, 
+	    				title,
+	    				op);
+		    	}else{
+		    		return HttpMgr.GET(serviceName, service.relateAndAnnotateRequest, 
+		    			instanceQName,
+		    			propertyQName,
+		    			objectQName,
+		    			urlPage, 
+		    			title,
+		    			op);
+		    	}
+		    	}
 		}
 	}
    }
