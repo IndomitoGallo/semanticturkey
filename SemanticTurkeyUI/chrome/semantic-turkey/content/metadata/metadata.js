@@ -40,11 +40,11 @@ art_semanticturkey.changeBaseuri_Namespace = function(type, txbox, changed) {
 			var risp = confirm("Save change of baseuri and namespace?");
 			if (risp) {
 				var valBase = basetxbox.value;
-				if (basetxbox.value.endsWith('#')) {
+				if ( art_semanticturkey.stringEndsWith(basetxbox, '#') ) {
 					var len = basetxbox.value.length - 1;
 					valBase = basetxbox.value.substring(0, len);
 				}
-				if (nstxbox.value.endsWith('#') || nstxbox.value.endsWith('/')) {
+				if ( art_semanticturkey.stringEndsWith(nstxbox, '#') || art_semanticturkey.stringEndsWith(nstxbox, '/') ) {
 					try{
 						var responseXML = art_semanticturkey.STRequests.Metadata.setBaseuriDefNamespace(valBase, nstxbox.value);
 						art_semanticturkey.setBaseuriDefNamespace_RESPONSE(responseXML);
@@ -64,7 +64,7 @@ art_semanticturkey.changeBaseuri_Namespace = function(type, txbox, changed) {
 				var risp = confirm("Save change of baseuri?");
 				if (risp) {
 					var valBase = txbox.value;
-					if (txbox.value.endsWith('#')) {
+					if ( art_semanticturkey.stringEndsWith(txbox, '#') ) {
 						var len = txbox.value.length - 1;
 						valBase = txbox.value.substring(0, len);
 					}
@@ -81,7 +81,7 @@ art_semanticturkey.changeBaseuri_Namespace = function(type, txbox, changed) {
 			if (changed == "true") {
 				var risp = confirm("Save change of namespace?");
 				if (risp) {
-					if (txbox.value.endsWith('#') || txbox.value.endsWith('/')) {
+					if ( art_semanticturkey.stringEndsWith(txbox, '#') || art_semanticturkey.stringEndsWith(txbox, '/') ) {
 						try{
 							var responseXML = art_semanticturkey.STRequests.Metadata.setDefaultNamespace(txbox.value);
 							art_semanticturkey.setDefaultNamespace_RESPONSE(responseXML);
@@ -158,7 +158,7 @@ art_semanticturkey.manageInputBind = function(type, txbox) {
 	}
 	if (type == "ns") {
 		val = txbox.value;
-		if (txbox.value.endsWith('#')) {
+		if ( art_semanticturkey.stringEndsWith(txbox, '#') ) {
 			var len = txbox.value.length - 1;
 			val = txbox.value.substring(0, len);
 			art_semanticturkey.Logger.debug("value" + val);

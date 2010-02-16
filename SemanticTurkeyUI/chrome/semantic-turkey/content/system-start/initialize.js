@@ -97,7 +97,7 @@ art_semanticturkey.populateInitializePanel_RESPONSE = function(xmlResponseConten
  */
 art_semanticturkey.onAccept = function() {
 	var baseuri = document.getElementById("baseUriTxtBox").value;
-	if (baseuri.endsWith('#')) {
+	if ( art_semanticturkey.stringEndsWith(baseuri, "#") ) {
 		var len = baseuri.length - 1;
 		var val = baseuri.substring(0, len);
 		art_semanticturkey.Logger.debug("dentro OnAccept value" + val);

@@ -21,7 +21,6 @@
   *
   */
 tree {
-  -moz-binding: url("annotator.xml#annotatorTree");
   -moz-user-focus: normal !important;
   -moz-user-select: text;
 }

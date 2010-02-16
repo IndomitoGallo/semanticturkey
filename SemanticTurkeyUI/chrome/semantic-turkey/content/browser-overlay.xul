@@ -74,7 +74,7 @@
 				image="chrome://semantic-turkey/content/images/ontology20.png"
 				tooltiptext="Open Imports Manager" hidden="true" />
 			<toolbarbutton id="SPARQLToolBarButton"
-				image="chrome://semantic-turkey/content/images/SPARQL.png"
+				image="chrome://semantic-turkey/content/images/sparql.png"
 				tooltiptext="Open SPARQL" hidden="true" />
 		</toolbar>
 	</toolbox>

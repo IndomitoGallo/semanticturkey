@@ -47,10 +47,10 @@ art_semanticturkey.isUrl = function(s) {
  *          false.
  */
 
-String.prototype.endsWith = function(str) {
-	var offset = this.length - str.length;
-	return offset >= 0 && this.lastIndexOf(str) === offset;
-};
+art_semanticturkey.stringEndsWith = function(string, str){
+	var offset = string.length - str.length;
+	return offset >= 0 && string.lastIndexOf(str) === offset;
+}
 
 
 /**
