@@ -23,7 +23,6 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #bookmarksTree {
-  -moz-binding: url("chrome://semantic-turkey/content/bookmarksTree.xml#bookmarks-tree-name");
 }
 
 

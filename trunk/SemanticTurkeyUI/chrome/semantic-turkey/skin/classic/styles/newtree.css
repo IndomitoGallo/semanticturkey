@@ -21,7 +21,6 @@
   *
   */
   tree {
-  -moz-binding: url("newtree.xml#mytree");
   -moz-user-focus: normal !important;
   -moz-user-select: text;
 } 

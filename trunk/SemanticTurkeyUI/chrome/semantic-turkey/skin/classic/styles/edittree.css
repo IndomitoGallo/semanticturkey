@@ -22,7 +22,6 @@
   */
 tree
 {
-  -moz-binding: url("edittree.xml#edittree");
   -moz-user-focus: normal !important;
   -moz-user-select: text;
 }

@@ -43,10 +43,10 @@
       sostituito in iframe  type="content-primary" con content-->
       <tabpanels flex="1" >
          <tabpanel align="stretch" flex="1">
-         <iframe id="classTab"  src="chrome://semantic-turkey/content/class/class.xul"  flex="1"/> 
+         	<iframe id="classTab"  type="content" src="chrome://semantic-turkey/content/class/class.xul"  flex="1"/> 
          </tabpanel>
          <tabpanel flex="1" align="stretch">
-         <iframe id="propertyTab"  src="chrome://semantic-turkey/content/property/property.xul" flex="1"/>
+         	<iframe id="propertyTab" type="content" src="chrome://semantic-turkey/content/property/property.xul" flex="1"/>
           </tabpanel>
       </tabpanels>
     </tabbox>
