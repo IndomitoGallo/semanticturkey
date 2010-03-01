@@ -33,14 +33,14 @@
 >
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/editors/property/rangeList.js"/>
 <listbox id="ranges">
-<listitem label="xsd:string"/>
-<listitem label="xsd:int"/>
-<listitem label="xsd:boolean"/>
-<listitem label="xsd:float"/>
-<listitem label="xsd:duration"/>
-<listitem label="xsd:date"/>
-<listitem label="xsd:dateTime"/>
-<listitem label="xsd:time"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#string"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#int"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#boolean"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#float"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#duration"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#date"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#dateTime"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#time"/>
 </listbox>	
 <vbox id="buttonBox" flex="0">
 			<grid flex="1">

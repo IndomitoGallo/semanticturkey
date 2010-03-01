@@ -28,7 +28,7 @@ window.onload = function() {
 			art_semanticturkey.onAccept, true);
 	document.getElementById("name").addEventListener("command",
 			art_semanticturkey.onAccept, true);
-	
+	document.getElementById("name").focus();			
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onClose, true);
 };

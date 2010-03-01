@@ -55,11 +55,15 @@ art_semanticturkey.getBookmarks_RESPONSE = function(responseElement, status) {
 		var pagelbl2 = document.createElement("label");
 		pagelbl2.setAttribute("value", title);
 		pagelbl2.setAttribute("class", "text-link");
-		pagelbl2.setAttribute("onclick", "art_semanticturkey.openLink('" + value
-				+ "');");
+		pagelbl2.linkValue = value;
+		pagelbl2.addEventListener("click", art_semanticturkey.openLinkEvent, true);
 		labelBox.appendChild(pagelbl2);
 	}
 };
+
+art_semanticturkey.openLinkEvent = function(event) {
+	art_semanticturkey.openLink(event.target.linkValue);
+}
 
 art_semanticturkey.openLink = function(value) {
 	close();

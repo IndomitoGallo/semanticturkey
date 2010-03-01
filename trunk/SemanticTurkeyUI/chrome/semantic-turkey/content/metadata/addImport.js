@@ -88,7 +88,7 @@ art_semanticturkey.initIMP = function(selectIndex, selectedLabel) {
 		var row2 = document.createElement("row");
 		var chkbox = document.createElement("checkbox");
 		chkbox.setAttribute("id", "alturl");
-		chkbox.setAttribute("oncommand", "art_semanticturkey.setAlternativeUrl();");
+		chkbox.addEventListener("command", art_semanticturkey.setAlternativeUrl, true);
 		chkbox.setAttribute("label", "Select Alternative Url:");
 		row2.appendChild(chkbox);
 
@@ -123,7 +123,7 @@ art_semanticturkey.initIMP = function(selectIndex, selectedLabel) {
 		var row4 = document.createElement("row");
 		var chkbox = document.createElement("checkbox");
 		chkbox.setAttribute("id", "alturl");
-		chkbox.setAttribute("oncommand", "art_semanticturkey.setAlternativeUrl();");
+		chkbox.addEventListener("command", art_semanticturkey.setAlternativeUrl, true);
 		chkbox.setAttribute("label", "Select Alternative Url:");
 		row4.appendChild(chkbox);
 		rows.appendChild(row);
@@ -147,7 +147,7 @@ art_semanticturkey.initIMP = function(selectIndex, selectedLabel) {
 		var btn = document.createElement("button");
 		btn.setAttribute("id", "chooseFile");
 		btn.setAttribute("label", "select local file");
-		btn.setAttribute("onclick", "art_semanticturkey.chooseFile();");
+		btn.addEventListener("click", art_semanticturkey.chooseFile, true);
 
 		var txbox1 = document.createElement("textbox");
 		txbox1.setAttribute("value", "");

@@ -34,6 +34,9 @@ Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
  window.onload = function() {
 	document.getElementById("createProperty").addEventListener("click",art_semanticturkey.onAccept,true);
 	document.getElementById("cancel").addEventListener("click",art_semanticturkey.onCancel,true);
+	document.getElementById("newValue").addEventListener("command",
+			art_semanticturkey.onAccept, true);
+	document.getElementById("newValue").focus();	
 	art_semanticturkey.setPanel();
 };
  

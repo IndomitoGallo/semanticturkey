@@ -900,6 +900,7 @@ art_semanticturkey.classesTreedoubleClick = function(event) {
 	parameters.list = document.getElementById('IndividualsList');
 	parameters.tree = document.getElementById('classesTree');
 	parameters.parentWindow = window;
+	parameters.isFirstEditor = true;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
 			"_blank", "modal=yes,resizable,centerscreen", parameters);

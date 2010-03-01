@@ -387,6 +387,7 @@ art_semanticturkey.SPARQLResourcedblClick = function(event) {
 		parameters.sourceElement = treecell;
 		parameters.sourceElementName = treecell.getAttribute("label");
 		alert(sourceType+" LABEL "+parameters.sourceElementName);
+		parameters.isFirstEditor = true;
 		window.openDialog(
 				"chrome://semantic-turkey/content/editors/editorPanel.xul",
 				"_blank", "modal=yes,resizable,left=400,top=100", parameters);
