@@ -153,6 +153,9 @@ function removePropValue(instanceQName, propertyQName, value, type, lang) {
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var value = "value=" + value;
+	if(typeof type == "undefined"){
+		return HttpMgr.GET(serviceName, service.removePropValueRequest, instanceQName, propertyQName, value);
+	}
 	var type = "type=" + type;
 	if (typeof lang != "undefined" && lang != "") {
 		var lang = "lang=" + lang;

@@ -119,6 +119,7 @@ art_semanticturkey.infoProject = function(){
 		//parameters.sourceElement = list.selectedItem;
 		parameters.sourceElementName = baseuri;
 		parameters.parentWindow = window;
+		parameters.isFirstEditor = true;
 		//parameters.list = document.getElementById('IndividualsList');
 		//parameters.tree = document.getElementById('classesTree');
 		window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul",

@@ -41,7 +41,7 @@
 						<label control="newValue" value="Insert property value:"/>
 					</row>
 					<row>
-						<textbox id="newValue"/>
+						<textbox id="newValue" type="search" searchbutton="true"/>
 					</row>
 				</rows>
 			</grid>

@@ -131,6 +131,7 @@ art_semanticturkey.listdblclick = function(event) {
 	parameters.parentWindow = window;
 	parameters.list = document.getElementById('IndividualsList');
 	parameters.tree = document.getElementById('classesTree');
+	parameters.isFirstEditor = true;
 	window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul",
 			"_blank", "modal=yes,resizable,centerscreen", parameters);
 };

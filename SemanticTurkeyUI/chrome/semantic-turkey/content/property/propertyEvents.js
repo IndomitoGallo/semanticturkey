@@ -70,7 +70,7 @@ art_semanticturkey.createSubProperty = function() {
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var selPropName = treecell.getAttribute("label");
-	var selPropType = treecell.getAttribute("type");
+	var selPropType = treecell.getAttribute("propType");
 
 	var parameters = new Object();
 	/*
@@ -90,7 +90,6 @@ art_semanticturkey.createSubProperty = function() {
 	parameters.parentTreecell = treecell;
 	parameters.type = "subProperty";
 	parameters.parentWindow = window;
-
 	window.openDialog(
 			"chrome://semantic-turkey/content/property/createProperty.xul",
 			"_blank", "modal=yes,resizable,centerscreen", parameters);
@@ -177,6 +176,7 @@ art_semanticturkey.myPropertyTreedoubleClick = function(event) {
 	parameters.list = "";
 	parameters.tree = tree;
 	parameters.parentWindow = window;
+	parameters.isFirstEditor = true;
 	window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul",
 			"_blank", "modal=yes,resizable,centerscreen", parameters);
 };
