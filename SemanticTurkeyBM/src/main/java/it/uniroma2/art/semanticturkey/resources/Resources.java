@@ -98,6 +98,8 @@ public class Resources {
 						"initial copy of Semantic Turkey resources failed during first install: "
 								+ e.getMessage());
 			}
+		} else {
+			UpdateRoutines.startUpdatesCheckAndRepair();
 		}
 
 		try {
@@ -183,7 +185,6 @@ public class Resources {
 		return _ontMirrorDirDefaultLocation;
 	}
 
-
 	public static File getProjectsDir() {
 		return new File(_userDirectoryPath, _projectsDirName);
 	}
@@ -191,14 +192,13 @@ public class Resources {
 	public static File getMainProjectDir() {
 		return new File(_userDirectoryPath, mainProjectName);
 	}
-	
-	
+
 	/**
 	 * this method is used to get the path of a new temp file to be used for whatever reason (the file is
 	 * stored in the default temp file directory of Semantic Turkey
 	 * 
 	 * @return the path to the temp file
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static File createTempDir() throws IOException {
 		UUID uuid;
@@ -211,7 +211,8 @@ public class Resources {
 		} while (tempDir.exists());
 		if (tempDir.mkdir())
 			return tempDir;
-		else throw new IOException("unable to create tempdir for building the exported project");
+		else
+			throw new IOException("unable to create tempdir for building the exported project");
 	}
 
 }

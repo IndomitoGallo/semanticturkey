@@ -23,6 +23,8 @@
 	width="300" height="200">
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/metadata/add_prefix.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/metadata/importsUtils.js" />
 	<hbox id="addImportPanel" flex="1">
 		<vbox flex="1">
 			<grid flex="1">
