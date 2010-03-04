@@ -214,6 +214,11 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 							sourceElementName,
 							"templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+			//add all the web link of this instance
+			responseXML = art_semanticturkey.STRequests.Page
+				.getBookmarks(sourceElementName);
+			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+			
 		} else if (type == "Ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
@@ -227,6 +232,35 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		alert(e.name + ": " + e.message);
 	}
 };
+
+/**
+ * Populate editor panel with the web link of the selected resource
+ * @param {} responseElement
+ */
+art_semanticturkey.getWebLinks_RESPONSE = function(responseElement){
+	document.getElementById("webLink").hidden=false;
+	var bookmarksList = responseElement.getElementsByTagName("URL");
+	var rowsBox = document.getElementById("rowsBoxWebLink");
+	for ( var i = 0; i < bookmarksList.length; i++) {
+		var linkTitle =  bookmarksList[i].getAttribute("title");
+		var linkUrl = bookmarksList[i].getAttribute("value");
+		var row = document.createElement("row");
+		var textbox = document.createElement("textbox");
+		textbox.setAttribute("value", linkTitle);
+		textbox.setAttribute("readonly", "true");
+		textbox.setAttribute("class", "text-link");
+		textbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
+		textbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+		textbox.addEventListener("click", art_semanticturkey.openUrlEvent, true);
+		var containerObj = new Object();
+		containerObj.value = linkUrl;
+		textbox.containerObj = containerObj;
+		row.appendChild(textbox);
+		rowsBox.appendChild(row);
+	}
+};
+
+
 /**
  * Populate editor panel with description of selected resource
  */
@@ -864,7 +898,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						var explicit = valueList[j].getAttribute("explicit");
 						var valueType = valueList[j].getAttribute("type");
 						row2 = document.createElement("row");
-						txbox = document.createElement("textbox");
+						var txbox = document.createElement("textbox");
 						txbox.setAttribute("id", value);
 						txbox.setAttribute("typeValue", typeValue);
 						if (typeValue == "owl:AnnotationProperty") {
@@ -1047,7 +1081,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						} else if (valueType.indexOf("literal") != -1) {
 							if (art_semanticturkey.isUrl(value)) {
 								txbox.setAttribute("class", "text-link");
-								txBox.addEventListener("click", art_semanticturkey.openUrlEvent, 
+								txbox.addEventListener("click", art_semanticturkey.openUrlEvent, 
 										true);
 								var containerObj = new Object();
 								containerObj.value = value;
@@ -1546,7 +1580,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 
 art_semanticturkey.onClose = function(){
 	close();
-}
+};
 
 /**
  * NScarpato 29/11/2007 onAccept
@@ -1874,7 +1908,7 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 
 art_semanticturkey.removeSuperClassEvent = function(event){
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.removeSuperClass(containerObj.value, containerObj.isList)
+	art_semanticturkey.removeSuperClass(containerObj.value, containerObj.isList);
 };
 
 /**
@@ -2182,8 +2216,10 @@ art_semanticturkey.addNewProperty = function() {
 							"chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
 							"_blank", "modal=yes,resizable,centerscreen",
 							literalsParameters);
-			art_semanticturkey.createAndAddPropValue(parameters.selectedProp,
+			if(literalsParameters.isLiteral !="none"){				
+					art_semanticturkey.createAndAddPropValue(parameters.selectedProp,
 					propType, literalsParameters.isLiteral);
+			}
 		}else{
 			art_semanticturkey.createAndAddPropValue(parameters.selectedProp,
 					propType);

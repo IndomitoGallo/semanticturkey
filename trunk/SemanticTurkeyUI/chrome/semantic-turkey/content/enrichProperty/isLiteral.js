@@ -23,7 +23,10 @@ if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 	
  window.onload = function(){
- 	var question = "Do you want to add "+window.arguments[0].objName+" as literal or as individual?"
+ 	if(typeof window.arguments[0].objName == 'undefined'){
+ 		window.arguments[0].objName  = " new value";
+ 	}
+ 	var question = "Do you want to add "+window.arguments[0].objName+" as literal or as individual?";
  	document.getElementById("question").setAttribute("value",question);
  	document.getElementById("isLiteral").addEventListener("click",
 			art_semanticturkey.isLiteral, true);

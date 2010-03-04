@@ -153,6 +153,9 @@ art_semanticturkey.removePrefix = function() {
 		return;
 	}
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
+	var prefix = treerow.getElementsByTagName('treecell')[0].getAttribute("label");
+	if(art_semanticturkey.checkPrefixEditable(prefix)  == false)
+		return;
 	var explicit = treerow.getAttribute("explicit");
 	if (explicit == "true") {
 		var treecell = treerow.getElementsByTagName('treecell')[1];
@@ -179,7 +182,10 @@ art_semanticturkey.changePrefix = function() {
 		return;
 	}
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
-	var explicit = treerow.getAttribute("explicit");
+	var prefix = treerow.getElementsByTagName('treecell')[0].getAttribute("label");
+	if(art_semanticturkey.checkPrefixEditable(prefix) == false)
+		return;
+	//var explicit = treerow.getAttribute("explicit");
 	// if(explicit=="true"){
 	var treecellNS = treerow.getElementsByTagName('treecell')[1];
 	var namespace = treecellNS.getAttribute("label");
@@ -315,4 +321,13 @@ art_semanticturkey.clearedDataObj = function(){
 	this.unregister = function() {
 		art_semanticturkey.evtMgr.deregisterForEvent("clearedData", this);
 	};
+};
+
+
+art_semanticturkey.checkPrefixEditable = function(prefix){
+	if(prefix == "owl" || prefix == "rdf" || prefix == "rdfs"){
+		alert("The prefix "+prefix+" is not editable");
+		return false;
+	}
+	return true;
 };
