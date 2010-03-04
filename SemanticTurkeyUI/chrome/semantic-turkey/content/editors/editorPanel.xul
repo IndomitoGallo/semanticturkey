@@ -68,6 +68,20 @@
 		</scrollbox>
 		<separator orient="orizontal" style="groove" id="lastSep">
 		</separator>
+		<scrollbox id="webLink" style="overflow:auto" collapsed="false"
+			minwidth="550" minheight="100" hidden="true">
+			<vbox>
+				<label value = "WebLinks:"/>
+				<grid flex="1" style="overflow:auto">
+					<columns flex="5" style="overflow:auto">
+						<column flex="5" style="overflow:auto" />
+					</columns>
+					<rows id="rowsBoxWebLink" flex="1" style="overflow:auto" minwidth="550"
+						minheight="100">
+					</rows>
+				</grid>
+			</vbox>
+		</scrollbox>
 	</vbox>
 	<vbox id="buttonBox" flex="0"  align = "right"> 
 		<button id="close" label="Close"/>
