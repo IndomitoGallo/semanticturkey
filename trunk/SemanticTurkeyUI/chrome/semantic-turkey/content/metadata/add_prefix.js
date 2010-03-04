@@ -16,6 +16,9 @@ art_semanticturkey.onAccept = function() {
 	var prefix = document.getElementById("prefix").value; 	 
  	var ns = document.getElementById("namespace").value; 
  	
+ 	if(art_semanticturkey.checkPrefixEditable(prefix) == false)
+ 		return;
+ 	
  	try{
 	    var responseXML = window.arguments[0].parentWindow.art_semanticturkey.STRequests.Metadata.setNSPrefixMapping(
 				prefix, ns);

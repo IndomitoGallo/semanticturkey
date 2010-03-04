@@ -324,10 +324,3 @@ art_semanticturkey.clearedDataObj = function(){
 };
 
 
-art_semanticturkey.checkPrefixEditable = function(prefix){
-	if(prefix == "owl" || prefix == "rdf" || prefix == "rdfs"){
-		alert("The prefix "+prefix+" is not editable");
-		return false;
-	}
-	return true;
-};

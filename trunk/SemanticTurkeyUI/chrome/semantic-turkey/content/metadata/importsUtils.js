@@ -416,3 +416,11 @@ art_semanticturkey.getSelectedLabel = function(){
 art_semanticturkey.getSelectedIndex = function(){
 	return document.getElementById("import").selectedIndex;
 };
+
+art_semanticturkey.checkPrefixEditable = function(prefix){
+	if(prefix == "owl" || prefix == "rdf" || prefix == "rdfs" || prefix == "ann"){
+		alert("The prefix "+prefix+" is not editable");
+		return false;
+	}
+	return true;
+};

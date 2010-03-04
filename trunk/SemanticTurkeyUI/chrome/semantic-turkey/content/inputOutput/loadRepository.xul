@@ -19,7 +19,7 @@
 		* */
 	-->
 
-<window id="exportRepositoryWindow" title="Load Repository"
+<window id="exportRepositoryWindow" title="Load RDF"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	width="300" height="200">
 
@@ -36,11 +36,11 @@
 			</columns>
 			<rows flex="1">
 				<row>
-					<label id="dir" value="Select Repository File:" control="dirBtn" />
+					<label id="dir" value="Select RDF File:" control="dirBtn" />
 				</row>
 				<row>
 					<textbox id="srcLocalFile" />
-					<button id="dirBtn" label="Select Repository File"/>
+					<button id="dirBtn" label="Select RDF File"/>
 				</row>
 				<row>
 					<label value="Base URI:" />

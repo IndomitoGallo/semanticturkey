@@ -19,7 +19,7 @@
 		* */
 	-->
 
-<window id="exportRepositoryWindow" title="Export Repository"
+<window id="exportRepositoryWindow" title="Save RDF"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	width="300" height="200">
 
