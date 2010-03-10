@@ -1,0 +1,141 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License");  you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * http//www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
+ *
+ * The Original Code is SemanticTurkey.
+ *
+ * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+ * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+ * All Rights Reserved.
+ *
+ * SemanticTurkey was developed by the Artificial Intelligence Research Group
+ * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+ * Current information about SemanticTurkey can be obtained at 
+ * http://semanticturkey.uniroma2.it
+ *
+ */
+
+package it.uniroma2.art.semanticturkey.servlet.main;
+
+import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.ARTNode;
+import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
+import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.w3c.dom.Element;
+
+
+/**
+ * This class retrieves all web pages associated to an instance
+ * 
+ * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
+ */
+public class Page extends ServiceAdapter {
+	
+	protected static Logger logger = LoggerFactory.getLogger(Page.class);
+
+	public static String instanceNameString = "instanceName";
+	public static String getBookmarksRequest = "getBookmarks";
+
+	public Page(String id) {
+		super(id);
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()
+	 */
+	public Response getResponse() {
+		String request = getBookmarksRequest;
+		String instanceQName = setHttpPar(instanceNameString);
+		try {
+			checkRequestParametersAllNotNull(instanceNameString);
+		} catch (HTTPParameterUnspecifiedException e) {
+			return ServletUtilities.getService().createUndefinedHttpParameterExceptionResponse(request, e);
+		}
+		this.fireServletEvent();
+		return getAnnotatedPagesForInstance(instanceQName);
+	}
+
+	public Response getAnnotatedPagesForInstance(String instanceQName) {
+
+		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(getBookmarksRequest,
+				RepliesStatus.ok);
+		Element dataElement = response.getDataElement();
+
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		ARTResource instanceRes;
+		try {
+			instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceQName));
+			logger.debug("instanceRes: " + instanceRes);
+			ARTResourceIterator semanticAnnotationInstancesIterator = ontModel
+					.listValuesOfSubjObjPropertyPair(instanceRes, SemAnnotVocab.Res.annotation, true);
+			Set<String> set = new HashSet<String>();
+			while (semanticAnnotationInstancesIterator.hasNext()) {
+				ARTResource semanticAnnotationRes = semanticAnnotationInstancesIterator.next().asResource();
+				ARTResourceIterator webPageInstancesIterator = ontModel.listValuesOfSubjObjPropertyPair(
+						semanticAnnotationRes, SemAnnotVocab.Res.location, true);
+				while (webPageInstancesIterator.hasNext()) {
+					ARTResource webPageInstance = webPageInstancesIterator.next().asResource();
+
+					ARTLiteralIterator urlPageIterator = ontModel.listValuesOfSubjDTypePropertyPair(
+							webPageInstance, SemAnnotVocab.Res.url, true);
+
+					ARTNode urlPageValue = null;
+					while (urlPageIterator.streamOpen()) {
+						urlPageValue = urlPageIterator.getNext();
+					}
+					String urlPage = urlPageValue.toString();
+
+					if (!set.add(urlPage))
+						continue;
+
+					ARTLiteralIterator titleIterator = ontModel.listValuesOfSubjDTypePropertyPair(
+							webPageInstance, SemAnnotVocab.Res.title, true);
+					ARTNode titleValue = null;
+					while (titleIterator.hasNext()) {
+						titleValue = titleIterator.next();
+					}
+					String title = titleValue.toString();
+
+					Element url = XMLHelp.newElement(dataElement, "URL");
+					urlPage = urlPage.replace("%3A", ":");
+					urlPage = urlPage.replace("%2F", "/");
+					url.setAttribute("value", urlPage);
+					logger.debug("value " + urlPage);
+					url.setAttribute("title", title);
+					logger.debug("title " + title);
+				}
+			}
+		} catch (ModelAccessException e) {
+			return ServletUtilities.getService().createExceptionResponse(getBookmarksRequest, e);
+		}
+
+		return response;
+	}
+
+
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+	<!--
+		/* * The contents of this file are subject to the Mozilla Public
+		License * Version 1.1 (the "License"); you may not use this file
+		except in compliance * with the License. You may obtain a copy of the
+		License at * http://www.mozilla.org/MPL/ * * Software distributed
+		under the License is distributed on an "AS IS" basis, * WITHOUT
+		WARRANTY OF ANY KIND, either express or implied. See the License for *
+		the specific language governing rights and limitations under the
+		License. * * The Original Code is SemanticTurkey. * * The Initial
+		Developer of the Original Code is University of Roma Tor Vergata. *
+		Portions created by University of Roma Tor Vergata are Copyright (C)
+		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
+		Artificial Intelligence Research Group * (art.uniroma2.it) at the
+		University of Roma Tor Vergata (ART) * Current information about
+		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
+		* */
+	-->
+
+<window id="newProjectWindow" title="New Project"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="400" height="200">
+
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/projects/newProject.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/fileChooser.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/utilities/utilities.js" />
+
+
+	<vbox id="repBox" flex="1">
+		<grid flex="1">
+			<columns>
+				<column flex="1" />
+				<column flex="1" />
+			</columns>
+			<rows flex="1">
+				<row>
+					<label value="Project Name: " />
+					<textbox id="projectName" value="" />
+				</row>
+				<row>
+					<label value="URI: " />
+					<textbox id="uri" value="" />
+				</row>
+				<row>
+					<label value="Triple Store: " />
+					<menulist id="tripleStoreMenulist">
+						<menupopup id="tripleStoreMenupopup">
+						</menupopup>
+					</menulist>
+				</row>
+				<row>
+					<label value="mode: " />
+					<menulist id="modeMenulist">
+						<menupopup id="modeMenupopup">
+							<menuitem label="Continuous Editing" id="continuosEditing" selected="true" />
+							<menuitem label="Save2Store" id="saveToStore"/>
+						</menupopup>
+					</menulist>
+				</row>
+				<row id="fromFileRow">
+					<button id="dirBtn" label="Select rdf/owl file"/>
+					<textbox id="srcLocalFile" value="" />
+				</row>
+			</rows>
+		</grid>
+	</vbox>
+	<vbox id="buttonBox" flex="0">
+		<grid flex="1">
+			<columns>
+				<column flex="1" />
+				<column flex="1" />
+			</columns>
+			<rows flex="1">
+				<row>
+					<button id="newProject" label="New Project" flex="1" />
+					<button id="cancel" label="Cancel" flex="1" />
+				</row>
+			</rows>
+		</grid>
+	</vbox>
+</window>
+
+
