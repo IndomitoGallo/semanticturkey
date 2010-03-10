@@ -14,11 +14,6 @@ and install them on your local maven repository, through the following maven com
 mvn install:install-file -Dfile=secondstring-20060615.jar -DgroupId=com.wcohen.ss -DartifactId=secondstring -Dversion=2006.06.15 -Dpackaging=jar
 mvn install:install-file -Dfile=javaFirefoxExtensionUtils.jar -DgroupId=edu.mit.simile -DartifactId=javaFirefoxExtensionUtils -Dversion=2.0 -Dpackaging=jar
 
-These instructions assume that the following lib:
-
-- owlart-api (groupID: it.uniroma2.art.owlart)
-
-will be available through Maven Central repository. If it is not, look on the project site if the jar is available
 
 2) BE SURE TO REQUIRED PROJECTS ON THE SAME DIRECTORY
    In order to build this project (SemanticTurkeyBM), you need also:
