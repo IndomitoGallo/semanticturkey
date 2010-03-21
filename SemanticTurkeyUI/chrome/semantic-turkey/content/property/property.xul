@@ -27,84 +27,76 @@
 <window id="properties" title="Property Dialog"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	width="600" height="600"
+	orient="vertical"
 >
 
-<script src="chrome://global/content/nsDragAndDrop.js"/>
-<script src="chrome://global/content/nsTransferable.js"/> 
+	<script src="chrome://global/content/nsDragAndDrop.js"/>
+	<script src="chrome://global/content/nsTransferable.js"/> 
 
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/property.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/propertyEvents.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/propertyUtilities.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
-<hbox flex="1" > 
-<vbox flex="1" orient="vertical">
-<grid flex="0">
-  <columns>
-    <column flex="0"/>
-  </columns>
-  <rows>
-    <row> 
-     <toolbox>
-	    <toolbar id="property-toolbar">
-	     	<toolbarbutton id="createObjectProperty" image="../images/propObject_create.png"  tooltiptext="Create Object Property"/>
-		 	<toolbarbutton id="createDatatypeProperty" image="../images/propDatatype_create.png"  tooltiptext="Create Datatype Property"/>
-		 	<toolbarbutton id="createAnnotationProperty" image="../images/propAnnotation_create.png"  tooltiptext="Create Annotation Property"/>
-		 	<toolbarbutton id="createSubProperty"  image="../images/prop_addSubProperty.png"  tooltiptext="Create SubProperty"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/property.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/propertyEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/propertyUtilities.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
+
+
+	<toolbox flex="0">
+		<toolbar id="property-toolbar">
+			<toolbarbutton id="createObjectProperty" image="../images/propObject_create.png"  tooltiptext="Create Object Property"/>
+			<toolbarbutton id="createDatatypeProperty" image="../images/propDatatype_create.png"  tooltiptext="Create Datatype Property"/>
+			<toolbarbutton id="createAnnotationProperty" image="../images/propAnnotation_create.png"  tooltiptext="Create Annotation Property"/>
+			<toolbarbutton id="createSubProperty"  image="../images/prop_addSubProperty.png"  tooltiptext="Create SubProperty"/>
 			<toolbarbutton id="removeProperty"  image="../images/prop_delete.png"  tooltiptext="Remove Property"/>
 		</toolbar>
 	</toolbox>
-</row>
- </rows>
-</grid>
-<popupset>
-	<popup id="clipmenu" onpopupshowing="javascript:;">
-		<menuitem id="menuItemCreateSubProperty" >
-		<menuitem-iconic >
-				<image src="../images/prop_addSubProperty.png"/>
-				<label value="Add SubProperty"/> 						
-			</menuitem-iconic>
-		</menuitem>	
-		<menuitem id="menuItemModifyName">
-		<menuitem-iconic>
-				<image src="../images/empty20x20.png" flex="0"/> 
-				<label value="Modify Property"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem id="menuItemRemoveProperty" >
-		<menuitem-iconic >
-				<image src="../images/prop_delete.png"/>
-				<label value="Remove Property"/> 						
-			</menuitem-iconic>		
-		</menuitem>	
-		<menuitem id="menuItemAddSynonym">
-		<menuitem-iconic>
-				<image src="../images/empty20x20.png" flex="0"/> 
-				<label value="Add Synonym"/> 						
-			</menuitem-iconic>
-		</menuitem>
-	</popup>
-</popupset>
-<tree hidecolumnpicker="true" id="propertiesTree" flex="1" context="clipmenu"
-	seltype="single" class="PropertyTree">
-	<treecols width="1200">
-		<treecol id="category" label="Property" primary="true" flex="1">
-		</treecol>
-	</treecols>
-	<treechildren id="rootPropertyTreeChildren">
-	</treechildren>
-</tree>
-</vbox>
-</hbox>
-<splitter orient ="vertical" state="open" collapse="after"
-				resizeafter="closest"
-				resizebefore="farthest">
-				</splitter>
-<hbox flex="0">
-	<vbox flex="0">
+	
+	<popupset>
+		<popup id="clipmenu" onpopupshowing="javascript:;">
+			<menuitem id="menuItemCreateSubProperty" >
+			<menuitem-iconic >
+					<image src="../images/prop_addSubProperty.png"/>
+					<label value="Add SubProperty"/> 						
+				</menuitem-iconic>
+			</menuitem>	
+			<menuitem id="menuItemModifyName">
+			<menuitem-iconic>
+					<image src="../images/empty20x20.png" flex="0"/> 
+					<label value="Modify Property"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemRemoveProperty" >
+			<menuitem-iconic >
+					<image src="../images/prop_delete.png"/>
+					<label value="Remove Property"/> 						
+				</menuitem-iconic>		
+			</menuitem>	
+			<menuitem id="menuItemAddSynonym">
+			<menuitem-iconic>
+					<image src="../images/empty20x20.png" flex="0"/> 
+					<label value="Add Synonym"/> 						
+				</menuitem-iconic>
+			</menuitem>
+		</popup>
+	</popupset>
+	
+	<tree hidecolumnpicker="true" id="propertiesTree" flex="1" context="clipmenu"
+	      seltype="single" class="PropertyTree">
+		<treecols width="1200">
+			<treecol id="category" label="Property" primary="true" flex="1">
+			</treecol>
+		</treecols>
+		<treechildren id="rootPropertyTreeChildren">
+		</treechildren>
+	</tree>
+	
+	<!-- It isn't useful (Manuel Fiorelli 20/03/2010
+	<splitter orient ="vertical" state="open" collapse="after"
+	          resizeafter="closest"
+	          resizebefore="farthest">
+	</splitter>
+	-->
+
 	<textbox value="Enter query..." id="ontosearch_prop"
-				onfocus="this.style.color='red'; this.value='';"
-				onblur="this.style.color='black'; this.value='Search element...';" />
-				</vbox>
-			</hbox>
+	         onfocus="this.style.color='red'; this.value='';"
+	         onblur="this.style.color='black'; this.value='Search element...';" flex="0" />
 </window>

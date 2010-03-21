@@ -25,157 +25,139 @@
   */ -->
 
 <window title="Semantic Turkey"
-   id="captree-main-window"
-   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-   flex="1"
-   width="600"
-   height="600">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
-<!--<script src="chrome://global/content/nsDragAndDrop.js"/>
-<script src="chrome://global/content/nsTransferable.js"/>--> 
+	id="captree-main-window"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	flex="1"
+	orient="vertical">
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
+	<!--<script src="chrome://global/content/nsDragAndDrop.js"/>
+	<script src="chrome://global/content/nsTransferable.js"/>--> 
 
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/class.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEvents.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/individualEvents.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/dragDrop.js"/>
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
-<!-- <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/> -->
-<hbox flex="1" > 
-<vbox flex="1" orient="vertical">
-<grid flex="0">
-  <columns>
-    <column flex="0"/>
-  </columns>
-  <rows>
-    <row> 
-     <toolbox>
-	    <toolbar id="findfiles-toolbar">
-	     	<toolbarbutton id="createRootClass" image="../images/class_create.png" tooltiptext="Create Class"/>
-		 	<toolbarbutton id="createSubClass"  image="../images/class_addSubClass.png"  tooltiptext="Create SubClass"></toolbarbutton>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/class.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/individualEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/dragDrop.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
+	<!-- <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/> -->
+	
+	<toolbox flex="0">
+		<toolbar id="findfiles-toolbar">
+			<toolbarbutton id="createRootClass" image="../images/class_create.png" tooltiptext="Create Class"/>
+			<toolbarbutton id="createSubClass"  image="../images/class_addSubClass.png"  tooltiptext="Create SubClass"></toolbarbutton>
 			<toolbarbutton  id="createSiblingClass"  image="../images/class_addSibling.png"  tooltiptext="Create Sibling Class"></toolbarbutton>
 			<toolbarbutton  id="removeClass"  image="../images/class_delete.png"  tooltiptext="Delete Class"></toolbarbutton>
 			<!--<toolbarbutton  id="graph"  image="../images/ontology20.png" tooltiptext="Semantic Navigation"></toolbarbutton>-->
 		</toolbar>
 	</toolbox>
-</row>
- </rows>
-</grid>
-<popupset>
-	<popup id="clipmenu"  align="start">
-		<menuitem id="menuItemCreateIndividual" flex="1">
-		<menuitem-iconic flex="1">
-				<image src="../images/individual_add.png" flex="0"/>
-				<label value="Create Instance" flex="0"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem id="menuItemGraph" flex="1">
+		
+	<popupset>
+		<popup id="clipmenu"  align="start">
+			<menuitem id="menuItemCreateIndividual" flex="1">
 			<menuitem-iconic flex="1">
-				<image src="../images/ontology20.png" flex="0"/>
-				<label value="SemanticNavigation" flex="0"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem id="menuItemSubClass" flex="1">
+					<image src="../images/individual_add.png" flex="0"/>
+					<label value="Create Instance" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemGraph" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="../images/ontology20.png" flex="0"/>
+					<label value="SemanticNavigation" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemSubClass" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="../images/class_addSubClass.png" flex="0"/>
+					<label value="Add SubClass" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemRemoveClass"  flex="1">
+						<menuitem-iconic id="removeItemIc" flex="1">
+									<image src="../images/class_delete.png" flex="0"/>
+									<label value="Delete" flex="0"/> 						
+						</menuitem-iconic>	
+			</menuitem>
+			<menuitem  id="menuItemRenameClass"  flex="1">
+			<menuitem-iconic>
+					<image src="../images/empty20x20.png" flex="0"/> 
+					<label value="Modify name"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem   id="menuItemAddSynonym"  flex="1">
 			<menuitem-iconic flex="1">
-				<image src="../images/class_addSubClass.png" flex="0"/>
-				<label value="Add SubClass" flex="0"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem id="menuItemRemoveClass"  flex="1">
-					<menuitem-iconic id="removeItemIc" flex="1">
-								<image src="../images/class_delete.png" flex="0"/>
-								<label value="Delete" flex="0"/> 						
-					</menuitem-iconic>	
-		</menuitem>
-		<menuitem  id="menuItemRenameClass"  flex="1">
-		<menuitem-iconic>
-				<image src="../images/empty20x20.png" flex="0"/> 
-				<label value="Modify name"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem   id="menuItemAddSynonym"  flex="1">
-		<menuitem-iconic flex="1">
-				 <image src="../images/empty20x20.png" flex="0"/> 
-				<label value="Add Synonym" flex="0"/> 						
-			</menuitem-iconic>
-		</menuitem>
-		<menuitem id="menuItemCreateSiblingClass" flex="1">
-			<menuitem-iconic >
-				<image src="../images/class_addSibling.png" flex="0"/>
-				<label value="Create Sibling Class" flex="0"/> 						
-			</menuitem-iconic>
-		</menuitem>
-	</popup>
-	
-</popupset>
-
-<tree hidecolumnpicker="true" id="classesTree" flex="1" context="clipmenu"   seltype="single">
-  <treecols>
-    <treecol id="category"  label= "Classes" primary="true" flex="1">
-    </treecol>
-  </treecols>
-  <treechildren id="rootClassTreeChildren">
- </treechildren>
-</tree>
+					 <image src="../images/empty20x20.png" flex="0"/> 
+					<label value="Add Synonym" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemCreateSiblingClass" flex="1">
+				<menuitem-iconic >
+					<image src="../images/class_addSibling.png" flex="0"/>
+					<label value="Create Sibling Class" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+		</popup>
+	</popupset>
+			
+	<tree hidecolumnpicker="true" id="classesTree" context="clipmenu" seltype="single" flex="2">
+		<treecols>
+			<treecol id="category"  label= "Classes" primary="true" flex="1" />
+		</treecols>
+		<treechildren id="rootClassTreeChildren" flex="1"/>
+	</tree>
 			
 	<!-- NScarpato 17/11/2006 Panel for instance view -->
-			<splitter  state="open" collapse="after"
-				resizebefore="closest"
-				resizeafter="farthest">
-			</splitter>
+	<splitter state="open" collapse="after"
+	          resizebefore="closest"
+	          resizeafter="closest">
+		<grippy />
+	</splitter>
 	<!--	 <hbox flex="1">
 				<vbox flex="1">-->
-			
-			<popupset>
-				<popup id="clipmenulist">
-					<menuitem id="menuItemWebLinks">
-					<menuitem-iconic>
-						<image src="../images/world20.png" />
-						<label value="WebLinks" /> 						
-					</menuitem-iconic>
-					</menuitem>
-					<menuitem id="menuItemIndividualGraph" >
-					<menuitem-iconic>
-						<image src="../images/ontology20.png"/>
-						<label value="SemanticNavigation"/> 						
-					</menuitem-iconic>		 
-					</menuitem>
-					<menuitem id="menuItemRemoveIndividual">
-					<menuitem-iconic >
-								<image src="../images/individual_delete.png"/>
-								<label value="Delete"/> 						
-					</menuitem-iconic>	
-					</menuitem>
-				</popup>
-			</popupset>
-								 
-					 <listbox id="IndividualsList"
-					context="clipmenulist" >
-					
-					<listhead>
-						<listheader>
-							<listitem-iconic>
-								<!-- <image src= "../images/individual.png"/> -->
-								<label value="Instances"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>
-							
-					</listbox> 	
-									
-				</vbox>
-				
-			</hbox>
+		
+	<listbox id="IndividualsList"
+	         context="clipmenulist"
+	         flex="1">		
+		<listhead>
+			<listheader>
+				<listitem-iconic>
+				<!-- <image src= "../images/individual.png"/> -->
+					<label value="Instances"/>
+				</listitem-iconic>
+			</listheader>		
+		</listhead>						
+	</listbox>
+	
+	<popupset>
+		<popup id="clipmenulist">
+			<menuitem id="menuItemWebLinks">
+			<menuitem-iconic>
+				<image src="../images/world20.png" />
+				<label value="WebLinks" /> 						
+			</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemIndividualGraph" >
+			<menuitem-iconic>
+				<image src="../images/ontology20.png"/>
+				<label value="SemanticNavigation"/> 						
+			</menuitem-iconic>		 
+			</menuitem>
+			<menuitem id="menuItemRemoveIndividual">
+			<menuitem-iconic >
+						<image src="../images/individual_delete.png"/>
+						<label value="Delete"/> 						
+			</menuitem-iconic>	
+			</menuitem>
+		</popup>
+	</popupset>
+	
+	<!-- It isn't useful (Manuel Fiorelli 20/03/2010	
 	<splitter orient ="vertical" state="open" collapse="after"
-				resizeafter="closest"
-				resizebefore="closest">
-				</splitter>
-	<hbox flex="0">
-	<vbox flex="0">
+	          resizeafter="closest"
+	          resizebefore="closest">
+	</splitter>
+	-->
 	<textbox value="Enter query..." id="ontosearch"
 				onfocus="this.style.color='blue'; this.value='';"
-				onblur="this.style.color='black'; this.value='Search element...';"/>
-				</vbox>
-			</hbox>
-  
+				onblur="this.style.color='black'; this.value='Search element...';" flex="0" />
 </window>
 
