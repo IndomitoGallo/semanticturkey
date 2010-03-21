@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>semanticturkey</artifactId>
-			<version>0.7.0</version>
+			<version>0.7.1</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
