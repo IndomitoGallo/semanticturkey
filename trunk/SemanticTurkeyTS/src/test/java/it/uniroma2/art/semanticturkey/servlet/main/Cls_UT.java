@@ -49,15 +49,22 @@ public class Cls_UT extends ServiceUTFixture {
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");
 		startST();
-		importSTExample();		
+		importSTExample();
+		importTestOntologyFromLocalFile("http://ai-nlp.info.uniroma2.it/ontologies/heritage", "heritage.owl");
 	}
 	
-	/**
-	 * retrieves range/domain of a property defined inside an imported ontology, through the graph of that
-	 * imported ontology
-	 */
 	@Test
-	public void getStatementsNoInferenceFromProperGraph() {
+	public void getClassDescription() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.classDescriptionRequest,
+				par(Cls.clsQNameField, "heritage:concert_place"),
+				par("method", Cls.templateandvalued)
+		);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
+	
+	@Test
+	public void getClassesInfoAsRootsForTreeRequest() {
 
 		Response resp = serviceTester.clsService.makeRequest(Cls.getClassesInfoAsRootsForTreeRequest,
 				par(Cls.clsesQNamesPar, "owl:Thing|_|st_example:Person")
@@ -65,6 +72,29 @@ public class Cls_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
+	
+	@Test
+	public void getSubClassesUsingEnglishLabels() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
+				par(Cls.clsQNameField, "heritage:cultural"),
+				par(Cls.treePar, "true"),
+				par(Cls.labelQueryPar, "prop:rdfs:label###en")
+		);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
+
+	@Test
+	public void getSubClassesUsingItalianLabels() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
+				par(Cls.clsQNameField, "heritage:cultural"),
+				par(Cls.treePar, "true"),
+				par(Cls.labelQueryPar, "prop:rdfs:label###it")
+		);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
+	
 
 
 }

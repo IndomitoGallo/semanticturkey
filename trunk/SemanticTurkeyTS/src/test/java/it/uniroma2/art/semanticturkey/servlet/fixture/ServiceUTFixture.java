@@ -78,19 +78,32 @@ public class ServiceUTFixture extends ServiceTest {
 		System.out.println(resp);
 	}
 
-	public static void importSTExample() {
-		String stxOntologyURI = "http://art.uniroma2.it/ontologies/st_example";
+	/**
+	 * imports a specified ontology file from the default input folder: "testInput" in this working directory
+	 * 
+	 * @param stxOntologyURI the baseuri of the imported ontology 
+	 * @param ontFileName the local file (inside the test input folder) where this ontology is defined
+	 */
+	public static void importTestOntologyFromLocalFile(String stxOntologyURI, String ontFileName) {
 
 		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromLocalFileRequest,
 				par(Metadata.baseuriPar, stxOntologyURI),
-				par(Metadata.localFilePathPar, "testInput/st_example.owl"),
-				par(Metadata.mirrorFilePar, "st_example.owl")
+				par(Metadata.localFilePathPar, "testInput/" + ontFileName),
+				par(Metadata.mirrorFilePar, ontFileName)
 		);
 		System.out.println(resp);
 
 		resp = serviceTester.metadataService.makeRequest(Metadata.getNSPrefixMappingsRequest);
 		System.out.println(resp);
 	}
-	
 
+
+	
+	/**
+	 * as for {@link #importTestOntologyFromLocalFile(String, String)} on the st_example.owl ontology
+	 */
+	public static void importSTExample() {		
+		importTestOntologyFromLocalFile("http://art.uniroma2.it/ontologies/st_example", "st_example.owl");
+	}
+	
 }

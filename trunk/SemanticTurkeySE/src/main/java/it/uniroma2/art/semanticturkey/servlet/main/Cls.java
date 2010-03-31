@@ -28,12 +28,15 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.filter.URIResourcePredicate;
+import it.uniroma2.art.owlart.model.ARTLiteral;
+import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.navigation.RDFIterator;
@@ -108,6 +111,7 @@ public class Cls extends Resource {
 	static final public String treePar = "tree";
 	static final public String instNumPar = "instNum";
 	static final public String directInstPar = "direct";
+	static final public String labelQueryPar = "labelQuery";
 
 	// final private String subTree = "subTree";
 
@@ -156,7 +160,8 @@ public class Cls extends Resource {
 				checkRequestParametersAllNotNull(clsQNameField);
 				boolean treeBool = (tree == null) ? false : (Boolean.parseBoolean(tree));
 				boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
-				response = getSubClasses(clsQName, treeBool, instNumBool);
+				String labelQuery = setHttpPar(labelQueryPar);
+				response = getSubClasses(clsQName, treeBool, instNumBool, labelQuery);
 			} else if (request.equals(getClassesInfoAsRootsForTreeRequest)) {
 				String clsesQNames = servletUtilities.removeInstNumberParentheses(setHttpPar(clsesQNamesPar));
 				String instNum = setHttpPar(instNumPar);
@@ -217,7 +222,7 @@ public class Cls extends Resource {
 			direct = false;
 		logger.debug("replying to \"getInstancesListXML(" + clsQName + ")\"");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
-		ARTURIResource cls;		
+		ARTURIResource cls;
 		try {
 			String clsURI = ontModel.expandQName(clsQName);
 			cls = ontModel.createURIResource(clsURI);
@@ -320,12 +325,12 @@ public class Cls extends Resource {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
-		Element clsElement = XMLHelp.newElement(dataElement, "Class");		
+		Element clsElement = XMLHelp.newElement(dataElement, "Class");
 		ARTResource cls;
 		try {
 			String clsURI = ontModel.expandQName(clsQName);
 			cls = ontModel.createURIResource(clsURI);
-			clsElement.setAttribute("clsName", ontModel.getQName(clsURI));	
+			clsElement.setAttribute("clsName", ontModel.getQName(clsURI));
 			String numTotInst = ""
 					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true);
 			clsElement.setAttribute("numTotInst", numTotInst);
@@ -475,9 +480,18 @@ public class Cls extends Resource {
 	 *            the subclass has subclasses itself
 	 * @param instNum
 	 *            <code>true</code> if the user is interested in knowing the number of instances per concept
+	 * @param labelQuery
+	 *            if != <code>null</code>, then this String is used to drive custom label providers to return
+	 *            appropriate labels to be shown in place of the class qname. Built-in label provider allows
+	 *            for retrieving values of a property attached to the class, by using this syntax:<br/>
+	 *            <code>prop:&lt;propertyqname&gt;[#&lt;iso code for language&gt;]</code><br/>
+	 *            example: "prop:rdfs:label###en" will show the value on property <em>rdfs:label</em> for the
+	 *            english language, instead of the class qname<br/>
+	 *            the reponse to this method may be a WARNING reply in case the labelQuery does not identify a
+	 *            valid property to be used for retrieving labels
 	 * @return
 	 */
-	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum) {
+	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getSubClassesRequest;
@@ -494,6 +508,26 @@ public class Cls extends Resource {
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ clsQName);
 			}
+
+			ARTURIResource labelProp = null;
+			String requestedISOLang = null;
+			if (labelQuery != null) {
+				if (labelQuery.startsWith("prop:")) {
+					String queryString = labelQuery.substring(5); // remove the "prop:"
+					String[] propStringElements = queryString.split("###");
+					String propertyQName = propStringElements[0];
+					if (propStringElements.length > 1)
+						requestedISOLang = propStringElements[1];
+
+					String propURI = ontModel.expandQName(propertyQName);
+					labelProp = ontModel.retrieveURIResource(propURI);
+					if (labelProp == null)
+						response.setReplyStatusWARNING("label query msg: " + queryString
+								+ " returned no valid property in the ontology");
+				}
+			}
+
+			logger.debug("labelProp: " + labelProp);
 
 			// creating named subclasses iterator
 			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
@@ -525,6 +559,47 @@ public class Cls extends Resource {
 						classElement.setAttribute("more", "0"); // the subclass has no subclasses itself
 					subSubClassesIterator.close();
 				}
+
+				if (labelProp != null) {
+					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(subClass, labelProp, false);
+
+					if (it.streamOpen()) {
+						String label = null;
+						ARTNode nodeLabel = it.getNext();
+						logger.debug("nodeLabel: " + nodeLabel);
+						// if node is not a Literal, then get its String representation as the label for the
+						// class, else if there is no specified iso-language code, get the label from the
+						// literal else get the first value whose language matches the specified iso-language
+						if (nodeLabel.isLiteral()) {
+							if (requestedISOLang == null) {
+								label = nodeLabel.asLiteral().getLabel();
+								logger.debug("no preferred ISO language, getting first available label: "
+										+ label);
+							} else {
+								// the rationale behind this odd nested loop is to avoid all other checks
+								// (such as the availability of the requestedISOLang or checking the nature of
+								// the nodeLabel) to be repeated for each value of the label property
+								while (label == null) {
+									ARTLiteral literalLabel = nodeLabel.asLiteral();
+									String gotISOLang = literalLabel.getLanguage();
+									logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
+									if (gotISOLang.equals(requestedISOLang)) {
+										label = literalLabel.getLabel();
+									}
+									if (it.streamOpen())
+										nodeLabel = it.getNext();
+									else
+										break;
+								}
+							}
+						} else
+							label = nodeLabel.toString();
+
+						if (label != null)
+							classElement.setAttribute("label", label);
+					}
+				}
+
 			}
 			subClassesIterator.close();
 			return response;
@@ -694,12 +769,13 @@ public class Cls extends Resource {
 
 			ontModel.addSuperClass(cls, superCls);
 
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
 			typeElement.setAttribute("qname", ontModel.getQName(superClsURI));
 			return response;
-			
+
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		} catch (ModelUpdateException e) {
@@ -750,8 +826,9 @@ public class Cls extends Resource {
 								"this sublcass relationship comes from an imported ontology or has been inferred, so it cannot be deleted explicitly");
 
 			ontModel.removeSuperClass(cls, superCls);
-			
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+
+			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
 			typeElement.setAttribute("qname", ontModel.getQName(superClassURI));
@@ -767,17 +844,28 @@ public class Cls extends Resource {
 	}
 
 	/**
-	 * 
 	 * very similar to getInstanceDescription, it contains additional features for classes (subclass property
 	 * is reported apart). property values are given by those properties defined upon metaclasses.
-	 * 
-	 * <Tree request="getClsDescription" type="templateandvalued"> <Types> <Type class="owl:Class"
-	 * explicit="true"/> </Types> <SuperTypes> <SuperType explicit="true" resource="rtv:Person"/>
-	 * </SuperTypes> <Properties/> </Tree>
 	 * 
 	 * @param subjectClassQName
 	 *            the instance to which the new instance is related to
 	 * @return
+	 * 
+	 *         This is a sample of the
+	 * 
+	 *         <pre>
+	 * prova
+	 * <Tree request="getClsDescription" type="templateandvalued">
+	 * 	<Types>
+	 * 		<Type class="owl:Class" explicit="true"/>
+	 * </Types>
+	 * <SuperTypes>
+	 * 	<SuperType explicit="true" resource="rtv:Person"/>
+	 * </SuperTypes>
+	 * <Properties/>
+	 * </Tree>
+	 * </pre>
+	 * 
 	 */
 	public Response getClassDescription(String subjectClassQName, String method) {
 		logger.debug("getClassDescription; qname: " + subjectClassQName);
@@ -808,20 +896,20 @@ public class Cls extends Resource {
 			ontModel.addClass(newClassURI);
 			ontModel.addSuperClass(res, superClassResource);
 
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element clsElement = XMLHelp.newElement(dataElement, "class");
 			clsElement.setAttribute("name", ontModel.getQName(newClassURI));
 			Element superClsElement = XMLHelp.newElement(dataElement, "superclass");
 			superClsElement.setAttribute("name", ontModel.getQName(superClassURI));
 			return response;
-			
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(request, e);
 		} catch (ModelUpdateException e) {
 			return servletUtilities.createExceptionResponse(request, e);
 		}
-
 
 	}
 

@@ -4,7 +4,7 @@
 	<groupId>it.uniroma2.art.semanticturkey</groupId>
 	<artifactId>semanticturkey</artifactId>
 	<name>Semantic Turkey BM</name>
-	<version>0.7.1</version>
+	<version>0.7.2-SNAPSHOT</version>
 	<description>Semantic Turkey main project. It contains the core business logic of the system.
 An ANT build file allows to package the xpi for Firefox installation (read README2BUILD.TXT file for info)</description>
 	<developers>
