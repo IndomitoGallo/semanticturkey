@@ -115,6 +115,18 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param resourceQName
+	 * @param restype
+	 *            the type of the resource. Since each resource may have more than one type (for example, an
+	 *            individual can also be a class)
+	 * @param method
+	 *            if it is equal to "templateandvalued", then also property values for this resources are
+	 *            reported
+	 * @return
+	 */
 	protected Response getResourceDescription(String resourceQName, int restype, String method) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ARTResource resource;
@@ -311,7 +323,7 @@ public abstract class Resource extends ServiceAdapter {
 						// TYPE ASSIGNMENT
 						VocabularyTypesEnum valueType = ModelUtilities.getOntType(value, ontModel);
 						valueElem.setAttribute("type", valueType.toString());
-						
+
 						// VALUE ASSIGNMENT
 						if (value.isURIResource()) {
 							valueElem
@@ -322,10 +334,10 @@ public abstract class Resource extends ServiceAdapter {
 							String lang = lit.getLanguage();
 							if (lang != null)
 								valueElem.setAttribute("lang", lang);
-						}
-						else //bnode
+						} else
+							// bnode
 							valueElem.setAttribute("value", value.toString());
-						
+
 						// EXPLICIT-STATUS ASSIGNMENT
 						valueElem.setAttribute("explicit", checkExplicit(ontModel, resource, prop, value));
 					}
