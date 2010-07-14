@@ -66,6 +66,10 @@ STRequests.SPARQL = new Object();
 /**
  * @class
  */
+STRequests.SKOS = new Object();
+/**
+ * @class
+ */
 STRequests.Statement = new Object();
 /**
  * @class
@@ -203,6 +207,17 @@ STRequests.InputOutput.clearRepositoryRequest = "clearData";
 // SPARQL service request
 STRequests.SPARQL.serviceName = "sparql";
 STRequests.SPARQL.resolveQueryRequest = "resolveQuery";
+
+// SKOS service request
+STRequests.SKOS.serviceName = "skos";
+STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
+STRequests.SKOS.getConceptsTreeRequest = "getConceptsTree";
+STRequests.SKOS.getNarrowerConceptsRequest = "getNarrowerConcepts";
+STRequests.SKOS.addConceptRequest = "addConcept";
+STRequests.SKOS.createNarrowerConceptRequest ="createNarrowerConcept";
+STRequests.SKOS.createBroaderConceptRequest ="createBroaderConcept";
+STRequests.SKOS.createSchemeRequest ="createScheme";
+ 
 
 //projects service request
 STRequests.Projects.serviceName = "projects";

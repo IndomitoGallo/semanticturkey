@@ -27,7 +27,7 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
@@ -62,7 +62,7 @@ public class SemanticTurkeyOperations {
 	 * @throws ModelUpdateException
 	 * @throws ModelAccessException 
 	 */
-	public static void createLexicalization(OWLModel repository, String instanceQName, String lexicalization,
+	public static void createLexicalization(RDFModel repository, String instanceQName, String lexicalization,
 			String pageURL, String title) throws ModelUpdateException, ModelAccessException {
 		logger.debug("creating lexicalization: " + lexicalization + " for instance: " + instanceQName
 				+ " on url: " + pageURL + " with title: " + title);
@@ -87,7 +87,7 @@ public class SemanticTurkeyOperations {
 	 * @throws ModelUpdateException
 	 * @throws ModelAccessException 
 	 */
-	public static ARTResource createWebPage(OWLModel repository, String urlPage, String title)
+	public static ARTResource createWebPage(RDFModel repository, String urlPage, String title)
 			throws ModelUpdateException, ModelAccessException {
 		logger.debug("creating Web Page Instance for page: " + urlPage + " with title: " + title);
 		ARTURIResource webPageInstanceRes = null;
@@ -101,7 +101,7 @@ public class SemanticTurkeyOperations {
 				webPageInstanceRes = collectionIterator.getNext().asURIResource();
 				logger.debug("found web page: "
 						+ webPageInstanceRes.getLocalName()
-						+ repository.listValuesOfSubjDTypePropertyPair(webPageInstanceRes,
+						+ repository.listValuesOfSubjPredPair(webPageInstanceRes,
 								SemAnnotVocab.Res.url, true).getNext());
 			}
 		} catch (ModelAccessException e) {
@@ -119,9 +119,9 @@ public class SemanticTurkeyOperations {
 
 			webPageInstanceRes = repository.createURIResource(repository.getDefaultNamespace()
 					+ webPageInstanceID);
-			repository.instantiateDatatypeProperty(webPageInstanceRes, SemAnnotVocab.Res.url, urlPage);
+			repository.addTriple(webPageInstanceRes, SemAnnotVocab.Res.url, repository.createLiteral(urlPage));
 			if (!title.equals("")) {
-				repository.instantiateDatatypeProperty(webPageInstanceRes, SemAnnotVocab.Res.title, title);
+				repository.addTriple(webPageInstanceRes, SemAnnotVocab.Res.title, repository.createLiteral(title));
 			}
 		}
 
@@ -144,7 +144,7 @@ public class SemanticTurkeyOperations {
 	 * @throws ModelUpdateException
 	 * @throws ModelAccessException 
 	 **/
-	private static void createSemanticAnnotation(OWLModel repository, String individualQName,
+	private static void createSemanticAnnotation(RDFModel repository, String individualQName,
 			String lexicalization, ARTResource webPageInstanceRes) throws ModelUpdateException, ModelAccessException {
 
 		String semanticAnnotationID = generateNewSemanticAnnotationUUID(repository);
@@ -156,10 +156,10 @@ public class SemanticTurkeyOperations {
 				.getDefaultNamespace()
 				+ semanticAnnotationID);
 		logger.debug("creating lexicalization: semAnnotInstanceRes: " + semanticAnnotationInstanceRes + "");
-		repository.instantiateDatatypeProperty(semanticAnnotationInstanceRes, SemAnnotVocab.Res.text,
-				lexicalization);
+		repository.addTriple(semanticAnnotationInstanceRes, SemAnnotVocab.Res.text,
+				repository.createLiteral(lexicalization));
 
-		repository.instantiateObjectProperty(semanticAnnotationInstanceRes, SemAnnotVocab.Res.location,
+		repository.addTriple(semanticAnnotationInstanceRes, SemAnnotVocab.Res.location,
 				webPageInstanceRes);
 
 		ARTResource instanceRes;
@@ -168,11 +168,11 @@ public class SemanticTurkeyOperations {
 		} catch (ModelAccessException e) {
 			throw new ModelUpdateException(e);
 		}
-		repository.instantiateObjectProperty(instanceRes, SemAnnotVocab.Res.annotation,
+		repository.addTriple(instanceRes, SemAnnotVocab.Res.annotation,
 				semanticAnnotationInstanceRes);
 	}
 
-	public static String generateNewSemanticAnnotationUUID(OWLModel repository) throws ModelAccessException {
+	public static String generateNewSemanticAnnotationUUID(RDFModel repository) throws ModelAccessException {
 		UUID semanticAnnotationInstanceID;
 		ARTResource semanticAnnotationInstance;
 		String defNameSpace;

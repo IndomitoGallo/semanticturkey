@@ -28,8 +28,9 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.DirectReasoning;
-import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
@@ -100,7 +101,7 @@ public class Synonyms extends ServiceAdapter {
 			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		String language = null;
@@ -126,7 +127,7 @@ public class Synonyms extends ServiceAdapter {
 				if (cls != null) {
 					Element concept = XMLHelp.newElement(root, "Concept");
 					concept.setAttribute("name", value);
-					ARTLiteralIterator it = ontModel.listValuesOfSubjDTypePropertyPair(cls, ontModel
+					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(cls, ontModel
 							.createURIResource(RDFS.LABEL + " " + XmlSchema.LANGUAGE + "=\"" + language
 									+ "\""), true);
 					while (it.streamOpen()) {
@@ -143,7 +144,7 @@ public class Synonyms extends ServiceAdapter {
 							Element subconcept = XMLHelp.newElement(concept, "SubConcept");
 							subconcept.setAttribute("name", servletUtilities.decodeLabel(subCls
 									.asURIResource().getLocalName()));
-							it = ontModel.listValuesOfSubjDTypePropertyPair(subCls, ontModel
+							it = ontModel.listValuesOfSubjPredPair(subCls, ontModel
 									.createURIResource(RDFS.LABEL + " " + XmlSchema.LANGUAGE + "=\""
 											+ language + "\""), true);
 							while (it.hasNext()) {
@@ -186,7 +187,7 @@ public class Synonyms extends ServiceAdapter {
 
 	public void addSynonym(String classQName, String synonym, String language) throws ModelAccessException,
 			ModelUpdateException {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		ARTResource cls = ontModel.createURIResource(ontModel.expandQName(classQName));
 		ontModel.addLabel(cls, synonym, language);
 	}

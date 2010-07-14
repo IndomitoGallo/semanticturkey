@@ -26,11 +26,12 @@
   */
 package it.uniroma2.art.semanticturkey.ontology;
 
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.plugin.extpts.STOSGIExtension;
 import it.uniroma2.art.semanticturkey.project.Project;
 
 public abstract class OntologyManagerFactory implements STOSGIExtension {
 
-	public abstract STOntologyManager createOntologyManager(Project proj);	
-	
+	public abstract <T extends RDFModel> STOntologyManager<T> createOntologyManager(Project<T> proj);	
+
 }

@@ -26,6 +26,7 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
@@ -130,7 +131,7 @@ public class SystemStart extends ServiceAdapter {
 				+ "\nontModelImplID=" + ontModelImplID);
 
 		try {
-			Project mainProj = ProjectManager.openMainProject();
+			Project<? extends RDFModel> mainProj = ProjectManager.openMainProject();
 			baseuri = mainProj.getBaseURI();
 			ontModelImplID = mainProj.getOntologyManagerImplID();
 			logger.info("main project had already been initialized with these parameters:\nbaseuri="

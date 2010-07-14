@@ -128,7 +128,7 @@ public abstract class Resource extends ServiceAdapter {
 	 * @return
 	 */
 	protected Response getResourceDescription(String resourceQName, int restype, String method) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTResource resource;
 		try {
 			resource = ontModel.createURIResource(ontModel.expandQName(resourceQName));
@@ -459,7 +459,7 @@ public abstract class Resource extends ServiceAdapter {
 
 	public Response getSuperTypes(String request, String resourceQName, int resType) {
 		logger.debug("getting supertypes of: " + resourceQName);
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		logger.debug("ontModel: " + ontModel);
 		try {
 

@@ -32,6 +32,8 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.exceptions.UnsupportedRDFFormatException;
 import it.uniroma2.art.owlart.io.RDFFormat;
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.InvalidProjectNameException;
@@ -54,6 +56,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -77,7 +80,7 @@ public class ProjectManager {
 	public static final String triples_exchange_FileName = "ontology.nt";
 	public static final String mainProjectName = "project-main";
 
-	private static Project _currentProject;
+	private static Project<? extends RDFModel> _currentProject;
 
 	protected static Logger logger = LoggerFactory.getLogger(ProjectManager.class);
 
@@ -107,7 +110,7 @@ public class ProjectManager {
 	}
 
 	/**
-	 * as for {@link #createProject(String, String, String, String, ProjectType)} with defaultNamespace
+	 * as for {@link #createProject(String, Class, String, String, String, ProjectType)} with defaultNamespace
 	 * automatically assigned from the baseuri
 	 * 
 	 * @param projectName
@@ -119,17 +122,18 @@ public class ProjectManager {
 	 * @throws ProjectUpdateException
 	 * @throws ProjectInconsistentException
 	 */
-	public static Project createProject(String projectName, String baseURI, String ontManagerID,
-			ProjectType type) throws DuplicatedResourceException, InvalidProjectNameException,
-			ProjectCreationException, ProjectInconsistentException, ProjectUpdateException {
-		return createProject(projectName, baseURI, ModelUtilities.createDefaultNamespaceFromBaseURI(baseURI),
-				ontManagerID, type);
+	public static <MODELTYPE extends RDFModel> Project<MODELTYPE> createProject(String projectName,
+			Class<MODELTYPE> modelType, String baseURI, String ontManagerID, ProjectType type)
+			throws DuplicatedResourceException, InvalidProjectNameException, ProjectCreationException,
+			ProjectInconsistentException, ProjectUpdateException {
+		return createProject(projectName, modelType, baseURI, ModelUtilities
+				.createDefaultNamespaceFromBaseURI(baseURI), ontManagerID, type);
 	}
 
 	/**
-	 * as for {@link #createProject(String, File, String, String, String, ProjectType)} but the directory of
-	 * the project bears the name of the project itself. You should normally use this method to create new
-	 * projects which are expected to be found by the main system
+	 * as for {@link #createProject(String, Class, File, String, String, String, ProjectType)} but the
+	 * directory of the project bears the name of the project itself. You should normally use this method to
+	 * create new projects which are expected to be found by the main system
 	 * 
 	 * @param projectName
 	 * @param ontManagerID
@@ -140,16 +144,17 @@ public class ProjectManager {
 	 * @throws ProjectUpdateException
 	 * @throws ProjectInconsistentException
 	 */
-	public static Project createProject(String projectName, String baseURI, String defaultNamespace,
-			String ontManagerID, ProjectType type) throws DuplicatedResourceException,
-			InvalidProjectNameException, ProjectCreationException, ProjectInconsistentException,
-			ProjectUpdateException {
+	public static <MODELTYPE extends RDFModel> Project<MODELTYPE> createProject(String projectName,
+			Class<MODELTYPE> modelType, String baseURI, String defaultNamespace, String ontManagerID,
+			ProjectType type) throws DuplicatedResourceException, InvalidProjectNameException,
+			ProjectCreationException, ProjectInconsistentException, ProjectUpdateException {
 		if (!validProjectName(projectName)) {
 			logger.error("invalid project name: " + projectName);
 			throw new InvalidProjectNameException(projectName);
 		}
 		File projectDir = new File(Resources.getProjectsDir(), projectName);
-		return createProject(projectName, projectDir, baseURI, defaultNamespace, ontManagerID, type);
+		return createProject(projectName, modelType, projectDir, baseURI, defaultNamespace, ontManagerID,
+				type);
 	}
 
 	/**
@@ -176,20 +181,22 @@ public class ProjectManager {
 	 * @throws ProjectUpdateException
 	 * @throws ProjectInconsistentException
 	 */
-	public static Project createProject(String projectName, File projectDir, String baseURI,
-			String defaultNamespace, String ontManagerID, ProjectType type)
-			throws DuplicatedResourceException, InvalidProjectNameException, ProjectCreationException,
-			ProjectInconsistentException, ProjectUpdateException {
+	public static <MODELTYPE extends RDFModel> Project<MODELTYPE> createProject(String projectName,
+			Class<MODELTYPE> modelType, File projectDir, String baseURI, String defaultNamespace,
+			String ontManagerID, ProjectType type) throws DuplicatedResourceException,
+			InvalidProjectNameException, ProjectCreationException, ProjectInconsistentException,
+			ProjectUpdateException {
 
-		prepareProjectFiles(projectName, projectDir, baseURI, defaultNamespace, ontManagerID, type);
+		prepareProjectFiles(projectName, modelType, projectDir, baseURI, defaultNamespace, ontManagerID, type);
 
 		return activateProjectFromDir(projectName, projectDir, ontManagerID, type);
 
 	}
 
-	private static void prepareProjectFiles(String projectName, File projectDir, String baseURI,
-			String defaultNamespace, String ontManagerID, ProjectType type)
-			throws DuplicatedResourceException, ProjectCreationException {
+	private static <MODELTYPE extends RDFModel> void prepareProjectFiles(String projectName,
+			Class<MODELTYPE> modelType, File projectDir, String baseURI, String defaultNamespace,
+			String ontManagerID, ProjectType type) throws DuplicatedResourceException,
+			ProjectCreationException {
 		if (projectDir.exists())
 			throw new DuplicatedResourceException("project: " + projectName
 					+ "already exists; choose a different project name for a new project");
@@ -202,6 +209,7 @@ public class ProjectManager {
 			// STP file containing properties for the loaded project
 			logger.debug("creating project file: " + info_stp);
 			info_stp.createNewFile();
+			logger.debug("project file: " + info_stp + " created");
 			// here we write directly on the file; once the project is loaded, it will be handled internally
 			// as a property file
 			BufferedWriter out = new BufferedWriter(new FileWriter(info_stp));
@@ -209,6 +217,7 @@ public class ProjectManager {
 			out.write(Project.BASEURI_PROP + "=" + escape(baseURI) + "\n");
 			out.write(Project.DEF_NS_PROP + "=" + escape(defaultNamespace) + "\n");
 			out.write(Project.PROJECT_TYPE + "=" + type + "\n");
+			out.write(Project.PROJECT_MODEL_TYPE + "=" + modelType.getName() + "\n");
 			out.write(Project.PROJECT_NAME_PROP + "=" + projectName + "\n");
 			out.close();
 
@@ -216,22 +225,27 @@ public class ProjectManager {
 			File prefixMappingFile = new File(projectDir, NSPrefixMappings.prefixMappingFileName);
 			prefixMappingFile.createNewFile();
 
+			logger.debug("all project info have been built");
+
 		} catch (IOException e) {
 			Utilities.deleteDir(projectDir); // if something fails, deletes everything
+			logger.debug("directory: " + info_stp + " deleted due to project creation fail");
 			throw new ProjectCreationException(e);
 		}
 	}
 
-	private static Project activateProjectFromDir(String projectName, File projectDir, String ontManagerID,
-			ProjectType type) throws ProjectCreationException, ProjectInconsistentException,
-			ProjectUpdateException {
+	private static <MODELTYPE extends RDFModel> Project<MODELTYPE> activateProjectFromDir(String projectName,
+			File projectDir, String ontManagerID, ProjectType type) throws ProjectCreationException,
+			ProjectInconsistentException, ProjectUpdateException {
 		try {
-			Project proj;
+			Project<MODELTYPE> proj;
 			if (type == ProjectType.continuosEditing)
-				proj = new PersistentStoreProject(projectName, projectDir);
+				proj = new PersistentStoreProject<MODELTYPE>(projectName, projectDir);
 			else
-				proj = new SaveToStoreProject(projectName, projectDir);
+				proj = new SaveToStoreProject<MODELTYPE>(projectName, projectDir);
+			logger.debug("project " + projectName + " initialized as a " + type + " project");
 			proj.activate();
+			logger.debug("project " + projectName + " activated");
 			confirmProject(proj);
 			logger.debug("project : " + projectName + " created");
 			return proj;
@@ -258,20 +272,22 @@ public class ProjectManager {
 	 * @throws ProjectInconsistentException
 	 * @throws ProjectUpdateException
 	 */
-	public static Project createMainProject(String baseURI, String defaultNamespace, String ontManagerID)
-			throws ProjectInconsistentException, ProjectUpdateException {
+	public static Project<OWLModel> createMainProject(String baseURI, String defaultNamespace,
+			String ontManagerID) throws ProjectInconsistentException, ProjectUpdateException {
 
 		try {
-			return createProject(Resources.mainProjectName, Resources.getMainProjectDir(), baseURI,
-					defaultNamespace, ontManagerID, ProjectType.continuosEditing);
+			return createProject(Resources.mainProjectName, OWLModel.class, Resources.getMainProjectDir(),
+					baseURI, defaultNamespace, ontManagerID, ProjectType.continuosEditing);
 		} catch (DuplicatedResourceException e) {
 			throw new ProjectInconsistentException(
 					"inconsistent load of main project: reported error is an attempt to overwrite the main project, but this should never happen\n"
 							+ e);
 		} catch (InvalidProjectNameException e) {
-			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n" + e);
+			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n"
+					+ e.getMessage());
 		} catch (ProjectCreationException e) {
-			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n" + e);
+			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n"
+					+ e.getMessage());
 		}
 
 	}
@@ -284,8 +300,8 @@ public class ProjectManager {
 	 * @throws ProjectAccessException
 	 * @throws ProjectAccessException
 	 */
-	public static Project openProject(String projectName) throws ProjectAccessException {
-		Project proj;
+	public static Project<? extends RDFModel> openProject(String projectName) throws ProjectAccessException {
+		Project<? extends RDFModel> proj;
 		try {
 			proj = getProjectDescription(projectName);
 			proj.activate();
@@ -304,12 +320,14 @@ public class ProjectManager {
 	 * @throws ProjectInexistentException
 	 * @throws ProjectCreationException
 	 */
-	public static Project openMainProject() throws ProjectCreationException, ProjectInexistentException {
+	public static Project<OWLModel> openMainProject() throws ProjectCreationException,
+			ProjectInexistentException {
 		logger.debug("opening main project");
 		File projectDir = Resources.getMainProjectDir();
 		if (!projectDir.exists())
 			throw new ProjectInexistentException("the directory for the main project does not exist");
-		Project proj = new PersistentStoreProject(Resources.mainProjectName, Resources.getMainProjectDir());
+		Project<OWLModel> proj = new PersistentStoreProject<OWLModel>(Resources.mainProjectName, Resources
+				.getMainProjectDir());
 		confirmProject(proj);
 		try {
 			proj.activate();
@@ -325,7 +343,7 @@ public class ProjectManager {
 		return proj;
 	}
 
-	private static void confirmProject(Project proj) {
+	private static <MODELTYPE extends RDFModel> void confirmProject(Project<MODELTYPE> proj) {
 		_currentProject = proj;
 	}
 
@@ -334,17 +352,15 @@ public class ProjectManager {
 	 * 
 	 * @return
 	 */
-	public static Project getCurrentProject() {
+	public static Project<? extends RDFModel> getCurrentProject() {
 		return _currentProject;
 	}
 
-	
 	public static boolean existsProject(String projectName) {
 		File projectDir = getProjectDir(projectName);
 		return (projectDir.exists());
 	}
-	
-	
+
 	/**
 	 * this method copies a project to another location. You need to assure that <code>projectName</code> is
 	 * not the name of the project currently being loaded
@@ -382,7 +398,7 @@ public class ProjectManager {
 	/**
 	 * returns the directory of a project given its name. This is based on the assumption that the project
 	 * directory is assigned on the basis of project's name (as done by the ProjectManager).<br/>
-	 * <em>Note that this method does not guarantees that the project dir (and thus the project) exists</em> 
+	 * <em>Note that this method does not guarantees that the project dir (and thus the project) exists</em>
 	 * 
 	 * @param projectName
 	 * @return
@@ -415,7 +431,8 @@ public class ProjectManager {
 		Utilities.copy(_currentProject.infoSTPFile, new File(tempDir, _currentProject.infoSTPFile.getName()));
 		Utilities.copy(_currentProject.nsPrefixMappingsPersistence.getFile(), new File(tempDir,
 				_currentProject.nsPrefixMappingsPersistence.getFile().getName()));
-		_currentProject.ontManager.writeRDFOnFile(new File(tempDir, triples_exchange_FileName), RDFFormat.NTRIPLES);
+		_currentProject.ontManager.writeRDFOnFile(new File(tempDir, triples_exchange_FileName),
+				RDFFormat.NTRIPLES);
 		Utilities
 				.createZipFile(tempDir, semTurkeyProjectFile, false, true, "Semantic Turkey Project Archive");
 		tempDir.delete();
@@ -452,11 +469,19 @@ public class ProjectManager {
 		File storeDir = new File(newProjDir, Project.PROJECT_STORE_DIR_NAME);
 		storeDir.mkdir();
 
-		Project newProj = activateProjectFromDir(name, newProjDir, ontManagerID, projectType);
+		/*
+		 * String modelTypeString = stp_properties.getProperty(Project.PROJECT_MODEL_TYPE); try { Class<?
+		 * extends RDFModel> modelType = deserializeModelType(modelTypeString); } catch
+		 * (ClassNotFoundException e) { throw new ProjectInconsistentException(e); } catch
+		 * (IllegalClassFormatException e) { throw new ProjectInconsistentException(e); }
+		 */
+
+		Project<? extends RDFModel> newProj = activateProjectFromDir(name, newProjDir, ontManagerID,
+				projectType);
 		newProj.setName(name);
 
-		newProj.ontManager.loadOntologyData(new File(tempDir, triples_exchange_FileName), newProj.getBaseURI(),
-				RDFFormat.NTRIPLES);
+		newProj.ontManager.loadOntologyData(new File(tempDir, triples_exchange_FileName), newProj
+				.getBaseURI(), RDFFormat.NTRIPLES);
 
 		tempDir.delete();
 		tempDir.deleteOnExit();
@@ -472,23 +497,23 @@ public class ProjectManager {
 		 */
 	}
 
-	public static Project getProjectDescription(String projectName) throws InvalidProjectNameException,
-			ProjectInexistentException, ProjectAccessException {
+	public static <MODELTYPE extends RDFModel> Project<MODELTYPE> getProjectDescription(String projectName)
+			throws InvalidProjectNameException, ProjectInexistentException, ProjectAccessException {
 		logger.info("opening project: " + projectName);
 		if (!validProjectName(projectName))
 			throw new InvalidProjectNameException();
 		File projectDir = new File(Resources.getProjectsDir(), projectName);
 		if (!projectDir.exists())
 			throw new ProjectInexistentException("Project: " + " does not exist");
-		Project proj;
+		Project<MODELTYPE> proj;
 
 		ProjectType type;
 		try {
 			type = getProjectType(projectName);
 			if (type == ProjectType.continuosEditing)
-				proj = new PersistentStoreProject(projectName, projectDir);
+				proj = new PersistentStoreProject<MODELTYPE>(projectName, projectDir);
 			else
-				proj = new SaveToStoreProject(projectName, projectDir);
+				proj = new SaveToStoreProject<MODELTYPE>(projectName, projectDir);
 			logger.info("created project description for: " + proj);
 			return proj;
 		} catch (Exception e) {
@@ -497,7 +522,7 @@ public class ProjectManager {
 	}
 
 	public static boolean validProjectName(String projectName) {
-		logger.debug("checking if name: " + projectName +  " is a valid project name");
+		logger.debug("checking if name: " + projectName + " is a valid project name");
 		if (projectName.matches(".*[:\\\\/*?\"<>|].*"))
 			return false;
 		if (projectName.equals(mainProjectName))
@@ -524,7 +549,7 @@ public class ProjectManager {
 			throws IOException {
 		logger.debug("setting property: " + property + " of project: " + projectName + " to value: "
 				+ propValue);
-		File projectDir = new File(Resources.getProjectsDir(), projectName);
+		File projectDir = getProjectDir(projectName);
 		logger.debug("projectDir: " + projectDir);
 		File infoSTPFile = new File(projectDir, Project.INFOFILENAME);
 		logger.debug("infoSTPFile: " + infoSTPFile);
@@ -548,7 +573,7 @@ public class ProjectManager {
 	 * @throws IOException
 	 */
 	public static String getProjectProperty(String projectName, String property) throws IOException {
-		File projectDir = new File(Resources.getProjectsDir(), projectName);
+		File projectDir = getProjectDir(projectName);
 		File infoSTPFile = new File(projectDir, Project.INFOFILENAME);
 		Properties stp_properties = new Properties();
 		FileInputStream fis = new FileInputStream(infoSTPFile);
@@ -580,6 +605,36 @@ public class ProjectManager {
 	public static ProjectType getProjectType(String projectName) throws IOException {
 		String propValue = getProjectProperty(projectName, Project.PROJECT_TYPE);
 		return Enum.valueOf(ProjectType.class, propValue);
+	}
+
+	/**
+	 * gets the model type fo the project. It is not applicable for the main project, which is anyway assumed
+	 * to be always a {@link OWLModel}
+	 * 
+	 * @param projectName
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalClassFormatException
+	 * @throws FileNotFoundException
+	 */
+	// this warning is already checked through the "isAssignableFrom" "if test"
+	public static Class<? extends RDFModel> getProjectModelType(String projectName) throws IOException,
+			ClassNotFoundException, IllegalClassFormatException {
+		String propValue = getProjectProperty(projectName, Project.PROJECT_MODEL_TYPE);
+		return deserializeModelType(propValue);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<? extends RDFModel> deserializeModelType(String modelTypeName)
+			throws ClassNotFoundException, IllegalClassFormatException {
+		Class<?> modelType = Class.forName(modelTypeName);
+		// this should check that the returned model is a subclass of RDFModel
+		if (RDFModel.class.isAssignableFrom(modelType))
+			return (Class<? extends RDFModel>) modelType;
+		else
+			throw new IllegalClassFormatException(
+					"ModelType assigned to this project is a legal java class, but is not a known RDFModel subclass");
 	}
 
 	/**

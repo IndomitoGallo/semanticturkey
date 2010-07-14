@@ -23,8 +23,15 @@
 
 package it.uniroma2.art.semanticturkey.resources;
 
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.semanticturkey.project.Project;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
+
 import java.io.File;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class contains various integrity checks which are launched when Semantic Turkey is being started and
@@ -37,9 +44,12 @@ import java.io.IOException;
  */
 public class UpdateRoutines {
 
+	protected static Logger logger = LoggerFactory.getLogger(UpdateRoutines.class);
+	
 	static void startUpdatesCheckAndRepair() {
 		// from version 0.6.x to version 0.7.x
 		align_from_06x_to_07x();
+		align_from_071_to_072();
 	}
 	
 	
@@ -53,6 +63,29 @@ public class UpdateRoutines {
 		File projDir = Resources.getProjectsDir();
 		if (!projDir.exists())
 			projDir.mkdir();
+	}
+	
+	/**
+	 * upgrade from version 0.7.1 of SemanticTurkeyData to 0.7.2
+	 * 
+	 * this checks that the main-project exists, and, in case 
+	 * @throws IOException 
+	 */
+	private static void align_from_071_to_072() {
+		File mainProjDir = Resources.getMainProjectDir();
+		if (mainProjDir.exists()) {
+			try {
+				String modelType = ProjectManager.getProjectProperty(ProjectManager.mainProjectName, Project.PROJECT_MODEL_TYPE);
+				if (modelType==null) {
+					logger.info("main project is present, though it shows no modeltype. Since it is a project previous to version 0.7.2, its model type is being set to OWLModel");
+					ProjectManager.setProjectProperty(ProjectManager.mainProjectName, Project.PROJECT_MODEL_TYPE, OWLModel.class.getName());
+					
+				}
+			} catch (IOException e) {
+				logger.error("unable to access property file for main project (which seems however to exist)");
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

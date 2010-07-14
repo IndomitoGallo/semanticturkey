@@ -308,12 +308,17 @@ art_semanticturkey.toggleSidebar1 = function() {
 art_semanticturkey.toggleSidebar2 = function() {
 	toggleSidebar("stImportsSidebar");
 };
+art_semanticturkey.toggleSidebar3 = function() {
+	toggleSidebar("stSKOSSidebar");
+};
+
 art_semanticturkey.chkST_started = function() {
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if(stIsStarted=="true"){
 		document.getElementById("startSt").disabled = true;
 		document.getElementById("key_openSTOntologySidebar").disabled = false;
 		document.getElementById("key_openSTImportsSidebar").disabled = false;
+		document.getElementById("key_openSTSKOSSidebar").disabled = false;
 		document.getElementById("SPARQL").disabled = false;
 		document.getElementById("visualization").disabled = false;
 		document.getElementById("visualization2").disabled = false;
@@ -377,6 +382,7 @@ art_semanticturkey.enableSTToolbarButtons = function(){
 	document.getElementById("ontPanelToolBarButton").hidden = false;	
 	document.getElementById("importsToolBarButton").hidden = false;
 	document.getElementById("SPARQLToolBarButton").hidden = false;
+	document.getElementById("SKOSToolBarButton").hidden = false;
 	
 };
 
@@ -398,6 +404,7 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("startSt").addEventListener("command",art_semanticturkey.startSTOpenProjectMng,true);
 	document.getElementById("key_openSTOntologySidebar").addEventListener("command",art_semanticturkey.toggleSidebar1,true);
 	document.getElementById("key_openSTImportsSidebar").addEventListener("command",art_semanticturkey.toggleSidebar2,true);
+	document.getElementById("key_openSTSKOSSidebar").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
 	document.getElementById("SPARQL").addEventListener("command",art_semanticturkey.SPARQL,true);
 	/*document.getElementById("sidebar_openSageSidebar").addEventListener("command",art_semanticturkey.toggleSidebar1,true);
 	document.getElementById("sidebar_openSageSidebar2").addEventListener("command",art_semanticturkey.toggleSidebar2,true);*/
@@ -422,8 +429,9 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("startSTToolBarButton").addEventListener("command",art_semanticturkey.startSTOpenProjectMng,true);
 	document.getElementById("prjManagementToolBarButton").addEventListener("command",art_semanticturkey.manage_all_projects,true);
 	document.getElementById("ontPanelToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar1,true);
-	document.getElementById("importsToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar2,true);
+	document.getElementById("importsToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar2,true);	
 	document.getElementById("SPARQLToolBarButton").addEventListener("command",art_semanticturkey.SPARQL,true);
+	document.getElementById("SKOSToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if(stIsStarted=="true"){
 		art_semanticturkey.enableSTToolbarButtons();

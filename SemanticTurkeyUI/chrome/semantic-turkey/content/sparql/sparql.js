@@ -294,7 +294,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(responseXML) {
 						if ((bindings[h].getElementsByTagName("literal")[0]
 								.getAttribute("xml:lang")) != null) {
 							lblValue = lblValue + "("
-									+ bindings[h].getAttribute("xml:lang")[0]
+									+ bindings[h].getElementsByTagName("literal")[0].getAttribute("xml:lang")
 									+ ")";
 						}
 					//	type = "literal";

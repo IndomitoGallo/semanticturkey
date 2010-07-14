@@ -27,7 +27,7 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -95,7 +95,7 @@ public class ModifyName extends ServiceAdapter {
 
 	public void changeResourceName(String qName, String newQName) throws DuplicatedResourceException,
 			ModelUpdateException, ModelAccessException {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		ARTURIResource res = ontModel.createURIResource(ontModel.expandQName(qName));
 		if (!ModelUtilities.checkExistingResource(ontModel, res))

@@ -37,7 +37,7 @@ import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -111,7 +111,7 @@ public class Statement extends ServiceAdapter {
 
 		logger.debug("processing request: " + request);
 		
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource subject;
 		ARTURIResource predicate;
 		ARTNode object;
@@ -192,7 +192,7 @@ public class Statement extends ServiceAdapter {
 		return nodePar.substring(nodePar.indexOf('$')+1, nodePar.length());
 	}
 
-	public static void createStatementsList(OWLModel owlModel, ARTStatementIterator statIt, Element dataElement) throws DOMException, ModelAccessException {
+	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt, Element dataElement) throws DOMException, ModelAccessException {
 		while (statIt.streamOpen()) {
 			ARTStatement stat = statIt.getNext();
 			Element statElement = XMLHelp.newElement(dataElement, statementTag);

@@ -27,6 +27,7 @@
 package it.uniroma2.art.semanticturkey.vocabulary;
 
 import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
@@ -46,7 +47,7 @@ public class STVocabUtilities {
 	 * @param res
 	 * @return
 	 */
-	public static boolean isHiddenResource(STOntologyManager ontMgr, ARTResource res) {
+	public static boolean isHiddenResource(STOntologyManager<? extends RDFModel> ontMgr, ARTResource res) {
 	    if (!res.isURIResource())
 	        return false;
 	    String ns = res.asURIResource().getNamespace();

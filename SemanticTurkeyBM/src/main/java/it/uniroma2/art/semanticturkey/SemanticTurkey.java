@@ -24,7 +24,7 @@
 package it.uniroma2.art.semanticturkey;
 
 import it.uniroma2.art.owlart.exceptions.VocabularyInitializationException;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Proxy;
@@ -157,7 +157,7 @@ public class SemanticTurkey {
 		logger.debug("Server starting...");
 	}
 
-	public static void initializeVocabularies(OWLModel repo) throws VocabularyInitializationException {
+	public static void initializeVocabularies(RDFModel repo) throws VocabularyInitializationException {
 		// RDF.Res.initialize(repo);
 		// RDFS.Res.initialize(repo);
 		// OWL.Res.initialize(repo);

@@ -53,18 +53,26 @@ art_semanticturkey.getListProjects_RESPONSE = function(responseElement){
 			projectTS = projectTS.substring(projectTS.lastIndexOf('.') + 1);
 		var status = projects[i].getAttribute("status");
 		var type = projects[i].getAttribute("type");
+		var ontoType = projects[i].getAttribute("ontoType");
 		
 		var tr = document.createElement("treerow");
 		var tcName = document.createElement("treecell");
 		tcName.setAttribute("label", projectName);
 		tcName.setAttribute("typeProject", type);
-		tr.appendChild(tcName);
+		tr.appendChild(tcName);		
+		
 		var tcTS = document.createElement("treecell");
 		tcTS.setAttribute("label", projectTS);
 		tr.appendChild(tcTS);
+		
 		var tcTS = document.createElement("treecell");
 		tcTS.setAttribute("label", type);
 		tr.appendChild(tcTS);
+
+		var tcTS = document.createElement("treecell");
+		tcTS.setAttribute("label", ontoType);
+		tr.appendChild(tcTS);
+		
 		var tcStatus = document.createElement("treecell");
 		if(status != "ok") {
 			tcStatus.setAttribute("src", "chrome://global/skin/checkbox/cbox-check.gif");

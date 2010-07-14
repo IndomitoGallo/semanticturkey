@@ -43,10 +43,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**Classe che effettua la mappatura dei servizi forniti dal server associando il servizio alla classe 
- * servlet relativa e fornisce il metodo service per l'invocazione delle servlet*/
 /**
- * @author Donato Griesi Contributor(s): Armando Stellato, Andrea Turbati
+ * Http implementation of Semantic Turkey Service Based Architecture
+ * 
+ * @author Donato Griesi,<br/>
+ *         Armando Stellato &lt;stellato@info.uniroma2.it&gt;,<br/>
+ *         Andrea Turbati &lt;turbati@info.uniroma2.it&gt;
  * 
  */
 @SuppressWarnings("serial")
@@ -55,11 +57,11 @@ public class STServer extends HttpServlet {
 	private ServletConfig oConfig;
 	protected static Logger logger = LoggerFactory.getLogger(STServer.class);
 	// final static private HashMap<String, Class> map = new HashMap<String, Class>();
-	
+
 	// final static private String setHttpServletRequest = "setHttpServletRequest";
 	// final static private String CXSLFactory = "CXSLFactory";
 	// final static private String XMLData = "XMLData";
-		
+
 	public static final String pluginActivateRequest = "activate";
 	public static final String pluginDeactivateRequest = "deactivate";
 
@@ -121,16 +123,20 @@ public class STServer extends HttpServlet {
 	public void service(HttpServletRequest oReq, HttpServletResponse oRes) throws ServletException,
 			IOException {
 
+		System.out.println("response encoding: " + oRes.getCharacterEncoding());
+		oRes.setCharacterEncoding("UTF-8");
 		ServletOutputStream out = oRes.getOutputStream();
+
+		System.out.println("encoding: " + oRes.getCharacterEncoding());
 		String serviceName = oReq.getParameter("service");
 
 		Response xml = null;
 
 		if (serviceName == null) {
-			logger.debug(XMLHelp.XML2String(ServletUtilities.getService().createExceptionResponse("",
-					"you must specify a service to be invoked").getXML(), true));
-			out.print(XMLHelp.XML2String(ServletUtilities.getService().createExceptionResponse("",
-					"you must specify a service to be invoked").getXML(), true));
+			logger.debug(ServletUtilities.getService().createExceptionResponse("",
+					"you must specify a service to be invoked").toString());
+			out.print(ServletUtilities.getService().createExceptionResponse("",
+					"you must specify a service to be invoked").toString());
 			return;
 		} else if (serviceName.equals("plugin")) {
 			xml = handlePluginRequest(oReq, out);
@@ -140,13 +146,27 @@ public class STServer extends HttpServlet {
 
 		logger.debug("analyzing response type");
 
-		if (oReq.getContentType() == null || oReq.getContentType().equals("application/xml") || oReq.getContentType().startsWith("application/x-www-form-urlencoded") ) {
+		if (oReq.getContentType() == null || oReq.getContentType().equals("application/xml")
+				|| oReq.getContentType().startsWith("application/x-www-form-urlencoded")) {
 			if (xml != null) {
-				logger.debug(XMLHelp.XML2String(xml.getXML(), true));
-				out.print(XMLHelp.XML2String(xml.getXML(), true));
+				if (xml.getXML() != null) {
+
+					// System.out.println("test printing on console: " +
+					// "Αὐνῆς τοπογραμματεὺς τῶν περὶ Βουσῖριν τοῖς ἀπ᾽ Ὀννέους ");
+
+					// do not use the following line since it is not robust wrt encoding settings of the JVM
+					// out.print(XMLHelp.XML2String(xml.getXML(), true));
+					// use XML2OutputStream instead
+
+					XMLHelp.XML2OutputStream(xml.getXML(), true, out);
+				}
+
+				else
+					out.print(ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+							"xml content of response is null").toString());
 			} else
-				out.print(XMLHelp.XML2String(ServletUtilities.getService().createErrorResponse(
-						oReq.getParameter("request"), "xml content of response is null").getXML(), true));
+				out.print(ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+						"response is null").toString());
 		}
 
 		// this one is disabled at the moment
@@ -158,8 +178,11 @@ public class STServer extends HttpServlet {
 				} catch (SecurityException e) {
 					logger.error(e + Utilities.printStackTrace(e));
 					e.printStackTrace();
-					out.print(XMLHelp.XML2String(ServletUtilities.getService().createExceptionResponse("",
-					"Content-type: " + oReq.getContentType() + " is not accepted by this application").getXML(), true));
+					out.print(XMLHelp.XML2String(ServletUtilities.getService()
+							.createExceptionResponse(
+									"",
+									"Content-type: " + oReq.getContentType()
+											+ " is not accepted by this application").getXML(), true));
 				}
 				/*
 				 * catch (NoSuchMethodException e) { s_logger.error(e + Utilities.printStackTrace(e));

@@ -21,6 +21,8 @@
  */
 /** NScarpato 04/10/2007 File che implementa un file chooser */
 netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+ if (typeof art_semanticturkey == 'undefined')
+	var art_semanticturkey = {};
 art_semanticturkey.chooseFile = function() {
 	var nsIFilePicker = Components.interfaces.nsIFilePicker;
 	var fp = Components.classes["@mozilla.org/filepicker;1"]

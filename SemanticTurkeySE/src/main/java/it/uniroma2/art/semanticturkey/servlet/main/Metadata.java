@@ -30,6 +30,7 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.PrefixMapping;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -274,7 +275,7 @@ public class Metadata extends Resource {
 
 	public Response getOntologyDescription() {
 		String request = ontologyDescriptionRequest;
-		OWLModel model = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		String ontQName;
 		try {
 			ontQName = model.getQName(model.getBaseURI());
@@ -292,7 +293,7 @@ public class Metadata extends Resource {
 	 */
 	public Response getNamedGraphs() {
 		String request = getNamedGraphsRequest;
-		OWLModel owlModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 		try {
 			ARTResourceIterator it = owlModel.listNamedGraphs();
 			ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
@@ -322,7 +323,7 @@ public class Metadata extends Resource {
 				setDefaultNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		Project currProj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> currProj = ProjectManager.getCurrentProject();
 
 		try {
 			currProj.setDefaultNamespace(namespace);
@@ -349,7 +350,7 @@ public class Metadata extends Resource {
 				getDefaultNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		Element defaultNamespaceElement = XMLHelp.newElement(dataElement, "DefaultNamespace");
 		defaultNamespaceElement.setAttribute("ns", ontModel.getDefaultNamespace());
@@ -368,7 +369,7 @@ public class Metadata extends Resource {
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		Project currProj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> currProj = ProjectManager.getCurrentProject();
 
 		try {
 			currProj.setBaseURI(uri);
@@ -396,7 +397,7 @@ public class Metadata extends Resource {
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		Element baseuri = XMLHelp.newElement(dataElement, baseuriTag);
 		baseuri.setAttribute("uri", ontModel.getBaseURI());
@@ -421,7 +422,7 @@ public class Metadata extends Resource {
 				setBaseuriDefNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		Project currProj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> currProj = ProjectManager.getCurrentProject();
 
 		String oldDefNS = currProj.getDefaultNamespace();
 
@@ -474,7 +475,7 @@ public class Metadata extends Resource {
 
 		String request = getNSPrefixMappingsRequest;
 
-		STOntologyManager ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
 
 		Map<String, String> innerPrefixMap;
 		try {
@@ -507,7 +508,7 @@ public class Metadata extends Resource {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 
-		STOntologyManager ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
 
 		try {
 			ontManager.setNSPrefixMapping(prefix, namespace);
@@ -547,7 +548,7 @@ public class Metadata extends Resource {
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		STOntologyManager ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
 
 		try {
 			ontManager.removeNSPrefixMapping(namespace);
@@ -567,7 +568,7 @@ public class Metadata extends Resource {
 		return response;
 	}
 
-	// vedere cmq se è possibile definire in qualche modo in javascript degli alberi infiniti
+	// vedere cmq se ï¿½ possibile definire in qualche modo in javascript degli alberi infiniti
 	/**
 	 * gets the namespace mapping for the loaded ontology
 	 * 
@@ -579,8 +580,8 @@ public class Metadata extends Resource {
 
 		HashSet<String> importsBranch = new HashSet<String>();
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
-		STOntologyManager repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
 
 		try {
 			logger.debug("listing ontology imports");
@@ -593,7 +594,7 @@ public class Metadata extends Resource {
 		return response;
 	}
 
-	private void buildImportXMLTree(OWLModel ontModel, STOntologyManager repMgr, Element xmlElem, String uri,
+	private void buildImportXMLTree(OWLModel ontModel, STOntologyManager<? extends RDFModel> repMgr, Element xmlElem, String uri,
 			HashSet<String> importsBranch) throws ModelAccessException {
 		ARTURIResource ont = ontModel.createURIResource(uri);
 		ARTURIResourceIterator imports = ontModel.listOntologyImports(ont);
@@ -641,7 +642,7 @@ public class Metadata extends Resource {
 	public Response removeOntImport(String uri) {
 		String request = removeImportRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		STOntologyManager repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
 		try {
 			repMgr.removeOntologyImport(uri);
 		} catch (IOException e) {
@@ -687,7 +688,7 @@ public class Metadata extends Resource {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		String msg = null;
 		String oldCache;
-		STOntologyManager repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
 
 		// CHECKS THAT THE ONTOLOGY IS NOT ALREADY IMPORTED
 		// previously used ImportMem, now deprecated
@@ -799,7 +800,7 @@ public class Metadata extends Resource {
 	public Response getImportedOntology(int method, String baseURI, String altURL, String fromLocalFilePath,
 			String toLocalFile) {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		STOntologyManager repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
 		String request = null;
 		try {
 			if (method == fromWebToMirror) {

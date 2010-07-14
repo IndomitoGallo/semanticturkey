@@ -76,7 +76,7 @@ public class Graph extends ServiceAdapter {
 	/**Metodo che si occupa della creazione dell'elemento xml relativo al grafico rappresentante l'ontologia
 	 *@return Document  graphDocument*/
 	public Response getResponse() {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();		
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();	
 		ResponseREPLY response = servletUtilities.createReplyResponse("graph", RepliesStatus.ok);
 		Element dataElement = response.getDataElement();					

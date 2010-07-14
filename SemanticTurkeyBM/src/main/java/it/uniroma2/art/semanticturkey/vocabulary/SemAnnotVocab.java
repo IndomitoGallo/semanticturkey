@@ -28,7 +28,7 @@ package it.uniroma2.art.semanticturkey.vocabulary;
 
 import it.uniroma2.art.owlart.exceptions.VocabularyInitializationException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 
 /**
  * @author Armando Stellato
@@ -88,7 +88,7 @@ public class SemAnnotVocab {
         public static ARTURIResource TextualAnnotation;
         public static ARTURIResource ImageAnnotation;
         
-        public static void initialize(OWLModel repo) throws VocabularyInitializationException {
+        public static void initialize(RDFModel repo) throws VocabularyInitializationException {
 
             SemanticAnnotation = repo.createURIResource(SemAnnotVocab.SemanticAnnotation);
             RangeAnnotation = repo.createURIResource(SemAnnotVocab.RangeAnnotation);

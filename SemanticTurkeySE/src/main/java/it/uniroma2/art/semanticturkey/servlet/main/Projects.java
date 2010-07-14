@@ -30,14 +30,18 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.io.RDFFormat;
 import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.InvalidProjectNameException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectDeletionException;
+import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
+import it.uniroma2.art.semanticturkey.ontology.ModelTypeRegistry;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.AbstractProject;
 import it.uniroma2.art.semanticturkey.project.Project;
@@ -57,6 +61,7 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 public class Projects extends ServiceAdapter {
@@ -85,6 +90,7 @@ public class Projects extends ServiceAdapter {
 	public final static String ontmanagerPar = "ontmanager";
 	public final static String projectNamePar = "name";
 	public final static String newProjectNamePar = "newName";
+	public final static String ontologyTypePar = "ontologyType";
 	public final static String projectTypePar = "type";
 	public final static String ontFilePar = "file";
 	public final static String projectFilePar = "projfile";
@@ -98,7 +104,9 @@ public class Projects extends ServiceAdapter {
 	public final static String propValueAttr = "value";
 	public final static String ontMgrAttr = "ontmgr";
 	public final static String typeAttr = "type";
+	public final static String ontoTypeAttr = "ontoType";
 	public final static String statusAttr = "status";
+	public final static String statusMsgAttr = "stMsg";
 
 	// parameters
 
@@ -121,22 +129,25 @@ public class Projects extends ServiceAdapter {
 
 			else if (request.equals(Req.createNewProjectRequest)) {
 				String projectName = setHttpPar(projectNamePar);
+				String ontologyType = setHttpPar(ontologyTypePar);
 				String baseuri = setHttpPar(baseuriPar);
 				String ontmanager = setHttpPar(ontmanagerPar);
 				String projectType = setHttpPar(projectTypePar);
 				checkRequestParametersAllNotNull(projectNamePar, baseuriPar, ontmanagerPar, projectTypePar);
-				return newEmptyProject(projectName, baseuri, ontmanager, projectType);
+				return newEmptyProject(projectName, ontologyType, baseuri, ontmanager, projectType);
 			}
 
 			else if (request.equals(Req.createNewProjectFromFileRequest)) {
 				String projectName = setHttpPar(projectNamePar);
+				String ontologyType = setHttpPar(ontologyTypePar); // not checked for existence
 				String baseuri = setHttpPar(baseuriPar);
 				String ontmanager = setHttpPar(ontmanagerPar);
 				String projectType = setHttpPar(projectTypePar);
 				String ontFile = setHttpPar(ontFilePar);
 				checkRequestParametersAllNotNull(projectNamePar, baseuriPar, ontmanagerPar, projectTypePar,
 						ontFilePar);
-				return newProjectFromFile(projectName, baseuri, ontmanager, projectType, ontFile);
+				return newProjectFromFile(projectName, ontologyType, baseuri, ontmanager, projectType,
+						ontFile);
 			}
 
 			else if (request.equals(Req.closeProjectRequest)) {
@@ -204,12 +215,12 @@ public class Projects extends ServiceAdapter {
 
 	public Response getCurrentProject() {
 		String request = Req.getCurrentProjectRequest;
-		Project proj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
 		ResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
-		
+
 		String projName = proj.getName();
-		if (projName==null) {
+		if (projName == null) {
 			Element projElem = XMLHelp.newElement(dataElem, projectTag);
 			projElem.setAttribute("exists", "false");
 		} else {
@@ -219,6 +230,7 @@ public class Projects extends ServiceAdapter {
 		return resp;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Response listProjects() {
 		String request = Req.listProjectsRequest;
 		Collection<AbstractProject> projects;
@@ -227,10 +239,20 @@ public class Projects extends ServiceAdapter {
 			ResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElem = resp.getDataElement();
 
-			for (AbstractProject proj : projects) {
-				Element projElem = XMLHelp.newElement(dataElem, projectTag, proj.getName());
-				if (proj instanceof Project) {
-					projElem.setAttribute(statusAttr, "ok");
+			for (AbstractProject absProj : projects) {
+				Element projElem = XMLHelp.newElement(dataElem, projectTag, absProj.getName());
+				if (absProj instanceof Project<?>) {
+					Project<? extends RDFModel> proj = (Project<? extends RDFModel>) absProj;
+					try {
+						projElem.setAttribute(ontoTypeAttr, ((Project) proj).getModelType().toString());
+						projElem.setAttribute(statusAttr, "ok");
+					} catch (DOMException e) {
+						projElem.setAttribute(statusAttr, "error");
+						projElem.setAttribute(statusMsgAttr, "unrecognized ontology type");
+					} catch (ProjectInconsistentException e) {
+						projElem.setAttribute(statusAttr, "error");
+						projElem.setAttribute(statusMsgAttr, "unrecognized ontology type");
+					}
 					projElem.setAttribute(ontMgrAttr, ((Project) proj).getOntologyManagerImplID());
 					projElem.setAttribute(typeAttr, ((Project) proj).getType());
 				} else
@@ -320,19 +342,19 @@ public class Projects extends ServiceAdapter {
 		// now working only for current project
 		String request = Req.saveProjectRequest;
 		logger.info("requested to save project: " + projName);
-		Project proj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
 
 		if (projName != null && !projName.equals(proj.getName())) {
 			// proj = getLoadedProject(projName)
 			// this case will be available when multiple project management will be activated
 		}
 
-		if (!(proj instanceof SaveToStoreProject))
+		if (!(proj instanceof SaveToStoreProject<?>))
 			return servletUtilities.createExceptionResponse(request,
 					"non-sense request: this is not a saveable project!");
 
 		try {
-			((SaveToStoreProject) proj).save();
+			((SaveToStoreProject<?>) proj).save();
 		} catch (ProjectUpdateException e) {
 			logger.error(e.toString());
 			e.printStackTrace(System.err);
@@ -501,14 +523,17 @@ public class Projects extends ServiceAdapter {
 	 *            the string expression for one of the defined {@link ProjectType}s
 	 * @return
 	 */
-	public Response newEmptyProject(String projectName, String baseuri, String ontmanager, String projectType) {
+	public Response newEmptyProject(String projectName, String ontologyType, String baseuri,
+			String ontmanager, String projectType) {
 
 		String request = Req.createNewProjectRequest;
 		logger.info("requested to create new project with name:  " + projectName);
 		logger.info("project type:  " + projectType);
-
+		logger.debug("ontologyType: " + ontologyType);
 		try {
-			ProjectManager.createProject(projectName, baseuri, ontmanager, ProjectType.valueOf(projectType));
+			Class<? extends RDFModel> modelType = ModelTypeRegistry.getModelClass(ontologyType);
+			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager, ProjectType
+					.valueOf(projectType));
 		} catch (InvalidProjectNameException e) {
 			logger.error(e.getMessage());
 			return servletUtilities.createExceptionResponse(request, e.toString());
@@ -540,8 +565,8 @@ public class Projects extends ServiceAdapter {
 	 * @param file
 	 * @return
 	 */
-	public Response newProjectFromFile(String projectName, String baseuri, String ontmanager,
-			String projectType, String file) {
+	public Response newProjectFromFile(String projectName, String ontologyType, String baseuri,
+			String ontmanager, String projectType, String file) {
 
 		String request = Req.createNewProjectFromFileRequest;
 		logger.info("requested to create new project with name:  " + projectName + " from file: " + file);
@@ -549,7 +574,14 @@ public class Projects extends ServiceAdapter {
 
 		try {
 			File ontFileToImport = new File(file);
-			ProjectManager.createProject(projectName, baseuri, ontmanager, ProjectType.valueOf(projectType));
+			Class<? extends RDFModel> modelType;
+			if (ontologyType != null)
+				modelType = OWLModel.class;
+			else
+				modelType = ModelTypeRegistry.getModelClass(ontologyType);
+
+			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager, ProjectType
+					.valueOf(projectType));
 			logger.info("project: " + projectName + " created, importing rdf data from file: " + file);
 			ProjectManager.getCurrentProject().getOntModel().addRDF(ontFileToImport, baseuri,
 					RDFFormat.guessRDFFormatFromFile(ontFileToImport), NodeFilters.MAINGRAPH);
@@ -606,7 +638,7 @@ public class Projects extends ServiceAdapter {
 	 */
 	public Response getProjectProperty(String propNamesCompact, String projName) {
 		String request = Req.getProjectPropertyRequest;
-		Project proj = ProjectManager.getCurrentProject();
+		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
 
 		String[] propNames = propNamesCompact.split(";");
 		String[] propValues = new String[propNames.length];
@@ -629,7 +661,7 @@ public class Projects extends ServiceAdapter {
 
 		for (int i = 0; i < propValues.length; i++) {
 			Element projElem = XMLHelp.newElement(dataElem, propertyTag);
-			if (proj instanceof Project) {
+			if (proj instanceof Project<?>) {
 				projElem.setAttribute(propNameAttr, propNames[i]);
 				projElem.setAttribute(propValueAttr, propValues[i]);
 			}

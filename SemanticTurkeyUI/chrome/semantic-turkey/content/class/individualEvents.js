@@ -26,8 +26,8 @@ art_semanticturkey.associateEventsOnIndividualGraphicElements = function() {
 	document.getElementById("IndividualsList").addEventListener("dblclick",
 			art_semanticturkey.listdblclick, true);
 
-	document.getElementById("menuItemIndividualGraph").addEventListener(
-			"command", art_semanticturkey.partialGraph, true);
+	//document.getElementById("menuItemIndividualGraph").addEventListener(
+	//		"command", art_semanticturkey.partialGraph, true);
 
 	document.getElementById("menuItemWebLinks").addEventListener("command",
 			art_semanticturkey.getWebLinks, true);

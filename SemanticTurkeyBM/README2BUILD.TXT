@@ -14,6 +14,9 @@ and install them on your local maven repository, through the following maven com
 mvn install:install-file -Dfile=secondstring-20060615.jar -DgroupId=com.wcohen.ss -DartifactId=secondstring -Dversion=2006.06.15 -Dpackaging=jar
 mvn install:install-file -Dfile=javaFirefoxExtensionUtils.jar -DgroupId=edu.mit.simile -DartifactId=javaFirefoxExtensionUtils -Dversion=2.0 -Dpackaging=jar
 
+Also, depending on if you are building a stable Semantic Turkey version or snapshot of a development version, some of its
+libraries, such as OWLART, may also be in SNAPSHOT mode. Download them from the required
+
 
 2) BE SURE TO REQUIRED PROJECTS ON THE SAME DIRECTORY
    In order to build this project (SemanticTurkeyBM), you need also:
@@ -29,6 +32,8 @@ mvn install:install-file -Dfile=javaFirefoxExtensionUtils.jar -DgroupId=edu.mit.
 - sesame2ontmanager (groupId:it.uniroma2.art.semanticturkey.ontology) is a sesame implementation of STOntologyManager
   and is the one which is bundled with the xpi of Semantic Turkey hosted on Firefox extensions' site. Get it
   and place it inside the extensions/ontmanager folder of this project 
+  
+  SemanticTurkey 0.7.2 requires sesame2 STOntologyManager version 1.0.2
   
 3) BUILD AND DEPLOY
 

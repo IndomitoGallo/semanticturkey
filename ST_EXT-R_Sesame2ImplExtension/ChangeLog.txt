@@ -1,0 +1,4 @@
+version 1.0.2
+date: 2010-07-07
+comments:
+  - modified according to new OntologyManager using generics (semantic turkey 7.2.0)

@@ -26,9 +26,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
-import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
-import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -86,22 +85,21 @@ public class Page extends ServiceAdapter {
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ARTResource instanceRes;
 		try {
 			instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceQName));
 			logger.debug("instanceRes: " + instanceRes);
-			ARTResourceIterator semanticAnnotationInstancesIterator = ontModel
-					.listValuesOfSubjObjPropertyPair(instanceRes, SemAnnotVocab.Res.annotation, true);
+			ARTNodeIterator semanticAnnotationInstancesIterator = ontModel.listValuesOfSubjPredPair(instanceRes, SemAnnotVocab.Res.annotation, true);
 			Set<String> set = new HashSet<String>();
 			while (semanticAnnotationInstancesIterator.hasNext()) {
 				ARTResource semanticAnnotationRes = semanticAnnotationInstancesIterator.next().asResource();
-				ARTResourceIterator webPageInstancesIterator = ontModel.listValuesOfSubjObjPropertyPair(
+				ARTNodeIterator webPageInstancesIterator = ontModel.listValuesOfSubjPredPair(
 						semanticAnnotationRes, SemAnnotVocab.Res.location, true);
 				while (webPageInstancesIterator.hasNext()) {
 					ARTResource webPageInstance = webPageInstancesIterator.next().asResource();
 
-					ARTLiteralIterator urlPageIterator = ontModel.listValuesOfSubjDTypePropertyPair(
+					ARTNodeIterator urlPageIterator = ontModel.listValuesOfSubjPredPair(
 							webPageInstance, SemAnnotVocab.Res.url, true);
 
 					ARTNode urlPageValue = null;
@@ -113,7 +111,7 @@ public class Page extends ServiceAdapter {
 					if (!set.add(urlPage))
 						continue;
 
-					ARTLiteralIterator titleIterator = ontModel.listValuesOfSubjDTypePropertyPair(
+					ARTNodeIterator titleIterator = ontModel.listValuesOfSubjPredPair(
 							webPageInstance, SemAnnotVocab.Res.title, true);
 					ARTNode titleValue = null;
 					while (titleIterator.hasNext()) {

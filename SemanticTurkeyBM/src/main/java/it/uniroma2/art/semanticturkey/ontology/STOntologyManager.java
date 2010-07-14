@@ -38,11 +38,14 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.ModelFactory;
 import it.uniroma2.art.owlart.models.OWLArtModelFactory;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTNamespaceIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.semanticturkey.exceptions.ImportManagementException;
+import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.resources.MirroredOntologyFile;
 import it.uniroma2.art.semanticturkey.resources.OntFile;
@@ -79,15 +82,15 @@ import com.google.common.collect.Iterators;
  * @author Armando Stellato
  * 
  */
-public abstract class STOntologyManager {
+public abstract class STOntologyManager<T extends RDFModel> {
 
 	protected static Logger logger = LoggerFactory.getLogger(STOntologyManager.class);
 
-	protected OWLModel owlModel;
-	protected ModelFactory modelFactory;
+	protected T owlModel;
+	protected OWLArtModelFactory modelFactory;
 	protected NSPrefixMappings nsPrefixMappings;
 	protected File tripleStoreDir;
-	protected Project proj;
+	protected Project<T> proj;
 
 	/**
 	 * this map tells whether a given ontology import has been refreshed or not<br>
@@ -196,7 +199,7 @@ public abstract class STOntologyManager {
 
 	private HashMap<ImportModality, HashSet<ARTURIResource>> importModalityMap;
 
-	protected STOntologyManager(Project project, ModelFactory fact) {
+	protected STOntologyManager(Project<T> project, ModelFactory fact) {
 		// creates the model factory from the specific model factory passed through the constructor from the
 		// triple store implementation
 		modelFactory = OWLArtModelFactory.createModelFactory(fact);
@@ -224,20 +227,27 @@ public abstract class STOntologyManager {
 	 * @return
 	 * @throws RepositoryCreationException
 	 */
-	public OWLModel startOntModel(String baseuri, File directoryFile, boolean persist)
+	public T startOntModel(String baseuri, File directoryFile, boolean persist)
 			throws ModelCreationException {
+		
+		logger.debug("loading the model");
+		
 		if (!directoryFile.exists())
 			throw new ModelCreationException("the directory specified for hosting the ontology ("
 					+ directoryFile + ") does not exist");
 
+		logger.debug("directory exists: " + directoryFile);
+		
 		refreshedOntologies = HashMultimap.create();
 
-		// creates the model
-		owlModel = modelFactory.loadOWLModel(baseuri, directoryFile.getAbsolutePath(), persist);
-
-		tripleStoreDir = directoryFile;
-
 		try {
+			// creates the model
+			logger.debug("loading model; type: " + proj.getModelType());
+			owlModel = modelFactory.loadModel(proj.getModelType(), baseuri, directoryFile.getAbsolutePath(), persist);
+		
+			tripleStoreDir = directoryFile;
+
+			
 			// delegates to specific triple store implementation of this class which ontologies will be
 			// considered as support ontologies
 			declareSupportOntologies();
@@ -255,6 +265,8 @@ public abstract class STOntologyManager {
 		} catch (IOException e) {
 			throw new ModelCreationException(e.getMessage());
 		} catch (ModelAccessException e) {
+			throw new ModelCreationException(e.getMessage());
+		} catch (ProjectInconsistentException e) {
 			throw new ModelCreationException(e.getMessage());
 		}
 
@@ -317,7 +329,7 @@ public abstract class STOntologyManager {
 		if (mod == ImportModality.USER) {
 			ARTURIResource baseURI = owlModel.createURIResource(owlModel.getBaseURI());
 			ArrayList<ARTURIResource> ontImports = new ArrayList<ARTURIResource>();
-			ARTURIResourceIterator importsIterator = owlModel.listOntologyImports(baseURI);
+			ARTURIResourceIterator importsIterator = ((OWLModel) owlModel).listOntologyImports(baseURI);
 			Iterators.addAll(ontImports, importsIterator);
 			importsIterator.close();
 			return ontImports;
@@ -335,6 +347,7 @@ public abstract class STOntologyManager {
 		return getDeclaredImports(ImportModality.USER);
 	}
 
+	// @TODO this method will be put in a subclass of this which only handles OWLModel
 	/**
 	 * checks if ontology <code>ont</code> has been explicitly imported with modality <code>mod</code> in the
 	 * managed ontology
@@ -347,7 +360,8 @@ public abstract class STOntologyManager {
 	public boolean hasDeclaredImport(ARTURIResource ont, ImportModality mod) throws ModelAccessException {
 		ARTURIResource baseURI = owlModel.createURIResource(owlModel.getBaseURI());
 		if (mod == ImportModality.USER) {
-			ARTURIResourceIterator importsIterator = owlModel.listOntologyImports(baseURI);
+			// @TODO this is the dirty code, see comment above
+			ARTURIResourceIterator importsIterator = ((OWLModel) owlModel).listOntologyImports(baseURI);
 			boolean contains = Iterators.contains(importsIterator, ont);
 			importsIterator.close();
 			return contains;
@@ -422,7 +436,8 @@ public abstract class STOntologyManager {
 
 	private void refreshImportsForOntology(ARTURIResource ont, ImportModality mod)
 			throws ModelAccessException, ModelUpdateException {
-		ARTURIResourceIterator ontImports = owlModel.listOntologyImports(ont); // gets the import list for
+		ARTURIResourceIterator ontImports = ((OWLModel) owlModel).listOntologyImports(ont); // gets the import
+		// list for
 		// each imported ontology
 		while (ontImports.streamOpen()) {
 			ARTURIResource newImport = ontImports.next();
@@ -736,6 +751,8 @@ public abstract class STOntologyManager {
 				updateImportStatement);
 	}
 
+	// @TODO this method will be put in a subclass of this which only handles OWLModel
+
 	/**
 	 * this method, depending on the kind of import chosen:
 	 * <ul>
@@ -784,7 +801,7 @@ public abstract class STOntologyManager {
 			// the ontology
 			if (updateImportStatement) {
 				logger.debug("adding import statement for uri: " + baseURI);
-				owlModel.addImportStatement(baseURI);
+				((OWLModel) owlModel).addImportStatement(baseURI);
 			}
 
 			// updates the related import set with the loaded ontology
@@ -815,6 +832,8 @@ public abstract class STOntologyManager {
 		}
 	}
 
+	// @TODO this method will be put in a subclass of this which only handles OWLModel
+
 	/**
 	 * removes an ontology import declaration from the given ImportModality <code>mod</code>. Note that this
 	 * removes only the import declaration, though it does not remove the RDF data (if any) associated to that
@@ -826,7 +845,7 @@ public abstract class STOntologyManager {
 	 */
 	public void removeDeclaredImport(ARTURIResource ont, ImportModality mod) throws ModelUpdateException {
 		if (mod == ImportModality.USER) {
-			owlModel.removeImportStatement(ont);
+			((OWLModel) owlModel).removeImportStatement(ont);
 		} else
 			importModalityMap.get(mod).remove(ont);
 	}
@@ -878,38 +897,39 @@ public abstract class STOntologyManager {
 	public void removeOntologyImport(String uriToBeRemoved, ImportModality mod) throws IOException,
 			ModelUpdateException, ModelAccessException {
 		ARTURIResource ont = owlModel.createURIResource(uriToBeRemoved);
-		
+
 		Set<ARTURIResource> toBeRemovedOntologies = computeImportsClosure(ont);
 		logger.debug("transitive closure of imports to be removed: " + toBeRemovedOntologies);
-		
+
 		// removes the ontology from the import set
 		logger.debug("removing import declaration for ontology: " + ont + ". Modality: " + mod);
 		removeDeclaredImport(ont, mod);
 
 		Set<ARTURIResource> toBeSavedOntologies = computeImportsClosure(ImportModality.getModalities());
 		logger.debug("transitive closure of other imports: " + toBeSavedOntologies);
-		
+
 		toBeRemovedOntologies.removeAll(toBeSavedOntologies);
 		logger.debug("computed difference between the two sets: " + toBeRemovedOntologies);
-		
+
 		// deletes ontology content and its entry from the input status only if this ontology is not imported
 		// by any other modality
-		
-		//we need to check this in advance because if it's equal to zero, then we cannot pass the empty
-		//array to clearRDF (see below), which means "all named graphs"
+
+		// we need to check this in advance because if it's equal to zero, then we cannot pass the empty
+		// array to clearRDF (see below), which means "all named graphs"
 		int numOntToBeRemoved = toBeRemovedOntologies.size();
-		if (numOntToBeRemoved!=0) {
+		if (numOntToBeRemoved != 0) {
 			// deletes the content of the imported ontologies
 			logger.debug("clearing all RDF data associated to named graphs: " + toBeRemovedOntologies);
-			owlModel.clearRDF(toBeRemovedOntologies.toArray(new ARTURIResource[toBeRemovedOntologies.size()]));
-			
+			owlModel
+					.clearRDF(toBeRemovedOntologies.toArray(new ARTURIResource[toBeRemovedOntologies.size()]));
+
 			for (ARTURIResource remOnt : toBeRemovedOntologies) {
 				// deletes the entry from the importStatusMap
 				importsStatusMap.remove(remOnt);
 				// the ontology is no more on the refresh list of the given modality
-				refreshedOntologies.remove(mod, remOnt);			
+				refreshedOntologies.remove(mod, remOnt);
 			}
-		}		
+		}
 	}
 
 	public static Set<ImportModality> getOtherModalities(ImportModality mod) {
@@ -956,6 +976,8 @@ public abstract class STOntologyManager {
 		return importClosure;
 	}
 
+	// @TODO this method will be put in a subclass of this which only handles OWLModel
+
 	/**
 	 * computes the transitive closure of the owl:imports relationship over the managed ontology starting from
 	 * import <code>ont</code>, storing all computed imports in <code>importClosure</code>
@@ -968,7 +990,7 @@ public abstract class STOntologyManager {
 			throws ModelAccessException {
 		logger.debug("adding import: " + ont);
 		importClosure.add(ont);
-		ARTURIResourceIterator it = owlModel.listOntologyImports(ont);
+		ARTURIResourceIterator it = ((OWLModel) owlModel).listOntologyImports(ont);
 		while (it.streamOpen()) {
 			ARTURIResource nextImp = it.getNext();
 			// this if prevents infinite loops with cyclic imports
@@ -1137,6 +1159,8 @@ public abstract class STOntologyManager {
 
 	// RDF I/O FOR THE WORKING ONTOLOGY
 
+	// @TODO this method will be put in a subclass of this which only handles OWLModel
+
 	/**
 	 * this method adds RDF data directly to the ontology being edited (i.e. it is not a read-only import of
 	 * an external ontology that the working ontology depends on, but a mass add of RDF triples to the main
@@ -1157,7 +1181,8 @@ public abstract class STOntologyManager {
 			UnsupportedRDFFormatException {
 		owlModel.addRDF(inputFile, baseURI, format);
 		logger.debug("rdf data added from file: " + inputFile);
-		ARTURIResourceIterator it = owlModel.listOntologyImports(NodeFilters.ANY, NodeFilters.MAINGRAPH);
+		ARTURIResourceIterator it = ((OWLModel) owlModel).listOntologyImports(NodeFilters.ANY,
+				NodeFilters.MAINGRAPH);
 		while (it.streamOpen()) {
 			System.out.println(it.next());
 		}
@@ -1270,8 +1295,25 @@ public abstract class STOntologyManager {
 		return new OntTempFile(uuid + ".owl");
 	}
 
-	public OWLModel getOntModel() {
+	public T getOntModel() {
 		return owlModel;
 	}
 
+	/**
+	 * this is really not general at the moment. It assumes a project is either OWL or SKOS (which is what
+	 * happens at the moment). in the future, this class will be subclassed with a class having OWL or SKOS
+	 * models and this method will only be available there. So, in the case of OWL, the model itself will be
+	 * returned, while in the case of SKOS, the OWLModel will be returned through
+	 * {@link SKOSModel#getOWLModel()} method
+	 * 
+	 * @return
+	 */
+	public OWLModel getOWLModel() {
+		if (owlModel instanceof OWLModel)
+			return (OWLModel) owlModel;
+		else
+			// if (proj.getOntologyType().equals(OntologyType.SKOS))
+			return ((SKOSModel) owlModel).getOWLModel();
+
+	}
 }

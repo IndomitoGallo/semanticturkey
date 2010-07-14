@@ -5,14 +5,14 @@
 	<artifactId>sesame2ontmanager</artifactId>
 	<packaging>bundle</packaging>
 	<name>ST EXT-R Sesame2ImplExtension</name>
-	<version>1.0</version>
+	<version>1.0.2</version>
 	<description>The OSGi bundle for Sesame2 implementation of Semantic Turkey Ontology Manager</description>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.3</version>
+				<version>2.0.2</version>
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
@@ -24,13 +24,42 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package></Export-Package>
-						<Private-Package>it.uniroma2.art.semanticturkey.ontology.sesame2,org.openrdf.*,info.aduna.*</Private-Package>
-						<Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package>
-						<Bundle-Activator>it.uniroma2.art.semanticturkey.ontology.sesame2.Sesame2ImplBundle</Bundle-Activator>
+						<bundleName>${pom.name}</bundleName>
 						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+						<bundleDescription>${pom.description}</bundleDescription>
+
+						<Bundle-Activator>it.uniroma2.art.semanticturkey.ontology.sesame2.Sesame2ImplBundle</Bundle-Activator>
+
+						<!--
+							<Private-Package>it.uniroma2.art.semanticturkey.ontology.sesame2,
+							org.openrdf.*, info.aduna.*</Private-Package>
+							<_exportcontents>it.uniroma2.art.semanticturkey.ontology.sesame2,
+							org.openrdf.*, info.aduna.*</_exportcontents>
+							<Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package>
+							
+							to import: 
+						-->
+						<Import-Package>!info.aduna.app.*,!info.aduna.webapp.views.*,!org.apache.commons.httpclient.auth,
+							!javax.naming, !org.springframework.web.servlet,
+							!org.apache.commons.cli, !javax.xml.parsers,
+							!org.springframework.context, !javax.xml.namespace,
+							!org.apache.commons.httpclient, !javax.activation,
+							!javax.servlet, !org.springframework.web.servlet.mvc,
+							!org.apache.commons.httpclient.methods, !org.apache.commons.dbcp,
+							!javax.sql, !org.springframework.web.servlet.handler,
+							!javax.swing, !org.apache.commons.httpclient.params,
+							!javax.xml.validation, !javax.servlet.http,
+							org.w3c.dom,
+							org.xml.sax,
+							org.xml.sax.helpers,
+							javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation,
+							javax.*; 
+							*</Import-Package>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Bundle-ClassPath>{maven-dependencies},.</Bundle-ClassPath>
 						<Embed-Directory>lib</Embed-Directory>
+
 					</instructions>
 				</configuration>
 			</plugin>
@@ -44,15 +73,9 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>it.uniroma2.art.owlart.sesame2impl</groupId>
-			<artifactId>owlart-sesame2impl</artifactId>
-			<version>1.0.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>semanticturkey</artifactId>
-			<version>0.7.1</version>
+			<version>0.7.2-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
@@ -86,7 +109,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.owlart</groupId>
 			<artifactId>owlart-api</artifactId>
-			<version>2.0.1</version>
+			<version>2.0.2-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -95,6 +118,12 @@
 			<version>1.5.6</version>
 			<type>jar</type>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart.sesame2impl</groupId>
+			<artifactId>owlart-sesame2impl</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

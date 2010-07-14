@@ -3,7 +3,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.QueryEvaluationException;
 import it.uniroma2.art.owlart.exceptions.UnsupportedQueryLanguageException;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.query.BooleanQuery;
 import it.uniroma2.art.owlart.query.GraphQuery;
@@ -99,7 +99,7 @@ public class SPARQL extends ServiceAdapter {
 			infer = false;
 		logger.debug("inference set: " + ql);
 
-		OWLModel owlModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();

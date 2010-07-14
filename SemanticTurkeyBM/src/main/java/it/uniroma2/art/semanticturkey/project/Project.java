@@ -30,6 +30,7 @@ import it.uniroma2.art.owlart.exceptions.ModelCreationException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.exceptions.VocabularyInitializationException;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 
 import it.uniroma2.art.semanticturkey.SemanticTurkey;
@@ -57,11 +58,11 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Project extends AbstractProject {
+public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProject {
 
 	protected File infoSTPFile;
 
-	protected STOntologyManager ontManager;
+	protected STOntologyManager<MODELTYPE> ontManager;
 
 	public static final String INFOFILENAME = "project.info";
 	public static final String TIMESTAMP_PROP = "timeStamp";
@@ -70,6 +71,7 @@ public abstract class Project extends AbstractProject {
 	public static final String BASEURI_PROP = "baseURI";
 	public static final String DEF_NS_PROP = "defaultNamespace";
 	public static final String PROJECT_TYPE = "ProjectType";
+	public static final String PROJECT_MODEL_TYPE = "ModelType";
 	public static final String PROJECT_STORE_DIR_NAME = "store";
 	public static final String PLUGINS_PROP = "plugins";
 
@@ -122,14 +124,18 @@ public abstract class Project extends AbstractProject {
 			if (baseURI == null)
 				throw new ProjectInconsistentException("baseURI is not specified");
 			
+			logger.debug("activation of project: " + getName() + ": baseuri and OntologyManager ok");
+			
 			// activates the ontModel loads the triples (implementation depends on project type)
 			loadTriples();
+			logger.debug("activation of project: " + getName() + ": all triples loaded");
 			String defaultNamespace = getDefaultNamespace();
 			if (defaultNamespace == null) {
 				defaultNamespace = ModelUtilities.createDefaultNamespaceFromBaseURI(baseURI);
 				logger.info("generating defaultNamespace from baseuri: " + defaultNamespace);
 			}
 			getOntModel().setDefaultNamespace(defaultNamespace);
+			logger.debug("activation of project: " + getName() + ": defaultnamespace set to: " + defaultNamespace);
 			
 			ontManager.declareApplicationOntology(getOntModel().createURIResource(SemAnnotVocab.NAMESPACE), false, true);
 			
@@ -170,7 +176,7 @@ public abstract class Project extends AbstractProject {
 		return stp_properties.getProperty(ONTOLOGY_MANAGER_ID_PROP);
 	}
 
-	public STOntologyManager getOntologyManager() {
+	public STOntologyManager<MODELTYPE> getOntologyManager() {
 		return ontManager;
 	}
 
@@ -190,6 +196,27 @@ public abstract class Project extends AbstractProject {
 		return stp_properties.getProperty(PROJECT_TYPE);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Class<MODELTYPE> getModelType() throws ProjectInconsistentException {
+		logger.debug("getting model type for this project");
+		String propValue = getProperty(Project.PROJECT_MODEL_TYPE);
+		logger.debug("model type declared for this project: " + propValue);
+		Class modelType;
+		try {
+			modelType = Class.forName(propValue);
+			// this should check that the returned model is a subclass of RDFModel
+			logger.debug("model type for this project: " + modelType);
+			if (RDFModel.class.isAssignableFrom(modelType))
+				return (Class<MODELTYPE>) modelType;
+			else
+				throw new ProjectInconsistentException (
+						"ModelType \"" + modelType +  "\" assigned to this project is a legal java class, but is not a know RDFModel subclass");
+
+		} catch (ClassNotFoundException e) {
+			throw new ProjectInconsistentException("class " + e.getMessage() + ", specified as model for this project, does not exists");
+		}
+	}
+	
 	/**
 	 * returns the value associated to a given property for this project
 	 * 
@@ -197,6 +224,7 @@ public abstract class Project extends AbstractProject {
 	 * @return the value associated to this property
 	 */
 	public String getProperty(String propName) {
+		logger.debug("getting value of property: " + propName);
 		return stp_properties.getProperty(propName);
 	}
 
@@ -327,10 +355,17 @@ public abstract class Project extends AbstractProject {
 		}
 	}
 
-	public OWLModel getOntModel() {
+	public MODELTYPE getOntModel() {
 		return getOntologyManager().getOntModel();
 	}
 
+	// TODO this should really only be in OWLModel and SKOSModel Projects
+	public OWLModel getOWLModel() {
+		return getOntologyManager().getOWLModel();
+	}
+	
+	
+	
 	public File getProjectStoreDir() {
 		return new File(_projectDir, PROJECT_STORE_DIR_NAME);
 	}

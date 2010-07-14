@@ -44,6 +44,7 @@ art_semanticturkey.populateTripleStoreMenulist_RESPONSE = function(responseEleme
 art_semanticturkey.onAccept = function() {
 	art_semanticturkey.DisabledAllButton(true);
 	var projectName = document.getElementById("projectName").value;
+	var ontologyType = document.getElementById("ontologyTypeMenulist").selectedItem.getAttribute("value");
 	var uri = document.getElementById("uri").value;
 	var tripleStore = document.getElementById("tripleStoreMenulist").selectedItem.getAttribute("id");
 	var mode = document.getElementById("modeMenulist").selectedItem.getAttribute("id");
@@ -54,6 +55,11 @@ art_semanticturkey.onAccept = function() {
 		art_semanticturkey.DisabledAllButton(false);
 		return;
 	}
+	if(ontologyType == ""){
+		alert("Please specify a project type");
+		art_semanticturkey.DisabledAllButton(false);
+		return;
+	}	
 	var isurl = art_semanticturkey.isUrl(uri);
 	if (isurl == false) {
 		alert("please type a valid URI \n An example of valid URI is: http://myontology");
@@ -72,6 +78,7 @@ art_semanticturkey.onAccept = function() {
 		if(window.arguments[0].fromFile == false){
 			responseXML = art_semanticturkey.STRequests.Projects.newProject(
 				projectName,
+				ontologyType,
 				uri,
 				tripleStore,
 				mode);
