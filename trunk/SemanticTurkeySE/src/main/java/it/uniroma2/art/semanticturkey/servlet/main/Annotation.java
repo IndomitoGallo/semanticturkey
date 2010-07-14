@@ -31,6 +31,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
@@ -262,7 +263,7 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response chkPageForAnnotations(String urlPage) {
 		String request = chkAnnotationsRequest;
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		ARTLiteral urlPageLiteral = ontModel.createLiteral(urlPage);
 		ARTResourceIterator collectionIterator;
@@ -292,7 +293,7 @@ public class Annotation extends ServiceAdapter {
 	public Response removeAnnotation(String annotQName) {
 		String request = removeAnnotationRequest;
 		logger.debug("replying to \"removeAnnotation(" + annotQName + ")\".");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		ARTURIResource annot;
 
@@ -338,7 +339,7 @@ public class Annotation extends ServiceAdapter {
 				+ " with title: " + title);
 		String handledUrlPage = urlPage.replace(":", "%3A");
 		handledUrlPage = handledUrlPage.replace("/", "%2F");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		try {
 			String instanceURI = ontModel.expandQName(instanceQName);
 			ARTURIResource instanceRes = ontModel.retrieveURIResource(instanceURI);
@@ -346,8 +347,9 @@ public class Annotation extends ServiceAdapter {
 				return servletUtilities.createExceptionResponse(createAndAnnotateRequest,
 						"there is another resource with the same name!");
 
-			ARTURIResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
+			ARTURIResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));			
 			ontModel.addInstance(instanceURI, cls);
+			logger.debug("created new instance: " + instanceURI + " for class: " + cls);
 			SemanticTurkeyOperations.createLexicalization(ontModel, instanceQName, instanceQName, urlPage,
 					title);
 		} catch (ModelUpdateException e) {
@@ -380,7 +382,7 @@ public class Annotation extends ServiceAdapter {
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		Element clsElement = XMLHelp.newElement(dataElement, "Class");
 		clsElement.setAttribute("clsName", clsQName);
 		ARTResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
@@ -409,7 +411,7 @@ public class Annotation extends ServiceAdapter {
 		logger.debug("taking annotation for: url" + urlPage + " instanceQName: " + subjectInstanceQName
 				+ " lexicalization: " + lexicalizationEncoded + " title: " + title);
 		ServletUtilities servletUtilities = new ServletUtilities();
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		try {
 			SemanticTurkeyOperations.createLexicalization(ontModel, subjectInstanceQName,
 					lexicalizationEncoded, urlPage, title);
@@ -426,7 +428,7 @@ public class Annotation extends ServiceAdapter {
 		return servletUtilities.createReplyResponse(addAnnotationRequest, RepliesStatus.ok);
 	}
 
-	// ricordarsi che qui c'è una sola request che gestisce due cose (dipende dall'op)
+	// ricordarsi che qui c'Ã¨ una sola request che gestisce due cose (dipende dall'op)
 	/**
 	 * invoked when the user annotates new text which is dragged upon an individual to create a new individual
 	 * which is bound to the first one through a given property
@@ -446,7 +448,7 @@ public class Annotation extends ServiceAdapter {
 			String predicatePropertyQName, String objectInstanceQName, VocabularyTypesEnum type,
 			String rangeClsQName, String urlPage, String title, String lang) {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource property;
 
 		try {
@@ -535,7 +537,7 @@ public class Annotation extends ServiceAdapter {
 			String subjectInstanceQName, String predicatePropertyQName, String objectInstanceQName,
 			String lexicalization, String urlPage, String title) {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 
 		try {
 			ARTURIResource property = ontModel
@@ -546,7 +548,7 @@ public class Annotation extends ServiceAdapter {
 					.expandQName(subjectInstanceQName));
 			ARTResource objectInstanceRes = ontModel.createURIResource(ontModel
 					.expandQName(objectInstanceQName));
-			ontModel.instantiateObjectProperty(subjectInstanceRes, property, objectInstanceRes);
+			ontModel.addTriple(subjectInstanceRes, property, objectInstanceRes);
 		} catch (ModelUpdateException e) {
 			logger.error("Instance creation error: ", e);
 			return servletUtilities.createExceptionResponse(relateAndAnnotateRequest,

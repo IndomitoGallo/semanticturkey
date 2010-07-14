@@ -31,6 +31,7 @@ import it.uniroma2.art.owlart.exceptions.ModelCreationException;
 import it.uniroma2.art.owlart.exceptions.UnsupportedRDFFormatException;
 import it.uniroma2.art.owlart.io.RDFFormat;
 import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappingUpdateException;
@@ -39,7 +40,7 @@ import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappings;
 import java.io.File;
 import java.io.IOException;
 
-public class SaveToStoreProject extends Project {
+public class SaveToStoreProject<MODELTYPE extends RDFModel> extends Project<MODELTYPE> {
 
 	protected final static String triplesFileName = "triples.nt";
 	File triplesFile;

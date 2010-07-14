@@ -37,6 +37,8 @@
 				<splitter class="tree-splitter" />
 				<treecol id="typePrj" label="Type" flex="3" />
 				<splitter class="tree-splitter" />
+				<treecol id="ontoTypePrj" label="Onto Type" flex="3" />
+				<splitter class="tree-splitter" />
 				<treecol id="status" label="Issues" flex="1"/>
 			</treecols>
 			<treechildren id="ProjectsTreeChildren" />

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="concept.css" type="text/css"?>
+<!--  /*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ -->
+
+<window title="Semantic Turkey"
+	id="skostree-main-window"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	flex="1"
+	orient="vertical">
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/concept.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/conceptEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/SKOSUtils.js" />
+		
+	<menulist id="skosSchemeMenuList" context="clipmenu" seltype="single">
+		  <menupopup id="skosSchemeMenupopup">
+		    <menuitem label="----" value=""/>
+		    <menuseparator/>
+		  </menupopup>
+	</menulist>		
+	<toolbox flex="0">
+		<toolbar id="skosConcept-toolbar">
+			<toolbarbutton id="addConcept" image="../images/individual_add.png" tooltiptext="Add Concept"/>
+<!--    
+			<toolbarbutton id="addBroaderConcept"  image="../images/broader_add.png"  tooltiptext="Add Broader Concept"></toolbarbutton>
+			<toolbarbutton id="addNarrowerConcept"  image="../images/narrower_add.png"  tooltiptext="Add Narrower Concept"></toolbarbutton>
+-->			
+			<toolbarbutton id="toggleConceptLanguage"  type="checkbox" image="../images/user.png" style="width:10px;" 
+					tooltiptext="Toggle between qnames (with prefix) and human-readable rdfs:labels or skos:preferredLabel"/>
+					
+		</toolbar>
+	</toolbox>	
+		<popupset id="popupset">
+		<popup id="clipmenu"  align="start">
+			<menuitem id="menuItemCreateNarrowerConcept" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="../images/narrower_add.png" flex="0"/>
+					<label value="Create new Narrower Concept..." flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemCreateBroaderConcept" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="../images/broader_add.png" flex="0"/>
+					<label value="Create new Broader Concept..." flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemDeleteConcept"  flex="1">
+						<menuitem-iconic id="deleteItemIc" flex="1">
+									<image src="../images/class_delete.png" flex="0"/>
+									<label value="Delete" flex="0"/> 						
+						</menuitem-iconic>	
+			</menuitem>						
+		</popup>
+	</popupset>	
+	<tree hidecolumnpicker="true" id="conceptsTree" context="clipmenu" seltype="single" flex="2">
+		<treecols>
+			<treecol id="category"  label= "Concepts" primary="true" flex="1" />
+		</treecols>
+		<treechildren id="rootConceptsTreeChildren" flex="1"/>
+	</tree>	
+</window>

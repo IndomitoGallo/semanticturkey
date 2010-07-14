@@ -27,13 +27,14 @@
 package it.uniroma2.art.semanticturkey.project;
 
 import it.uniroma2.art.owlart.exceptions.ModelCreationException;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappings;
 
 import java.io.File;
 import java.io.IOException;
 
-public class PersistentStoreProject extends Project {
+public class PersistentStoreProject<MODELTYPE extends RDFModel> extends Project<MODELTYPE> {
 
 	PersistentStoreProject(String projectName, File projectDir) throws ProjectCreationException {
 		super(projectName, projectDir);
@@ -46,6 +47,7 @@ public class PersistentStoreProject extends Project {
 
 	@Override
 	protected void loadTriples() throws ModelCreationException {
+		logger.debug("loading triples");
 		ontManager.startOntModel(getBaseURI(), getProjectStoreDir(), true);
 	}
 	

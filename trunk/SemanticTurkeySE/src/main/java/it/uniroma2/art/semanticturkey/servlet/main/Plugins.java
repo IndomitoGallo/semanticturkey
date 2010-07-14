@@ -26,6 +26,7 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.PluginInterface;
@@ -131,7 +132,7 @@ public class Plugins extends ServiceAdapter {
 			return getPluginsForCurrentProject();
 		
 		try {
-			Project proj = ProjectManager.getProjectDescription(projectName);
+			Project<? extends RDFModel> proj = ProjectManager.getProjectDescription(projectName);
 			return getPluginsForProject(proj);
 		} catch (Exception e) {
 			logger.error("", e);
@@ -139,7 +140,7 @@ public class Plugins extends ServiceAdapter {
 		}
 	}	
 	
-	private Response getPluginsForProject(Project proj) {
+	private Response getPluginsForProject(Project<? extends RDFModel> proj) {
 		List<String> pluginIDs = proj.getRegisteredPlugins();
 		ResponseREPLY resp = ServletUtilities.getService().createReplyResponse(Req.getPluginsForProjectRequest, RepliesStatus.ok);
 		Element dataElement = resp.getDataElement();

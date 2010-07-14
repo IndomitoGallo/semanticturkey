@@ -168,7 +168,6 @@ art_semanticturkey.listDragDrop = function(event, parentWindow) {
 };
 
 art_semanticturkey.treeDragDrop = function(event, parentWindow) {
-
 	var stloader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 			.getService(Components.interfaces.mozIJSSubScriptLoader);
 	stloader.loadSubScript('chrome://global/content/nsDragAndDrop.js');

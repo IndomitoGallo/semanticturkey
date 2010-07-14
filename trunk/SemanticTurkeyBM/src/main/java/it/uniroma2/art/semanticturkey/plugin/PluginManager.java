@@ -52,7 +52,8 @@ import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * @author Andrea Turbati Contributor: Armando Stellato
+ * @author Andrea Turbati
+ * @author Armando Stellato
  * 
  */
 public class PluginManager {
@@ -444,7 +445,7 @@ public class PluginManager {
 		for (int i = 0; i < bundles.length; ++i) {
 			if (!(jarPresent.contains(bundles[i].getLocation()))
 					&& !(bundles[i].getLocation().equals("System Bundle"))) {
-				System.out.println("rimuovo: " + bundles[i].getLocation());
+				logger.info("removing bundle: " + bundles[i].getLocation());
 				try {
 					bundles[i].stop();
 					bundles[i].uninstall();
@@ -466,6 +467,18 @@ public class PluginManager {
 	 */
 	private static void installPluginAndServices(STServer stServer) {
 		logger.debug("registering services on Semantic Turkey HTTP Server");
+		
+		ArrayList<ServiceInterface> services = getServletExtensionsForType(ServiceInterface.class);
+		for (ServiceInterface service : services) {
+			stServer.registerService(service.getId(), service);
+		}
+		
+		ArrayList<PluginInterface> plugins = getServletExtensionsForType(PluginInterface.class);
+		for (PluginInterface plugin : plugins) {
+			stServer.registerPlugin(plugin.getId(), plugin);
+		}
+		
+		/*
 		ServiceTracker m_tracker = null;
 		m_tracker = new ServiceTracker(m_felix.getBundleContext(), ServiceInterface.class.getName(), null);
 		m_tracker.open();
@@ -489,7 +502,7 @@ public class PluginManager {
 		}
 		m_tracker.close();
 		logger.debug("all services have been registered on Semantic Turkey HTTP Server");
-
+		*/
 	}
 
 	/**

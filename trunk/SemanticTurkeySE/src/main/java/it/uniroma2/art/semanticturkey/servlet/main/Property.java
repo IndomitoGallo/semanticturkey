@@ -113,7 +113,7 @@ public class Property extends Resource {
 
 	/**
 	 * Metodo che gestisce le proprieta' in base ai parametri della richiesta si puo' aggiungere una
-	 * proprieta'  oppure caricare tutte le proprieta'  relative ad una classe o istanza
+	 * proprieta'ï¿½ oppure caricare tutte le proprieta'ï¿½ relative ad una classe o istanza
 	 * 
 	 * @return Document
 	 */
@@ -241,7 +241,7 @@ public class Property extends Resource {
 	 */
 	public Response getPropertyTree(boolean props, boolean objprops, boolean datatypeprops,
 			boolean annotationprops) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getPropertiesTreeRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
@@ -397,7 +397,7 @@ public class Property extends Resource {
 	 * 
 	 */
 	public Response editProperty(String propertyQName, String request, int method, String... parameters) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();
 		ARTURIResource property = null;
 		String propertyURI;
@@ -529,7 +529,7 @@ public class Property extends Resource {
 	 */
 	public Response editPropertyValue(String request, String individualQName, String propertyQName,
 			String valueString, VocabularyTypesEnum valueType, String rangeClsQName, String lang) {
-		OWLModel model = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();
 
 		String propertyURI;
@@ -650,7 +650,7 @@ public class Property extends Resource {
 	 */
 	public Response getDomainClassesTreeXML(String propertyQName) {
 		Cls cls = new Cls("cls");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource property;
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getDomainClassesTreeRequest, RepliesStatus.ok);
@@ -678,7 +678,7 @@ public class Property extends Resource {
 	 */
 	public Response getRangeClassesTreeXML(String propertyQName) {
 		Cls cls = new Cls("cls");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource property;
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getRangeClassesTreeRequest, RepliesStatus.ok);

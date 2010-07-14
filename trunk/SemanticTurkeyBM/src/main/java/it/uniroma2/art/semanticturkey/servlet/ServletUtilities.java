@@ -584,21 +584,6 @@ public class ServletUtilities {
 			return label.substring(0, indexOfParenthesis);
 	}
 
-	/**
-	 * Elimina il carattere % dalla stringa
-	 * 
-	 * @param String
-	 *            string
-	 *@return String string
-	 */
-	String normalize(String string) {
-		int index = string.lastIndexOf("%");
-		if (index == -1)
-			return string;
-		else {
-			return string.substring(0, index - 1);
-		}
-	}
 
 	public ResponseREPLY createReplyResponse(String request, ServiceVocabulary.RepliesStatus status) {
 		Document xml = XMLHelp.createNewDoc();

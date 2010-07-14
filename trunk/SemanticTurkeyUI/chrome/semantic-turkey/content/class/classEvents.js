@@ -69,8 +69,8 @@ art_semanticturkey.associateEventsOnGraphicElementsClasses = function() {
 			art_semanticturkey.renameClass, true);
 	document.getElementById("menuItemAddSynonym").addEventListener("command",
 			art_semanticturkey.addSynonym, true);
-	document.getElementById("menuItemGraph").addEventListener("command",
-			art_semanticturkey.partialGraph, true);
+	//document.getElementById("menuItemGraph").addEventListener("command",
+	//		art_semanticturkey.partialGraph, true);
 };
 
 
@@ -713,7 +713,7 @@ art_semanticturkey.showHideItems = function() {
 	tree = document.getElementById("classesTree");
 	var range = tree.view.selection.getRangeCount();
 	if (range <= 0) {
-		document.getElementById("menuItemGraph").disabled = true;
+		//document.getElementById("menuItemGraph").disabled = true;
 		document.getElementById("menuItemCreateIndividual").disabled = true;
 		document.getElementById("menuItemSubClass").disabled = true;
 		document.getElementById("menuItemRemoveClass").disabled = true;
@@ -725,7 +725,7 @@ art_semanticturkey.showHideItems = function() {
 	var currentelement = tree.treeBoxObject.view
 			.getItemAtIndex(tree.currentIndex);
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
-	document.getElementById("menuItemGraph").disabled = false;
+	//document.getElementById("menuItemGraph").disabled = false;
 	document.getElementById("menuItemCreateIndividual").disabled = false;
 	document.getElementById("menuItemSubClass").disabled = false;
 	document.getElementById("menuItemRemoveClass").disabled = false;

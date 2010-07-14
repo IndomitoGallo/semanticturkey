@@ -34,8 +34,9 @@ import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -221,7 +222,7 @@ public class Cls extends Resource {
 		if (listMod != null && listMod.equals(allInstances))
 			direct = false;
 		logger.debug("replying to \"getInstancesListXML(" + clsQName + ")\"");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource cls;
 		try {
 			String clsURI = ontModel.expandQName(clsQName);
@@ -252,7 +253,7 @@ public class Cls extends Resource {
 		}
 	}
 
-	private void createInstancesXMLList(OWLModel ontModel, ARTResource cls, boolean direct, Element element)
+	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element element)
 			throws ModelAccessException {
 		Element instancesElement = XMLHelp.newElement(element, "Instances");
 
@@ -297,7 +298,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response createInstanceOption(String instanceQName, String clsQName) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource instanceRes;
 		String request = createInstanceRequest;
 		try {
@@ -322,7 +323,7 @@ public class Cls extends Resource {
 	public Response updateClassOnTree(String clsQName, String instanceName) {
 		String request = createInstanceRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element clsElement = XMLHelp.newElement(dataElement, "Class");
@@ -351,7 +352,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response getClassSubTreeXML(String clsQName) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource cls;
 		String request = getClassTreeRequest;
 		try {
@@ -393,7 +394,7 @@ public class Cls extends Resource {
 	public Response createClassXMLTree() {
 
 		String request = getClassTreeRequest;
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
@@ -444,7 +445,7 @@ public class Cls extends Resource {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	void recursiveCreateClassesXMLTree(OWLModel ontModel, ARTURIResource cls, Element element)
+	void recursiveCreateClassesXMLTree(RDFSModel ontModel, ARTURIResource cls, Element element)
 			throws DOMException, ModelAccessException {
 		Element classElement = XMLHelp.newElement(element, "Class");
 		boolean deleteForbidden = servletUtilities.checkWriteOnly(cls);
@@ -492,7 +493,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getSubClassesRequest;
 		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
@@ -616,7 +617,7 @@ public class Cls extends Resource {
 		RDFIterator<? extends ARTResource> subClassesIterator;
 		Iterator<? extends ARTResource> finalIterator;
 
-		subClassesIterator(OWLModel ontModel, ARTURIResource superCls) throws ModelAccessException {
+		subClassesIterator(RDFSModel ontModel, ARTURIResource superCls) throws ModelAccessException {
 			// to check that even with a non-owl reasoning triple-store, root classes are computed as children
 			// of owl:Thing
 			if (superCls.equals(OWL.Res.THING)) {
@@ -676,7 +677,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response getClassesInfoAsRootsForTree(String clsesQNamesString, boolean instNumBool) {
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getClassesInfoAsRootsForTreeRequest;
 		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
@@ -743,7 +744,7 @@ public class Cls extends Resource {
 	 */
 	public Response addSuperClass(String clsQName, String superclsQName) {
 		logger.debug("replying to \"addSuperClass(" + clsQName + "," + superclsQName + ")\".");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		String request = addSuperClsRequest;
 
 		ARTURIResource cls;
@@ -794,7 +795,7 @@ public class Cls extends Resource {
 	 */
 	public Response removeSuperClass(String clsQName, String superClassQName) {
 		logger.debug("replying to \"removeType(" + clsQName + "," + superClassQName + ")\".");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		ServletUtilities servletUtilities = ServletUtilities.getService();
 		String request = removeSuperClsRequest;
 		ARTResource cls;
@@ -875,7 +876,7 @@ public class Cls extends Resource {
 	public Response createClass(String newClassQName, String superClassQName) {
 		String request = createClassRequest;
 		logger.debug("willing to create class: " + newClassQName + " as subClassOf: " + superClassQName);
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 		logger.debug("ontModel: " + ontModel);
 		String newClassURI;
 		String superClassURI;

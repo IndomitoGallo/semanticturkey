@@ -100,6 +100,18 @@ public class XMLHelp {
 	}
 
 	/**
+	 * given an xml {@link Document} this method writes it to {@link String} representation
+	 * 
+	 * @param xml
+	 *            the {@link Document} which is serialized to a {@link String}
+	 * @param indent
+	 *            specifies whether to indent or not the xml code in the output stream
+	 */
+	public static void XML2OutputStream(Document xml, boolean indent, OutputStream out) {
+		XML2OutputStream(xml.getDocumentElement(), indent, out);
+	}
+
+	/**
 	 * given an xml {@link Element} this method returns its {@link String} representation
 	 * 
 	 * @param xml
@@ -167,6 +179,34 @@ public class XMLHelp {
 	}
 
 	/**
+	 * given an xml {@link Element} this method returns its {@link String} representation
+	 * 
+	 * @param xml
+	 *            the {@link Element} which is serialized to a {@link String}
+	 * @param indent
+	 *            specifies whether to indent or not the xml code in the produced String
+	 * @return
+	 */
+	public static void XML2OutputStream(Element xml, boolean indent, OutputStream os) {
+		Properties outputProps = new Properties();
+		outputProps.setProperty("encoding", "UTF-8");
+		outputProps.setProperty("indent", indent?"yes":"no");
+		outputProps.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		_IdentityTransformer.setOutputProperties(outputProps);
+
+		DOMSource domSource = new DOMSource(xml);
+		StreamResult streamResult = new StreamResult(os);
+		try {
+			_IdentityTransformer.transform(domSource, streamResult);
+		} catch (TransformerException e) {
+			// don't want to have this method throw an exception, so, considering that exception
+			// should never happen...
+			// ...at least I hope...
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * this method adds a new textual {@link Element} to an existing {@link Element}
 	 * 
 	 * @param parent
@@ -209,12 +249,12 @@ public class XMLHelp {
 		return _DOMImpl.createDocument(null, null, null);
 	}
 
-
-	public static Document inputStream2XML(InputStream streamedXml) throws SAXException, IOException {	
+	public static Document inputStream2XML(InputStream streamedXml) throws SAXException, IOException {
 		return builder.parse(streamedXml);
 	}
-	
-	public static Document byteArrayOutputStream2XML(ByteArrayOutputStream streamedXml) throws SAXException, IOException {	
+
+	public static Document byteArrayOutputStream2XML(ByteArrayOutputStream streamedXml) throws SAXException,
+			IOException {
 		ByteArrayInputStream bais = new ByteArrayInputStream(streamedXml.toByteArray());
 		Document doc = (Document) builder.parse(bais);
 		return doc;

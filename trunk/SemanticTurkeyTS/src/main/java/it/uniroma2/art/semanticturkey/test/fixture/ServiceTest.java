@@ -11,6 +11,7 @@ import it.uniroma2.art.semanticturkey.servlet.main.Annotate;
 import it.uniroma2.art.semanticturkey.servlet.main.Annotation;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
 import it.uniroma2.art.semanticturkey.servlet.main.Delete;
+import it.uniroma2.art.semanticturkey.servlet.main.Environment;
 import it.uniroma2.art.semanticturkey.servlet.main.Individual;
 import it.uniroma2.art.semanticturkey.servlet.main.InputOutput;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
@@ -69,6 +70,7 @@ public abstract class ServiceTest {
 	public ServiceWrapper pluginsService;
 	public ServiceWrapper sparqlService;
 	public ServiceWrapper statementService;
+	public ServiceWrapper environmentService;
 
 	public void initialize(String type) throws STInitializationException, IOException {
 		
@@ -152,19 +154,20 @@ public abstract class ServiceTest {
 		annotationService = new ServiceHttpWrapper("annotation", httpclient);
 		clsService = new ServiceHttpWrapper("cls", httpclient);
 		deleteService = new ServiceHttpWrapper("delete", httpclient);
+		environmentService =  new ServiceHttpWrapper("environment", httpclient);
 		individualService = new ServiceHttpWrapper("individual", httpclient);
 		inputOutputService = new ServiceHttpWrapper("inputOutput", httpclient);
 		metadataService = new ServiceHttpWrapper("metadata", httpclient);
 		modifyNameService = new ServiceHttpWrapper("modifyName", httpclient);
 		pageService = new ServiceHttpWrapper("page", httpclient);
+		pluginsService = new ServiceHttpWrapper("plugins", httpclient);
 		propertyService = new ServiceHttpWrapper("property", httpclient);
 		projectsService = new ServiceHttpWrapper("projects", httpclient);
 		searchOntologyService = new ServiceHttpWrapper("ontologySearch", httpclient);
 		synonymsService = new ServiceHttpWrapper("synonyms", httpclient);
-		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);
-		pluginsService = new ServiceHttpWrapper("plugins", httpclient);
+		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);		
 		sparqlService = new ServiceHttpWrapper("sparql", httpclient);
-		statementService =  new ServiceHttpWrapper("statement", httpclient);
+		statementService =  new ServiceHttpWrapper("statement", httpclient);		
 	}
 
 	protected void initializeServiceDirectWrappers() {
@@ -173,19 +176,20 @@ public abstract class ServiceTest {
 		annotationService = new ServiceDirectWrapper(new Annotation(""));
 		clsService = new ServiceDirectWrapper(new Cls(""));
 		deleteService = new ServiceDirectWrapper(new Delete(""));
+		environmentService = new ServiceDirectWrapper(new Environment(""));
 		individualService = new ServiceDirectWrapper(new Individual(""));
 		inputOutputService = new ServiceDirectWrapper(new InputOutput(""));
 		metadataService = new ServiceDirectWrapper(new Metadata(""));
 		modifyNameService = new ServiceDirectWrapper(new ModifyName(""));
 		pageService = new ServiceDirectWrapper(new Page(""));
+		pluginsService = new ServiceDirectWrapper(new Plugins(""));
 		propertyService = new ServiceDirectWrapper(new Property(""));
 		projectsService = new ServiceDirectWrapper(new Projects(""));
 		searchOntologyService = new ServiceDirectWrapper(new OntoSearch(""));
 		synonymsService = new ServiceDirectWrapper(new Synonyms(""));
-		systemStartService = new ServiceDirectWrapper(new SystemStart(""));
-		pluginsService = new ServiceDirectWrapper(new Plugins(""));
+		systemStartService = new ServiceDirectWrapper(new SystemStart(""));		
 		sparqlService = new ServiceDirectWrapper(new SPARQL(""));
-		statementService = new ServiceDirectWrapper(new Statement(""));
+		statementService = new ServiceDirectWrapper(new Statement(""));		
 	}
 
 	public static ParameterPair par(String par, String value) {

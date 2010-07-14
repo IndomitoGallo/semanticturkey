@@ -73,7 +73,7 @@ public class GenericTest extends ServiceTest {
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
 		
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource ont = ontModel.createURIResource("http://starred.it/mario");
 		String ns = ont.getNamespace();
 		System.err.println(ns);

@@ -139,7 +139,7 @@ public class Individual extends Resource {
 	public Response getDirectNamedTypes(String indQName) {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		logger.debug("replying to \"getTypes(" + indQName + ").");
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				getDirectNamedTypesRequest, RepliesStatus.ok);

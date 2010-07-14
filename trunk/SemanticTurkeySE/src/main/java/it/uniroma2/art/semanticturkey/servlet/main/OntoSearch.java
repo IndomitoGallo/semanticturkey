@@ -28,6 +28,8 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesStrings;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -84,8 +86,7 @@ public class OntoSearch extends ServiceAdapter {
 				String types = setHttpPar("types");
 				checkRequestParametersAllNotNull("inputString", "types");
 				return searchOntology(inputString, types); // types
-			}
-			else
+			} else
 				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 		} catch (HTTPParameterUnspecifiedException e) {
 			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
@@ -112,12 +113,12 @@ public class OntoSearch extends ServiceAdapter {
 		String request = searchOntologyRequest;
 		logger.debug("searchString: " + inputString);
 
-		//concistency check on proposed types
+		// concistency check on proposed types
 		if (!types.equals("property") && !types.equals("clsNInd"))
 			return servletUtilities.createExceptionResponse(request,
 					"\"types\" parameter not correctly specified in GET request");
 
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ArrayList<Struct> results = new ArrayList<Struct>();
 
 		String inputStringExpandedQName;
@@ -132,22 +133,24 @@ public class OntoSearch extends ServiceAdapter {
 				wellFormedAndAbsolute = false;
 			}
 
-			logger.debug("inputStringExpandedQName: " + inputStringExpandedQName
-					+ " well-formed&Absolute: " + wellFormedAndAbsolute);
+			logger.debug("inputStringExpandedQName: " + inputStringExpandedQName + " well-formed&Absolute: "
+					+ wellFormedAndAbsolute);
 
 			// STARRED TODO optimize it!
 			ARTURIResource perfectMatchingResource = null;
 			if (wellFormedAndAbsolute)
 				perfectMatchingResource = ontModel.createURIResource(inputStringExpandedQName);
-			if (ModelUtilities.checkExistingResource(ontModel, perfectMatchingResource)) {	
-				if ( ontModel.isClass(perfectMatchingResource) )
+			if (ModelUtilities.checkExistingResource(ontModel, perfectMatchingResource)) {
+				if ((ontModel instanceof RDFSModel)
+						&& ((RDFSModel) ontModel).isClass(perfectMatchingResource))
 					results.add(new Struct(VocabularyTypesStrings.cls, perfectMatchingResource, null, 1));
-				else if ( ontModel.isProperty(perfectMatchingResource) )
-					results.add(new Struct(VocabularyTypesStrings.property, perfectMatchingResource, null, 1));
-				else 
-					results.add(new Struct(VocabularyTypesStrings.individual, perfectMatchingResource, null, 1));
-			}
-			else {
+				else if (ontModel.isProperty(perfectMatchingResource))
+					results
+							.add(new Struct(VocabularyTypesStrings.property, perfectMatchingResource, null, 1));
+				else
+					results.add(new Struct(VocabularyTypesStrings.individual, perfectMatchingResource, null,
+							1));
+			} else {
 
 				String searchStringNamespace = null;
 				String searchStringLocalName = null;
@@ -202,25 +205,45 @@ public class OntoSearch extends ServiceAdapter {
 				}
 
 				if (types.equals("clsNInd")) {
-					ARTURIResourceIterator searchedResources = ontModel.listNamedClasses(true, NodeFilters.MAINGRAPH);
-					logger.debug("collectResults for classes: ");
-					collectResults(searchedResources, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.cls);
-
+					ARTURIResourceIterator searchedResources;
+					if (ontModel instanceof RDFSModel) {
+						searchedResources = ((RDFSModel) ontModel).listNamedClasses(true,
+								NodeFilters.MAINGRAPH);
+						logger.debug("collectResults for classes: ");
+						collectResults(searchedResources, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven, VocabularyTypesStrings.cls);
+					}
 					logger.debug("collectResults for instances: ");
 					searchedResources = ontModel.listNamedInstances();
 					collectResults(searchedResources, results, searchStringNamespace, searchStringLocalName,
 							namespaceGiven, VocabularyTypesStrings.individual);
-				} else { //property
-					ARTURIResourceIterator searchedProperties = ontModel.listObjectProperties(true, NodeFilters.MAINGRAPH);
+				} else { // property
+					ARTURIResourceIterator searchedProperties;
+
+					if (ontModel instanceof OWLModel) {
+
+						searchedProperties = ((OWLModel) ontModel).listObjectProperties(true,
+								NodeFilters.MAINGRAPH);
+						collectResults(searchedProperties, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven, VocabularyTypesStrings.objectProperty);
+
+						searchedProperties = ((OWLModel) ontModel).listDatatypeProperties(true,
+								NodeFilters.MAINGRAPH);
+						collectResults(searchedProperties, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven,
+								VocabularyTypesStrings.datatypeProperty);
+
+						searchedProperties = ((OWLModel) ontModel).listAnnotationProperties(true,
+								NodeFilters.MAINGRAPH);
+						collectResults(searchedProperties, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven,
+								VocabularyTypesStrings.annotationProperty);
+
+					}
+
+					searchedProperties = ontModel.listProperties(NodeFilters.MAINGRAPH);
 					collectResults(searchedProperties, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.objectProperty);
-					searchedProperties = ontModel.listDatatypeProperties(true, NodeFilters.MAINGRAPH);
-					collectResults(searchedProperties, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.datatypeProperty);
-					searchedProperties = ontModel.listAnnotationProperties(true, NodeFilters.MAINGRAPH);
-					collectResults(searchedProperties, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.annotationProperty);
+							namespaceGiven, VocabularyTypesStrings.property);
 				}
 
 			}
@@ -237,7 +260,7 @@ public class OntoSearch extends ServiceAdapter {
 		return xmlizeResults(ontModel, results);
 	}
 
-	private Response xmlizeResults(OWLModel rep, ArrayList<Struct> results) {
+	private Response xmlizeResults(RDFModel rep, ArrayList<Struct> results) {
 		String request = searchOntologyRequest;
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
@@ -257,7 +280,7 @@ public class OntoSearch extends ServiceAdapter {
 	}
 
 	private void collectResults(Iterator<ARTURIResource> searchedResources, ArrayList<Struct> results,
-			String searchStringNamespace, String searchStringLocalName, boolean namespaceGiven, String type) {		
+			String searchStringNamespace, String searchStringLocalName, boolean namespaceGiven, String type) {
 		double match;
 		while (searchedResources.hasNext()) {
 			ARTURIResource nextClass = searchedResources.next();

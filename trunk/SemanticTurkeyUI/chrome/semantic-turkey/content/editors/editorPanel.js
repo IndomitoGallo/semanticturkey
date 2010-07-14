@@ -31,6 +31,8 @@ Components.utils.import("resource://stservices/SERVICE_Property.jsm",
 Components.utils.import("resource://stservices/SERVICE_ModifyName.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/stEvtMgr.jsm", 
+		art_semanticturkey);
 
 window.onload = function() {
 	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
@@ -1586,14 +1588,16 @@ art_semanticturkey.onClose = function(){
  * NScarpato 29/11/2007 onAccept
  */
 art_semanticturkey.onUnload = function() {
+	art_semanticturkey.Logger.debug("sourceType: " + window.arguments[0].sourceType);
 	var changed = document.getElementById("editorPanel")
 			.getAttribute("changed");
 	var parentWindow = window.arguments[0].parentWindow;
 	var isFirstEditor = window.arguments[0].isFirstEditor;
 	if(changed == "true" && isFirstEditor == false){
+		art_semanticturkey.Logger.debug("isFirstEditor: " + isFirstEditor);
 		parentWindow.document.getElementById("editorPanel").setAttribute("changed", "true");
-	}
-	else if (changed == "true") {
+	} else if (changed == "true") {
+		
 		var tree = window.arguments[0].tree;
 		var treeChildren = tree.getElementsByTagName('treechildren')[0];
 		var treeItemsNodes = treeChildren.getElementsByTagName("treeitem");
@@ -1604,6 +1608,7 @@ art_semanticturkey.onUnload = function() {
 		// RELOAD TREE
 		try {
 			var responseXML;
+			
 			if (window.arguments[0].sourceType == "cls"
 					|| window.arguments[0].sourceType == "individual") {
 
@@ -1613,6 +1618,12 @@ art_semanticturkey.onUnload = function() {
 				if (responseXML != null)
 					parentWindow.art_semanticturkey
 							.getClassTree_RESPONSE(responseXML);*/
+			} else if (window.arguments[0].sourceType == "skosConcept"){
+				
+				// Luca Mastrogiovanni: fire event propertyChanged
+				var obj = new Object();
+				art_semanticturkey.evtMgr.fireEvent("propertyChanged", obj);
+				
 			} else {
 				responseXML = art_semanticturkey.STRequests.Property
 						.getPropertyTree();
@@ -1994,6 +2005,12 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,isL
 						parameters);
 	}
 	if (parameters.oncancel == false) {
+		if (window.arguments[0].sourceType == "skosConcept"){
+			// Luca Mastrogiovanni: fire event propertyValueAdded
+			var obj = new Object();
+			art_semanticturkey.evtMgr.fireEvent("propertyValueAdded", obj);
+
+		}		
 		art_semanticturkey.refreshPanel();
 	}
 };
@@ -2012,6 +2029,7 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,ty
 	var instanceQName = document.getElementById("name")
 			.getAttribute("actualValue");
 	try {
+				
 		if (value == "list") {
 			var list = document.getElementById(propertyQName);
 			var selItem = list.selectedItem;
@@ -2055,6 +2073,11 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,ty
 						type);
 			}
 		}
+		
+		// Luca Mastrogiovanni: fire event propertyRemoved
+		var obj = new Object();
+		art_semanticturkey.evtMgr.fireEvent("propertyRemoved", obj);
+		
 		art_semanticturkey.refreshPanel();
 	} catch (e) {
 		alert(e.name + ": " + e.message);

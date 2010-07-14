@@ -45,13 +45,14 @@ function openMainProject() {
  *            or if it needs to be explicitly saved (<em>saveToStore</em>)
  * @return
  */
-function newProject(name, baseuri, ontmanager, type) {
+function newProject(name,ontologyType, baseuri, ontmanager, type) {
 	Logger.debug('[SERVICE_Projects.jsm] newProject');
 	var name = "name=" + name;
+	var ontologyType = "ontologyType=" + ontologyType;
 	var baseuri = "baseuri=" + baseuri;
 	var ontmanager = "ontmanager=" + ontmanager;
 	var type = "type=" + type;
-	return HttpMgr.GET(serviceName, service.newProjectRequest, name, baseuri, ontmanager, type);
+	return HttpMgr.GET(serviceName, service.newProjectRequest, name, ontologyType,baseuri, ontmanager, type);
 }
 
 /**

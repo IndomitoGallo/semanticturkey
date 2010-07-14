@@ -24,6 +24,7 @@
 
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.sesame2impl.factory.ARTModelFactorySesame2Impl;
 import it.uniroma2.art.owlart.sesame2impl.vocabulary.SESAME;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
@@ -37,11 +38,11 @@ import org.slf4j.LoggerFactory;
  * @author Andrea Turbati
  * 
  */
-public class STOntologyManagerSesame2Impl extends STOntologyManager {
+public class STOntologyManagerSesame2Impl<MODELTYPE extends RDFModel> extends STOntologyManager<MODELTYPE> {
 
 	protected static Logger logger = LoggerFactory.getLogger(STOntologyManagerSesame2Impl.class);
 
-	STOntologyManagerSesame2Impl(Project project) {
+	STOntologyManagerSesame2Impl(Project<MODELTYPE> project) {
 		super(project, new ARTModelFactorySesame2Impl());
 	}
 

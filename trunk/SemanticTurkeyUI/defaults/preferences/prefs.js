@@ -7,6 +7,6 @@ pref("extensions.semturkey.server.port", "1979");
 pref("extensions.semturkey.server.path", "/semantic_turkey/resources/stserver/STServer");
 pref("extensions.semturkey.isLastProjMain", true);
 pref("extensions.semturkey.firstStart", true);
-pref("extensions.semturkey.version", "0.7.1");
+pref("extensions.semturkey.version", "0.7.2");
 
 

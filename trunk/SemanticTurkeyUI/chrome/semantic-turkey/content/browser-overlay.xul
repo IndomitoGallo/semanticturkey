@@ -51,6 +51,10 @@
 			label="Metadata Panel" type="checkbox" group="sidebar"
 			sidebarurl="chrome://semantic-turkey/content/metadata/imports.xul"
 			sidebartitle="Metadata Panel" semanticTurkeyBroadcaster="true" />
+		<broadcaster id="stSKOSSidebar" autoCheck="false"
+			label="SKOS Panel" type="checkbox" group="sidebar"
+			sidebarurl="chrome://semantic-turkey/content/skos/tabs.xul"
+			sidebartitle="SKOS Panel" semanticTurkeyBroadcaster="true" />			
 	</broadcasterset>
 	<!--
 		For Firefox to recognize this as a standalone toolbar, we need to
@@ -76,6 +80,9 @@
 			<toolbarbutton id="SPARQLToolBarButton"
 				image="chrome://semantic-turkey/content/images/sparql.png"
 				tooltiptext="Open SPARQL" hidden="true" />
+			<toolbarbutton id="SKOSToolBarButton"
+				image="chrome://semantic-turkey/content/images/ontology20.png"
+				tooltiptext="Open SKOS Editor" hidden="true" />
 		</toolbar>
 	</toolbox>
 
@@ -99,6 +106,8 @@
 				<menuitem id="key_openSTImportsSidebar" observes="stImportsSidebar"
 					disabled="true" />
 				<menuitem id="SPARQL" label="SPARQL" disabled="true" />
+				<menuitem id="key_openSTSKOSSidebar" observes="stSKOSSidebar"
+					disabled="true" />
 				<menu id="visualization" label="Visualization Level" position="4"
 					disabled="true">
 					<menupopup id="menu_ToolsPopup3">

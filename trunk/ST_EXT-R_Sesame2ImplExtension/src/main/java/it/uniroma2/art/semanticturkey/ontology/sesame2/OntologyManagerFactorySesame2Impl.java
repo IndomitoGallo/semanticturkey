@@ -23,6 +23,7 @@
  
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.project.Project;
@@ -30,8 +31,8 @@ import it.uniroma2.art.semanticturkey.project.Project;
 public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactory {
 
 	@Override
-	public STOntologyManager createOntologyManager(Project project) {
-		return new STOntologyManagerSesame2Impl(project);
+	public <MODELTYPE extends RDFModel> STOntologyManager<MODELTYPE> createOntologyManager(Project<MODELTYPE> project) {
+		return new STOntologyManagerSesame2Impl<MODELTYPE>(project);
 	}
 
 	public String getId() {
