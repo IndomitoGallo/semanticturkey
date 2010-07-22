@@ -202,6 +202,9 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		String propValue = getProperty(Project.PROJECT_MODEL_TYPE);
 		logger.debug("model type declared for this project: " + propValue);
 		Class modelType;
+		if (propValue == null) {
+			throw new ProjectInconsistentException("property: " + PROJECT_MODEL_TYPE + " not defined for this project");
+		}
 		try {
 			modelType = Class.forName(propValue);
 			// this should check that the returned model is a subclass of RDFModel
