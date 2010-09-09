@@ -246,10 +246,10 @@ public class SKOS extends Resource {
 			
 			// scorro i concetti broader di relatedConcept ed elimino la relazione <relatedConcept skos:broader ?x>,
 			// sucessivamente viene creata una nuova tripla <newConcept skos:broader ?x>,
-			ARTURIResourceIterator itUri = skosModel.listBroaderConcepts(relatedConcept, false, NodeFilters.MAINGRAPH);
+			ARTURIResourceIterator itUri = skosModel.listBroaderConcepts(relatedConcept, false, true, NodeFilters.MAINGRAPH);
 			while(itUri.streamOpen()){
 				ARTURIResource broader = itUri.next();
-				// remoe narrower an broader links
+				// remove narrower an broader links
 				skosModel.removeBroaderConcept(relatedConcept, broader, NodeFilters.MAINGRAPH);
 				skosModel.removeNarroweConcept(broader, relatedConcept, NodeFilters.MAINGRAPH);
 				
@@ -375,7 +375,7 @@ public class SKOS extends Resource {
 			// TODO: il corpo di questo metodo è praticamente uguale a quello di getConceptsTreeRequest farne uno soloe...
 			Element dataElement = response.getDataElement();
 			ARTURIResource concept = skosModel.createURIResource(skosModel.expandQName(conceptName));
-			ARTURIResourceIterator it = skosModel.listNarrowerConcepts(concept, false, NodeFilters.MAINGRAPH);
+			ARTURIResourceIterator it = skosModel.listNarrowerConcepts(concept, false, true, NodeFilters.MAINGRAPH);
 			
 			makeConceptListXML(skosModel,dataElement,it,defaultLanguage);
 			
@@ -397,7 +397,7 @@ public class SKOS extends Resource {
 	private void makeConceptXML(SKOSModel skosModel,ARTURIResource concept,Element conceptElement, String defaultLanguage) throws DOMException, ModelAccessException{
 		conceptElement.setAttribute("name", skosModel.getQName(concept.getURI()));
 		conceptElement.setAttribute("uri", concept.getURI());
-		ARTURIResourceIterator it2 = skosModel.listNarrowerConcepts(concept, false, NodeFilters.MAINGRAPH);
+		ARTURIResourceIterator it2 = skosModel.listNarrowerConcepts(concept, false, true, NodeFilters.MAINGRAPH);
 		if(it2.streamOpen()){
 			conceptElement.setAttribute("more", "1");
 			it2.close();
@@ -413,7 +413,7 @@ public class SKOS extends Resource {
 			
 			Element dataElement = response.getDataElement();
 			ARTURIResource skosScheme = skosModel.createURIResource(skosModel.expandQName(schemaUri));
-			ARTURIResourceIterator it = skosModel.listTopConceptsInScheme(skosScheme, NodeFilters.MAINGRAPH);
+			ARTURIResourceIterator it = skosModel.listTopConceptsInScheme(skosScheme, true, NodeFilters.MAINGRAPH);
 			
 			makeConceptListXML(skosModel,dataElement,it,defaultLanguage);
 			
