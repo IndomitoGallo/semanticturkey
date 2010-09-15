@@ -11,7 +11,7 @@ title="Semantic Turkey Options" width="600" height="300" onload="populatePrefere
       <preference id="default_language" name="extensions.semturkey.annotprops.defaultlang" type="string"/>
       <preference id="languages_list" name="extensions.semturkey.annotprops.langs" type="string"/>
     </preferences>
-    <prefpane id="pane1" label="Semantic Turkey Annotation Options">
+    <prefpane id="pane1" label="Annotation">
     <label value='Selected Annotation Type' class="head-1"/>
     <hbox id="default_ann_box">
   <!-- <button id="changeDefaultAnn" label="Change Selected Annotation Type" onclick="changeDefaultAnnotation();"/>-->
@@ -23,7 +23,7 @@ title="Semantic Turkey Options" width="600" height="300" onload="populatePrefere
    <listbox id="annotationOptions">
    </listbox>
    </prefpane>
-  <prefpane id="pane2" label="Semantic Turkey Languages Options">
+  <prefpane id="pane2" label="Labels Languages">
      <label value='Default Language' class="head-1"/>
    <hbox id="default_language_box">
    <button id="changeDefault" label="Change Default Language" onclick="changeDefaultLanguage();"/>
