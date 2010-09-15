@@ -55,7 +55,7 @@ window.onload = function() {
 
 	var radiopropNode = document.getElementById("radioprop");
 	radiopropNode.setAttribute("label", "\"" + objectInstanceName
-			+ "\" is a range instance of a property of \""
+			+ "\" is a value of a property of \""
 			+ subjectInstanceName + "\"");
 };
 
