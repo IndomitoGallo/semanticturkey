@@ -84,6 +84,7 @@ public class Delete extends ServiceAdapter {
 	}
 
 	public Response deleteResource(String qname, String request) {
+		logger.debug("request to delet resource: " + qname);
 		ServletUtilities servletUtilities = new ServletUtilities();
 		String encodedQName = servletUtilities.encodeLabel(qname);
 		OWLModel model = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
