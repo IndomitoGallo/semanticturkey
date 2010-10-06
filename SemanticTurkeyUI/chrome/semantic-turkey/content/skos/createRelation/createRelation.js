@@ -172,6 +172,7 @@ art_semanticturkey.onAccept = function() {
 				objNewConcept.label = name;
 			}			
 			objNewConcept.label = name;
+			objNewConcept.name = name;
 			objNewConcept.id = conceptList[0].getAttribute("id");
 			objNewConcept.uri = conceptList[0].getAttribute("uri");
 			objNewConcept.more = conceptList[0].getAttribute("more");		
@@ -181,7 +182,7 @@ art_semanticturkey.onAccept = function() {
 		var parentWindow = window.arguments[0].parentWindow;
 		var obj = new Object();
 		obj.newConcept = objNewConcept;
-		obj.type = type;
+		obj.type = type;		
 		obj.scheme = schemeName;
 		obj.treerow = window.arguments[0].treerow;
 		obj.relatedConcept = relatedConcept;

@@ -81,7 +81,7 @@
 				image="chrome://semantic-turkey/content/images/sparql.png"
 				tooltiptext="Open SPARQL" hidden="true" />
 			<toolbarbutton id="SKOSToolBarButton"
-				image="chrome://semantic-turkey/content/images/ontology20.png"
+				image="chrome://semantic-turkey/content/images/skos.png"
 				tooltiptext="Open SKOS Editor" hidden="true" />
 		</toolbar>
 	</toolbox>

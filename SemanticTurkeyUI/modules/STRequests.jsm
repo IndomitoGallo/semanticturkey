@@ -214,9 +214,11 @@ STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
 STRequests.SKOS.getConceptsTreeRequest = "getConceptsTree";
 STRequests.SKOS.getNarrowerConceptsRequest = "getNarrowerConcepts";
 STRequests.SKOS.addConceptRequest = "addConcept";
+STRequests.SKOS.addSemanticRelationRequest = "addSemanticRelation";
 STRequests.SKOS.createNarrowerConceptRequest ="createNarrowerConcept";
 STRequests.SKOS.createBroaderConceptRequest ="createBroaderConcept";
 STRequests.SKOS.createSchemeRequest ="createScheme";
+STRequests.SKOS.removeConceptRequest = "removeConcept";
  
 
 //projects service request
