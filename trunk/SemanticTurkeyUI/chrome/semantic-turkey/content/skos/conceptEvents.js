@@ -32,6 +32,7 @@ art_semanticturkey.associateEventsOnGraphicElementsConcepts = function(){
 
 	// Tool bar buttons
 	document.getElementById("addConcept").addEventListener("command", art_semanticturkey.addConcept, true);
+	document.getElementById("addConceptRelationship").addEventListener("command", art_semanticturkey.addConceptRelationship, true);
 	document.getElementById("toggleConceptLanguage").addEventListener("command", art_semanticturkey.toggleConceptLanguage, true);
 	
 	// Clipmenu events
@@ -41,7 +42,17 @@ art_semanticturkey.associateEventsOnGraphicElementsConcepts = function(){
 	
 };
 art_semanticturkey.deleteConcept = function(event) {
-	alert('art_semanticturkey.deleteConcept');
+	var tree = document.getElementById("conceptsTree");	
+	var range = tree.view.selection.getRangeCount();
+	if (range <= 0) {
+		alert("Please Select a Concept");
+		return;
+	}
+	var currentelement = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
+	var treerow = currentelement.getElementsByTagName('treerow')[0];
+	var treecell = treerow.getElementsByTagName('treecell')[0];
+	var concept = treecell.getAttribute("uri");
+	var responseXML = art_semanticturkey.STRequests.SKOS.removeConcept(concept);
 };
 
 art_semanticturkey.createNarrowerConcept = function(event) {
@@ -99,6 +110,21 @@ art_semanticturkey.toggleConceptLanguage = function (event) {
 	obj.menuList = document.getElementById("skosSchemeMenuList");
 	art_semanticturkey.evtMgr.fireEvent("humanReadableModeChanged", obj);	
 };
+
+/**
+ * @author Luca Mastrogiovanni invoke create new semantic relations
+ */
+art_semanticturkey.addConceptRelationship = function(event) {
+	var parameters = new Object();
+	parameters.subjectInstanceName = "skos:semanticRelation";
+	parameters.sourceType = "skosConcept";
+	parameters.parentWindow = window;
+	parameters.isFirstEditor = true;
+	parameters.type = "ObjectProperty";
+	window.openDialog("chrome://semantic-turkey/content/skos/addSemanticRelation/addSemanticRelation.xul", 
+			"_blank", "modal=yes,resizable,centerscreen", parameters);
+};
+
 
 /**
  * @author Luca Mastrogiovanni invoke create new concept

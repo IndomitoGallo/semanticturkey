@@ -66,6 +66,24 @@ function addConcept(conceptName, schemeName, rdfsLabel,rdfsLabelLanguage, prefer
 	return HttpMgr.GET(serviceName, service.addConceptRequest, conceptName, schemeName, rdfsLabel,rdfsLabelLanguage, preferredLabel,preferredLabelLanguage);
 }
 
+
+/**
+ * Add semantic relation between two concepts
+ * 
+ * @member STRequests.SKOS
+ * @param from
+ * @param relation
+ * @param to
+ * @return
+ */
+function addSemanticRelation(conceptFrom, semanticRelation, conceptTo) {
+	Logger.debug('[SERVICE_SKOS.jsm] addSemanticRelation');
+	var conceptFrom = "conceptFrom=" + conceptFrom;
+	var semanticRelation = "semanticRelation=" + semanticRelation;
+	var conceptTo = "conceptTo=" + conceptTo;
+	return HttpMgr.GET(serviceName, service.addSemanticRelationRequest, conceptFrom, semanticRelation, conceptTo);
+}
+
 /**
  * create a new concept narrower then relatedConcept
  * 
@@ -135,12 +153,26 @@ function createScheme(schemeName,rdfsLabel, rdfsLabelLanguage,preferredLabel,pre
 	return HttpMgr.GET(serviceName, service.createSchemeRequest,schemeName, rdfsLabel, rdfsLabelLanguage,preferredLabel,preferredLabelLanguage);
 }
 
+/**
+ * remove a concept
+ * 
+ * @member STRequests.SKOS
+ * @param comcept concept to be remove
+ * @return
+ */
+function removeConcept(concept) {
+	Logger.debug('[SERVICE_SKOS.jsm] removeConcept');
+	var concept = "concept=" + concept;
+	return HttpMgr.GET(serviceName, service.removeConceptRequest,concept);
+}
 
 // SKOS SERVICE INITIALIZATION
 service.getAllSchemesList = getAllSchemesList;
 service.getConceptsTree = getConceptsTree;
 service.getNarrowerConcepts = getNarrowerConcepts;
 service.addConcept = addConcept;
+service.addSemanticRelation = addSemanticRelation;
 service.createNarrowerConcept = createNarrowerConcept;
 service.createBroaderConcept = createBroaderConcept;
 service.createScheme = createScheme;
+service.removeConcept = removeConcept;

@@ -225,6 +225,7 @@ art_semanticturkey.createSTConceptNarrowerAddedObj = function(){
 			      tch = document.createElement('treechildren');
 			}
 			// if human-readable mode... load label property otherwise load name property
+			
 			if(art_semanticturkey.getHumanReadableMode() == true && label.length > 0){
 				tcell.setAttribute("label", label);
 			}else {
@@ -326,39 +327,11 @@ art_semanticturkey.clearConceptsTree = function () {
 art_semanticturkey.loadNarroweConcepts = function(event,tree) {
 	var action = "null";
 	var tree = tree;
-	if (typeof tree == 'undefined')
+	if (typeof tree == 'undefined'){		
 		tree = document.getElementById("conceptsTree");
-	var treeitem;
-	if(event.type == "keypress"){
-		
-/*		
-		var keyCode = event.keyCode;
-		treeitem = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
-		var isContainer = treeitem.getAttribute("container");
-		if (isContainer == "false") {
-			return;
-		}
-		var isOpen = treeitem.getAttribute("open");
-		if(keyCode == KeyEvent.DOM_VK_RETURN) {
-			if(isOpen == "true"){
-				action = "loadSubTree";
-			}
-			else if(isOpen == "false"){
-				action = "emptySubTree";
-			}
-		}
-		else if((keyCode == KeyEvent.DOM_VK_RIGHT) && (isOpen == "true")){
-			action = "loadSubTree";
-		}
-		else if  ((keyCode == KeyEvent.DOM_VK_LEFT) && (isOpen == "false")){
-			action = "emptySubTree";
-		}
-		else{
-			return;
-		}
-*/		
 	}
-	else if(event.type == "click"){
+	var treeitem;
+	if(event.type == "click"){
 		var row = {};
 		var col = {};
 		var part = {};
@@ -397,16 +370,6 @@ art_semanticturkey.loadNarroweConcepts = function(event,tree) {
 		var responseXML=art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(conceptName,art_semanticturkey.getDefaultLanguage());
 		
 		art_semanticturkey.populateConceptTree(responseXML,treeChildren);
-		
-		//alert(responseXML);
-		/*
-		var dataElement = responseXML.getElementsByTagName('data')[0];
-		var conceptList = dataElement.getElementsByTagName("concept");
-		art_semanticturkey.populateConceptTree(conceptList,rootConceptsTreeChildren);
-*/
-		//var className = treeitem.getAttribute("className");
-		//var responseXML=art_semanticturkey.STRequests.Cls.getSubClasses(className,true,true);
-		//art_semanticturkey.getSubClassesTree_RESPONSE(responseXML,treeChildren);
 	}
 	else if(action == "emptySubTree"){
 		// EMPTY TREE
