@@ -41,8 +41,8 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
@@ -205,7 +205,7 @@ public class Annotation extends ServiceAdapter {
 		OWLModel ontModel = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
 		ServletUtilities servletUtilities = ServletUtilities.getService();
 
-		ResponseREPLY response = servletUtilities.createReplyResponse(getPageAnnotationsRequest,
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(getPageAnnotationsRequest,
 				RepliesStatus.ok);
 
 		Element dataElement = response.getDataElement();
@@ -310,7 +310,7 @@ public class Annotation extends ServiceAdapter {
 
 			ModelUtilities.deepDeleteIndividual(annot, ontModel, deletePropertyPropagationTreeForAnnotations);
 
-			return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok, null);
+			return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 
 		} catch (ModelAccessException mae) {
 			return ServletUtilities.getService().createExceptionResponse(request, mae);
@@ -378,7 +378,7 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response updateClassOnTree(String clsQName, String instanceName) throws ModelAccessException {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		ResponseREPLY response = servletUtilities.createReplyResponse(createAndAnnotateRequest,
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(createAndAnnotateRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -505,7 +505,7 @@ public class Annotation extends ServiceAdapter {
 						+ " on subject: " + subjectInstanceRes);
 			}
 
-			ResponseREPLY response = servletUtilities.createReplyResponse(relateAndAnnotateRequest,
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(relateAndAnnotateRequest,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			dataElement.setAttribute("op", "bindAnnotToNewInstance");
@@ -559,7 +559,7 @@ public class Annotation extends ServiceAdapter {
 					"Ontology Access error: " + e.getMessage());
 		}
 
-		return servletUtilities.createReplyResponse(relateAndAnnotateRequest, RepliesStatus.ok, null);
+		return servletUtilities.createReplyResponse(relateAndAnnotateRequest, RepliesStatus.ok);
 
 	}
 

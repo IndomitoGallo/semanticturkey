@@ -20,85 +20,30 @@
  * http//ai-nlp.info.uniroma2.it/software/...
  *
  */
-
-/*
- * Contributor(s): Armando Stellato stellato@info.uniroma2.it
- */
 package it.uniroma2.art.semanticturkey.servlet;
 
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+/**
+ * Defines an interface for Semantic Turkey query response with data content
+ * 
+ * @author: Ramon Orrù
+ * @author: Armando Stellato stellato@info.uniroma2.it
+ */
+public interface ResponseREPLY extends Response {
+	
+	public void setReplyStatus (RepliesStatus rep_status);
+	public void setReplyStatusOK() ;
+	
+	public RepliesStatus getReplyStatus();
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+	public void setReplyStatusWARNING() ;
+	public void setReplyStatusWARNING(String msg) ;
 
-public class ResponseREPLY extends Response {
+	public void setReplyStatusFAIL() ;
+	public void setReplyStatusFAIL(String msg) ;
 
-	Element replyElement;
-	Element dataElement;
-	RepliesStatus replyStatus;
+	public void setReplyMessage(String msg);
 
-	ResponseREPLY(Document xml, String request) {
-		super(xml, request);
-		responseElement.setAttribute(ServiceVocabulary.responseType, ServiceVocabulary.type_reply);
-		replyElement = xml.createElement(ServiceVocabulary.reply);
-		responseElement.appendChild(replyElement);		
-		dataElement = xml.createElement(ServiceVocabulary.data);
-		responseElement.appendChild(dataElement);
-	}
-
-	ResponseREPLY(Document xml, String request, RepliesStatus status) {
-		this(xml, request);
-		setReplyStatus(status);
-	}
-
-	ResponseREPLY(Document xml, String request, RepliesStatus status, String msg) {
-		this(xml, request, status);		
-		setReplyMessage(msg);
-	}
-
-	public void setReplyStatus(RepliesStatus reply) {
-		replyStatus = reply;
-		replyElement.setAttribute(ServiceVocabulary.status, replyStatus.toString());
-	}
-
-	public void setReplyStatusOK() {
-		setReplyStatus(RepliesStatus.ok);
-	}
-
-	public void setReplyStatusWARNING() {
-		setReplyStatus(RepliesStatus.warning);
-	}
-
-	public void setReplyStatusWARNING(String msg) {
-		setReplyStatusWARNING();
-		setReplyMessage(msg);
-	}
-
-	public void setReplyStatusFAIL() {
-		setReplyStatus(RepliesStatus.fail);
-	}
-
-	public void setReplyStatusFAIL(String msg) {
-		setReplyStatusFAIL();
-		setReplyMessage(msg);
-	}
-
-	public void setReplyMessage(String msg) {
-		replyElement.setTextContent(msg);
-	}
-
-	public String getReplyMessage() {
-		return replyElement.getTextContent();
-	}
-
-	public Element getDataElement() {
-		return dataElement;
-	}
-
-	public boolean isAffirmative() {
-		if (replyStatus.equals(RepliesStatus.ok) || replyStatus.equals(RepliesStatus.warning) )
-			return true;
-		return false;
-	}
-
+	public String getReplyMessage();
+	
 }

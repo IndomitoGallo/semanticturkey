@@ -39,7 +39,7 @@ art_semanticturkey.populateTripleStoreMenulist_RESPONSE = function(responseEleme
 		}
 		
 	}
-}
+};
 
 art_semanticturkey.onAccept = function() {
 	art_semanticturkey.DisabledAllButton(true);

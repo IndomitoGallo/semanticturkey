@@ -27,15 +27,12 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
-import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertResponseEquals;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,15 +44,15 @@ import org.junit.Test;
 public class UTF8_UT extends ServiceUTFixture {
 
 	public static final String annotatedPageURL = "http://www.papyri.info/idp_static/current/data/ddb/html/bgu/bgu.4/bgu.4.1202.html";
-	public static final String annotatedPageTitle = "Greek Leiden"; 
-	
+	public static final String annotatedPageTitle = "Greek Leiden";
+
 	@BeforeClass
 	public static void init() throws IOException, STInitializationException {
 		ServiceTest tester = new UTF8_UT();
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");
 		startST();
-		importSTExample();	
+		importSTExample();
 	}
 
 	/**
@@ -64,59 +61,48 @@ public class UTF8_UT extends ServiceUTFixture {
 	@Test
 	public void tryAnnotationTest() {
 
-		Response resp = serviceTester.annotationService.makeRequest(Annotation.createAndAnnotateRequest,
-				par(Annotation.clsQNameField, "st_example:Person"),
-				par(Annotation.instanceQNameField, "τοπογραμματεὺς"),
-				par(Annotation.urlPageString, annotatedPageURL),
-				par(Annotation.titleString, annotatedPageTitle)
-		);
+		Response resp = serviceTester.annotationService.makeRequest(Annotation.createAndAnnotateRequest, par(
+				Annotation.clsQNameField, "st_example:Person"), par(Annotation.instanceQNameField,
+				"τοπογραμματεὺς"), par(Annotation.urlPageString, annotatedPageURL), par(
+				Annotation.titleString, annotatedPageTitle));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
-	
+
 	/**
 	 * test behavior of the server against an UTF8 annotation (containing greek characters)
 	 */
 	@Test
 	public void tryAddAnnotationTest() {
-		Response resp = serviceTester.annotationService.makeRequest(Annotation.addAnnotationRequest,				
-				par(Annotation.textString, "Αὐνῆς"),
-				par(Annotation.instanceQNameField, "greekWord"),
-				par(Annotation.urlPageString, annotatedPageURL),
-				par(Annotation.titleString, annotatedPageTitle)
-		);
+		Response resp = serviceTester.annotationService.makeRequest(Annotation.addAnnotationRequest, par(
+				Annotation.textString, "Αὐνῆς"), par(Annotation.instanceQNameField, "greekWord"), par(
+				Annotation.urlPageString, annotatedPageURL), par(Annotation.titleString, annotatedPageTitle));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
 
-	
-	
 	/**
 	 * test behavior of the server against an UTF8 annotation (containing greek characters)
 	 */
 	@Test
 	public void getBookmarksTest() {
 
-		Response resp = serviceTester.pageService.makeRequest(
-				Page.getBookmarksRequest,
-				par(Page.instanceNameString, "greekWord")
-		);
+		Response resp = serviceTester.pageService.makeRequest(Page.getBookmarksRequest, par(
+				Page.instanceNameString, "greekWord"));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
-		//pause();
+		// pause();
 	}
-	
+
 	/**
 	 * check System Properties
 	 */
 	@Test
 	public void getSystemProperties() {
 
-		Response resp = serviceTester.environmentService.makeRequest(
-				Environment.systemPropertiesRequest
-		);
+		Response resp = serviceTester.environmentService.makeRequest(Environment.systemPropertiesRequest);
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
-	
+
 }

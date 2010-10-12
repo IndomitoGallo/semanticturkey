@@ -66,7 +66,7 @@ art_semanticturkey.updateMirrorEntry = function() {
 	window.openDialog("chrome://semantic-turkey/content/metadata/updateMirror.xul",
 			"_blank", "modal=yes,resizable,centerscreen", parameters);
 	
-}
+};
 
 
 art_semanticturkey.getMirrorEntry = function() {
@@ -86,7 +86,7 @@ art_semanticturkey.getMirrorEntry = function() {
 	result.baseURI = baseURI;
 	result.file = file;
 	return result;
-}
+};
 
 
 art_semanticturkey.close = function() {

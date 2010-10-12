@@ -29,6 +29,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.servlet.main.Statement;
 import it.uniroma2.art.semanticturkey.servlet.parse.StatementParse;
@@ -71,7 +73,7 @@ public class Statement_UT extends ServiceUTFixture {
 				par(Statement.Par.inferencePar, "false"),
 				par(Statement.Par.graphsPar, Statement.mainGraphValue + ";"	+ "http://art.uniroma2.it/ontologies/st_example"));
 
-		assertResponseEquals(resp, "getStatements1.xml");
+		assertResponseEquals((XMLResponse)resp, "getStatements1.xml");
 	}
 	
 	/**
@@ -112,7 +114,7 @@ public class Statement_UT extends ServiceUTFixture {
 				
 		assertResponseREPLY(resp);
 		
-		Element dataElement = ((ResponseREPLY)resp).getDataElement();
+		Element dataElement = ((XMLResponseREPLY)resp).getDataElement();
 		Element resultElement = (Element) dataElement.getElementsByTagName(Statement.resultTag).item(0);
 		String value = resultElement.getTextContent();
 		assertEquals("true", value);

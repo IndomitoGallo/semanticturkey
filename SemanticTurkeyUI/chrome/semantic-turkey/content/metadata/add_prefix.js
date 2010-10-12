@@ -32,4 +32,4 @@ art_semanticturkey.onAccept = function() {
   
 art_semanticturkey.cancel = function() {
 	close();
-}
+};

@@ -25,9 +25,9 @@ package it.uniroma2.art.semanticturkey.servlet.utils;
 
 import static org.junit.Assert.fail;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseEXCEPTION;
 import it.uniroma2.art.semanticturkey.servlet.ResponseProblem;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class AssertResponses {
 	 * checks that the Response is a EXCEPTION
 	 */
 	static public void assertResponseEXCEPTION(Response response) {
-		if (!(response instanceof ResponseEXCEPTION)) {
+		if (!(response instanceof ResponseProblem)) {
 			if (response instanceof ResponseREPLY) {
 				if (response.isAffirmative())
 					throw new AssertionError("response=reply:affirmative; msg="
@@ -104,7 +104,7 @@ public class AssertResponses {
 	 * @param response
 	 * @param xmlOracleFileName
 	 */
-	static public void assertResponseEquals(Response response, String xmlOracleFileName) {
+	static public void assertResponseEquals(XMLResponse response, String xmlOracleFileName) {
 		assertResponseEquals(response, xmlOracleFileName,
 				"it/uniroma2/art/semanticturkey/servlet/main/responses/");
 	}
@@ -119,15 +119,15 @@ public class AssertResponses {
 	 * @param xmlOracleFileName
 	 * @param xmlDocDirectory
 	 */
-	static public void assertResponseEquals(Response response, String xmlOracleFileName,
+	static public void assertResponseEquals(XMLResponse response, String xmlOracleFileName,
 			String xmlDocDirectory) {
 		InputStream streamedXml = ClassLoader.getSystemClassLoader().getResourceAsStream(
 				xmlDocDirectory + xmlOracleFileName);
 		try {
 			Document xmlOracle = XMLHelp.inputStream2XML(streamedXml);
 			System.err.println("\nexpected:\n\n" + XMLHelp.XML2String(xmlOracle));
-			System.err.println("\nresponse received:\n\n" + XMLHelp.XML2String(response.getXML(), true));
-			if (!XMLHelp.XML2String(xmlOracle, true).equals(XMLHelp.XML2String(response.getXML(), true)))
+			System.err.println("\nresponse received:\n\n" + XMLHelp.XML2String(response.getResponseObject(), true));
+			if (!XMLHelp.XML2String(xmlOracle, true).equals(XMLHelp.XML2String(response.getResponseObject(), true)))
 				throw new AssertionError("response:\n" + response + "\nis not the expected response:\n\n"
 						+ XMLHelp.XML2String(xmlOracle, true));
 		} catch (IOException e) {

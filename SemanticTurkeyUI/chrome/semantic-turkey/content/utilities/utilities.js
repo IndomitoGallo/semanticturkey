@@ -50,7 +50,7 @@ art_semanticturkey.isUrl = function(s) {
 art_semanticturkey.stringEndsWith = function(string, str){
 	var offset = string.length - str.length;
 	return offset >= 0 && string.lastIndexOf(str) === offset;
-}
+};
 
 
 /**

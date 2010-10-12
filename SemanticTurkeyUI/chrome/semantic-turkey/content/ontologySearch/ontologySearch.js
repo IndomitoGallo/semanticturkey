@@ -163,7 +163,7 @@ art_semanticturkey.selectElementClass = function(myTree, resName) {
 				var pTreecell = treecell;
 				while (pTreecell.getAttribute("isRootNode") == "false") {
 					pi = pi.parentNode.parentNode;
-					pTreecell = pi.getElementsByTagName('treecell')[0]
+					pTreecell = pi.getElementsByTagName('treecell')[0];
 					pi.setAttribute("open", true);
 					index = myTree.contentView.getIndexOfItem(current);
 				}

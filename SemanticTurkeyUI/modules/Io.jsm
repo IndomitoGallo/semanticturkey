@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
-var EXPORTED_SYMBOLS = ["FileIO", "DirIO"]
+var EXPORTED_SYMBOLS = ["FileIO", "DirIO"];
 
 
 if (typeof(JSIO) != 'boolean') {
@@ -162,7 +162,7 @@ if (typeof(JSIO) != 'boolean') {
 			return data;
 		}
 
-	}
+	};
 
 
 	/////////////////////////////////////////////////
@@ -319,7 +319,7 @@ if (typeof(JSIO) != 'boolean') {
 			return str;
 		}
 	
-	}
+	};
 	
 	/*//navigator seems not to exist
 

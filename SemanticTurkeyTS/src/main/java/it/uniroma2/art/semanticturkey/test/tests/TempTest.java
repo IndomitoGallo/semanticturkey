@@ -26,40 +26,17 @@
  */
 package it.uniroma2.art.semanticturkey.test.tests;
 
-import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
-import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
-import it.uniroma2.art.owlart.model.ARTResource;
-import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.DirectReasoning;
-import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
-import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
-import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
-import it.uniroma2.art.owlart.navigation.RDFIterator;
-import it.uniroma2.art.owlart.vocabulary.OWL;
-import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.sesame2.OntologyManagerFactorySesame2Impl;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
-import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
-import it.uniroma2.art.semanticturkey.servlet.main.Property;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
-import java.util.Iterator;
-
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
 
 /**
  * @author Armando Stellato

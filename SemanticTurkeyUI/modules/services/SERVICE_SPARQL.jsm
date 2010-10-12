@@ -1,5 +1,6 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/ResponseContentType.jsm");
 
 EXPORTED_SYMBOLS = [ "STRequests" ];
 
@@ -21,7 +22,13 @@ function resolveQuery(queryPar, languagePar, inferPar) {
 	var queryPar = "query=" + queryPar;
 	var languagePar = "lang=" + languagePar;
 	var inferPar = "infer=" + inferPar;
-	return HttpMgr.POST(serviceName, service.resolveQueryRequest, queryPar, languagePar, inferPar);
+	var respType = RespContType.json;
+	//var respType = RespContType.xml;
+	var resp=HttpMgr.POST(respType, serviceName, service.resolveQueryRequest, queryPar, languagePar, inferPar);
+	resp.respType = respType;
+//	Ramon Orrù (2010): introduzione campo per memorizzare la serializzazione adottata
+	//service.serializationType=HttpMgr.serializationType;	
+	return resp;
 }
 
 // SPARQL SERVICE INITIALIZATION

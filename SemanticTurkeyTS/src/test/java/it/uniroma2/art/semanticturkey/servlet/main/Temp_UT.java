@@ -26,17 +26,13 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
-import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * @author Armando Stellato

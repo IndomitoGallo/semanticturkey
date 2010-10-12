@@ -35,6 +35,8 @@ import it.uniroma2.art.semanticturkey.resources.OntologiesMirror;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
@@ -105,7 +107,7 @@ public class Administration extends ServiceAdapter {
 
 	}
 
-	public Response setAdminLevel(String adminLevel) {
+	public XMLResponse setAdminLevel(String adminLevel) {
 		ServletUtilities servletUtilities = ServletUtilities.getService();
 		if (adminLevel.equals("on"))
 			Config.setAdminStatus(true);
@@ -129,11 +131,11 @@ public class Administration extends ServiceAdapter {
 	 * uri="http://sweet.jpl.nasa.gov/ontology/earthrealm.owl" file="earthrealm.owl"/> </Tree>
 	 * 
 	 */
-	public Response getOntologyMirrorTable() {
+	public ResponseREPLY getOntologyMirrorTable() {
 		Hashtable<Object, Object> mirror = OntologiesMirror.getFullMirror();
 		Enumeration<Object> uris = mirror.keys();
 
-		ResponseREPLY resp = ServletUtilities.getService().createReplyResponse(getOntologyMirror,
+		XMLResponseREPLY resp = ServletUtilities.getService().createReplyResponse(getOntologyMirror,
 				RepliesStatus.ok);
 		Element dataElement = resp.getDataElement();
 
@@ -151,7 +153,7 @@ public class Administration extends ServiceAdapter {
 	 * 
 	 * @return
 	 */
-	public Response deleteOntologyMirrorEntry(String baseURI, String cacheFileName) {
+	public XMLResponse deleteOntologyMirrorEntry(String baseURI, String cacheFileName) {
 		OntologiesMirror.removeCachedOntologyEntry(baseURI);
 		File cacheFile = new File(Resources.getOntologiesMirrorDir(), cacheFileName);
 		cacheFile.delete();
@@ -168,7 +170,7 @@ public class Administration extends ServiceAdapter {
 	 * 
 	 * @return
 	 */
-	public Response updateOntologyMirrorEntry(int updateType, String baseURI, String mirrorFileName,
+	public XMLResponse updateOntologyMirrorEntry(int updateType, String baseURI, String mirrorFileName,
 			String location) {
 
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirrorFileName);

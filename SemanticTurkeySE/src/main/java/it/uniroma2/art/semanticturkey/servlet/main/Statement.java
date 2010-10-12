@@ -26,11 +26,6 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
-
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -43,9 +38,18 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.utilities.JSONHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Element;
 
 public class Statement extends ServiceAdapter {
 
@@ -159,7 +163,7 @@ public class Statement extends ServiceAdapter {
 				ngs = new ARTResource[0];
 			}
 			
-			ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();	
 			
 			if (request.equals(Req.getStatementsRequest)) {
@@ -221,6 +225,34 @@ public class Statement extends ServiceAdapter {
 				XMLHelp.newElement(statElement, objTag, obj.asLiteral().toString()).setAttribute(
 						typeAttr, literalXMLValue);
 		}
+		statIt.close();
+	}
+	
+	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt, JSONObject data) throws ModelAccessException, JSONException {
+		JSONArray stats=new JSONArray();
+		while (statIt.streamOpen()) {
+			ARTStatement stat = statIt.getNext();
+			JSONObject  statObject = new JSONObject();			
+			ARTResource subj = stat.getSubject();
+			if (subj.isURIResource()){
+				logger.debug(owlModel.getQName("vediamo questa stringa:  "+subj.asURIResource().getURI()));
+				JSONHelp.newObject(statObject, subjTag,owlModel.getQName(subj.asURIResource().getURI())).put(typeAttr,uriXMLValue);
+			}else
+				JSONHelp.newObject(statObject, subjTag, subj.toString()).put(typeAttr, bnodeXMLValue);
+
+			JSONHelp.newObject(statObject, predTag, owlModel.getQName(stat.getPredicate().getURI())).put(typeAttr, uriXMLValue);
+
+			ARTNode obj = stat.getObject();
+			if (obj.isResource()) {
+				if (obj.isURIResource())
+					JSONHelp.newObject(statObject, objTag,owlModel.getQName(obj.asURIResource().getURI())).put(typeAttr,	uriXMLValue);
+				else
+					JSONHelp.newObject(statObject, objTag, obj.toString()).put(typeAttr,bnodeXMLValue);
+			} else
+				JSONHelp.newObject(statObject, objTag, obj.asLiteral().toString()).put(typeAttr, literalXMLValue);
+			stats.put(statObject);
+		}
+		data.put(statementTag ,stats);
 		statIt.close();
 	}
 

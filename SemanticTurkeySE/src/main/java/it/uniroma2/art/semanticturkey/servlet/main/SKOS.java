@@ -22,41 +22,24 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.filter.BaseRDFPropertyPredicate;
-import it.uniroma2.art.owlart.filter.RootPropertiesResourcePredicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.DirectReasoning;
-import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
-import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
-import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.utilities.RDFIterators;
-import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
-import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
-import it.uniroma2.art.semanticturkey.servlet.main.Property.Par;
-import it.uniroma2.art.semanticturkey.servlet.main.Property.Req;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import org.slf4j.Logger;
@@ -64,18 +47,13 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterators;
-
 /**
  * @author Luca Mastrogiovanni <luca.mastrogiovanni@caspur.it>
- *
+ * 
  */
-public class SKOS extends Resource { 
-	
+public class SKOS extends Resource {
+
 	protected static Logger logger = LoggerFactory.getLogger(SKOS.class);
-	
 
 	// REQUESTS
 	public static class Req {
@@ -83,22 +61,22 @@ public class SKOS extends Resource {
 		public static final String getAllSchemesListRequest = "getAllSchemesList";
 		public static final String getConceptsTreeRequest = "getConceptsTree";
 		public static final String getNarrowerConceptsRequest = "getNarrowerConcepts";
-		
+
 		// ADD REQUESTS
 		public static final String addConceptRequest = "addConcept";
 		public static final String addSemanticRelationRequest = "addSemanticRelation";
-		
+
 		// CREATE REQUESTS
 		public static final String createNarrowerConceptRequest = "createNarrowerConcept";
 		public static final String createBroaderConceptRequest = "createBroaderConcept";
 		public static final String createSchemeRequest = "createScheme";
-		
+
 		// REMOVE REQUESTS
 		public static final String removeConceptRequest = "removeConcept";
-		
+
 	}
-	
-	// PARS	
+
+	// PARS
 	public static class Par {
 		final static public String concept = "concept";
 		final static public String conceptFrom = "conceptFrom";
@@ -113,16 +91,15 @@ public class SKOS extends Resource {
 		final static public String preferredLabelLanguage = "preferredLabelLanguage";
 		final static public String newConcept = "newConcept";
 		final static public String relatedConcept = "relatedConcept";
-		
+
 	}
 
 	// if any language is specified use english...
 	private static String LANGUAGE_TAG = "en";
-	
+
 	public SKOS(String id) {
 		super(id);
 	}
-
 
 	@Override
 	public Response getResponse() {
@@ -146,21 +123,21 @@ public class SKOS extends Resource {
 				String defaultLanguage = setHttpPar(Par.langTag);
 				checkRequestParametersAllNotNull(Par.schemeName);
 				logger.debug("SKOS.getAllSchemesListRequest:" + response);
-				response = getConceptsTreeRequest(schemaURI,defaultLanguage);
+				response = getConceptsTreeRequest(schemaURI, defaultLanguage);
 			} else if (request.equals(Req.getNarrowerConceptsRequest)) {
 				String conceptName = setHttpPar(Par.conceptName);
 				String defaultLanguage = setHttpPar(Par.langTag);
 				checkRequestParametersAllNotNull(Par.conceptName);
 				logger.debug("SKOS.getNarrowerConceptsRequest:" + response);
-				response = getNarrowerConceptsRequest(conceptName,defaultLanguage);
+				response = getNarrowerConceptsRequest(conceptName, defaultLanguage);
 
 				// REMOVE SKOS METHODS
-			}else if (request.equals(Req.removeConceptRequest)) {
+			} else if (request.equals(Req.removeConceptRequest)) {
 				String concept = setHttpPar(Par.concept);
 				checkRequestParametersAllNotNull(Par.concept);
 				logger.debug("SKOS.removeConceptRequest:" + response);
 				response = removeConcept(concept);
-				
+
 				// ADD SKOS METHODS
 			} else if (request.equals(Req.addConceptRequest)) {
 				String conceptName = setHttpPar(Par.conceptName);
@@ -168,57 +145,59 @@ public class SKOS extends Resource {
 				String rdfsLabel = setHttpPar(Par.rdfsLabel);
 				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
 				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);				
-				checkRequestParametersAllNotNull(Par.conceptName,Par.schemeName);
+				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+				checkRequestParametersAllNotNull(Par.conceptName, Par.schemeName);
 				logger.debug("SKOS.addConceptRequest:" + response);
-				response = addConcept(conceptName,	schemeName,rdfsLabel, 
-						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
+				response = addConcept(conceptName, schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
+						preferredLabelLanguage);
 			} else if (request.equals(Req.addSemanticRelationRequest)) {
 				String conceptFrom = setHttpPar(Par.conceptFrom);
 				String conceptTo = setHttpPar(Par.conceptTo);
 				String semanticRelation = setHttpPar(Par.semanticRelation);
-				checkRequestParametersAllNotNull(Par.conceptFrom,Par.conceptTo, Par.semanticRelation);
+				checkRequestParametersAllNotNull(Par.conceptFrom, Par.conceptTo, Par.semanticRelation);
 				logger.debug("SKOS.addSemanticRelationRequest:" + response);
-				response = addSemanticRelation(conceptFrom,	semanticRelation,conceptTo);
+				response = addSemanticRelation(conceptFrom, semanticRelation, conceptTo);
 
 				// CREATE SKOS METHODS
 			} else if (request.equals(Req.createNarrowerConceptRequest)) {
-				//newConcept, relatedConcept,rdfsLabel, rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
+				// newConcept, relatedConcept,rdfsLabel,
+				// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
 				String newConcept = setHttpPar(Par.newConcept);
 				String relatedConcept = setHttpPar(Par.relatedConcept);
 				String schemeName = setHttpPar(Par.schemeName);
 				String rdfsLabel = setHttpPar(Par.rdfsLabel);
 				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
 				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);				
-				checkRequestParametersAllNotNull(Par.newConcept,Par.relatedConcept,Par.schemeName);
+				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+				checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
 				logger.debug("SKOS.createNarrowerConceptRequest:" + response);
-				response = addNarrowerConcept(newConcept,	schemeName , relatedConcept,rdfsLabel, 
+				response = addNarrowerConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
 						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
 			} else if (request.equals(Req.createBroaderConceptRequest)) {
-				//newConcept, relatedConcept,rdfsLabel, rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
+				// newConcept, relatedConcept,rdfsLabel,
+				// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
 				String newConcept = setHttpPar(Par.newConcept);
 				String relatedConcept = setHttpPar(Par.relatedConcept);
 				String schemeName = setHttpPar(Par.schemeName);
 				String rdfsLabel = setHttpPar(Par.rdfsLabel);
 				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
 				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);				
-				checkRequestParametersAllNotNull(Par.newConcept,Par.relatedConcept,Par.schemeName);
+				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+				checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
 				logger.debug("SKOS.createBroaderConceptRequest:" + response);
-				response = addBroaderConcept(newConcept,	schemeName , relatedConcept,rdfsLabel, 
+				response = addBroaderConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
 						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
 			} else if (request.equals(Req.createSchemeRequest)) {
 				String schemeName = setHttpPar(Par.schemeName);
 				String rdfsLabel = setHttpPar(Par.rdfsLabel);
 				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
 				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);				
+				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
 				checkRequestParametersAllNotNull(Par.schemeName);
 				logger.debug("SKOS.createSchemeRequest:" + response);
-				response = addConceptScheme(schemeName,rdfsLabel, 
-						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
-			}else
+				response = addConceptScheme(schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
+						preferredLabelLanguage);
+			} else
 				return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 		} catch (HTTPParameterUnspecifiedException e) {
 			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
@@ -226,19 +205,20 @@ public class SKOS extends Resource {
 		this.fireServletEvent();
 		return response;
 	}
-	
-	public Response removeConcept(String concept){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.removeConceptRequest, RepliesStatus.ok);
+
+	public Response removeConcept(String concept) {
+		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.removeConceptRequest,
+				RepliesStatus.ok);
 		logger.debug("remove concept");
 		logger.debug("concept: " + concept);
-		
+
 		try {
-			
+
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource subject = skosModel.createURIResource(skosModel.expandQName(concept));
-			
+
 			skosModel.removeConcept(subject, NodeFilters.MAINGRAPH);
-			
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -246,25 +226,25 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response addSemanticRelation(String conceptFrom,String 	semanticRelation,String conceptTo){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.addSemanticRelationRequest, RepliesStatus.ok);
+
+	public Response addSemanticRelation(String conceptFrom, String semanticRelation, String conceptTo) {
+		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.addSemanticRelationRequest, RepliesStatus.ok);
 		logger.debug("add semantic relation");
 		logger.debug("conceptFrom: " + conceptFrom);
 		logger.debug("semanticRelation: " + semanticRelation);
 		logger.debug("conceptTo: " + conceptTo);
-		
+
 		try {
-			
+
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTResource subject = skosModel.createURIResource(skosModel.expandQName(conceptFrom));
 			ARTURIResource predicate = skosModel.createURIResource(skosModel.expandQName(semanticRelation));
-			ARTResource object = skosModel.createURIResource(skosModel.expandQName(conceptTo));			
+			ARTResource object = skosModel.createURIResource(skosModel.expandQName(conceptTo));
 
 			// add relation
 			skosModel.addTriple(subject, predicate, object, NodeFilters.MAINGRAPH);
 
-			
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -272,35 +252,37 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response addConceptScheme(String schemeQName,String rdfsLabel, String rdfsLabelLanguage, 
-			String preferredLabel, String preferredLabelLanguage){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.createSchemeRequest, RepliesStatus.ok);
+
+	public Response addConceptScheme(String schemeQName, String rdfsLabel, String rdfsLabelLanguage,
+			String preferredLabel, String preferredLabelLanguage) {
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.createSchemeRequest, RepliesStatus.ok);
 		logger.debug("new scheme name: " + schemeQName);
-		
+
 		try {
-			
+
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource newScheme = skosModel.createURIResource(skosModel.expandQName(schemeQName));
-			
+
 			// add a new concept scheme...
 			skosModel.addSKOSConceptScheme(newScheme, NodeFilters.MAINGRAPH);
-			
-		
+
 			// add skos:preferredLabel
-			if(preferredLabel != null && preferredLabel.length() > 0){				
-				skosModel.setPrefLabel(newScheme, preferredLabel, preferredLabelLanguage!=null && preferredLabelLanguage.length()>0 ? preferredLabelLanguage : "en",
+			if (preferredLabel != null && preferredLabel.length() > 0) {
+				skosModel.setPrefLabel(newScheme, preferredLabel, preferredLabelLanguage != null
+						&& preferredLabelLanguage.length() > 0 ? preferredLabelLanguage : "en",
 						NodeFilters.MAINGRAPH);
 			}
 			// add rdfs:label
-			if(rdfsLabel != null && rdfsLabel.length() > 0){
-				skosModel.addLabel(newScheme, rdfsLabel, rdfsLabelLanguage!=null && rdfsLabelLanguage.length()>0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
+			if (rdfsLabel != null && rdfsLabel.length() > 0) {
+				skosModel.addLabel(newScheme, rdfsLabel, rdfsLabelLanguage != null
+						&& rdfsLabelLanguage.length() > 0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
 			}
-			
+
 			Element dataElement = response.getDataElement();
 			Element conceptElement = XMLHelp.newElement(dataElement, "scheme");
-			makeConceptXML(skosModel,newScheme,conceptElement,rdfsLabelLanguage);
-			
+			makeConceptXML(skosModel, newScheme, conceptElement, rdfsLabelLanguage);
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -308,35 +290,37 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response addBroaderConcept(String newConceptQName, String schemeName,	String relatedConceptQName, 
-			String rdfsLabel, String rdfsLabelLanguage, 
-			String preferredLabel, String preferredLabelLanguage){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getNarrowerConceptsRequest, RepliesStatus.ok);
+
+	public Response addBroaderConcept(String newConceptQName, String schemeName, String relatedConceptQName,
+			String rdfsLabel, String rdfsLabelLanguage, String preferredLabel, String preferredLabelLanguage) {
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getNarrowerConceptsRequest, RepliesStatus.ok);
 		logger.debug("newConcept: " + newConceptQName);
 		logger.debug("relatedConcept: " + relatedConceptQName);
 		logger.debug("schemeName: " + schemeName);
-		
+
 		try {
-			
+
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource newConcept = skosModel.createURIResource(skosModel.expandQName(newConceptQName));
-			ARTURIResource relatedConcept = 	skosModel.createURIResource(skosModel.expandQName(relatedConceptQName));
+			ARTURIResource relatedConcept = skosModel.createURIResource(skosModel
+					.expandQName(relatedConceptQName));
 			ARTURIResource scheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
-		
-			
+
 			// add new concept...
 			skosModel.setDefaultSchema(scheme);
-			
-			// scorro i concetti broader di relatedConcept ed elimino la relazione <relatedConcept skos:broader ?x>,
+
+			// scorro i concetti broader di relatedConcept ed elimino la relazione <relatedConcept
+			// skos:broader ?x>,
 			// sucessivamente viene creata una nuova tripla <newConcept skos:broader ?x>,
-			ARTURIResourceIterator itUri = skosModel.listBroaderConcepts(relatedConcept, false, true,NodeFilters.MAINGRAPH);
-			while(itUri.streamOpen()){
+			ARTURIResourceIterator itUri = skosModel.listBroaderConcepts(relatedConcept, false, true,
+					NodeFilters.MAINGRAPH);
+			while (itUri.streamOpen()) {
 				ARTURIResource broader = itUri.next();
 				// remoe narrower an broader links
 				skosModel.removeBroaderConcept(relatedConcept, broader, NodeFilters.MAINGRAPH);
 				skosModel.removeNarroweConcept(broader, relatedConcept, NodeFilters.MAINGRAPH);
-				
+
 				skosModel.addBroaderConcept(newConcept, broader, NodeFilters.MAINGRAPH);
 				// TODO: rimuovere questa riga deve funzionare il reasoning...
 				skosModel.addNarrowerConcept(broader, newConcept, NodeFilters.MAINGRAPH);
@@ -344,23 +328,24 @@ public class SKOS extends Resource {
 			itUri.close();
 			skosModel.addBroaderConcept(relatedConcept, newConcept, NodeFilters.MAINGRAPH);
 			// TODO: rimuovere questa riga deve funzionare il reasoning...
-			skosModel.addNarrowerConcept(newConcept,relatedConcept,NodeFilters.MAINGRAPH);
-			
-					
+			skosModel.addNarrowerConcept(newConcept, relatedConcept, NodeFilters.MAINGRAPH);
+
 			// add skos:preferredLabel
-			if(preferredLabel != null && preferredLabel.length() > 0){				
-				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage!=null && preferredLabelLanguage.length()>0 ? preferredLabelLanguage : "en",
+			if (preferredLabel != null && preferredLabel.length() > 0) {
+				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage != null
+						&& preferredLabelLanguage.length() > 0 ? preferredLabelLanguage : "en",
 						NodeFilters.MAINGRAPH);
 			}
 			// add rdfs:label
-			if(rdfsLabel != null && rdfsLabel.length() > 0){
-				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage!=null && rdfsLabelLanguage.length()>0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
+			if (rdfsLabel != null && rdfsLabel.length() > 0) {
+				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage != null
+						&& rdfsLabelLanguage.length() > 0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
 			}
-			
+
 			Element dataElement = response.getDataElement();
 			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
-			makeConceptXML(skosModel,newConcept,conceptElement,rdfsLabelLanguage);
-			
+			makeConceptXML(skosModel, newConcept, conceptElement, rdfsLabelLanguage);
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -368,42 +353,45 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response addNarrowerConcept(String newConceptQName, String schemeName,	String relatedConceptQName, 
-			String rdfsLabel, String rdfsLabelLanguage, 
-			String preferredLabel, String preferredLabelLanguage){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getNarrowerConceptsRequest, RepliesStatus.ok);
+
+	public Response addNarrowerConcept(String newConceptQName, String schemeName, String relatedConceptQName,
+			String rdfsLabel, String rdfsLabelLanguage, String preferredLabel, String preferredLabelLanguage) {
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getNarrowerConceptsRequest, RepliesStatus.ok);
 		logger.debug("newConcept: " + newConceptQName);
 		logger.debug("relatedConcept: " + relatedConceptQName);
 		logger.debug("schemeName: " + schemeName);
-		
+
 		try {
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource newConcept = skosModel.createURIResource(skosModel.expandQName(newConceptQName));
-			ARTURIResource relatedConcept = 	skosModel.createURIResource(skosModel.expandQName(relatedConceptQName));
+			ARTURIResource relatedConcept = skosModel.createURIResource(skosModel
+					.expandQName(relatedConceptQName));
 			ARTURIResource scheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
-			
+
 			// add new concept...
 			skosModel.setDefaultSchema(scheme);
 			skosModel.addConcept(newConcept.getURI(), relatedConcept, NodeFilters.MAINGRAPH);
-			
+
 			// TODO: rimuovere questa riga deve funzionare il reasoning...
 			skosModel.addNarrowerConcept(relatedConcept, newConcept, NodeFilters.MAINGRAPH);
-			
+
 			// add skos:preferredLabel
-			if(preferredLabel != null && preferredLabel.length() > 0){				
-				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage!=null && preferredLabelLanguage.length()>0 ? preferredLabelLanguage : "en",
+			if (preferredLabel != null && preferredLabel.length() > 0) {
+				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage != null
+						&& preferredLabelLanguage.length() > 0 ? preferredLabelLanguage : "en",
 						NodeFilters.MAINGRAPH);
 			}
 			// add rdfs:label
-			if(rdfsLabel != null && rdfsLabel.length() > 0){
-				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage!=null && rdfsLabelLanguage.length()>0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
+			if (rdfsLabel != null && rdfsLabel.length() > 0) {
+				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage != null
+						&& rdfsLabelLanguage.length() > 0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
 			}
-			
+
 			Element dataElement = response.getDataElement();
 			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
-			makeConceptXML(skosModel,newConcept,conceptElement,rdfsLabelLanguage);
-			
+			makeConceptXML(skosModel, newConcept, conceptElement, rdfsLabelLanguage);
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -411,38 +399,43 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response addConcept(String conceptName,	String schemeName,String rdfsLabel, String rdfsLabelLanguage, String preferredLabel, String preferredLabelLanguage){
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getNarrowerConceptsRequest, RepliesStatus.ok);
+
+	public Response addConcept(String conceptName, String schemeName, String rdfsLabel,
+			String rdfsLabelLanguage, String preferredLabel, String preferredLabelLanguage) {
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getNarrowerConceptsRequest, RepliesStatus.ok);
 		logger.debug("conceptName: " + conceptName);
 		logger.debug("schemeName: " + schemeName);
-		
+
 		try {
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource newConcept = skosModel.createURIResource(skosModel.expandQName(conceptName));
-			ARTURIResource conceptScheme = 	skosModel.createURIResource(skosModel.expandQName(schemeName));
-			
+			ARTURIResource conceptScheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
+
 			// add new concept...
-			skosModel.addConceptToScheme(newConcept.getURI(), NodeFilters.NONE, conceptScheme, NodeFilters.MAINGRAPH);
-			
+			skosModel.addConceptToScheme(newConcept.getURI(), NodeFilters.NONE, conceptScheme,
+					NodeFilters.MAINGRAPH);
+
 			// TODO: rimuovere questa riga deve funzionare il reasoning...
-			skosModel.addTriple(conceptScheme,it.uniroma2.art.owlart.vocabulary.SKOS.Res.HASTOPCONCEPT,newConcept,NodeFilters.MAINGRAPH);
-			
+			skosModel.addTriple(conceptScheme, it.uniroma2.art.owlart.vocabulary.SKOS.Res.HASTOPCONCEPT,
+					newConcept, NodeFilters.MAINGRAPH);
+
 			// add skos:preferredLabel
-			if(preferredLabel != null && preferredLabel.length() > 0){				
-				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage!=null && preferredLabelLanguage.length()>0 ? preferredLabelLanguage : "en",
+			if (preferredLabel != null && preferredLabel.length() > 0) {
+				skosModel.setPrefLabel(newConcept, preferredLabel, preferredLabelLanguage != null
+						&& preferredLabelLanguage.length() > 0 ? preferredLabelLanguage : "en",
 						NodeFilters.MAINGRAPH);
 			}
 			// add rdfs:label
-			if(rdfsLabel != null && rdfsLabel.length() > 0){
-				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage!=null && rdfsLabelLanguage.length()>0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
+			if (rdfsLabel != null && rdfsLabel.length() > 0) {
+				skosModel.addLabel(newConcept, rdfsLabel, rdfsLabelLanguage != null
+						&& rdfsLabelLanguage.length() > 0 ? rdfsLabelLanguage : "en", NodeFilters.MAINGRAPH);
 			}
-			
+
 			Element dataElement = response.getDataElement();
 			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
-			makeConceptXML(skosModel,newConcept,conceptElement,rdfsLabelLanguage);
-			
-			
+			makeConceptXML(skosModel, newConcept, conceptElement, rdfsLabelLanguage);
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);
 		} catch (ModelUpdateException e) {
@@ -450,72 +443,82 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	public Response getNarrowerConceptsRequest(String conceptName,String defaultLanguage){
+
+	public Response getNarrowerConceptsRequest(String conceptName, String defaultLanguage) {
 		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getNarrowerConceptsRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getNarrowerConceptsRequest, RepliesStatus.ok);
 		try {
-			
-			// TODO: il corpo di questo metodo è praticamente uguale a quello di getConceptsTreeRequest farne uno soloe...
+
+			// TODO: il corpo di questo metodo è praticamente uguale a quello di getConceptsTreeRequest farne
+			// uno soloe...
 			Element dataElement = response.getDataElement();
 			ARTURIResource concept = skosModel.createURIResource(skosModel.expandQName(conceptName));
-			ARTURIResourceIterator it = skosModel.listNarrowerConcepts(concept, false, true,NodeFilters.MAINGRAPH);
-			
-			makeConceptListXML(skosModel,dataElement,it,defaultLanguage);
-			
+			ARTURIResourceIterator it = skosModel.listNarrowerConcepts(concept, false, true,
+					NodeFilters.MAINGRAPH);
+
+			makeConceptListXML(skosModel, dataElement, it, defaultLanguage);
+
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(Req.getNarrowerConceptsRequest, e);
 		}
-		return response;	
+		return response;
 
 	}
-	private void makeConceptListXML(SKOSModel skosModel,Element dataElement, ARTURIResourceIterator it ,String defaultLanguage) throws DOMException, ModelAccessException{
-		while(it.streamOpen()){
+
+	private void makeConceptListXML(SKOSModel skosModel, Element dataElement, ARTURIResourceIterator it,
+			String defaultLanguage) throws DOMException, ModelAccessException {
+		while (it.streamOpen()) {
 			ARTURIResource concept = it.next();
 			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
-			makeConceptXML(skosModel,concept,conceptElement,defaultLanguage);
+			makeConceptXML(skosModel, concept, conceptElement, defaultLanguage);
 		}
 		it.close();
 	}
-	
-	private void makeConceptXML(SKOSModel skosModel,ARTURIResource concept,Element conceptElement, String defaultLanguage) throws DOMException, ModelAccessException{
+
+	private void makeConceptXML(SKOSModel skosModel, ARTURIResource concept, Element conceptElement,
+			String defaultLanguage) throws DOMException, ModelAccessException {
 		conceptElement.setAttribute("name", skosModel.getQName(concept.getURI()));
 		conceptElement.setAttribute("uri", concept.getURI());
-		ARTURIResourceIterator it2 = skosModel.listNarrowerConcepts(concept, false, true,NodeFilters.MAINGRAPH);
-		if(it2.streamOpen()){
+		ARTURIResourceIterator it2 = skosModel.listNarrowerConcepts(concept, false, true,
+				NodeFilters.MAINGRAPH);
+		if (it2.streamOpen()) {
 			conceptElement.setAttribute("more", "1");
 			it2.close();
-		}else
+		} else
 			conceptElement.setAttribute("more", "0");
-		conceptElement.setAttribute("label", getConceptLabel(concept,defaultLanguage));
+		conceptElement.setAttribute("label", getConceptLabel(concept, defaultLanguage));
 	}
-	
-	public Response getConceptsTreeRequest(String schemaUri,String defaultLanguage){
+
+	public Response getConceptsTreeRequest(String schemaUri, String defaultLanguage) {
 		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getConceptsTreeRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getConceptsTreeRequest, RepliesStatus.ok);
 		try {
-			
+
 			Element dataElement = response.getDataElement();
 			ARTURIResource skosScheme = skosModel.createURIResource(skosModel.expandQName(schemaUri));
-			ARTURIResourceIterator it = skosModel.listTopConceptsInScheme(skosScheme,true, NodeFilters.MAINGRAPH);
-			
-			makeConceptListXML(skosModel,dataElement,it,defaultLanguage);
-			
+			ARTURIResourceIterator it = skosModel.listTopConceptsInScheme(skosScheme, true,
+					NodeFilters.MAINGRAPH);
+
+			makeConceptListXML(skosModel, dataElement, it, defaultLanguage);
+
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(Req.getAllSchemesListRequest, e);
 		}
-		return response;	
+		return response;
 	}
-	
+
 	public Response getAllSchemesList(String defaultLanguage) {
 		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.getAllSchemesListRequest, RepliesStatus.ok);
-		
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				Req.getAllSchemesListRequest, RepliesStatus.ok);
+
 		logger.debug("[getAllSchemesList] defaultLanguage: " + defaultLanguage);
-		
+
 		Element dataElement = response.getDataElement();
 		dataElement.setAttribute("type", "SchemePanel");
-		Element root = XMLHelp.newElement(dataElement, "SKOSScheme");		
+		Element root = XMLHelp.newElement(dataElement, "SKOSScheme");
 		try {
 			ARTURIResourceIterator it = skosModel.listAllSchemes(NodeFilters.MAINGRAPH);
 			Element instancesElement = XMLHelp.newElement(root, "Schemes");
@@ -524,8 +527,8 @@ public class SKOS extends Resource {
 				String uri = skosModel.getQName(resource.asURIResource().getURI());
 				Element element = XMLHelp.newElement(instancesElement, "Scheme");
 				element.setAttribute("name", skosModel.getQName(resource.getURI()));
-				element.setAttribute("uri", uri);	
-				element.setAttribute("label", getConceptLabel(resource,defaultLanguage));
+				element.setAttribute("uri", uri);
+				element.setAttribute("label", getConceptLabel(resource, defaultLanguage));
 			}
 
 		} catch (ModelAccessException e) {
@@ -533,44 +536,46 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
 
-	
 	/**
-	 * Return the rdfs:label or preferred label associate at the concept <code>concept</code> 
-	 * @param concept concept
+	 * Return the rdfs:label or preferred label associate at the concept <code>concept</code>
+	 * 
+	 * @param concept
+	 *            concept
 	 * @return preferred label
 	 * @throws ModelAccessException
 	 */
-	private String getConceptLabel(ARTURIResource concept,String defaultLanguage) throws ModelAccessException{
-		if(defaultLanguage==null || defaultLanguage.length() == 0)
+	private String getConceptLabel(ARTURIResource concept, String defaultLanguage)
+			throws ModelAccessException {
+		if (defaultLanguage == null || defaultLanguage.length() == 0)
 			defaultLanguage = LANGUAGE_TAG;
 		String rdfsLabel = null;
 		String rdfsLabelNullLanguage = null;
 		String preferredLabel = null;
-		
-		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();		
-		
+
+		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
+
 		// load rdfs label...
-		ARTStatementIterator rdfsLabelIt = skosModel.listStatements(concept, RDFS.Res.LABEL, NodeFilters.ANY, true, NodeFilters.MAINGRAPH);
-		while(rdfsLabelIt.streamOpen()){
+		ARTStatementIterator rdfsLabelIt = skosModel.listStatements(concept, RDFS.Res.LABEL, NodeFilters.ANY,
+				true, NodeFilters.MAINGRAPH);
+		while (rdfsLabelIt.streamOpen()) {
 			ARTNode node = rdfsLabelIt.next().getObject();
-			if(node.asLiteral().getLanguage()==null || node.asLiteral().getLanguage().length() == 0){
+			if (node.asLiteral().getLanguage() == null || node.asLiteral().getLanguage().length() == 0) {
 				rdfsLabelNullLanguage = node.asLiteral().getLabel();
-			}else if(node.asLiteral().getLanguage().equals(defaultLanguage)){
-				rdfsLabel = node.asLiteral().getLabel(); 
+			} else if (node.asLiteral().getLanguage().equals(defaultLanguage)) {
+				rdfsLabel = node.asLiteral().getLabel();
 			}
 		}
-		
+
 		rdfsLabelIt.close();
-		if(rdfsLabel == null && rdfsLabelNullLanguage !=null)
+		if (rdfsLabel == null && rdfsLabelNullLanguage != null)
 			rdfsLabel = rdfsLabelNullLanguage;
-		
+
 		// load preferredLabel...
 		ARTLiteral node = skosModel.getPrefLabel(concept, defaultLanguage, NodeFilters.MAINGRAPH);
-		if(node != null){
+		if (node != null) {
 			preferredLabel = node.asLiteral().getLabel();
 		}
-		return (preferredLabel != null) ? preferredLabel : (rdfsLabel != null ? rdfsLabel : "");		
+		return (preferredLabel != null) ? preferredLabel : (rdfsLabel != null ? rdfsLabel : "");
 	}
 }

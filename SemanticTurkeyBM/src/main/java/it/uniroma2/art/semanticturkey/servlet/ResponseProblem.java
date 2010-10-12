@@ -26,25 +26,16 @@
   */
 package it.uniroma2.art.semanticturkey.servlet;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+/**
+ * Defines a basic interface for trouble response
+ * 
+ * @autor Ramon Orrù
+ * 
+ */
+public interface ResponseProblem extends Response {
 
-public abstract class ResponseProblem extends Response {
+    public void setMessage(String msg);
 
-    Element msgElement;
-    
-    ResponseProblem(Document xml, String request) {
-	super(xml, request);
-	msgElement = xml.createElement(ServiceVocabulary.msg);
-	responseElement.appendChild(msgElement);
-    }
-
-    public void setMessage(String msg) {
-	msgElement.setTextContent(msg);
-    }
-
-    public String getMessage() {
-	return msgElement.getTextContent();
-    }
+    public String getMessage(); 
     
 }

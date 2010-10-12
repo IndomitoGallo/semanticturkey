@@ -26,25 +26,31 @@
  */
 package it.uniroma2.art.semanticturkey.servlet;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class ResponseERROR extends ResponseProblem {
+/**
+ * Defines a JSON serialization based EXCEPTION response  
+ * 
+ * @autor Ramon Orrù
+ * 
+ */
+public class JSONResponseEXCEPTION extends JSONResponseProblem {
 
-	Element msgElement;
-
-	ResponseERROR(Document xml, String request) {
-		super(xml, request);
-		responseElement.setAttribute(ServiceVocabulary.responseType, ServiceVocabulary.type_error);
+	JSONResponseEXCEPTION(JSONObject json_content, String request) throws JSONException {
+		super(json_content,request);
+		content.getJSONObject(ServiceVocabulary.responseRoot).put(ServiceVocabulary.responseType, ServiceVocabulary.type_exception);
 	}
 
-	ResponseERROR(Document xml, String request, String msg) {
-		super(xml, request);
-		responseElement.setAttribute(ServiceVocabulary.responseType, ServiceVocabulary.type_error);
+	JSONResponseEXCEPTION(JSONObject json_content, String request, String msg) throws JSONException {
+		super(json_content, request);
+		content.getJSONObject(ServiceVocabulary.responseRoot).put(ServiceVocabulary.responseType, ServiceVocabulary.type_exception);
 		setMessage(msg);
 	}
+
 
 	public boolean isAffirmative() {
 		return false;
 	}
+
 }

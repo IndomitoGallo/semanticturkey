@@ -29,6 +29,7 @@ Components.utils
 		.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/ResponseContentType.jsm", art_semanticturkey);
 
 window.onload = function() {
 	document.getElementById("rdfPrefix").addEventListener("click",
@@ -68,6 +69,8 @@ window.onload = function() {
 		document.getElementById("submitQuery").disabled = true;
 	}
 };
+
+
 art_semanticturkey.getNamedGraphs = function() {
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if (stIsStarted == "true") {
@@ -80,6 +83,8 @@ art_semanticturkey.getNamedGraphs = function() {
 		}
 	}
 };
+
+
 art_semanticturkey.getNamedGraphs_RESPONSE = function(responseXML) {
 	var ngList = responseXML.getElementsByTagName("namedgraph");
 	var menu = document.getElementById("from_named");
@@ -94,13 +99,16 @@ art_semanticturkey.getNamedGraphs_RESPONSE = function(responseXML) {
 		menu.appendChild(ngitem);
 	}
 };
+
 art_semanticturkey.from_named = function(event) {
 	art_semanticturkey.addToText('FROM NAMED <'
 			+ event.target.getAttribute('label') + '>');
 };
+
 art_semanticturkey.select = function() {
 	art_semanticturkey.addToText('SELECT ?x ');
 };
+
 art_semanticturkey.describe = function() {
 	art_semanticturkey.addToText('DESCRIBE ?x ');
 };
@@ -241,135 +249,251 @@ art_semanticturkey.submitQuery = function() {
 	var queryText = document.getElementById("textAreaQuery").value;
 
 	try {
-		var responseXML = art_semanticturkey.STRequests.SPARQL.resolveQuery(
+		var response = art_semanticturkey.STRequests.SPARQL.resolveQuery(
 				queryText, "SPARQL", "true");
-		art_semanticturkey.resolveQuery_RESPONSE(responseXML);
+		art_semanticturkey.resolveQuery_RESPONSE(response);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
 
 };
 
-art_semanticturkey.resolveQuery_RESPONSE = function(responseXML) {
-	var treecols = document.getElementById("SPARQLTreeCols");
-	while (treecols.hasChildNodes()) {
-		treecols.removeChild(treecols.lastChild);
-	}
-	var rootTreechildren = document.getElementById("SPARQLRootTreechildren")
 
-	while (rootTreechildren.hasChildNodes()) {
-		rootTreechildren.removeChild(rootTreechildren.lastChild);
-	}
-	var resultType = responseXML.getElementsByTagName("data")[0]
-			.getAttribute("resulttype");
-	/*
-	 * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX my:
-	 * <http://art.uniroma2.it#> SELECT ?persona ?cosa WHERE { ?persona rdf:type
-	 * my:Person. ?cosa rdf:type my:cosa. }
-	 */
-	if (resultType == "tuple") {
-		var cols = responseXML.getElementsByTagName("variable");
-		for (var i = 0; i < cols.length; i++) {
-			var colName = cols[i].getAttribute("name");
-			var treecol = document.createElement("treecol");
-			treecol.setAttribute("label", colName);
-			treecol.setAttribute("flex", "1");
-		//treecol.setAttribute("num", i);
-			treecols.appendChild(treecol);
-			var results = responseXML.getElementsByTagName("result");
-			var resultsArray = new Array();
-			for (var y = 0; y < results.length; y++) {
-				var result = new Array();
-				var bindings = results[y].getElementsByTagName("binding");
-				for (var h = 0; h < bindings.length; h++) {
-				//	var value = new Array();
-					bindName = bindings[h].getAttribute("name");
-					var lblValue = "";
-				//	var type = "";
-					if (bindings[h].getElementsByTagName("uri").length > 0) {
-						lblValue = bindings[h].getElementsByTagName("uri")[0].textContent;
-					//	type = "uri";
-					} else if (bindings[h].getElementsByTagName("literal").length > 0) {
-						lblValue = bindings[h].getElementsByTagName("literal")[0].textContent;
-						if ((bindings[h].getElementsByTagName("literal")[0]
-								.getAttribute("xml:lang")) != null) {
-							lblValue = lblValue + "("
-									+ bindings[h].getElementsByTagName("literal")[0].getAttribute("xml:lang")
-									+ ")";
-						}
-					//	type = "literal";
-					} else if (bindings[h].getElementsByTagName("bnode").length > 0) {
-						lblValue = bindings[h].getElementsByTagName("bnode")[0].textContent;
-					//	type = "bnode";
-					}
-				//	value.lblValue = lblValue;
-				//	value.type = type;
-				//	result[bindName] = value;
-					result[bindName] = lblValue;
-				}
-				resultsArray[y] = result;
-			}
+art_semanticturkey.resolveQuery_RESPONSE = function(response) {
+	
+//	Ramon Orrù (2010) : controllo tipologia serializzazione
+	if(	response.respType == art_semanticturkey.RespContType.xml){
+		var treecols = document.getElementById("SPARQLTreeCols");
+		while (treecols.hasChildNodes()) {
+			treecols.removeChild(treecols.lastChild);
 		}
-		for (var k in resultsArray) {
-			var ti = document.createElement("treeitem");
-			var tr = document.createElement("treerow");
+		var rootTreechildren = document.getElementById("SPARQLRootTreechildren");
+
+		while (rootTreechildren.hasChildNodes()) {
+			rootTreechildren.removeChild(rootTreechildren.lastChild);
+		}
+		var resultType = response.getElementsByTagName("data")[0]
+		                                                       .getAttribute("resulttype");
+		/*
+		 * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX my:
+		 * <http://art.uniroma2.it#> SELECT ?persona ?cosa WHERE { ?persona rdf:type
+		 * my:Person. ?cosa rdf:type my:cosa. }
+		 */
+		if (resultType == "tuple") {
+			var cols = response.getElementsByTagName("variable");
 			for (var i = 0; i < cols.length; i++) {
-				var lblValue = resultsArray[k][cols[i].getAttribute("name")];
-			//	var lblValue = resultsArray[k][cols[i].getAttribute("name")].lblValue;
-			//var type = resultsArray[k][cols[i].getAttribute("name")].type;
-				if (typeof lblValue == 'undefined') {
-					lblValue = "";
+				var colName = cols[i].getAttribute("name");
+				var treecol = document.createElement("treecol");
+				treecol.setAttribute("label", colName);
+				treecol.setAttribute("flex", "1");
+				//treecol.setAttribute("num", i);
+				treecols.appendChild(treecol);
+				var results = response.getElementsByTagName("result");
+				var resultsArray = new Array();
+				for (var y = 0; y < results.length; y++) {
+					var result = new Array();
+					var bindings = results[y].getElementsByTagName("binding");
+					for (var h = 0; h < bindings.length; h++) {
+						//	var value = new Array();
+						bindName = bindings[h].getAttribute("name");
+						var lblValue = "";
+						//	var type = "";
+						if (bindings[h].getElementsByTagName("uri").length > 0) {
+							lblValue = bindings[h].getElementsByTagName("uri")[0].textContent;
+							//	type = "uri";
+						} else if (bindings[h].getElementsByTagName("literal").length > 0) {
+							lblValue = bindings[h].getElementsByTagName("literal")[0].textContent;
+							if ((bindings[h].getElementsByTagName("literal")[0]
+							                                                 .getAttribute("xml:lang")) != null) {
+								lblValue = lblValue + "("
+								+bindings[h].getElementsByTagName("literal")[0].getAttribute("xml:lang")
+								                                       + ")";
+							}
+							//	type = "literal";
+						} else if (bindings[h].getElementsByTagName("bnode").length > 0) {
+							lblValue = bindings[h].getElementsByTagName("bnode")[0].textContent;
+							//	type = "bnode";
+						}
+						//	value.lblValue = lblValue;
+						//	value.type = type;
+						//	result[bindName] = value;
+						result[bindName] = lblValue;
+					}
+					resultsArray[y] = result;
 				}
-				var tc = document.createElement("treecell");
-				tc.setAttribute("label", lblValue);
-			//	tc.setAttribute("type", type);
-				tr.appendChild(tc);
-				ti.appendChild(tr);
 			}
-			rootTreechildren.appendChild(ti);
+			for (var k in resultsArray) {
+				var ti = document.createElement("treeitem");
+				var tr = document.createElement("treerow");
+				for (var i = 0; i < cols.length; i++) {
+					var lblValue = resultsArray[k][cols[i].getAttribute("name")];
+					//	var lblValue = resultsArray[k][cols[i].getAttribute("name")].lblValue;
+					//var type = resultsArray[k][cols[i].getAttribute("name")].type;
+					if (typeof lblValue == 'undefined') {
+						lblValue = "";
+					}
+					var tc = document.createElement("treecell");
+					tc.setAttribute("label", lblValue);
+					//	tc.setAttribute("type", type);
+					tr.appendChild(tc);
+					ti.appendChild(tr);
+				}
+				rootTreechildren.appendChild(ti);
+			}
+		} else if (resultType == "graph") {
+			var treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "subject");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "predicate");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "object");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			var stm = response.getElementsByTagName("stm");
+			for (var i = 0; i < stm.length; i++) {
+				var ti = document.createElement("treeitem");
+				var tr = document.createElement("treerow");
+				var sbj = document.createElement("treecell");
+				var pre = document.createElement("treecell");
+				var obj = document.createElement("treecell");
+				var sbjName = stm[i].getElementsByTagName("subj")[0].textContent;
+				sbj.setAttribute("label", sbjName);
+				var preName = stm[i].getElementsByTagName("pred")[0].textContent;
+				pre.setAttribute("label", preName);
+				var objName = stm[i].getElementsByTagName("obj")[0].textContent;
+				obj.setAttribute("label", objName);
+				ti.appendChild(tr);
+				tr.appendChild(sbj);
+				tr.appendChild(pre);
+				tr.appendChild(obj);
+				rootTreechildren.appendChild(ti);
+			}
+		} else if (resultType == "boolean") {
+			var SPARQLtree = document.getElementById("SPARQLTree");
+			SPARQLtree.setAttribute("hidden", true);
+			var resultLabel = document.getElementById("textAreaResult1").getAttribute("value");
+			var boolValue = response.getElementsByTagName("result")[0].textContent;
+			document.getElementById("textAreaResult1").setAttribute("value", resultLabel + " " + boolValue);
 		}
-	} else if (resultType == "graph") {
-		var treecol = document.createElement("treecol");
-		treecol.setAttribute("label", "subject");
-		treecol.setAttribute("flex", "1");
-		treecols.appendChild(treecol);
-		treecol = document.createElement("treecol");
-		treecol.setAttribute("label", "predicate");
-		treecol.setAttribute("flex", "1");
-		treecols.appendChild(treecol);
-		treecol = document.createElement("treecol");
-		treecol.setAttribute("label", "object");
-		treecol.setAttribute("flex", "1");
-		treecols.appendChild(treecol);
-		var stm = responseXML.getElementsByTagName("stm");
-		for (var i = 0; i < stm.length; i++) {
+	}
+
+//	Ramon Orrù (2010) : popolamento tabella risultati con dati serializzati JSON
+	else if( response.respType == art_semanticturkey.RespContType.json){
+		var treecols = document.getElementById("SPARQLTreeCols");
+		while (treecols.hasChildNodes()) {
+			treecols.removeChild(treecols.lastChild);
+		}
+		var rootTreechildren = document.getElementById("SPARQLRootTreechildren");
+
+		while (rootTreechildren.hasChildNodes()) {
+			rootTreechildren.removeChild(rootTreechildren.lastChild);
+		}
+		
+		var resultType = JSON.stringify(response.stresponse.data.resulttype).replace(/\"/g, "");
+
+		if (resultType == "tuple") {
+			var cols  = response.stresponse.data.sparql.head.vars;
+			var rows=0;
+			var resultsArray = new Array();
+			for (var i = 0; i < cols.length; i++) {
+				variable_name=cols[i];
+				var treecol = document.createElement("treecol");
+				treecol.setAttribute("label",variable_name );
+				treecol.setAttribute("flex", "1");
+				treecols.appendChild(treecol);
+				var bindings  = response.stresponse.data.sparql.results.bindings;
+				rows=bindings.length;
+				var result = new Array(); 
+				for(var bind in bindings){
+					var element=(bindings[bind])[variable_name];
+					var lblValue = "";
+					if(typeof(element)!="undefined"){					
+						if (JSON.stringify(element.type).replace(/\"/g, "")=="uri") {
+							lblValue = JSON.stringify(element.value).replace(/\"/g, "");						
+						} else if (JSON.stringify(element.type).replace(/\"/g, "")=="literal") {
+							lblValue = JSON.stringify(element.value).replace(/\"/g, "");
+							if (element["xml:lang"] != null) {
+								lblValue = lblValue + "("+ JSON.stringify(element["xml:lang"]).replace(/\"/g, "") + ")";
+							}
+						} else if (JSON.stringify(element.type).replace(/\"/g, "")=="bnode") {
+							lblValue = JSON.stringify(element.value).replace(/\"/g, "");
+						}						
+					}
+					result[bind] = lblValue;
+				}
+				resultsArray[i]=result;
+			}
+
+			for (var i = 0; i < rows; i++) {
+				var ti = document.createElement("treeitem");
+				var tr = document.createElement("treerow");
+				for (var k in resultsArray) {
+					var lblValue = resultsArray[k][i];
+					if (typeof lblValue == 'undefined') {
+						lblValue = "";
+					}
+					var tc = document.createElement("treecell");
+					tc.setAttribute("label", lblValue);
+					tr.appendChild(tc);
+					ti.appendChild(tr);
+				}
+				rootTreechildren.appendChild(ti);
+			}
+
+		} else if (resultType == "graph") {			
+			var treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "subject");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "predicate");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "object");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
+			var stms  = response.stresponse.data.stm;
+			for (var stm in stms) {
+				var ti = document.createElement("treeitem");
+				var tr = document.createElement("treerow");
+				var sbj = document.createElement("treecell");
+				var pre = document.createElement("treecell");
+				var obj = document.createElement("treecell");
+				var sbjName = JSON.stringify(stms[stm].subj).replace(/\"/g, "");
+				sbj.setAttribute("label", sbjName);
+				var preName =JSON.stringify(stms[stm].pred).replace(/\"/g, "");
+				pre.setAttribute("label", preName);
+				var objName = JSON.stringify(stms[stm].obj).replace(/\"/g, "");
+				obj.setAttribute("label", objName);
+				ti.appendChild(tr);
+				tr.appendChild(sbj);
+				tr.appendChild(pre);
+				tr.appendChild(obj);
+				rootTreechildren.appendChild(ti);
+			}
+		} else if (resultType == "boolean") {	
+			var boolValue = JSON.stringify(response.stresponse.data.result).replace(/\"/g, "");
+			var treecol = document.createElement("treecol");
+			treecol.setAttribute("label", "Result");
+			treecol.setAttribute("flex", "1");
+			treecols.appendChild(treecol);
 			var ti = document.createElement("treeitem");
 			var tr = document.createElement("treerow");
-			var sbj = document.createElement("treecell");
-			var pre = document.createElement("treecell");
-			var obj = document.createElement("treecell");
-			var sbjName = stm[i].getElementsByTagName("subj")[0].textContent;
-			sbj.setAttribute("label", sbjName);
-			var preName = stm[i].getElementsByTagName("pred")[0].textContent;
-			pre.setAttribute("label", preName);
-			var objName = stm[i].getElementsByTagName("obj")[0].textContent;
-			obj.setAttribute("label", objName);
+			var result_cell = document.createElement("treecell");
+			result_cell.setAttribute("label", boolValue)	;
 			ti.appendChild(tr);
-			tr.appendChild(sbj);
-			tr.appendChild(pre);
-			tr.appendChild(obj);
-			rootTreechildren.appendChild(ti);
+			tr.appendChild(result_cell);
+			rootTreechildren.appendChild(ti);			
 		}
-	} else if (resultType == "boolean") {
-		var SPARQLtree = document.getElementById("SPARQLTree");
-		SPARQLtree.setAttribute("hidden", true);
-		var resultLabel = document.getElementById("textAreaResult1")
-				.getAttribute("value");
-		var boolValue = responseXML.getElementsByTagName("result")[0].textContent;
-		document.getElementById("textAreaResult1").setAttribute("value",
-				resultLabel + " " + boolValue);
 	}
 };
+
+
 art_semanticturkey.SPARQLResourcedblClick = function(event) {
 	var parameters = new Object();
 	var row = {};

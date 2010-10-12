@@ -59,7 +59,7 @@ art_semanticturkey.getProjectType = function(projectId, responseElement){
 		}
 	}
 	return null;
-}
+};
 
 art_semanticturkey.cancel = function() {
 	close();

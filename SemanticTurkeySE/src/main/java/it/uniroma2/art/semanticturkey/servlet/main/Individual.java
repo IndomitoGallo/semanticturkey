@@ -39,8 +39,8 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -141,7 +141,7 @@ public class Individual extends Resource {
 		logger.debug("replying to \"getTypes(" + indQName + ").");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				getDirectNamedTypesRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -212,7 +212,7 @@ public class Individual extends Resource {
 					+ " to individual " + indQName + ": " + e.getMessage());
 		}
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);
@@ -273,7 +273,7 @@ public class Individual extends Resource {
 					+ " from individual " + indQName + ": " + e.getMessage());
 		}
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);

@@ -17,10 +17,13 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
+import it.uniroma2.art.semanticturkey.servlet.JSONResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -28,6 +31,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -63,6 +68,8 @@ public class SPARQL extends ServiceAdapter {
 	 * @return
 	 */
 	public Response getResponse() {
+		SerializationType ser_type = _oReq.getAcceptContent(); 
+		
 		String request = setHttpPar("request");
 		try {
 			if (request.equals(resolveQueryRequest)) {
@@ -70,7 +77,7 @@ public class SPARQL extends ServiceAdapter {
 				String lang = setHttpPar(languagePar);
 				String infer = setHttpPar(inferPar);
 				checkRequestParametersAllNotNull(queryPar);
-				return resolveQuery(query, lang, infer);
+				return resolveQuery(query, lang, infer,ser_type);
 			} else {
 				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 			}
@@ -79,7 +86,8 @@ public class SPARQL extends ServiceAdapter {
 		}
 	}
 
-	public Response resolveQuery(String queryString, String lang, String inferString) {
+//	Ramon Orrù (2010): introduzione parametro ser_type, popolamento richiesta con serializzaione JSON
+	public Response resolveQuery(String queryString, String lang, String inferString,SerializationType ser_type) {
 
 		String request = resolveQueryRequest;
 
@@ -101,67 +109,98 @@ public class SPARQL extends ServiceAdapter {
 
 		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
-
 		try {
-			Query query = owlModel.createQuery(ql, queryString);
-			if (query instanceof TupleQuery) {
-				logger.debug("query is a tuple query");
-				dataElement.setAttribute(resultTypeAttr, "tuple");
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				((TupleQuery) query).evaluate(infer, TupleBindingsWritingFormat.XML, baos);
-				Document doc = XMLHelp.byteArrayOutputStream2XML(baos);
-				Node importedSPARQLResult = response.getXML().importNode(doc.getDocumentElement(), true);
-				dataElement.appendChild(importedSPARQLResult);
-				logger.debug(XMLHelp.XML2String(doc));
-			} else if (query instanceof GraphQuery) {
-				logger.debug("query is a graph query");
-				dataElement.setAttribute(resultTypeAttr, "graph");
-				ARTStatementIterator statIt = ((GraphQuery) query).evaluate(infer);
-				Statement.createStatementsList(owlModel, statIt, dataElement);
-			} else if (query instanceof BooleanQuery) {
-				logger.debug("query is a boolean query");
-				dataElement.setAttribute(resultTypeAttr, "boolean");
-				boolean result = ((BooleanQuery) query).evaluate(infer);
-				XMLHelp.newElement(dataElement, "result", Boolean.toString(result));
+			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok,ser_type);
+			
+			if(response instanceof XMLResponseREPLY){
+				Element dataElement = ((XMLResponseREPLY)response).getDataElement();
+				Query query = owlModel.createQuery(ql, queryString);
+				if (query instanceof TupleQuery) {
+					logger.debug("query is a tuple query");
+					dataElement.setAttribute(resultTypeAttr, "tuple");
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					((TupleQuery) query).evaluate(infer, TupleBindingsWritingFormat.XML, baos);
+					Document doc = XMLHelp.byteArrayOutputStream2XML(baos);
+					Node importedSPARQLResult = ((Document)response.getResponseObject()).importNode(doc.getDocumentElement(), true);
+					dataElement.appendChild(importedSPARQLResult);
+					logger.debug(XMLHelp.XML2String(doc));
+				} else if (query instanceof GraphQuery) {
+					logger.debug("query is a graph query");
+					dataElement.setAttribute(resultTypeAttr, "graph");
+					ARTStatementIterator statIt = ((GraphQuery) query).evaluate(infer);
+					Statement.createStatementsList(owlModel, statIt, dataElement);
+				} else if (query instanceof BooleanQuery) {
+					logger.debug("query is a boolean query");
+					dataElement.setAttribute(resultTypeAttr, "boolean");
+					boolean result = ((BooleanQuery) query).evaluate(infer);
+					XMLHelp.newElement(dataElement, "result", Boolean.toString(result));
+				}
 			}
-
+			else{
+//				Ramon Orrù (2010): Serializzazione JSON
+				if(response instanceof JSONResponseREPLY){
+					JSONObject data=null;	
+					data=((JSONResponseREPLY)response).getDataElement();
+					Query query = owlModel.createQuery(ql, queryString);
+					if (query instanceof TupleQuery) {
+						logger.debug("query is a tuple query");
+						data.put(resultTypeAttr,  "tuple");
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						((TupleQuery) query).evaluate(infer, TupleBindingsWritingFormat.JSON, baos);
+						String sparql_result=baos.toString();
+						data.put("sparql",new JSONObject(sparql_result));
+					} else if (query instanceof GraphQuery) {
+						logger.debug("query is a graph query");
+						data.put(resultTypeAttr,  "graph");
+						ARTStatementIterator statIt = ((GraphQuery) query).evaluate(infer);
+						Statement.createStatementsList(owlModel, statIt, data); 
+					} else if (query instanceof BooleanQuery) {
+						logger.debug("query is a boolean query");					
+						data.put(resultTypeAttr, "boolean");
+						boolean result = ((BooleanQuery) query).evaluate(infer);
+						data.put("result",Boolean.toString(result));
+					}
+					
+//------------------  Ramon Orrù (2010): stampa per debug ----------------
+						logger.debug("JSON data: \n"+data.toString(3));
+//----------------------------------------------------------------------------------------------------
+					
+				}
+			}
 			return response;
 
 		} catch (UnsupportedQueryLanguageException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (ModelAccessException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (MalformedQueryException e) {
 			System.out.println("malformed query exception");
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (QueryEvaluationException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (TupleBindingsWriterException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (UnsupportedEncodingException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (SAXException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (IOException e) {
 			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
+//			Ramon Orrù (2010): aggiunta catching JSONException
+		} catch (JSONException e) {
+			logger.error(Utilities.printFullStackTrace(e));
+			logger.error("******Errore JSON*****");
+			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		}
-
-	}
-	
-	
-
-	
-	
+	}		
 }
 
 /*

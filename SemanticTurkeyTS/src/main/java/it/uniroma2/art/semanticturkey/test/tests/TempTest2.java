@@ -27,16 +27,10 @@
 package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.ontology.sesame2.OntologyManagerFactorySesame2Impl;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
-import it.uniroma2.art.semanticturkey.servlet.main.Projects;
-import it.uniroma2.art.semanticturkey.servlet.main.Property;
 import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 

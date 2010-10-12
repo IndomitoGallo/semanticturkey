@@ -17,7 +17,7 @@
  * Semantic Turkey was developed by the Artificial Intelligence Research Group
  * (art.uniroma2.it) at the University of Roma Tor Vergata
  * Current information about Semantic Turkey can be obtained at 
- * http//ai-nlp.info.uniroma2.it/software/...
+ * http://semanticturkey.uniroma2.it
  *
  */
 
@@ -26,34 +26,20 @@
  */
 package it.uniroma2.art.semanticturkey.servlet;
 
-import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+/**
+ * Defines a basic interface for Semantic Turkey service response
+ * 
+ * @author Ramon Orrù<br/>
+ *         Armando Stellato &lt;stellato@info.uniroma2.it&gt;,<br/>
+ *         Andrea Turbati &lt;turbati@info.uniroma2.it&gt;
+ * 
+ */
+public interface Response {
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+	public Object getResponseObject();
 
-public abstract class Response {
+	public String getResponseContent();
 
-	Document xml;
-	Element responseElement;
+	public boolean isAffirmative();
 
-	Response(Document xml, String request) {
-		this.xml = xml;
-		responseElement = xml.createElement(ServiceVocabulary.responseRoot);
-		responseElement.setAttribute(ServiceVocabulary.request, request);
-		xml.appendChild(responseElement);
-	}
-
-	public Document getXML() {
-		return xml;
-	}
-
-	public String toString() {
-		return XMLHelp.XML2String(xml, true);
-	}
-	
-	public Element getResponseElement() {
-		return responseElement;
-	}
-
-	public abstract boolean isAffirmative();
 }

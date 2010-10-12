@@ -21,10 +21,13 @@
   *
   */
 
-  /*
-   * Contributor(s): Armando Stellato stellato@info.uniroma2.it
+  /**
+   * @author: Armando Stellato stellato@info.uniroma2.it
+   * @author: Andrea Turbati turbati@info.uniroma2.it
   */
 package it.uniroma2.art.semanticturkey.servlet;
+
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 
 import java.util.Map;
 
@@ -49,6 +52,22 @@ public class HttpServiceRequestWrapper implements ServiceRequest {
 
 	public HttpServletRequest getHttpRequest() {
 		return _oReq;
+	}
+	
+	/**
+	 * This method analyze the Header Accept to find out which type of response
+	 * the client wants. The XML one is the default one. 
+	 */
+	public SerializationType getAcceptContent() {
+		String acceptContent = _oReq.getHeader("Accept");
+		if(acceptContent == null)
+			return SerializationType.xml;
+		if(acceptContent.contains("application/xml"))
+			return SerializationType.xml;
+		else if(acceptContent.contains("application/json"))
+			return SerializationType.json;
+		else
+			return SerializationType.xml;
 	}
 	
 }

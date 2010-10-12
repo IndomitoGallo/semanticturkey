@@ -54,7 +54,7 @@ art_semanticturkey.onAccept = function() {
 
 art_semanticturkey.openProject_RESPONSE = function(responseElement, projectName, isMainProject, type){
 	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, isMainProject, type);
-}
+};
 
 art_semanticturkey.saveAsProject_RESPONSE = function(responseElement, newProjectName){
 	if(responseElement.isFail()){
