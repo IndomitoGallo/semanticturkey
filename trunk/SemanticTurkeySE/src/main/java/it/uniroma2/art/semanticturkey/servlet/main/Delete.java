@@ -35,8 +35,8 @@ import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -126,7 +126,7 @@ public class Delete extends ServiceAdapter {
 		logger.debug("deleting request is: " + request + ", for resource: " + qname);
 
 		// XML RESPONSE PREPARATION
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "Resource");
 		element.setAttribute("name", qname);

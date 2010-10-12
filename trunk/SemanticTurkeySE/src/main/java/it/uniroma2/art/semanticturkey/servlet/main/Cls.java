@@ -51,7 +51,7 @@ import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -231,7 +231,7 @@ public class Cls extends Resource {
 				return servletUtilities.createExceptionResponse(getInstanceListRequest, "class: " + clsQName
 						+ " is not present in the ontModel");
 
-			ResponseREPLY response = servletUtilities.createReplyResponse(getInstanceListRequest,
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(getInstanceListRequest,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			dataElement.setAttribute("type", "Instpanel");
@@ -324,11 +324,12 @@ public class Cls extends Resource {
 		String request = createInstanceRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
 		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
-		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		try {
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element clsElement = XMLHelp.newElement(dataElement, "Class");
 		ARTResource cls;
-		try {
+
 			String clsURI = ontModel.expandQName(clsQName);
 			cls = ontModel.createURIResource(clsURI);
 			clsElement.setAttribute("clsName", ontModel.getQName(clsURI));
@@ -360,7 +361,7 @@ public class Cls extends Resource {
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		}
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
 			this.recursiveCreateClassesXMLTree(ontModel, cls, dataElement);
@@ -396,7 +397,7 @@ public class Cls extends Resource {
 		String request = getClassTreeRequest;
 		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		Predicate<ARTResource> exclusionPredicate;
@@ -496,11 +497,12 @@ public class Cls extends Resource {
 		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getSubClassesRequest;
-		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		try {
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		String clsURI;
-		try {
+
 			clsURI = ontModel.expandQName(clsQName);
 			ARTURIResource cls = ontModel.createURIResource(clsURI);
 			boolean exists = ModelUtilities.checkExistingResource(ontModel, cls);
@@ -680,7 +682,7 @@ public class Cls extends Resource {
 		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getClassesInfoAsRootsForTreeRequest;
-		ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		String[] clsesQNames = clsesQNamesString.split("\\|_\\|");
@@ -770,7 +772,7 @@ public class Cls extends Resource {
 
 			ontModel.addSuperClass(cls, superCls);
 
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
@@ -828,7 +830,7 @@ public class Cls extends Resource {
 
 			ontModel.removeSuperClass(cls, superCls);
 
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
@@ -897,7 +899,7 @@ public class Cls extends Resource {
 			ontModel.addClass(newClassURI);
 			ontModel.addSuperClass(res, superClassResource);
 
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element clsElement = XMLHelp.newElement(dataElement, "class");

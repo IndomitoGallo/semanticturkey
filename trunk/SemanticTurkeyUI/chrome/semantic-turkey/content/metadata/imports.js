@@ -39,14 +39,15 @@ art_semanticturkey.eventsImportsPanel = new function(){
 			arrayEvent[eventId] = new Array;
 		}
 		arrayEvent[eventId].push(eventObj);
-	}
+	};
+	
 	this.deregisterAllEvent = function(){
 		for ( var id in arrayEvent) {
 			for(var i=0; i<arrayEvent[id].length; ++i){
 				art_semanticturkey.evtMgr.deregisterForEvent(id, arrayEvent[id][i]);
 			}
 		}
-	}
+	};
 };
 
 window.onload = function() {
@@ -128,7 +129,7 @@ art_semanticturkey.infoProject = function(){
 	catch (e) {
 		alert(e.name + ": " + e.message);
 	}
-}
+};
 
 
 /**

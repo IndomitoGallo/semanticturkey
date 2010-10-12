@@ -39,7 +39,7 @@ art_semanticturkey.getCurrentProjectFromServer = function(){
 	catch(e){
 		return null;
 	}
-}
+};
 
 art_semanticturkey.getCurrentProject_RESPONSE = function(responseElement){
 	var projectInfo = new Object();
@@ -52,7 +52,7 @@ art_semanticturkey.getCurrentProject_RESPONSE = function(responseElement){
 		projectInfo.projectName = responseElement.getElementsByTagName("project")[0].textContent;
 	}
 	return projectInfo;
-}
+};
 
 //These two function send the events of project
 art_semanticturkey.projectOpened = function(newProject){

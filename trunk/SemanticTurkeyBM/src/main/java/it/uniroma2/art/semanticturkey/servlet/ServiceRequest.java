@@ -26,11 +26,16 @@
   */
 package it.uniroma2.art.semanticturkey.servlet;
 
+
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
+
 import java.util.Map;
 
 public interface ServiceRequest {
 
 	public String getParameter(String parName);
+	
+	public SerializationType getAcceptContent();
 	
 	public Map<String, String> getParameterMap();
 	

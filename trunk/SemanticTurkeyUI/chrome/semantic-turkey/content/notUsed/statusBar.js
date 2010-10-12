@@ -92,7 +92,7 @@ function findText2(doc) {
 										.createTextNode(tokens[j]);
 								newSpan.appendChild(textNode2);
 
-								parentNode.appendChild(newSpan)
+								parentNode.appendChild(newSpan);
 
 								var textNode = document.createTextNode(temp[k]);
 								parentNode.appendChild(textNode);

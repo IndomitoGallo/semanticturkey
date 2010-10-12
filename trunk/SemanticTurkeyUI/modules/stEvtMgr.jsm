@@ -21,7 +21,8 @@
  * 
  */
 
-var EXPORTED_SYMBOLS = [ "evtMgr" ]
+var EXPORTED_SYMBOLS = [ "evtMgr" ];
+
 evtMgr = new function() {
 	// multidimensional array (The first level is an associative array, while the second level ha classic integer indexes)
 	// It holds the handlers for the events. The indexes of the associative
@@ -42,7 +43,7 @@ evtMgr = new function() {
 		while (varBool == false) {
 			varBool = tryFireEvent(eventId, objectCont);
 		}
-	}
+	};
 
 	//This function tries to lunch an event, if an object in the array is not reachable, it is deleted, and the function
 	// return false. Otherwise it returns true
@@ -65,7 +66,7 @@ evtMgr = new function() {
 			return false;
 		}
 		return true;
-	}
+	};
 
 	// This method it's used to register an handler for a particular events identified by eventId
 	this.registerForEvent = function(eventId, handler) {
@@ -73,7 +74,7 @@ evtMgr = new function() {
 			arrayEvent[eventId] = new Array;
 		}
 		arrayEvent[eventId].push(handler);
-	}
+	};
 
 	// This method it's used to deregister an handler for a particular events identified by eventId
 	this.deregisterForEvent = function(eventId, handler) {
@@ -87,7 +88,7 @@ evtMgr = new function() {
 				}
 			}
 		}
-	}
+	};
 
 	// This method return all the event id and the numbers of handlers associaterd with each eventId (eventId -> number_of_Handler)
 	this.getAllEventId = function() {
@@ -96,7 +97,7 @@ evtMgr = new function() {
 			listIDs += "\n" + id + " -> " + arrayEvent[id].length;
 		}
 		return listIDs;
-	}
+	};
 
 };
 

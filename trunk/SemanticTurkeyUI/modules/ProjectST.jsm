@@ -21,32 +21,32 @@ CurrentProject = new function(){
 			isContinuosEditing = true;
 		else
 			isContinuosEditing = false;
-	}
+	};
 	
 	this.setCurrentNameProject = function(projectName){
 		id = projectName;
 		var projectInfo = new Object();
 		projectInfo.projectName = projectName;
 		evtMgr.fireEvent("projectChangedName", projectInfo);
-	}
+	};
 	
 	this.getProjectName = function(){
 		return id;
-	}
+	};
 	
 	this.isNull = function(){
 		return isNull;
-	}
+	};
 	
 	this.isMainProject = function(){
 		return isMain;
-	}
+	};
 	
 	this.isContinuosEditing = function(){
 		return isContinuosEditing;
-	}
+	};
 	
 	this.getType = function(){
 		return type;
-	}
-}
+	};
+};

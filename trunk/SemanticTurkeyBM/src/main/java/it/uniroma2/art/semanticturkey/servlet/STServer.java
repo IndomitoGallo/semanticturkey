@@ -27,6 +27,7 @@ import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.PluginInterface;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceInterface;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * Http implementation of Semantic Turkey Service Based Architecture
@@ -64,6 +66,8 @@ public class STServer extends HttpServlet {
 
 	public static final String pluginActivateRequest = "activate";
 	public static final String pluginDeactivateRequest = "deactivate";
+
+	// public static final boolean json_serialization = false;
 
 	final private HashMap<String, PluginInterface> pluginsMap = new HashMap<String, PluginInterface>();
 	final private HashMap<String, ServiceInterface> servicesMap = new HashMap<String, ServiceInterface>();
@@ -125,149 +129,137 @@ public class STServer extends HttpServlet {
 
 		System.out.println("response encoding: " + oRes.getCharacterEncoding());
 		oRes.setCharacterEncoding("UTF-8");
-		ServletOutputStream out = oRes.getOutputStream();
+		ServletOutputStream out;
 
 		System.out.println("encoding: " + oRes.getCharacterEncoding());
 		String serviceName = oReq.getParameter("service");
 
-		Response xml = null;
-
+		Response response = null;
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		if (serviceName == null) {
+			if (ser_type == SerializationType.json)
+				oRes.setContentType("application/json");
+			else
+				oRes.setContentType("application/xml");
+			out = oRes.getOutputStream();
 			logger.debug(ServletUtilities.getService().createExceptionResponse("",
-					"you must specify a service to be invoked").toString());
+					"you must specify a service to be invoked", ser_type).toString());
 			out.print(ServletUtilities.getService().createExceptionResponse("",
-					"you must specify a service to be invoked").toString());
+					"you must specify a service to be invoked", ser_type).toString());
 			return;
 		} else if (serviceName.equals("plugin")) {
-			xml = handlePluginRequest(oReq, out);
+			response = handlePluginRequest(oReq);
 		} else {
-			xml = handleServiceRequest(serviceName, oReq, out);
+			response = handleServiceRequest(serviceName, oReq);
 		}
 
 		logger.debug("analyzing response type");
 
-		if (oReq.getContentType() == null || oReq.getContentType().equals("application/xml")
-				|| oReq.getContentType().startsWith("application/x-www-form-urlencoded")) {
-			if (xml != null) {
-				if (xml.getXML() != null) {
-
-					// System.out.println("test printing on console: " +
-					// "Αὐνῆς τοπογραμματεὺς τῶν περὶ Βουσῖριν τοῖς ἀπ᾽ Ὀννέους ");
-
-					// do not use the following line since it is not robust wrt encoding settings of the JVM
-					// out.print(XMLHelp.XML2String(xml.getXML(), true));
-					// use XML2OutputStream instead
-
-					XMLHelp.XML2OutputStream(xml.getXML(), true, out);
-				}
-
-				else
-					out.print(ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
-							"xml content of response is null").toString());
-			} else
-				out.print(ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
-						"response is null").toString());
-		}
-
-		// this one is disabled at the moment
-		else {
-			try {
-				// Class<?>[] parameters = new Class[0];
-				try {
-					// CXSLMethod = serviceClass.getMethod(CXSLFactory, parameters);
-				} catch (SecurityException e) {
-					logger.error(e + Utilities.printStackTrace(e));
-					e.printStackTrace();
-					out.print(XMLHelp.XML2String(ServletUtilities.getService()
-							.createExceptionResponse(
-									"",
-									"Content-type: " + oReq.getContentType()
-											+ " is not accepted by this application").getXML(), true));
-				}
-				/*
-				 * catch (NoSuchMethodException e) { s_logger.error(e + Utilities.printStackTrace(e));
-				 * e.printStackTrace(); }
-				 */
-				// XSL = (CXSL) CXSLMethod.invoke(null, (Object[])null);
-			} catch (IllegalArgumentException e) {
-				logger.error(e + Utilities.printStackTrace(e));
-				e.printStackTrace();
+		if (response != null) {
+			if (response instanceof JSONResponseREPLY) {
+				oRes.setContentType("application/json");
+				logger.debug(response.getResponseContent());
+				out = oRes.getOutputStream();
+				out.print(response.getResponseContent());
+			} else {
+				oRes.setContentType("application/xml");
+				logger.debug(XMLHelp.XML2String((Document) response.getResponseObject(), true));
+				out = oRes.getOutputStream();
+				XMLHelp.XML2OutputStream((Document) response.getResponseObject(), true, out);
 			}
-			// XSL.apply(xml.getXML(), out);
+		} else {
+			if (ser_type == SerializationType.json)
+				oRes.setContentType("application/json");
+			else
+				oRes.setContentType("application/xml");
+			out = oRes.getOutputStream();
+			out.print(ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+					"content of response is null", ser_type).getResponseContent());
 		}
-
 	}
 
-	private Response handlePluginRequest(HttpServletRequest oReq, ServletOutputStream out) {
-		Response xml = null;
+	private Response handlePluginRequest(HttpServletRequest oReq) {
+		Response response = null;
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
+		if (ser_type != SerializationType.xml)
+			return ServletUtilities.getService().createExceptionResponse("plugin",
+					"sorry this request can only be served in XML", ser_type);
+
 		String pluginName = oReq.getParameter("name");
 		PluginInterface plugin = pluginsMap.get(pluginName);
 		logger.debug("identifying proper plugin...");
 		if (plugin == null) {
-			xml = ServletUtilities.getService().createExceptionResponse("plugin",
-					"Unexpected Error:\n plugin: \"" + pluginName + "\" has not been loaded into the system");
+			response = ServletUtilities.getService().createExceptionResponse("plugin",
+					"Unexpected Error:\n plugin: \"" + pluginName + "\" has not been loaded into the system",
+					ser_type);
 		} else {
 			String request = oReq.getParameter("request");
 			if (request == null)
-				xml = ServletUtilities.getService().createExceptionResponse("plugin",
-						"field: \"request\" is missing from current plugin request");
+				response = ServletUtilities.getService().createExceptionResponse("plugin",
+						"field: \"request\" is missing from current plugin request", ser_type);
 			else if (request.equals(pluginActivateRequest)) {
-				xml = plugin.activate();
-				if (xml.isAffirmative()) {
+				response = plugin.activate();
+				if (response.isAffirmative()) {
 					try {
 						ProjectManager.getCurrentProject().registerPlugin(pluginName);
 					} catch (Exception e) {
-						((ResponseREPLY) xml)
+						((ResponseREPLY) response)
 								.setReplyStatusWARNING("the plugin has been successfully initialized, though there are some warnings reported while associating it to the current project:\n"
 										+ e.toString());
 					}
 				}
 			} else if (request.equals(pluginDeactivateRequest)) {
-				xml = plugin.deactivate();
-				if (xml.isAffirmative()) {
+				response = plugin.deactivate();
+				if (response.isAffirmative()) {
 					try {
 						ProjectManager.getCurrentProject().deregisterPlugin(pluginName);
 					} catch (Exception e) {
-						((ResponseREPLY) xml)
+						((ResponseREPLY) response)
 								.setReplyStatusWARNING("the plugin has been successfully disposed, though there are some warnings reported while deregistering it from the current project:\n"
 										+ e.toString());
 					}
 				}
 			} else
-				xml = ServletUtilities.getService().createExceptionResponse("plugin",
-						"unknown plugin request");
+				response = ServletUtilities.getService().createExceptionResponse("plugin",
+						"unknown plugin request", ser_type);
 		}
-		return xml;
+		return response;
 	}
 
-	private Response handleServiceRequest(String serviceName, HttpServletRequest oReq, ServletOutputStream out)
-			throws IOException {
+	private Response handleServiceRequest(String serviceName, HttpServletRequest oReq) throws IOException {
 		ServiceInterface service = null;
-		Response xml = null;
+		Response response = null;
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		service = servicesMap.get(serviceName);
 
 		logger.debug("identifying proper service for handling the request..");
 		if (service == null) {
-			xml = ServletUtilities.getService().createExceptionResponse("",
-					"Unexpected Error:\n service: " + serviceName + " has not been loaded into the system");
+			response = ServletUtilities.getService().createExceptionResponse("",
+					"Unexpected Error:\n service: " + serviceName + " has not been loaded into the system",
+					ser_type);
 		} else {
 			try {
-				logger.debug("handling the request..");
+				logger.debug("handling the request.. for service: " + serviceName);
 				service.setServiceRequest(new HttpServiceRequestWrapper(oReq));
-				xml = service.getResponse();
+				response = service.getResponse();
+
 			} catch (RuntimeException e) {
 				logger.error(Utilities.printFullStackTrace(e));
 				e.printStackTrace(System.err);
 				String msg = "uncaught java exception: " + e.toString();
-				xml = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"), msg);
+				response = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+						msg, ser_type);
+
 			} catch (Error err) {
 				String msg = "java error: " + err.toString();
 				err.printStackTrace(System.err);
 				logger.error(msg);
-				xml = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"), msg);
+				response = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+						msg, ser_type);
+
 			}
 		}
-		return xml;
+		return response;
 	}
 
 }

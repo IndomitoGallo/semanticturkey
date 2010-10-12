@@ -38,8 +38,8 @@ import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -72,8 +72,8 @@ public class SystemStart extends ServiceAdapter {
 	}
 
 
-	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
-	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
+	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto ï¿½ segnato,
+	// ma dire cosa manca di modo che il client puï¿½ fare ulteriri richieste all'utente
 	public Response getResponse() {
 		String request = setHttpPar("request");
 
@@ -98,7 +98,7 @@ public class SystemStart extends ServiceAdapter {
 	public Response listAvailableOntManagerImplementations() {
 		logger.info("getting the list of available OntologyManager Implementations");
 		ArrayList<String> ontModelList = PluginManager.getOntManagerImplIDs();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(listTripleStoresRequest,
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(listTripleStoresRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element repElement = null;
@@ -182,7 +182,7 @@ public class SystemStart extends ServiceAdapter {
 	 *         ) <response/> </Tree>
 	 */
 	private Response sendStartUnavailable(String baseuri, String ontModelImplID) {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(startRequest,
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(startRequest,
 				RepliesStatus.fail);
 		Element dataElement = response.getDataElement();
 
@@ -204,7 +204,7 @@ public class SystemStart extends ServiceAdapter {
 	}
 
 	private Response sendStartOk(String baseuri, String ontModelImplID) {
-		ResponseREPLY response = ServletUtilities.getService()
+		XMLResponseREPLY response = ServletUtilities.getService()
 				.createReplyResponse(startRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 

@@ -32,8 +32,8 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
@@ -43,7 +43,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Element;
 
 
@@ -81,7 +80,7 @@ public class Page extends ServiceAdapter {
 
 	public Response getAnnotatedPagesForInstance(String instanceQName) {
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(getBookmarksRequest,
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(getBookmarksRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 

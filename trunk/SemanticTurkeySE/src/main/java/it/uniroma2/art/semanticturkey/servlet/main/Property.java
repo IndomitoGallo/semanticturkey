@@ -30,11 +30,11 @@ import it.uniroma2.art.owlart.filter.RootPropertiesResourcePredicate;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -44,6 +44,7 @@ import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -51,7 +52,6 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -242,7 +242,7 @@ public class Property extends Resource {
 	public Response getPropertyTree(boolean props, boolean objprops, boolean datatypeprops,
 			boolean annotationprops) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getPropertiesTreeRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -401,7 +401,8 @@ public class Property extends Resource {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		ARTURIResource property = null;
 		String propertyURI;
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 
 		try {
 			propertyURI = ontModel.expandQName(propertyQName);
@@ -569,14 +570,14 @@ public class Property extends Resource {
 		if (request.equals("createAndAddPropValue")) {
 			try {
 				if (model.isAnnotationProperty(property)) {
-					logger.debug("instantiating annotation property: " + property + " with value: " + valueString + "and lang: " + lang);
+					logger.debug("instantiating annotation property: " + property + " with value: "
+							+ valueString + "and lang: " + lang);
 					model.instantiateAnnotationProperty(individual, property, valueString, lang);
-				}
-				else if (model.isDatatypeProperty(property) || (valueType == VocabularyTypesEnum.literal)) {
-					logger.debug("instantiating datatype property: " + property + " with value: " + valueString);
+				} else if (model.isDatatypeProperty(property) || (valueType == VocabularyTypesEnum.literal)) {
+					logger.debug("instantiating datatype property: " + property + " with value: "
+							+ valueString);
 					model.instantiateDatatypeProperty(individual, property, valueString);
-				}					
-				else {
+				} else {
 					model.addInstance(model.expandQName(valueString), rangeCls);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
 					model.instantiateObjectProperty(individual, property, objIndividual);
@@ -652,7 +653,7 @@ public class Property extends Resource {
 		Cls cls = new Cls("cls");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource property;
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getDomainClassesTreeRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
@@ -680,7 +681,7 @@ public class Property extends Resource {
 		Cls cls = new Cls("cls");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource property;
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getRangeClassesTreeRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {

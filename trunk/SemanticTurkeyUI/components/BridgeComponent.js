@@ -162,7 +162,8 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 		    				javaPath + "servlet-api-2.4.jar",
 		    				javaPath + "slf4j-api-1.5.6.jar",
 		    				javaPath + "slf4j-log4j12-1.5.6.jar",
-		    				javaPath + "jcl-over-slf4j-1.5.6.jar"
+		    				javaPath + "jcl-over-slf4j-1.5.6.jar",
+		    				javaPath + "json-20090211.jar"
 		];
 		this._packages = this._packageLoader(jarFilepaths, this._traceFlag);
 

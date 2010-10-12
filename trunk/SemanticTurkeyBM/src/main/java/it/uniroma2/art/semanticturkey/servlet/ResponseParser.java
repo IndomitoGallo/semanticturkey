@@ -3,7 +3,6 @@ package it.uniroma2.art.semanticturkey.servlet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 
@@ -20,8 +19,8 @@ public class ResponseParser {
 			String msg = getMessageFromReply(stResponse);
 			ResponseREPLY actionResp = su.createReplyResponse(request, ServiceVocabulary.RepliesStatus
 					.valueOf(status), msg);
-			Element importedData = (Element) actionResp.getXML().importNode(getDataElement(stResponse), true);
-			actionResp.getResponseElement().replaceChild(importedData, actionResp.getDataElement());
+			Element importedData = (Element)((XMLResponseREPLY)actionResp).getResponseObject().importNode(getDataElement(stResponse), true);
+			((XMLResponseREPLY)actionResp).getResponseElement().replaceChild(importedData,((XMLResponseREPLY)actionResp).getDataElement());
 			return actionResp;
 
 		} else {

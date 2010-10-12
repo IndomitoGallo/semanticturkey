@@ -33,8 +33,8 @@ import org.w3c.dom.Element;
 
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -61,7 +61,7 @@ public class Environment extends ServiceAdapter {
 	}
 
 	public Response getSystemProperties() {
-		ResponseREPLY response = servletUtilities.createReplyResponse(systemPropertiesRequest,
+		XMLResponseREPLY response = servletUtilities.createReplyResponse(systemPropertiesRequest,
 				RepliesStatus.ok);
 
 		Element dataElement = response.getDataElement();

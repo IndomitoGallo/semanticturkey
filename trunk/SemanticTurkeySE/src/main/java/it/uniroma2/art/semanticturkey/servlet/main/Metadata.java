@@ -46,6 +46,7 @@ import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -296,7 +297,7 @@ public class Metadata extends Resource {
 		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 		try {
 			ARTResourceIterator it = owlModel.listNamedGraphs();
-			ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			while (it.streamOpen()) {
 				Element ngElem = XMLHelp.newElement(dataElement, "namedgraph");
@@ -319,7 +320,7 @@ public class Metadata extends Resource {
 	 * @return
 	 */
 	public Response setDefaultNamespace(String namespace) {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				setDefaultNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -346,7 +347,7 @@ public class Metadata extends Resource {
 	 * 
 	 */
 	public Response getDefaultNamespace() {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				getDefaultNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -365,7 +366,7 @@ public class Metadata extends Resource {
 	 * 
 	 */
 	public Response setBaseURI(String uri) {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(setBaseuriRequest,
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(setBaseuriRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -393,7 +394,7 @@ public class Metadata extends Resource {
 	 */
 	public Response getBaseURI() {
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(getBaseuriRequest,
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(getBaseuriRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -418,7 +419,7 @@ public class Metadata extends Resource {
 	 */
 	public Response setBaseURIAndDefaultNamespace(String uri, String namespace) {
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				setBaseuriDefNamespaceRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -469,7 +470,7 @@ public class Metadata extends Resource {
 	 * 
 	 */
 	public Response getNamespaceMappings() {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				getNSPrefixMappingsRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
@@ -545,7 +546,7 @@ public class Metadata extends Resource {
 	public Response removeNamespaceMapping(String namespace) {
 		String request = removeNSPrefixMappingRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
@@ -575,7 +576,7 @@ public class Metadata extends Resource {
 	 */
 	public Response getOntologyImports() {
 		String request = getImportsRequest;
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		HashSet<String> importsBranch = new HashSet<String>();
@@ -768,7 +769,7 @@ public class Metadata extends Resource {
 		}
 
 		// FORMATTING OF XML RESPONSE
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		dataElement.setAttribute("type", request);
 		if (msg == null)

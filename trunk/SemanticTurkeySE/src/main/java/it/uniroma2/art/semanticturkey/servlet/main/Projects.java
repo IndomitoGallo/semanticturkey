@@ -49,8 +49,8 @@ import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.project.SaveToStoreProject;
 import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -216,7 +216,7 @@ public class Projects extends ServiceAdapter {
 	public Response getCurrentProject() {
 		String request = Req.getCurrentProjectRequest;
 		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
-		ResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		String projName = proj.getName();
@@ -236,7 +236,7 @@ public class Projects extends ServiceAdapter {
 		Collection<AbstractProject> projects;
 		try {
 			projects = ProjectManager.listProjects();
-			ResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElem = resp.getDataElement();
 
 			for (AbstractProject absProj : projects) {
@@ -244,7 +244,7 @@ public class Projects extends ServiceAdapter {
 				if (absProj instanceof Project<?>) {
 					Project<? extends RDFModel> proj = (Project<? extends RDFModel>) absProj;
 					try {
-						projElem.setAttribute(ontoTypeAttr, ((Project) proj).getModelType().toString());
+						projElem.setAttribute(ontoTypeAttr, ((Project) proj).getModelType().getName());
 						projElem.setAttribute(statusAttr, "ok");
 					} catch (DOMException e) {
 						projElem.setAttribute(statusAttr, "error");
@@ -656,7 +656,7 @@ public class Projects extends ServiceAdapter {
 				return servletUtilities.createExceptionResponse(request, e.toString());
 			}
 
-		ResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		for (int i = 0; i < propValues.length; i++) {

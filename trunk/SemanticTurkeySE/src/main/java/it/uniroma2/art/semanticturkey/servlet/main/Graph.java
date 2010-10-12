@@ -35,8 +35,8 @@ import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -78,7 +78,7 @@ public class Graph extends ServiceAdapter {
 	public Response getResponse() {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();	
-		ResponseREPLY response = servletUtilities.createReplyResponse("graph", RepliesStatus.ok);
+		XMLResponseREPLY response = servletUtilities.createReplyResponse("graph", RepliesStatus.ok);
 		Element dataElement = response.getDataElement();					
 		dataElement.setAttribute("version", "1.20");
 		Element nodeset  = XMLHelp.newElement(dataElement, "NODESET");		
@@ -128,7 +128,7 @@ public class Graph extends ServiceAdapter {
 		
 		try {
 		       BufferedWriter out = new BufferedWriter(new FileWriter(file, false));
-		       out.write(XMLHelp.XML2String(response.getXML(), true));
+		       out.write(XMLHelp.XML2String(response.getResponseObject(), true));
 		       out.close();
 		} catch (IOException e) {		
 			logger.error(""+e);

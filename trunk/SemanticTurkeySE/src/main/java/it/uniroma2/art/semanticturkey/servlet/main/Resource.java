@@ -38,8 +38,8 @@ import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
@@ -53,8 +53,8 @@ import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.PropertyShowOrderComparator;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -68,7 +68,6 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
@@ -235,7 +234,7 @@ public abstract class Resource extends ServiceAdapter {
 		Collections.sort(sortedProperties, new PropertyShowOrderComparator(ontModel));
 
 		// RESPONSE PREPARATION
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				getExactResourceDescriptionRequest(restype), RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		dataElement.setAttribute("type", method);
@@ -471,7 +470,7 @@ public abstract class Resource extends ServiceAdapter {
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ resourceQName);
 			}
-			ResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			getSuperTypes(ontModel, cls, resType, dataElement);
 			return response;

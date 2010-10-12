@@ -34,8 +34,8 @@ import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -103,7 +103,7 @@ public class Plugins extends ServiceAdapter {
 		logger.info("requested list of available plugins");
 
 		ArrayList<PluginInterface> plugins = PluginManager.getPlugins();
-		ResponseREPLY resp = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY resp = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = resp.getDataElement();
 		for (PluginInterface plugin : plugins) {
 			Element pluginElement = XMLHelp.newElement(dataElement, pluginTag, plugin.getId());
@@ -142,7 +142,7 @@ public class Plugins extends ServiceAdapter {
 	
 	private Response getPluginsForProject(Project<? extends RDFModel> proj) {
 		List<String> pluginIDs = proj.getRegisteredPlugins();
-		ResponseREPLY resp = ServletUtilities.getService().createReplyResponse(Req.getPluginsForProjectRequest, RepliesStatus.ok);
+		XMLResponseREPLY resp = ServletUtilities.getService().createReplyResponse(Req.getPluginsForProjectRequest, RepliesStatus.ok);
 		Element dataElement = resp.getDataElement();
 		for (String pluginID : pluginIDs) {
 			XMLHelp.newElement(dataElement, pluginTag, pluginID);

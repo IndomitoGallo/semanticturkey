@@ -8,6 +8,6 @@ pref("extensions.semturkey.server.path", "/semantic_turkey/resources/stserver/ST
 pref("extensions.semturkey.isLastProjMain", true);
 pref("extensions.semturkey.firstStart", true);
 pref("extensions.semturkey.version", "0.7.2");
-pref("extensions.semturkey.skos.humanReadable", true);
+pref("extensions.semturkey.skos.humanReadable", false);
 
 

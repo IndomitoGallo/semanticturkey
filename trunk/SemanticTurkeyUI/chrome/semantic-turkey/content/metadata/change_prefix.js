@@ -39,7 +39,7 @@ window.onload = function(){
 	changetxbox=document.getElementById("changetxb");
 	changetxbox.setAttribute("value",changetxbox.getAttribute("value")+window.arguments[0].namespace);
 	  
-}
+};
 
 art_semanticturkey.onAccept = function() {
 	var newPrefix = document.getElementById("prefix").value;
@@ -57,4 +57,4 @@ art_semanticturkey.onAccept = function() {
 
 art_semanticturkey.cancel = function(){
 	close();
-}
+};

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.uniroma2.art.semanticturkey.servlet.ServiceRequest;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 
 public class ServiceRequestDirectImpl implements ServiceRequest {
 
@@ -23,6 +24,11 @@ public class ServiceRequestDirectImpl implements ServiceRequest {
 
 	public Map<String, String> getParameterMap() {
 		return pars;
+	}
+
+	// TODO check this!	
+	public SerializationType getAcceptContent() {
+		return null;
 	}
 
 }

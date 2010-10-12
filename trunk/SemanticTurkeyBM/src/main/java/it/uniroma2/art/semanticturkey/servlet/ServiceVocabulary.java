@@ -44,5 +44,7 @@ public class ServiceVocabulary {
     
     //possible replies
     public static enum RepliesStatus { ok, fail, warning }
+    //Ramon Orrù (2010): possible response serialization
+    public static enum SerializationType {xml,json }
 
 }
