@@ -43,7 +43,7 @@
 	</menulist>		
 	<toolbox flex="0">
 		<toolbar id="skosConcept-toolbar">
-			<toolbarbutton id="addConcept" image="../images/individual_add.png" tooltiptext="Add Concept"/>
+			<toolbarbutton id="addConcept" image="../images/skosC_create.png" tooltiptext="Add Concept"/>
 			<toolbarbutton id="addConceptRelationship" image="../images/concept_relation.png" tooltiptext="Add semantic relation..."/>
 <!--    
 			<toolbarbutton id="addBroaderConcept"  image="../images/broader_add.png"  tooltiptext="Add Broader Concept"></toolbarbutton>
