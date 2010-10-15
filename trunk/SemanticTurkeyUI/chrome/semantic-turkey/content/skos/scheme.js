@@ -157,7 +157,7 @@ art_semanticturkey.getAllSchemesList_RESPONSE = function(responseXML, list) {
 		lsti.setAttribute("label", label);
 		var lci = document.createElement("listitem-iconic");
 		var img = document.createElement("image");
-		img.setAttribute("src","chrome://semantic-turkey/content/images/individual.png");
+		img.setAttribute("src","chrome://semantic-turkey/content/images/skosConcept.png");
 		
 		var lbl = document.createElement("label");
 		lbl.setAttribute("value", label);
