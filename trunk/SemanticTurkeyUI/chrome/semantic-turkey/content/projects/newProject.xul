@@ -45,10 +45,11 @@
 					<label value="Project Type: " />
 					<menulist id="ontologyTypeMenulist">
 						<menupopup id="ontologyTypeMenupopup">
+							<menuitem label="OWL" value="OWL"/>			
 							<menuitem label="SKOS" value="SKOS"/>
-					      	<menuitem label="RDF" value="RDF"/>
-					      	<menuitem label="RDFS" value="RDFS"/>
-					      	<menuitem label="OWL" value="OWL"/>					      						
+							<menuitem label="SKOS-XL" value="SKOS-XL"/>
+<!-- 					    <menuitem label="RDF" value="RDF"/>  -->
+<!--					    <menuitem label="RDFS" value="RDFS"/>   -->		      						
 						</menupopup>
 					</menulist>					
 				</row>
