@@ -572,7 +572,7 @@ public class SKOS extends Resource {
 			rdfsLabel = rdfsLabelNullLanguage;
 
 		// load preferredLabel...
-		ARTLiteral node = skosModel.getPrefLabel(concept, defaultLanguage, NodeFilters.MAINGRAPH);
+		ARTLiteral node = skosModel.getPrefLabel(concept, defaultLanguage, true, NodeFilters.MAINGRAPH);
 		if (node != null) {
 			preferredLabel = node.asLiteral().getLabel();
 		}
