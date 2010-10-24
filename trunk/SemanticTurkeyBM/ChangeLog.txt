@@ -5,6 +5,8 @@ version 0.7.2 (SNAPSHOT)
   * fixed BUG in SPARQL panel (on client, UI project) preventing language tagged property values to be shown (javscript null pointer exception)
   * added a new updateRoutine (see UpdateRoutines in resources package) for specifying the ModelType of main-project
     if it is not present (that is, if the main-project comes from an earlier version of SemanticTurkey)
+  * added support for SKOS / SKOS-XL
+  * removed constraint on "at least a type (not owl:Thing) for each resource", now owl:Thing is always visible
 
 version 0.7.1
 

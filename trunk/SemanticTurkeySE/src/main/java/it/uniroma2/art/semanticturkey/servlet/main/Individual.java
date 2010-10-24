@@ -33,6 +33,7 @@ import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
+import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -68,11 +69,15 @@ public class Individual extends Resource {
 	public int fromOntologyMirror = 3;
 	public int toOntologyMirror = 4;
 
-	public static final String instanceQNameField = "instanceQName";
-
+	// REQUESTS
 	protected static String getDirectNamedTypesRequest = "getDirectNamedTypes";
 	protected static String addTypeRequest = "addType";
 	protected static String removeTypeRequest = "removeType";
+
+	// PARS
+	public static final String instanceQNameField = "instanceQName";
+	public static final String indqnameField = "indqname";
+	public static final String typeqnameField = "typeqname";
 
 	public Individual(String id) {
 		super(id);
@@ -92,13 +97,13 @@ public class Individual extends Resource {
 			}
 
 			if (request.equals(getDirectNamedTypesRequest)) {
-				String indQName = setHttpPar("indqname");
+				String indQName = setHttpPar(indqnameField);
 				return getDirectNamedTypes(indQName);
 			}
 			if (request.equals(addTypeRequest))
-				return addType(setHttpPar("indqname"), setHttpPar("typeqname"));
+				return addType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
 			if (request.equals(removeTypeRequest))
-				return removeType(setHttpPar("indqname"), setHttpPar("typeqname"));
+				return removeType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
 
 			else
 				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
@@ -212,7 +217,8 @@ public class Individual extends Resource {
 					+ " to individual " + indQName + ": " + e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);
@@ -252,12 +258,6 @@ public class Individual extends Resource {
 				return servletUtilities.createExceptionResponse(request, typeQName + " is not a type for: "
 						+ indQName);
 
-			if (types.size() == 1)
-				return servletUtilities
-						.createExceptionResponse(
-								request,
-								"cannot remove a type if this is the only definition class for a given individual, since Semantic Turkey has no view for untyped individuals");
-
 			if (!model.hasTriple(individual, RDF.Res.TYPE, typeCls, false, NodeFilters.MAINGRAPH))
 				return servletUtilities
 						.createExceptionResponse(
@@ -266,6 +266,9 @@ public class Individual extends Resource {
 
 			model.removeType(individual, typeCls);
 
+			if (types.size() == 1) 
+				keepCareOfOrphaneResource(model, individual);
+
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(request, e);
 		} catch (ModelUpdateException e) {
@@ -273,11 +276,19 @@ public class Individual extends Resource {
 					+ " from individual " + indQName + ": " + e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);
 		return response;
+	}
+
+	private void keepCareOfOrphaneResource(OWLModel model, ARTResource individual)
+			throws ModelAccessException, ModelUpdateException {
+		ARTResourceIterator it = model.listTypes(individual, true, NodeFilters.MAINGRAPH);
+		if (!it.streamOpen())
+			model.addType(individual, OWL.Res.THING);
 	}
 
 }

@@ -298,7 +298,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response createInstanceOption(String instanceQName, String clsQName) {
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource instanceRes;
 		String request = createInstanceRequest;
 		try {
@@ -323,12 +323,12 @@ public class Cls extends Resource {
 	public Response updateClassOnTree(String clsQName, String instanceName) {
 		String request = createInstanceRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		try {
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
-		Element clsElement = XMLHelp.newElement(dataElement, "Class");
-		ARTResource cls;
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			Element clsElement = XMLHelp.newElement(dataElement, "Class");
+			ARTResource cls;
 
 			String clsURI = ontModel.expandQName(clsQName);
 			cls = ontModel.createURIResource(clsURI);
@@ -353,7 +353,7 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response getClassSubTreeXML(String clsQName) {
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource cls;
 		String request = getClassTreeRequest;
 		try {
@@ -361,7 +361,8 @@ public class Cls extends Resource {
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		}
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
 			this.recursiveCreateClassesXMLTree(ontModel, cls, dataElement);
@@ -395,9 +396,10 @@ public class Cls extends Resource {
 	public Response createClassXMLTree() {
 
 		String request = getClassTreeRequest;
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		Predicate<ARTResource> exclusionPredicate;
@@ -494,14 +496,14 @@ public class Cls extends Resource {
 	 * @return
 	 */
 	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getSubClassesRequest;
 		try {
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
 
-		String clsURI;
+			String clsURI;
 
 			clsURI = ontModel.expandQName(clsQName);
 			ARTURIResource cls = ontModel.createURIResource(clsURI);
@@ -671,15 +673,16 @@ public class Cls extends Resource {
 	/**
 	 * retrieves info about classes identified by qnames concatenated through symbol |_| into
 	 * <code>clsesQNamesString</code> <br/>
-	 * The response provides additional info depending on other arguments' values. <code>instNumBool</code>
-	 * tells if the requester is interested also in the number of instances of these classes
+	 * The response provides additional info depending on other arguments' values.<br/>
 	 * 
 	 * @param clsesQNamesString
 	 * @param instNumBool
+	 *            <code>true</code> if the requester is interested also in the number of instances of these
+	 *            classes
 	 * @return
 	 */
 	public Response getClassesInfoAsRootsForTree(String clsesQNamesString, boolean instNumBool) {
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
 		String request = getClassesInfoAsRootsForTreeRequest;
 		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
@@ -746,7 +749,7 @@ public class Cls extends Resource {
 	 */
 	public Response addSuperClass(String clsQName, String superclsQName) {
 		logger.debug("replying to \"addSuperClass(" + clsQName + "," + superclsQName + ")\".");
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		String request = addSuperClsRequest;
 
 		ARTURIResource cls;
@@ -797,7 +800,7 @@ public class Cls extends Resource {
 	 */
 	public Response removeSuperClass(String clsQName, String superClassQName) {
 		logger.debug("replying to \"removeType(" + clsQName + "," + superClassQName + ")\".");
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		ServletUtilities servletUtilities = ServletUtilities.getService();
 		String request = removeSuperClsRequest;
 		ARTResource cls;
@@ -847,8 +850,8 @@ public class Cls extends Resource {
 	}
 
 	/**
-	 * very similar to getInstanceDescription, it contains additional features for classes (subclass property
-	 * is reported apart). property values are given by those properties defined upon metaclasses.
+	 * very similar to {@link Individual#getIndividualDescription(String, String)}}, it contains additional features for classes (rdfs:subClassOf
+	 * property is reported apart).
 	 * 
 	 * @param subjectClassQName
 	 *            the instance to which the new instance is related to
@@ -878,7 +881,7 @@ public class Cls extends Resource {
 	public Response createClass(String newClassQName, String superClassQName) {
 		String request = createClassRequest;
 		logger.debug("willing to create class: " + newClassQName + " as subClassOf: " + superClassQName);
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		logger.debug("ontModel: " + ontModel);
 		String newClassURI;
 		String superClassURI;
