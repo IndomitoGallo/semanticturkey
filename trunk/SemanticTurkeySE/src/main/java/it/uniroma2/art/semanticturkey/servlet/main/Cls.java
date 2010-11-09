@@ -84,7 +84,7 @@ public class Cls extends Resource {
 	// GET REQUESTS
 	public static final String getClassTreeRequest = "getClassTree";
 	public static final String getClassesInfoAsRootsForTreeRequest = "getClassesInfoAsRootsForTree";
-	public static final String getInstanceListRequest = "getInstanceList";
+	public static final String getClassAndInstancesInfoRequest = "getClassAndInstancesInfo";
 	public static final String getSuperClassesRequest = "getSuperClasses";
 	public static final String getSubClassesRequest = "getSubClasses";
 
@@ -112,6 +112,7 @@ public class Cls extends Resource {
 	static final public String treePar = "tree";
 	static final public String instNumPar = "instNum";
 	static final public String directInstPar = "direct";
+	static final public String hasSubClassesPar = "hasSubClasses";
 	static final public String labelQueryPar = "labelQuery";
 
 	// final private String subTree = "subTree";
@@ -145,11 +146,12 @@ public class Cls extends Resource {
 			// GET CLASS METHODS
 			if (request.equals(getClassTreeRequest)) {
 				response = createClassXMLTree();
-			} else if (request.equals(getInstanceListRequest)) {
+			} else if (request.equals(getClassAndInstancesInfoRequest)) {
 				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
 				String listMod = setHttpPar(directInstPar);
+				String hasSubClassesMod = setHttpPar(hasSubClassesPar);
 				checkRequestParametersAllNotNull(clsQNameField);
-				response = getInstancesListXML(clsQName, listMod);
+				response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesMod);
 			} else if (request.equals(getSuperClassesRequest)) {
 				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
 				checkRequestParametersAllNotNull(clsQNameField);
@@ -217,10 +219,13 @@ public class Cls extends Resource {
 	 *            the qname of the class whose instances are being retrieved
 	 * @return an xml Response listing the instances of clsQName
 	 */
-	public Response getInstancesListXML(String clsQName, String listMod) {
+	public Response getClassAndInstancesInfo(String clsQName, String listMod, String hasSubClassesParameter) {
 		boolean direct = true;
+		boolean hasSubClassesRequest = false;
 		if (listMod != null && listMod.equals(allInstances))
 			direct = false;
+		if (hasSubClassesParameter != null && hasSubClassesParameter.equals("true"))
+			hasSubClassesRequest = true;
 		logger.debug("replying to \"getInstancesListXML(" + clsQName + ")\"");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource cls;
@@ -228,15 +233,25 @@ public class Cls extends Resource {
 			String clsURI = ontModel.expandQName(clsQName);
 			cls = ontModel.createURIResource(clsURI);
 			if (cls == null)
-				return servletUtilities.createExceptionResponse(getInstanceListRequest, "class: " + clsQName
-						+ " is not present in the ontModel");
+				return servletUtilities.createExceptionResponse(getClassAndInstancesInfoRequest, "class: "
+						+ clsQName + " is not present in the ontModel");
 
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(getInstanceListRequest,
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(getClassAndInstancesInfoRequest,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			dataElement.setAttribute("type", "Instpanel");
 			Element root = XMLHelp.newElement(dataElement, "Class");
 			root.setAttribute("name", ontModel.getQName(clsURI));
+
+			if (hasSubClassesRequest) {
+				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls);
+				if (subSubClassesIterator.hasNext())
+					root.setAttribute("more", "1"); // the subclass has further subclasses
+				else
+					root.setAttribute("more", "0"); // the subclass has no subclasses itself
+				subSubClassesIterator.close();
+			}
+
 			// the instance widget is a tree where the root is the class which has a flat list of children
 			// given by its instances. The name of the class is necessary to sync the number of instances
 			// reported in brackets near the classes in the classs tree (he has to find the class by
@@ -249,7 +264,7 @@ public class Cls extends Resource {
 			createInstancesXMLList(ontModel, cls, direct, root);
 			return response;
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(getInstanceListRequest, e);
+			return ServletUtilities.getService().createExceptionResponse(getClassAndInstancesInfoRequest, e);
 		}
 	}
 
@@ -548,7 +563,7 @@ public class Cls extends Resource {
 
 				if (instNum) {
 					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel,
-							subClass, true);
+							subClass, true, NodeFilters.MAINGRAPH);
 					if (numInst > 0)
 						classElement.setAttribute("numInst", "(" + numInst + ")");
 					else
@@ -635,7 +650,7 @@ public class Cls extends Resource {
 				Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(
 						ontModel), exclusionPredicate);
 
-				subClassesIterator = ontModel.listNamedClasses(true);
+				subClassesIterator = ontModel.listNamedClasses(true, NodeFilters.MAINGRAPH);
 				finalIterator = Iterators.filter(subClassesIterator, rootUserClsPred);
 
 			} else {
@@ -850,8 +865,8 @@ public class Cls extends Resource {
 	}
 
 	/**
-	 * very similar to {@link Individual#getIndividualDescription(String, String)}}, it contains additional features for classes (rdfs:subClassOf
-	 * property is reported apart).
+	 * very similar to {@link Individual#getIndividualDescription(String, String)} , it contains additional
+	 * features for classes (rdfs:subClassOf property is reported apart).
 	 * 
 	 * @param subjectClassQName
 	 *            the instance to which the new instance is related to

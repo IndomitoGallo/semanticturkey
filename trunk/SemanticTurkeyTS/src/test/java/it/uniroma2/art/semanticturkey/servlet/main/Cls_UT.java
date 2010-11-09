@@ -27,8 +27,11 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
+import static org.junit.Assert.*;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
@@ -36,6 +39,7 @@ import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato
@@ -52,49 +56,58 @@ public class Cls_UT extends ServiceUTFixture {
 		importSTExample();
 		importTestOntologyFromLocalFile("http://ai-nlp.info.uniroma2.it/ontologies/heritage", "heritage.owl");
 	}
-	
-	@Test
-	public void getClassDescription() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.classDescriptionRequest,
-				par(Cls.clsQNameField, "heritage:concert_place"),
-				par("method", Cls.templateandvalued)
-		);
-		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
-	}
-	
-	@Test
-	public void getClassesInfoAsRootsForTreeRequest() {
 
-		Response resp = serviceTester.clsService.makeRequest(Cls.getClassesInfoAsRootsForTreeRequest,
-				par(Cls.clsesQNamesPar, "owl:Thing|_|st_example:Person")
-		);
-		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
-	}
-	
 	@Test
-	public void getSubClassesUsingEnglishLabels() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
-				par(Cls.clsQNameField, "heritage:cultural"),
-				par(Cls.treePar, "true"),
-				par(Cls.labelQueryPar, "prop:rdfs:label###en")
-		);
+	public void getClassDescriptionTest() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.classDescriptionRequest, par(
+				Cls.clsQNameField, "heritage:concert_place"), par("method", Cls.templateandvalued));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
 
 	@Test
-	public void getSubClassesUsingItalianLabels() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
-				par(Cls.clsQNameField, "heritage:cultural"),
-				par(Cls.treePar, "true"),
-				par(Cls.labelQueryPar, "prop:rdfs:label###it")
+	public void getClassAndInstancesInfoTest() {
+
+		Response resp = serviceTester.clsService.makeRequest(Cls.getClassAndInstancesInfoRequest,
+				par(Cls.clsQNameField, "st_example:Organization"),
+				par(Cls.hasSubClassesPar, "true")				
 		);
+
+		assertAffirmativeREPLY(resp);
+
+		Element dataElement = ((XMLResponseREPLY) resp).getDataElement();
+		int more = Integer.parseInt((((Element) dataElement.getElementsByTagName("Class").item(0))
+				.getAttribute("more")));
+		assertEquals(1, more);
+
+		System.out.println(resp);
+	}
+
+	@Test
+	public void getClassesInfoAsRootsForTreeTest() {
+
+		Response resp = serviceTester.clsService.makeRequest(Cls.getClassesInfoAsRootsForTreeRequest, par(
+				Cls.clsesQNamesPar, "owl:Thing|_|st_example:Person"));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
-	
 
+	@Test
+	public void getSubClassesUsingEnglishLabelsTest() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest, par(Cls.clsQNameField,
+				"heritage:cultural"), par(Cls.treePar, "true"),
+				par(Cls.labelQueryPar, "prop:rdfs:label###en"));
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
+
+	@Test
+	public void getSubClassesUsingItalianLabelsTest() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest, par(Cls.clsQNameField,
+				"heritage:cultural"), par(Cls.treePar, "true"),
+				par(Cls.labelQueryPar, "prop:rdfs:label###it"));
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
 
 }
