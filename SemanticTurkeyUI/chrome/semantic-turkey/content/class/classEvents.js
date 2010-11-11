@@ -97,7 +97,7 @@ art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(responseElem
 			
 			var list = document.getElementById("IndividualsList");
 			responseXML = art_semanticturkey.STRequests.Cls
-					.getInstanceList("http://www.w3.org/2002/07/owl#Thing");
+					.getClassAndInstancesInfo("http://www.w3.org/2002/07/owl#Thing");
 			art_semanticturkey.getInstanceList_RESPONSE(responseXML, list);
 		}
 		catch (e) {
@@ -360,7 +360,7 @@ art_semanticturkey.loadInstanceList = function(event,tree,list) {
 	if (numInst > 0) {
 		try {
 			var responseXML = art_semanticturkey.STRequests.Cls
-					.getInstanceList(className);
+					.getClassAndInstancesInfo(className);
 			art_semanticturkey.getInstanceList_RESPONSE(responseXML, list);
 		} catch (e) {
 			alert(e.name + ": " + e.message);

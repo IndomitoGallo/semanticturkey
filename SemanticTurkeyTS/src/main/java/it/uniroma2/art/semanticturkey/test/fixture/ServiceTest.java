@@ -17,6 +17,7 @@ import it.uniroma2.art.semanticturkey.servlet.main.InputOutput;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
 import it.uniroma2.art.semanticturkey.servlet.main.ModifyName;
 import it.uniroma2.art.semanticturkey.servlet.main.OntoSearch;
+import it.uniroma2.art.semanticturkey.servlet.main.OntManager;
 import it.uniroma2.art.semanticturkey.servlet.main.Page;
 import it.uniroma2.art.semanticturkey.servlet.main.Plugins;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
@@ -71,6 +72,7 @@ public abstract class ServiceTest {
 	public ServiceWrapper sparqlService;
 	public ServiceWrapper statementService;
 	public ServiceWrapper environmentService;
+	public ServiceWrapper ontManagerService;
 
 	public void initialize(String type) throws STInitializationException, IOException {
 		
@@ -167,7 +169,8 @@ public abstract class ServiceTest {
 		synonymsService = new ServiceHttpWrapper("synonyms", httpclient);
 		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);		
 		sparqlService = new ServiceHttpWrapper("sparql", httpclient);
-		statementService =  new ServiceHttpWrapper("statement", httpclient);		
+		statementService =  new ServiceHttpWrapper("statement", httpclient);
+		ontManagerService =  new ServiceHttpWrapper("ontManager", httpclient);	
 	}
 
 	protected void initializeServiceDirectWrappers() {
@@ -190,6 +193,7 @@ public abstract class ServiceTest {
 		systemStartService = new ServiceDirectWrapper(new SystemStart(""));		
 		sparqlService = new ServiceDirectWrapper(new SPARQL(""));
 		statementService = new ServiceDirectWrapper(new Statement(""));		
+		ontManagerService = new ServiceDirectWrapper(new OntManager(""));
 	}
 
 	public static ParameterPair par(String par, String value) {

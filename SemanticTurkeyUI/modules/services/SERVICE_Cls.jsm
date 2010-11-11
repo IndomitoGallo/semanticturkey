@@ -93,10 +93,10 @@ function getClassDescription(clsName, method) {
  * @member STRequests.Cls
  * @return
  */
-function getInstanceList(clsName) {
-	Logger.debug('[SERVICE_Cls.jsm] getInstanceList' + clsName);
+function getClassAndInstancesInfo(clsName) {
+	Logger.debug('[SERVICE_Cls.jsm] getClassAndInstancesInfo' + clsName);
 	var clsName = "clsName=" + clsName;
-	return HttpMgr.GET(serviceName, service.getInstanceListRequest, clsName);
+	return HttpMgr.GET(serviceName, service.getClassAndInstancesInfoRequest, clsName);
 }
 
 /**
@@ -276,5 +276,5 @@ service.getClassDescription = getClassDescription;
 renameService.renameResource = renameResource;
 service.getSubClasses = getSubClasses;
 // Instance SERVICE INITIALIZATION
-service.getInstanceList = getInstanceList;
+service.getClassAndInstancesInfo = getClassAndInstancesInfo;
 service.addIndividual = addIndividual;

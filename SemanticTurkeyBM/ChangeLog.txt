@@ -7,6 +7,7 @@ version 0.7.2 (SNAPSHOT)
     if it is not present (that is, if the main-project comes from an earlier version of SemanticTurkey)
   * added support for SKOS / SKOS-XL
   * removed constraint on "at least a type (not owl:Thing) for each resource", now owl:Thing is always visible
+  * added support for OWLART API ModelConfiguration (only in services, still to be implemented in client)
 
 version 0.7.1
 
