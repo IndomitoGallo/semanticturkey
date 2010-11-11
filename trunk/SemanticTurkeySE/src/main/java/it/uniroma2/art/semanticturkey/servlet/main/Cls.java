@@ -243,6 +243,8 @@ public class Cls extends Resource {
 			Element root = XMLHelp.newElement(dataElement, "Class");
 			root.setAttribute("name", ontModel.getQName(clsURI));
 
+			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkWriteOnly(cls)));
+			
 			if (hasSubClassesRequest) {
 				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls);
 				if (subSubClassesIterator.hasNext())
@@ -250,8 +252,8 @@ public class Cls extends Resource {
 				else
 					root.setAttribute("more", "0"); // the subclass has no subclasses itself
 				subSubClassesIterator.close();
-			}
-
+			}			
+			
 			// the instance widget is a tree where the root is the class which has a flat list of children
 			// given by its instances. The name of the class is necessary to sync the number of instances
 			// reported in brackets near the classes in the classs tree (he has to find the class by

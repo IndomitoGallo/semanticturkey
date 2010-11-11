@@ -40,6 +40,7 @@ import it.uniroma2.art.owlart.models.OWLArtModelFactory;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
+import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.owlart.navigation.ARTNamespaceIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -87,7 +88,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	protected static Logger logger = LoggerFactory.getLogger(STOntologyManager.class);
 
 	protected T owlModel;
-	protected OWLArtModelFactory modelFactory;
+	protected OWLArtModelFactory<? extends ModelConfiguration> modelFactory;
 	protected NSPrefixMappings nsPrefixMappings;
 	protected File tripleStoreDir;
 	protected Project<T> proj;
@@ -199,7 +200,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 
 	private HashMap<ImportModality, HashSet<ARTURIResource>> importModalityMap;
 
-	protected STOntologyManager(Project<T> project, ModelFactory fact) {
+	protected STOntologyManager(Project<T> project, ModelFactory<? extends ModelConfiguration> fact) {
 		// creates the model factory from the specific model factory passed through the constructor from the
 		// triple store implementation
 		modelFactory = OWLArtModelFactory.createModelFactory(fact);

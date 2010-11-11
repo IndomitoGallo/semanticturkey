@@ -118,7 +118,7 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 		art_semanticturkey.selectElementClass(myTree, typeName);
 		try {
 			var responseXML = art_semanticturkey.STRequests.Cls
-					.getInstanceList(typeName);
+					.getClassAndInstancesInfo(typeName);
 			art_semanticturkey.getInstanceList_RESPONSE(responseXML, myList);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -135,7 +135,7 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 	} else if (resType == "Class") {
 		art_semanticturkey.selectElementClass(myTree, resName);
 		var responseXML = art_semanticturkey.STRequests.Cls
-				.getInstanceList(resName);
+				.getClassAndInstancesInfo(resName);
 		art_semanticturkey.getInstanceList_RESPONSE(responseXML, myList);
 
 	} else if (resType == "lexicalization") {
