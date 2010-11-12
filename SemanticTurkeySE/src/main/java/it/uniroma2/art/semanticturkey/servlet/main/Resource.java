@@ -357,10 +357,8 @@ public abstract class Resource extends ServiceAdapter {
 			return "false";
 	}
 
-	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement)
+	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
 			throws ModelAccessException {
-
-		// DOMAIN AND RANGES
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
 		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, NodeFilters.MAINGRAPH);
 		Iterator<ARTResource> filteredDomains = Iterators.filter(domains, URIResourcePredicate.uriFilter);
@@ -380,7 +378,10 @@ public abstract class Resource extends ServiceAdapter {
 			}
 		}
 		domains.close();
+	}
 
+	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
+			throws ModelAccessException {
 		Element rangesElement = XMLHelp.newElement(treeElement, "ranges");
 		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, NodeFilters.MAINGRAPH);
 		Iterator<ARTResource> filteredRanges = Iterators.filter(ranges, URIResourcePredicate.uriFilter);
@@ -399,6 +400,14 @@ public abstract class Resource extends ServiceAdapter {
 			}
 		}
 		ranges.close();
+	}
+
+	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement)
+			throws ModelAccessException {
+
+		// DOMAIN AND RANGES
+		injectPropertyDomainXML(ontModel, property, treeElement);
+		injectPropertyRangeXML(ontModel, property, treeElement);
 
 		// FACETS
 		Element facetsElement = XMLHelp.newElement(treeElement, "facets");
