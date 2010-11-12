@@ -30,54 +30,34 @@ Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey)
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 
-art_semanticturkey.eventsImportsPanel = new function(){
-	var arrayEvent = new Array();
-	
-	this.registerEvent = function(eventId, eventObj) {
-		art_semanticturkey.evtMgr.registerForEvent(eventId, eventObj);
-		if (arrayEvent[eventId] == undefined) {
-			arrayEvent[eventId] = new Array;
-		}
-		arrayEvent[eventId].push(eventObj);
-	};
-	
-	this.deregisterAllEvent = function(){
-		for ( var id in arrayEvent) {
-			for(var i=0; i<arrayEvent[id].length; ++i){
-				art_semanticturkey.evtMgr.deregisterForEvent(id, arrayEvent[id][i]);
-			}
-		}
-	};
-};
+
+art_semanticturkey.eventListenerImportsArrayObject = null;
+
 
 window.onload = function() {
 	
+	art_semanticturkey.eventListenerImportsArrayObject = new art_semanticturkey.eventListenerArrayClass();
 	art_semanticturkey.associateEventsOnGraphicElementsImports();
 	
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 	if(projectIsNull == false){
 		art_semanticturkey.populateImportPanel();
 	}else{
-		var st_startedobj = new art_semanticturkey.createSTStartedObj();
-		art_semanticturkey.eventsImportsPanel.registerEvent("projectOpened",st_startedobj);
+		art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.populateImportPanel, null);
 	}
 	
 	//register the handler for the events
-	var st_visLevelObj = new art_semanticturkey.createSTVisualizationLevelObj();
-	art_semanticturkey.eventsImportsPanel.registerEvent("visLevelChanged",st_visLevelObj);
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("visLevelChanged", art_semanticturkey.toggleSidebarFromImports, null);
 	
-	var st_closedProjectObj = new art_semanticturkey.createSTClosedProjectObj();
-	art_semanticturkey.eventsImportsPanel.registerEvent("projectClosed",st_closedProjectObj);
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("projectClosed", art_semanticturkey.toggleSidebarFromImports, null);
 	
-	var st_rdfLoadedObj = new art_semanticturkey.rdfLoadedObj();
-	art_semanticturkey.eventsImportsPanel.registerEvent("rdfLoaded",st_rdfLoadedObj);
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("rdfLoaded", art_semanticturkey.toggleSidebarFromImports, null);
 	
-	var st_clearedDataObj = new art_semanticturkey.clearedDataObj();
-	art_semanticturkey.eventsImportsPanel.registerEvent("clearedData",st_clearedDataObj);
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("clearedData", art_semanticturkey.toggleSidebarFromImports, null);
 };
 
 window.onunload = function(){
-	art_semanticturkey.eventsImportsPanel.deregisterAllEvent();
+	art_semanticturkey.eventListenerArrayObject.deregisterAllListener();
 };
 
 art_semanticturkey.populateImportPanel = function() {
@@ -249,79 +229,15 @@ art_semanticturkey.getFromLocalFile = function() {
 };
 
 
-art_semanticturkey.createSTStartedObj = function() {
-	this.fireEvent = function(eventId, st_startedobj) {
-		art_semanticturkey.populateImportPanel();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("st_started", this);
-	};
-};
-
-art_semanticturkey.createSTClosedProjectObj = function() {
-	this.fireEvent = function(eventId, closedProjectInfo) {
-		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+art_semanticturkey.toggleSidebarFromImports = function(){
+	var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIWebNavigation)
                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                    .rootTreeItem
                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                    .getInterface(Components.interfaces.nsIDOMWindow); 
         mainWindow.toggleSidebar();
-    };
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("projectClosed", this);
-	};
 };
 
-
-art_semanticturkey.createSTVisualizationLevelObj = function(){
-	this.fireEvent = function(eventId, visualizationLevel) {
-		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                   .rootTreeItem
-                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIDOMWindow); 
-        mainWindow.toggleSidebar();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("visLevelChanged", this);
-	};
-};
-
-art_semanticturkey.rdfLoadedObj = function(){
-	this.fireEvent = function(eventId, rdfLoaded) {
-		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIWebNavigation)
-                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                   .rootTreeItem
-                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                   .getInterface(Components.interfaces.nsIDOMWindow); 
-        mainWindow.toggleSidebar();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("rdfLoaded", this);
-	};
-};
-
-art_semanticturkey.clearedDataObj = function(){
-	this.fireEvent = function(eventId, clearedData) {
-		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-               .getInterface(Components.interfaces.nsIWebNavigation)
-               .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-               .rootTreeItem
-               .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-               .getInterface(Components.interfaces.nsIDOMWindow); 
-    	mainWindow.toggleSidebar();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("clearedData", this);
-	};
-};
 
 

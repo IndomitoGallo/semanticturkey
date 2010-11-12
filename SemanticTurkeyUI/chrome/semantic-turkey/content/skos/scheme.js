@@ -76,7 +76,7 @@ window.onunload = function(){
 };
 
 art_semanticturkey.createSTHumanReadableModeChangedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		art_semanticturkey.Logger.debug("event humanReadableModeChanged fired!");
 		// load schemes...	
 		var list = document.getElementById("SchemesList");
@@ -93,7 +93,7 @@ art_semanticturkey.createSTHumanReadableModeChangedObj = function(){
 };
 
 art_semanticturkey.createSTConceptSchemeAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {	
+	this.eventHappened = function(eventId, obj) {	
 		try {
 		    var listBox = document.getElementById("SchemesList");
 		    while(listBox.getRowCount() != 0) {

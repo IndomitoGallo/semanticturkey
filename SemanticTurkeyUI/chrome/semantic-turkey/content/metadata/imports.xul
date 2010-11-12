@@ -31,6 +31,9 @@
 		src="chrome://semantic-turkey/content/metadata/metadata.js" />
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/utilities/utilities.js" />
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+
 	<!-- 
 			<script src="chrome://global/content/nsDragAndDrop.js"/> <script
 			src="chrome://global/content/nsTransferable.js"/> <script

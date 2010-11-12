@@ -26,7 +26,7 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/editors/class/classTree.js" />
 		<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/class/classEvents.js" />
+		src="chrome://semantic-turkey/content/class/classEventsGUI.js" />
 	<vbox flex="1">
 		<vbox flex="1">
 			<tree hidecolumnpicker="true" id="classesTreePanel" flex="1">

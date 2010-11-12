@@ -35,10 +35,12 @@
 		<script src="chrome://global/content/nsTransferable.js"/>--> 
 
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/class.js"/>
-	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEventsGUI.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEventsFired.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/individualEvents.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/dragDrop.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 	<!-- <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/> -->
 	
 	<toolbox flex="0">
