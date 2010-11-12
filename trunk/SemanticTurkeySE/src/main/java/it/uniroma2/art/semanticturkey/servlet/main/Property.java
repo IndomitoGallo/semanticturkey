@@ -78,6 +78,8 @@ public class Property extends Resource {
 		final static public String getDomainClassesTreeRequest = "getDomainClassesTree";
 		final static public String getRangeClassesTreeRequest = "getRangeClassesTree";
 		final static public String getSuperPropertiesRequest = "getSuperProperties";
+		final static public String getDomainRequest = "getDomain";
+		final static public String getRangeRequest = "getRange";
 
 		// ADD REQUESTS
 		final static public String addPropertyRequest = "addProperty";
@@ -112,8 +114,6 @@ public class Property extends Resource {
 	}
 
 	/**
-	 * Metodo che gestisce le proprieta' in base ai parametri della richiesta si puo' aggiungere una
-	 * proprieta'� oppure caricare tutte le proprieta'� relative ad una classe o istanza
 	 * 
 	 * @return Document
 	 */
@@ -144,10 +144,17 @@ public class Property extends Resource {
 					checkRequestParametersAllNotNull(Par.propertyQNamePar);
 					return getPropertyInfo(propertyQName);
 				} else if (request.equals(Req.getSuperPropertiesRequest)) {
-					String propQName = servletUtilities.removeInstNumberParentheses(_oReq
-							.getParameter(Par.propertyQNamePar));
+					String propertyQName = setHttpPar(Par.propertyQNamePar);
 					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getSuperProperties(propQName);
+					return getSuperProperties(propertyQName);
+				} else if (request.equals(Req.getDomainRequest)) {
+					String propQName = setHttpPar(Par.propertyQNamePar);
+					checkRequestParametersAllNotNull(Par.propertyQNamePar);
+					return getDomain(propQName);
+				} else if (request.equals(Req.getRangeRequest)) {
+					String propQName = setHttpPar(Par.propertyQNamePar);
+					checkRequestParametersAllNotNull(Par.propertyQNamePar);
+					return getRange(propQName);
 				}
 
 				// EDIT_PROPERTY METHODS
@@ -225,6 +232,48 @@ public class Property extends Resource {
 	public Response getSuperProperties(String propQName) {
 		return getSuperTypes(Req.getSuperPropertiesRequest, propQName, VocabularyTypesInts.property);
 	}
+
+	public Response getDomain(String propQName) {
+		String request = Req.getDomainRequest;
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
+		Element dataElement = response.getDataElement();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		ARTURIResource property;
+		try {
+			property = ontModel.retrieveURIResource(ontModel.expandQName(propQName));
+			if (property == null)
+				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
+						+ propQName);
+			injectPropertyDomainXML(ontModel, property, dataElement);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return ServletUtilities.getService().createExceptionResponse(request, e);
+		}
+	}
+	
+	
+	public Response getRange(String propQName) {
+		String request = Req.getRangeRequest;
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
+		Element dataElement = response.getDataElement();
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		ARTURIResource property;
+		try {
+			property = ontModel.retrieveURIResource(ontModel.expandQName(propQName));
+			if (property == null)
+				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
+						+ propQName);
+			injectPropertyRangeXML(ontModel, property, dataElement);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return ServletUtilities.getService().createExceptionResponse(request, e);
+		}
+	}
+	
 
 	// TODO, se possibile, togliamo anche quell'odioso: subproperties. Non serve a niente e complica la vita a
 	// tutti!
