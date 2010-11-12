@@ -464,11 +464,11 @@ public class Annotation extends ServiceAdapter {
 					if (ontModel.isAnnotationProperty(property)) {
 						logger.debug("adding value" + objectInstanceQName
 								+ "to annotation property with lang: ");
-						ontModel.instantiateAnnotationProperty(subjectInstanceEncodedRes, property,
+						ontModel.instantiatePropertyWithPlainLiteral(subjectInstanceEncodedRes, property,
 								objectInstanceQName, lang);
 					} else { // Datatype or simple property
 						logger.debug("adding value" + objectInstanceQName + "to datatype property");
-						ontModel.instantiateDatatypeProperty(subjectInstanceEncodedRes, property,
+						ontModel.instantiatePropertyWithPlainLiteral(subjectInstanceEncodedRes, property,
 								objectInstanceQName);
 					}
 				} catch (ModelUpdateException e) {
@@ -500,7 +500,7 @@ public class Annotation extends ServiceAdapter {
 						.expandQName(subjectInstanceQName));
 				ARTURIResource objectInstanceRes = ontModel.createURIResource(ontModel
 						.expandQName(objectInstanceQName));
-				ontModel.instantiateObjectProperty(subjectInstanceRes, property, objectInstanceRes);
+				ontModel.instantiatePropertyWithResource(subjectInstanceRes, property, objectInstanceRes);
 				logger.debug("property: " + property + " istantiated with value: " + objectInstanceRes
 						+ " on subject: " + subjectInstanceRes);
 			}

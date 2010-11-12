@@ -99,7 +99,7 @@ public class Property extends Resource {
 	public static class Par {
 		final static public String instanceQNamePar = "instanceQName";
 		final static public String propertyQNamePar = "propertyQName";
-		final static public String rangeClsQNamePar = "rangeClsQName";
+		final static public String rangeQNamePar = "rangeQName";
 		final static public String domainPropertyQNamePar = "domainPropertyQName";
 		final static public String valueField = "value";
 		final static public String langField = "lang";
@@ -201,15 +201,16 @@ public class Property extends Resource {
 					String instanceQName = setHttpPar(Par.instanceQNamePar);
 					String propertyQName = setHttpPar(Par.propertyQNamePar);
 					String value = setHttpPar(Par.valueField);
-					String rangeClsQName = setHttpPar(Par.rangeClsQNamePar);
+					String rangeQName = setHttpPar(Par.rangeQNamePar);
 					String lang = setHttpPar(Par.langField);
 					String typeArg = setHttpPar(Par.type);
+					checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar, Par.valueField, Par.type);
 					VocabularyTypesEnum valueType = null;
 					if (typeArg != null)
 						valueType = VocabularyTypesEnum.valueOf(typeArg);
 
 					return editPropertyValue(request, instanceQName, propertyQName, value, valueType,
-							rangeClsQName, lang);
+							rangeQName, lang);
 				} else if (request.equals(Req.getRangeClassesTreeRequest)) {
 					String propertyQName = setHttpPar(Par.propertyQNamePar);
 					return getRangeClassesTreeXML(propertyQName);
@@ -252,8 +253,7 @@ public class Property extends Resource {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		}
 	}
-	
-	
+
 	public Response getRange(String propQName) {
 		String request = Req.getRangeRequest;
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
@@ -273,7 +273,6 @@ public class Property extends Resource {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		}
 	}
-	
 
 	// TODO, se possibile, togliamo anche quell'odioso: subproperties. Non serve a niente e complica la vita a
 	// tutti!
@@ -572,20 +571,20 @@ public class Property extends Resource {
 	 * @param individualQName
 	 * @param propertyQName
 	 * @param valueField
-	 *            the object of the newly created statement; ma be a literal as well as a qname for an uri
-	 *            object
-	 * @param rangeClsQName
+	 *            the object of the newly created statement; may be a literal (typed or plain) as well as a
+	 *            qname for an uri object
+	 * @param rangeQName
 	 * @return
 	 */
 	public Response editPropertyValue(String request, String individualQName, String propertyQName,
-			String valueString, VocabularyTypesEnum valueType, String rangeClsQName, String lang) {
+			String valueString, VocabularyTypesEnum valueType, String rangeQName, String lang) {
 		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();
 
 		String propertyURI;
 		ARTURIResource property = null;
 		ARTURIResource individual = null;
-		ARTResource rangeCls = null;
+		ARTResource range = null;
 		try {
 			propertyURI = model.expandQName(propertyQName);
 			String individualURI = model.expandQName(individualQName);
@@ -603,13 +602,13 @@ public class Property extends Resource {
 				return servletUtilities.createExceptionResponse(request, "there is no individual named: "
 						+ individualURI + " !");
 			}
-			if (rangeClsQName != null) {
-				String rangeClsURI = model.expandQName(rangeClsQName);
-				rangeCls = model.createURIResource(rangeClsURI);
-				if (rangeCls == null) {
-					logger.debug("there is no class named: " + rangeClsURI + " !");
+			if (rangeQName != null) {
+				String rangeURI = model.expandQName(rangeQName);
+				range = model.createURIResource(rangeURI);
+				if (range == null) {
+					logger.debug("there is no class named: " + rangeURI + " !");
 					return servletUtilities.createExceptionResponse(request, "there is no class named: "
-							+ rangeClsURI + " !");
+							+ rangeURI + " !");
 				}
 			}
 		} catch (ModelAccessException e) {
@@ -618,19 +617,25 @@ public class Property extends Resource {
 
 		if (request.equals("createAndAddPropValue")) {
 			try {
-				if (model.isAnnotationProperty(property)) {
-					logger.debug("instantiating annotation property: " + property + " with value: "
-							+ valueString + "and lang: " + lang);
-					model.instantiateAnnotationProperty(individual, property, valueString, lang);
-				} else if (model.isDatatypeProperty(property) || (valueType == VocabularyTypesEnum.literal)) {
-					logger.debug("instantiating datatype property: " + property + " with value: "
-							+ valueString);
-					model.instantiateDatatypeProperty(individual, property, valueString);
-				} else {
-					model.addInstance(model.expandQName(valueString), rangeCls);
+				if (valueType == VocabularyTypesEnum.plainLiteral) {
+					logger.debug("instantiating property: " + property + " with value: " + valueString
+							+ " and lang: " + lang);
+					model.instantiatePropertyWithPlainLiteral(individual, property, valueString, lang);
+				} else if (valueType == VocabularyTypesEnum.typedLiteral) {
+					logger.debug("instantiating property: " + property + " with value: "
+							+ valueString + "typed after: " + rangeQName);
+					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range.asURIResource());
+				} else if (valueType == VocabularyTypesEnum.resource) {
+					model.addInstance(model.expandQName(valueString), range);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
-					model.instantiateObjectProperty(individual, property, objIndividual);
-				}
+					model.instantiatePropertyWithResource(individual, property, objIndividual);
+				} else
+					return servletUtilities.createExceptionResponse(request,
+							valueType + " is not an admitted type for this value; only " + 
+							VocabularyTypesEnum.plainLiteral + ", " +
+							VocabularyTypesEnum.typedLiteral + ", and " + 
+							VocabularyTypesEnum.resource + " are admitted " 
+					);
 			} catch (ModelUpdateException e) {
 				// logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
 				return servletUtilities.createExceptionResponse(request,
@@ -650,7 +655,7 @@ public class Property extends Resource {
 					return servletUtilities.createExceptionResponse(request, "there is no object named: "
 							+ valueURI + " !");
 				}
-				model.instantiateObjectProperty(individual, property, valueObject);
+				model.instantiatePropertyWithResource(individual, property, valueObject);
 			} catch (ModelAccessException e) {
 				return servletUtilities.createExceptionResponse(request, e);
 			} catch (ModelUpdateException e) {
