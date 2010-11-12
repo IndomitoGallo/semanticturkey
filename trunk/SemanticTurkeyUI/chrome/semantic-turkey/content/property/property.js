@@ -12,39 +12,23 @@ Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 
 
-art_semanticturkey.eventsPropertyPanel = new function(){
-	var arrayEvent = new Array();
-	
-	this.registerEvent = function(eventId, eventObj) {
-		art_semanticturkey.evtMgr.registerForEvent(eventId, eventObj);
-		if (arrayEvent[eventId] == undefined) {
-			arrayEvent[eventId] = new Array;
-		}
-		arrayEvent[eventId].push(eventObj);
-	};
-	
-	this.deregisterAllEvent = function(){
-		for ( var id in arrayEvent) {
-			for(var i=0; i<arrayEvent[id].length; ++i){
-				art_semanticturkey.evtMgr.deregisterForEvent(id, arrayEvent[id][i]);
-			}
-		}
-	};
-};
+art_semanticturkey.eventListenerPropertyArrayObject = null;
+
+
 
 window.onload = function() {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 	if(projectIsNull == false){
 		art_semanticturkey.populatePropertyTree();
 	}else{
-		var st_startedobj = new art_semanticturkey.createSTStartedObj();
-		art_semanticturkey.eventsPropertyPanel.registerEvent("projectOpened",st_startedobj);
+		art_semanticturkey.eventListenerPropertyArrayObject = new art_semanticturkey.eventListenerArrayClass();
+		art_semanticturkey.eventListenerPropertyArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.populatePropertyTree, null);
 	}
 	art_semanticturkey.associateOntologySearchEventsOnGraphicElements("property");
 };
 
 window.onunload = function(){
-	art_semanticturkey.eventsPropertyPanel.deregisterAllEvent();
+	art_semanticturkey.eventListenerPropertyArrayObject.deregisterAllListener();
 };
 
 art_semanticturkey.getPropertiesTree_RESPONSE = function(responseElement) {
@@ -147,15 +131,8 @@ art_semanticturkey.addProperty_RESPONSE = function(responseElement) {
 			treechildren.appendChild(ti);
 		}
 };
-art_semanticturkey.createSTStartedObj = function() {
-	this.fireEvent = function(eventId, st_startedobj) {
-		art_semanticturkey.populatePropertyTree();
-	};
 
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("st_started", this);
-	};
-};
+
 art_semanticturkey.populatePropertyTree = function() {
 	document.getElementById("createObjectProperty").disabled = false;
 	document.getElementById("createDatatypeProperty").disabled = false;

@@ -64,8 +64,7 @@ window.onload = function() {
 //			art_semanticturkey.SPARQLResourcedblClick, true);
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if (stIsStarted == "false") {
-		var st_startedobj = new art_semanticturkey.createSTStartedObj();
-		art_semanticturkey.evtMgr.registerForEvent("st_started", st_startedobj);
+		var eventSparqlSTStartedObject = new art_semanticturkey.eventListener("st_started", art_semanticturkey.enableSPARQLSubmitQuery, deregisterFunction);
 		document.getElementById("submitQuery").disabled = true;
 	}
 };
@@ -261,7 +260,7 @@ art_semanticturkey.submitQuery = function() {
 
 art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 	
-//	Ramon Orrù (2010) : controllo tipologia serializzazione
+//	Ramon Orrï¿½ (2010) : controllo tipologia serializzazione
 	if(	response.respType == art_semanticturkey.RespContType.xml){
 		var treecols = document.getElementById("SPARQLTreeCols");
 		while (treecols.hasChildNodes()) {
@@ -381,7 +380,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 		}
 	}
 
-//	Ramon Orrù (2010) : popolamento tabella risultati con dati serializzati JSON
+//	Ramon Orrï¿½ (2010) : popolamento tabella risultati con dati serializzati JSON
 	else if( response.respType == art_semanticturkey.RespContType.json){
 		var treecols = document.getElementById("SPARQLTreeCols");
 		while (treecols.hasChildNodes()) {
@@ -517,16 +516,8 @@ art_semanticturkey.SPARQLResourcedblClick = function(event) {
 				"_blank", "modal=yes,resizable,left=400,top=100", parameters);
 	}
 };
-/**
- * NScarpato manage start event
- * 
- */
-art_semanticturkey.createSTStartedObj = function() {
-	this.fireEvent = function(eventId, st_startedobj) {
-		document.getElementById("submitQuery").disabled = false;
-	};
 
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("st_started", this);
-	};
+
+art_semanticturkey.enableSPARQLSubmitQuery = function(){
+	document.getElementById("submitQuery").disabled = false;
 };

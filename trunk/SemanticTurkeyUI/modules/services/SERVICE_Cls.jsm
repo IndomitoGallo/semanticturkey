@@ -93,9 +93,13 @@ function getClassDescription(clsName, method) {
  * @member STRequests.Cls
  * @return
  */
-function getClassAndInstancesInfo(clsName) {
+function getClassAndInstancesInfo(clsName, hasSubClasses) {
 	Logger.debug('[SERVICE_Cls.jsm] getClassAndInstancesInfo' + clsName);
 	var clsName = "clsName=" + clsName;
+	if(typeof hasSubClasses != "undefined"){
+		var hasSubClasses = "hasSubClasses="+hasSubClasses;
+		return HttpMgr.GET(serviceName, service.getClassAndInstancesInfoRequest, clsName,hasSubClasses)
+	}
 	return HttpMgr.GET(serviceName, service.getClassAndInstancesInfoRequest, clsName);
 }
 

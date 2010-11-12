@@ -21,6 +21,8 @@
  * 
  */
 
+Components.utils.import("resource://stmodules/Logger.jsm");
+
 var EXPORTED_SYMBOLS = [ "evtMgr" ];
 
 evtMgr = new function() {
@@ -35,13 +37,14 @@ evtMgr = new function() {
 
 	// This attributes it's used to know if the tryFireEvent ended without an
 	// exception
-	var varBool;
+	//var varBool;
 
 	// This method sends the event to every object that is waiting
 	this.fireEvent = function(eventId, objectCont) {
-		varBool = false;
-		while (varBool == false) {
-			varBool = tryFireEvent(eventId, objectCont);
+		Logger.debug("[stEvtMgr.jsm] firing event : "+eventId);
+		var firingEventComplete = false;
+		while (firingEventComplete == false) {
+			firingEventComplete = tryFireEvent(eventId, objectCont);
 		}
 	};
 
@@ -50,11 +53,10 @@ evtMgr = new function() {
 	var tryFireEvent = function(eventId, objectCont) {
 
 		var arrayListener = arrayEvent[eventId];
-		var cont = lastPos;
 		try {
 			if (arrayListener != null) {
-				for (; cont < arrayListener.length; ++cont) {
-					arrayListener[cont].fireEvent(eventId, objectCont);
+				for (var cont = lastPos; cont < arrayListener.length; ++cont) {
+					arrayListener[cont].eventHappened(eventId, objectCont);
 				}
 			}
 			lastPos = 0;
@@ -62,7 +64,7 @@ evtMgr = new function() {
 			//remove the istance that caused the exception from the array
 			arrayEvent[eventId] = arrayListener.slice(0, cont).concat(
 					arrayListener.slice(cont + 1));
-			lastPos = cont;
+			lastPos = cont; // now lastPos point to the element after the one that coused the exception
 			return false;
 		}
 		return true;

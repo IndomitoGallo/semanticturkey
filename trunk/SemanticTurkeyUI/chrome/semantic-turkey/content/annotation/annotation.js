@@ -88,16 +88,6 @@ art_semanticturkey.viewAnnotationOnPage = function() {
 		
 };
 
-art_semanticturkey.annotationObjForEvent = function() {
-	this.fireEvent = function(eventId, st_startedobj) {
-		art_semanticturkey.chkAnnotation();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("st_started", this);
-	};
-};
-
 //Adding an event for the changing of a tab
 gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnotationEvent, false);
 
@@ -105,6 +95,6 @@ gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnota
 gBrowser.addEventListener("load", art_semanticturkey.chkAnnotationEvent, true);
 
 //adding an event for the loading of a project
-art_semanticturkey.evtMgr.registerForEvent("projectOpened", new art_semanticturkey.annotationObjForEvent());
+art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
 
 

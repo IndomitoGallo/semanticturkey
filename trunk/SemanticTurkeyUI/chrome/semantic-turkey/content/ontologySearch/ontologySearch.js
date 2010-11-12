@@ -119,7 +119,7 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 		try {
 			var responseXML = art_semanticturkey.STRequests.Cls
 					.getClassAndInstancesInfo(typeName);
-			art_semanticturkey.getInstanceList_RESPONSE(responseXML, myList);
+			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, myList);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -136,7 +136,7 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 		art_semanticturkey.selectElementClass(myTree, resName);
 		var responseXML = art_semanticturkey.STRequests.Cls
 				.getClassAndInstancesInfo(resName);
-		art_semanticturkey.getInstanceList_RESPONSE(responseXML, myList);
+		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, myList);
 
 	} else if (resType == "lexicalization") {
 		// TODO Mancano le lexicalization nella ricerca

@@ -101,7 +101,7 @@ window.onunload = function(){
 };
 
 art_semanticturkey.createSTPropertyRemovedObj = function(){
-	this.fireEvent = function(eventId, obj) {	
+	this.eventHappened = function(eventId, obj) {	
 		try {
 			// reload conceptsTree
 			art_semanticturkey.Logger.debug("event propertyRemoved fired!");
@@ -120,7 +120,7 @@ art_semanticturkey.createSTPropertyRemovedObj = function(){
 };
 
 art_semanticturkey.createSTPropertyValueAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {	
+	this.eventHappened = function(eventId, obj) {	
 		try {
 			// reload conceptsTree
 			art_semanticturkey.Logger.debug("event propertyValueAdded fired!");
@@ -139,7 +139,7 @@ art_semanticturkey.createSTPropertyValueAddedObj = function(){
 };
 
 art_semanticturkey.createSTPropertyChangedObj = function(){
-	this.fireEvent = function(eventId, obj) {	
+	this.eventHappened = function(eventId, obj) {	
 		try {
 			// reload conceptsTree
 			art_semanticturkey.Logger.debug("event propertyChanged fired!");
@@ -157,7 +157,7 @@ art_semanticturkey.createSTPropertyChangedObj = function(){
 	};
 };
 art_semanticturkey.createSTConceptSchemeAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {	
+	this.eventHappened = function(eventId, obj) {	
 		try {
 			// populate schema list
 			art_semanticturkey.Logger.debug("event conceptSchemeAdded fired!");
@@ -184,7 +184,7 @@ art_semanticturkey.createSTConceptSchemeAddedObj = function(){
 };
 
 art_semanticturkey.createSTConceptBroaderAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		try {
 			var ml = document.getElementById("skosSchemeMenuList");
 			if(obj.scheme == ml.selectedItem.id){
@@ -206,7 +206,7 @@ art_semanticturkey.createSTConceptBroaderAddedObj = function(){
 };
 
 art_semanticturkey.createSTConceptNarrowerAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		try {
 			art_semanticturkey.Logger.debug("event conceptNarrowerAdded fired!");
 			
@@ -253,7 +253,7 @@ art_semanticturkey.createSTConceptNarrowerAddedObj = function(){
 };
 
 art_semanticturkey.createSTConceptAddedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		try {
 			var ml = document.getElementById("skosSchemeMenuList");
 			if(obj.scheme == ml.selectedItem.id){
@@ -275,7 +275,7 @@ art_semanticturkey.createSTConceptAddedObj = function(){
 };
 
 art_semanticturkey.createSTHumanReadableModeChangedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		var obj2 = new Object();
 		obj2.menuList = document.getElementById("skosSchemeMenuList");
 		art_semanticturkey.evtMgr.fireEvent("conceptSchemeSelected", obj2);
@@ -287,7 +287,7 @@ art_semanticturkey.createSTHumanReadableModeChangedObj = function(){
 };
 
 art_semanticturkey.createSTConceptSchemeSelectedObj = function(){
-	this.fireEvent = function(eventId, obj) {
+	this.eventHappened = function(eventId, obj) {
 		var skosSchemeMenuList = obj.menuList;
 		if(skosSchemeMenuList.selectedIndex > 0 ) {		
 			var selectedItem  = skosSchemeMenuList.selectedItem;

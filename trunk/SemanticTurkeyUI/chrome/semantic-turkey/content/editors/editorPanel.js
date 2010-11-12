@@ -34,6 +34,8 @@ Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", 
 		art_semanticturkey);
 
+art_semanticturkey.eventListenerArrayObject = null;		
+		
 window.onload = function() {
 	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	document.getElementById("buttonModify").addEventListener("command",
@@ -51,10 +53,22 @@ window.onload = function() {
 
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);
+	
+	// add all the lister for all the events that trigger the refresh of the panel
+	art_semanticturkey.eventListenerArrayObject = new art_semanticturkey.eventListenerArrayClass();
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedClass",art_semanticturkey.refreshPanel, null);		
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("createdSubClass",art_semanticturkey.refreshPanel, null);		
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("subClsOfAddedClass",art_semanticturkey.refreshPanel, null);		
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("subClsOfRemovedClass",art_semanticturkey.refreshPanel, null);		
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedSuperClass",art_semanticturkey.refreshPanel, null);		
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("renamedClass",art_semanticturkey.refreshPanel, null);		
+	//art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel, null);
+	
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("refreshEditor",art_semanticturkey.refreshPanel, null);
 };
 
 window.onunload = function() {
-	art_semanticturkey.onUnload();
+	art_semanticturkey.eventListenerArrayObject.deregisterAllListener();
 };
 
 /** Funzione che crea gli elementi di EditorPanel in base al type */
@@ -1584,60 +1598,7 @@ art_semanticturkey.onClose = function(){
 	close();
 };
 
-/**
- * NScarpato 29/11/2007 onAccept
- */
-art_semanticturkey.onUnload = function() {
-	art_semanticturkey.Logger.debug("sourceType: " + window.arguments[0].sourceType);
-	var changed = document.getElementById("editorPanel")
-			.getAttribute("changed");
-	var parentWindow = window.arguments[0].parentWindow;
-	var isFirstEditor = window.arguments[0].isFirstEditor;
-	if(changed == "true" && isFirstEditor == false){
-		art_semanticturkey.Logger.debug("isFirstEditor: " + isFirstEditor);
-		parentWindow.document.getElementById("editorPanel").setAttribute("changed", "true");
-	} else if (changed == "true") {
-		
-		var tree = window.arguments[0].tree;
-		var treeChildren = tree.getElementsByTagName('treechildren')[0];
-		var treeItemsNodes = treeChildren.getElementsByTagName("treeitem");
-		// EMPTY TREE
-		while (treeChildren.hasChildNodes()) {
-			treeChildren.removeChild(treeChildren.lastChild);
-		}
-		// RELOAD TREE
-		try {
-			var responseXML;
-			
-			if (window.arguments[0].sourceType == "cls"
-					|| window.arguments[0].sourceType == "individual") {
 
-				parentWindow.art_semanticturkey.populateClassTree();
-				/*var responseXML = art_semanticturkey.STRequests.Cls
-						.getClassTree();
-				if (responseXML != null)
-					parentWindow.art_semanticturkey
-							.getClassTree_RESPONSE(responseXML);*/
-			} else if (window.arguments[0].sourceType == "skosConcept"){
-				
-				// Luca Mastrogiovanni: fire event propertyChanged
-				var obj = new Object();
-				art_semanticturkey.evtMgr.fireEvent("propertyChanged", obj);
-				
-			} else {
-				responseXML = art_semanticturkey.STRequests.Property
-						.getPropertyTree();
-
-				if (responseXML != null)
-					parentWindow.art_semanticturkey
-							.getPropertiesTree_RESPONSE(responseXML);
-			}
-		} catch (e) {
-			alert(e.name + ": " + e.message);
-		}
-	}
-	//close();
-};
 
 /**
  * @author NScarpato 13/03/2008 add Domain for selected property
@@ -1656,7 +1617,8 @@ art_semanticturkey.insertDomain = function() {
 		try {
 			art_semanticturkey.STRequests.Property.addPropertyDomain(document
 							.getElementById("name").value, domainName);
-			art_semanticturkey.refreshPanel();
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );				
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1705,7 +1667,8 @@ art_semanticturkey.insertRange = function() {
 			}
 		}
 	}
-	art_semanticturkey.refreshPanel();
+	//art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 };
 
 
@@ -1728,7 +1691,8 @@ art_semanticturkey.removeDomain = function(domainValue, isList) {
 			try {
 				art_semanticturkey.STRequests.Property.removePropertyDomain(
 						document.getElementById("name").value, domainName);
-				art_semanticturkey.refreshPanel();
+				//art_semanticturkey.refreshPanel();
+				art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -1739,7 +1703,8 @@ art_semanticturkey.removeDomain = function(domainValue, isList) {
 		try {
 			art_semanticturkey.STRequests.Property.removePropertyDomain(
 					document.getElementById("name").value, domainValue);
-			art_semanticturkey.refreshPanel();
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1764,7 +1729,8 @@ art_semanticturkey.removeRange = function(value, isList) {
 			try {
 				art_semanticturkey.STRequests.Property.removePropertyRange(
 						document.getElementById("name").value, rangeName);
-				art_semanticturkey.refreshPanel();
+				//art_semanticturkey.refreshPanel();
+				art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -1775,7 +1741,8 @@ art_semanticturkey.removeRange = function(value, isList) {
 		try {
 			art_semanticturkey.STRequests.Property.removePropertyRange(document
 							.getElementById("name").value, value);
-			art_semanticturkey.refreshPanel();
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1813,9 +1780,10 @@ art_semanticturkey.addType = function(addtype) {
 								.getAttribute("actualValue"),
 						parameters2.selectedClass);
 			}
-			art_semanticturkey.refreshPanel();
-			document.getElementById("editorPanel").setAttribute("changed",
-					"true");
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+			//document.getElementById("editorPanel").setAttribute("changed",
+			//		"true");
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1853,9 +1821,10 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
 								.getAttribute("actualValue"),
 						value);
 			}
-			art_semanticturkey.refreshPanel();
-			document.getElementById("editorPanel").setAttribute("changed",
-					"true");
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+			//document.getElementById("editorPanel").setAttribute("changed",
+			//		"true");
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1869,6 +1838,8 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
  * NScarpato 05/12/2007 addSuperClass
  */
 art_semanticturkey.addSuperClass = function(addSCtype) {
+	var responseElement;
+	var className;
 	if (addSCtype == "list") {
 		var parameters2 = new Object();
 		parameters2.source = "editorClass";
@@ -1880,10 +1851,10 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 				"chrome://semantic-turkey/content/editors/class/classTree.xul",
 				"_blank", "modal=yes,resizable,centerscreen", parameters2);
 		try {
-			art_semanticturkey.STRequests.Cls.addSuperCls(
-				document.getElementById("name")
-						.getAttribute("actualValue"),
-				parameters2.selectedClass);
+			className = document.getElementById("name")
+						.getAttribute("actualValue")
+			responseElement = art_semanticturkey.STRequests.Cls.addSuperCls(
+				className, parameters2.selectedClass);
 		}
 		catch (e) {
 			alert(e.name + ": " + e.message);
@@ -1902,9 +1873,10 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 		if (parameters2.selectedClass != "") {
 			txbox.setAttribute("value", selectedClass);
 			try {
-				art_semanticturkey.STRequests.Cls.addSuperCls(
-					document.getElementById("name")
-							.getAttribute("actualValue"),
+				className = document.getElementById("name")
+							.getAttribute("actualValue");
+				responseElement = art_semanticturkey.STRequests.Cls.addSuperCls(
+					className,
 					parameters2.selectedClass);
 			}
 			catch (e) {
@@ -1912,10 +1884,17 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 			}
 		}
 	}
-	document.getElementById("editorPanel").setAttribute("changed", "true");
-	art_semanticturkey.refreshPanel();
+	//art_semanticturkey.refreshPanel();
+	art_semanticturkey.addSuperClass_RESPONSE(className, responseElement);
 };
 
+
+art_semanticturkey.addSuperClass_RESPONSE = function(className, responseElement){
+	var resourceNode = responseElement.getElementsByTagName('Type')[0];
+	var className = className;
+	var superClassName = resourceNode.getAttribute("qname");
+	art_semanticturkey.evtMgr.fireEvent("subClsOfAddedClass", (new art_semanticturkey.subClsOfAddedClass(className, superClassName)) );
+};
 
 art_semanticturkey.removeSuperClassEvent = function(event){
 	var containerObj = event.target.containerObj;
@@ -1927,7 +1906,8 @@ art_semanticturkey.removeSuperClassEvent = function(event){
  */
 art_semanticturkey.removeSuperClass = function(value, isList) {
 	var explicit = "true";
-	var responseXML;
+	var responseElement;
+	var className;
 	var value = value;
 	if (isList) {
 		var list = document.getElementById("superTypesList");
@@ -1937,19 +1917,24 @@ art_semanticturkey.removeSuperClass = function(value, isList) {
 	}
 	if (explicit == "true") {
 		try {
-			responseXML = art_semanticturkey.STRequests.Cls.removeSuperCls(
-					document.getElementById("name")
-							.getAttribute("actualValue"),
-					value);
-			document.getElementById("editorPanel").setAttribute("changed",
-					"true");
-			art_semanticturkey.refreshPanel();
+			className = document.getElementById("name").getAttribute("actualValue");
+			responseElement = art_semanticturkey.STRequests.Cls.removeSuperCls(
+					className, value);
+			//art_semanticturkey.refreshPanel();
+			art_semanticturkey.removeSuperClass_RESPONSE(className, responseElement);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	} else {
 		alert("You cannot remove this type, it's a system resource!");
 	}
+};
+
+art_semanticturkey.removeSuperClass_RESPONSE = function(className, responseElement){
+	var resourceNode = responseElement.getElementsByTagName('Type')[0];
+	var className = className;
+	var superClassName = resourceNode.getAttribute("qname");
+	art_semanticturkey.evtMgr.fireEvent("subClsOfRemovedClass", (new art_semanticturkey.subClsOfRemovedClass(className, superClassName)) );
 };
 
 
@@ -2011,7 +1996,8 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,isL
 			art_semanticturkey.evtMgr.fireEvent("propertyValueAdded", obj);
 
 		}		
-		art_semanticturkey.refreshPanel();
+		//art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 	}
 };
 
@@ -2076,9 +2062,9 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,ty
 		
 		// Luca Mastrogiovanni: fire event propertyRemoved
 		var obj = new Object();
-		art_semanticturkey.evtMgr.fireEvent("propertyRemoved", obj);
-		
-		art_semanticturkey.refreshPanel();
+		//art_semanticturkey.evtMgr.fireEvent("propertyRemoved", obj);
+		//art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2117,8 +2103,7 @@ art_semanticturkey.rename = function() {
 		try {
 			var responseXML = art_semanticturkey.STRequests.ModifyName.rename(
 					elname, newName);
-			document.getElementById("editorPanel").setAttribute("changed", true);
-			//art_semanticturkey.rename_RESPONSE(responseXML);
+			art_semanticturkey.rename_RESPONSE(responseXML);
 			document.getElementById("name")
 					.setAttribute("actualValue", newName);
 		} catch (e) {
@@ -2133,19 +2118,14 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 	var iconicName = resourceNode.getAttribute("name");
 	var newName = resourceNode.getAttribute("newname");
 	if (window.arguments[0].sourceType == "cls") {
-		var tree = window.arguments[0].tree;
-		var treecellNodes = tree.getElementsByTagName("treecell");
-		var numInst = window.arguments[0].numInst;
-		if (numInst != 0) {
-			iconicName = iconicName + "(" + numInst + ")";
-			newName = newName + "(" + numInst + ")";
-		}
-		for (var i = 0; i < treecellNodes.length; i++) { // does not
-			if (treecellNodes[i].getAttribute("label") == iconicName) {
-				treecellNodes[i].setAttribute("label", newName);
-			}
-		}
+		var resourceElement = responseElement
+			.getElementsByTagName('UpdateResource')[0];
+		var newClassName = resourceElement.getAttribute("newname");
+		var oldClassName = resourceElement.getAttribute("name");
+		document.getElementById("name").setAttribute("actualValue", newClassName);
+		art_semanticturkey.evtMgr.fireEvent("renamedClass", (new art_semanticturkey.classRenamedClass(newClassName, oldClassName)) );
 	} else if (window.arguments[0].sourceType == "individual") {
+		//TODO add event for rename of an instance
 		var list = window.arguments[0].list;
 		var listItemList = list.getElementsByTagName("listitem");
 		for (var i = 0; i < listItemList.length; i++) {
@@ -2158,6 +2138,7 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 			}
 		}
 	} else {
+		//TODO add event for rename of property (and other stuff)
 		var tree = window.arguments[0].tree;
 		var treecellNodes = tree.getElementsByTagName("treecell");
 		for (var i = 0; i < treecellNodes.length; i++) {
@@ -2266,7 +2247,8 @@ art_semanticturkey.changeFacets = function(event) {
 					sourceElementName, "rdf:type", event.target
 							.getAttribute("propertyName"));
 		}
-		art_semanticturkey.refreshPanel();
+		//art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2298,7 +2280,8 @@ art_semanticturkey.addInverseOf = function() {
 			alert(e.name + ": " + e.message);
 		}
 	}
-	art_semanticturkey.refreshPanel();
+	//art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 };
 
 art_semanticturkey.removeInverseOfEvent = function(event){
@@ -2319,7 +2302,8 @@ art_semanticturkey.removeInverseOf = function(value, isList) {
 	try {
 		art_semanticturkey.STRequests.Property.removePropValue(
 				sourceElementName, "owl:inverseOf", value);
-		art_semanticturkey.refreshPanel();
+		//art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2348,8 +2332,8 @@ art_semanticturkey.addSuperProperty = function() {
 			alert(e.name + ": " + e.message);
 		}
 	}
-	document.getElementById("editorPanel").setAttribute("changed", "true");
-	art_semanticturkey.refreshPanel();
+	//art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 };
 
 art_semanticturkey.removeSuperPropertyEvent = function(event){
@@ -2381,8 +2365,8 @@ art_semanticturkey.removeSuperProperty = function(superPropValue) {
 					document.getElementById("name").value,
 					superPropValue);
 		}
-		document.getElementById("editorPanel").setAttribute("changed", "true");
-		art_semanticturkey.refreshPanel();
+		//art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2408,7 +2392,8 @@ art_semanticturkey.resourcedblClick = function(explicit, sourceElementName,
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
 			"_blank", "modal=yes,resizable,left=400,top=100", parameters);
-	art_semanticturkey.refreshPanel();
+	//art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
 };
 
 art_semanticturkey.openUrlEvent = function(event){

@@ -433,21 +433,27 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("SPARQLToolBarButton").addEventListener("command",art_semanticturkey.SPARQL,true);
 	document.getElementById("SKOSToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
+	
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject = new art_semanticturkey.eventListenerArrayClass();
+	
 	if(stIsStarted=="true"){
 		art_semanticturkey.enableSTToolbarButtons();
 	}else{
-		var st_startedobj = new art_semanticturkey.createSTStartedSTToolbarObj();
-		art_semanticturkey.evtMgr.registerForEvent("st_started",st_startedobj);
+		art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("st_started", art_semanticturkey.enableSTToolbarButtons, null);
 	}
 	
 	
 	//Adding an three ojbects waiting for the events projectOpened , projectClosed and projectChangedName
-	var projectOpened = new art_semanticturkey.changeProjectObj();
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.changeProjectObj, null);
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectClosed", art_semanticturkey.changeProjectObj, null);
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectChangedName", art_semanticturkey.changeProjectObj, null);
+	
+	/*var projectOpened = new art_semanticturkey.changeProjectObj();
 	art_semanticturkey.evtMgr.registerForEvent("projectOpened",projectOpened);
 	var projectClosed = new art_semanticturkey.changeProjectObj();
 	art_semanticturkey.evtMgr.registerForEvent("projectClosed",projectClosed);
 	var projectChangedName = new art_semanticturkey.changeProjectObj();
-	art_semanticturkey.evtMgr.registerForEvent("projectChangedName",projectChangedName);
+	art_semanticturkey.evtMgr.registerForEvent("projectChangedName",projectChangedName);*/
 	
 	
 	
@@ -476,69 +482,58 @@ art_semanticturkey.myObserverFirefoxClosed = function(){
 	};
 };
 
-art_semanticturkey.changeProjectObj = function() {
-	this.fireEvent = function(eventId, projectInfo) {
-		if(eventId == "projectOpened"){
-			var projectName = projectInfo.projectName;
-			var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
-			for(var i=0; i<broadcasterList.length; ++i){
-				if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
-					var label = broadcasterList[i].getAttribute("label");
-					broadcasterList[i].setAttribute("sidebartitle", label + " ( " + projectName+" )");
+art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
+	if(eventId == "projectOpened"){
+		var projectName = projectInfo.projectName;
+		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
+		for(var i=0; i<broadcasterList.length; ++i){
+			if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
+				var label = broadcasterList[i].getAttribute("label");
+				broadcasterList[i].setAttribute("sidebartitle", label + " ( " + projectName+" )");
+			}
+		}
+		document.getElementById("save_project").setAttribute("label", "Save "+projectName);
+		if(art_semanticturkey.CurrentProject.isContinuosEditing() == false)
+			document.getElementById("save_project").disabled = false;
+		document.getElementById("save_as_project").setAttribute("label", "Save "+projectName+" as ...");
+		document.getElementById("save_as_project").disabled = false;
+		document.getElementById("export_project").setAttribute("label", "Export "+projectName);
+		document.getElementById("export_project").disabled = false;
+		document.getElementById("manage_all_projects").disabled = false;
+	}
+	else if(eventId == "projectClosed"){
+		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
+		for(var i=0; i<broadcasterList.length; ++i){
+			if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
+				var label = broadcasterList[i].getAttribute("label");
+				broadcasterList[i].setAttribute("sidebartitle", label + " ( )");
+			}
+		}
+		document.getElementById("save_project").disabled = true;
+		document.getElementById("save_as_project").disabled = true;
+		document.getElementById("save_as_project").setAttribute("label", "Save ??? as ...");
+		document.getElementById("export_project").disabled = true;
+		document.getElementById("export_project").setAttribute("label", "Export");
+		document.getElementById("manage_all_projects").disabled = true;
+	}
+	else if(eventId == "projectChangedName"){
+		var projectName = projectInfo.projectName;
+		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
+		for(var i=0; i<broadcasterList.length; ++i){
+			if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
+				var label = broadcasterList[i].getAttribute("label");
+				broadcasterList[i].setAttribute("sidebartitle", label + " ( " + projectName+" )");
+				if(broadcasterList[i].getAttribute("checked") == "true"){
+					document.getElementById('sidebar-title').value = label + " ( " + projectName+" )";
 				}
 			}
-			document.getElementById("save_project").setAttribute("label", "Save "+projectName);
-			if(art_semanticturkey.CurrentProject.isContinuosEditing() == false)
-				document.getElementById("save_project").disabled = false;
-			document.getElementById("save_as_project").setAttribute("label", "Save "+projectName+" as ...");
-			document.getElementById("save_as_project").disabled = false;
-			document.getElementById("export_project").setAttribute("label", "Export "+projectName);
-			document.getElementById("export_project").disabled = false;
-			document.getElementById("manage_all_projects").disabled = false;
 		}
-		else if(eventId == "projectClosed"){
-			var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
-			for(var i=0; i<broadcasterList.length; ++i){
-				if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
-					var label = broadcasterList[i].getAttribute("label");
-					broadcasterList[i].setAttribute("sidebartitle", label + " ( )");
-				}
-			}
-			document.getElementById("save_project").disabled = true;
-			document.getElementById("save_as_project").disabled = true;
-			document.getElementById("save_as_project").setAttribute("label", "Save ??? as ...");
-			document.getElementById("export_project").disabled = true;
-			document.getElementById("export_project").setAttribute("label", "Export");
-			document.getElementById("manage_all_projects").disabled = true;
-		}
-		else if(eventId == "projectChangedName"){
-			var projectName = projectInfo.projectName;
-			var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
-			for(var i=0; i<broadcasterList.length; ++i){
-				if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
-					var label = broadcasterList[i].getAttribute("label");
-					broadcasterList[i].setAttribute("sidebartitle", label + " ( " + projectName+" )");
-					if(broadcasterList[i].getAttribute("checked") == "true"){
-						document.getElementById('sidebar-title').value = label + " ( " + projectName+" )";
-					}
-				}
-			}
-			document.getElementById("save_project").setAttribute("label", "Save "+projectName);
-			document.getElementById("save_as_project").setAttribute("label", "Save "+projectName+" as ...");
-			document.getElementById("export_project").setAttribute("label", "Export "+projectName);
-		}
-	};
+		document.getElementById("save_project").setAttribute("label", "Save "+projectName);
+		document.getElementById("save_as_project").setAttribute("label", "Save "+projectName+" as ...");
+		document.getElementById("export_project").setAttribute("label", "Export "+projectName);
+	}
 };
 
-art_semanticturkey.createSTStartedSTToolbarObj = function() {
-	this.fireEvent = function(eventId, st_startedobj) {
-		art_semanticturkey.enableSTToolbarButtons();
-	};
-
-	this.unregister = function() {
-		art_semanticturkey.evtMgr.deregisterForEvent("st_started", this);
-	};
-};
 
 window.addEventListener("load",
 		art_semanticturkey.associateEventsOnBrowserGraphicElements, true);

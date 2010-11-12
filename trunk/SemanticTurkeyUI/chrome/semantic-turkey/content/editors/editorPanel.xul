@@ -28,10 +28,13 @@
 		src="chrome://semantic-turkey/content/scripts/instanceEvents.js" />
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/classTree.js" />
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 	<!--<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/ontName.js" />-->
 	<script type="application/x-javascript"
 				src="chrome://semantic-turkey/content/utilities/utilities.js"/>
+	
 	<vbox id="myPanelScroll" style="overflow:auto" collapsed="false"
 		orient="vertical" flex="1">
 		<hbox id="titleBox">

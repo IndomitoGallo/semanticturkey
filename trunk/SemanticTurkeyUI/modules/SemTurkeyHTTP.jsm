@@ -179,7 +179,7 @@ HttpMgr = new function() {
 		 * httpReq.QueryInterface(Components.interfaces.nsIXMLHttpRequest);
 		 * 
 		 * if (typeof async == 'undefined') { Logger.debug("siamo in undefined"); httpReq.open("GETP", aURL); }
-		 * else { Logger.debug("async � definito come " + async); httpReq.open("GETP", aURL, async); } //FINO
+		 * else { Logger.debug("async è definito come " + async); httpReq.open("GETP", aURL, async); } //FINO
 		 * QUI
 		 */
 		// try {

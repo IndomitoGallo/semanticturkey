@@ -38,6 +38,8 @@
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/ontologySearch.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/property/propertyUtilities.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 
 
 	<toolbox flex="0">

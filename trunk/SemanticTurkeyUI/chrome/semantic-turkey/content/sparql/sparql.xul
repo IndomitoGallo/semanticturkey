@@ -31,6 +31,9 @@
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/sparql/sparql.js"/>
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+
 		<vbox  id="SPARQLquery" align="center" hidden="false">
 				<groupbox flex="1">
 					<caption class="header" label=" - Insert Query Data - " image="chrome://semantic-turkey/skin/classic/images/st_favicon.png"/>
