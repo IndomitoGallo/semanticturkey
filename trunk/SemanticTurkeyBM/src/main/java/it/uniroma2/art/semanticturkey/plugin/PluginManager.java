@@ -23,6 +23,7 @@
 
 package it.uniroma2.art.semanticturkey.plugin;
 
+import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.plugin.extpts.PluginInterface;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceInterface;
@@ -70,7 +71,7 @@ public class PluginManager {
 	private static final String repositoryExtensionsDirName = stExtensionsDirName + "/ontmanager";
 
 	private static boolean directAccessTest = false;
-	private static Class<? extends OntologyManagerFactory> testOntManagerFactoryCls;
+	private static Class<? extends OntologyManagerFactory<ModelConfiguration>> testOntManagerFactoryCls;
 
 	private static ArrayList<Bundle> bundleToBeStarted = new ArrayList<Bundle>();
 
@@ -82,7 +83,7 @@ public class PluginManager {
 		PluginManager.directAccessTest = test;
 	}
 
-	public static void setTestOntManagerFactoryImpl(Class<? extends OntologyManagerFactory> ontmgrcls) {
+	public static void setTestOntManagerFactoryImpl(Class<? extends OntologyManagerFactory<ModelConfiguration>> ontmgrcls) {
 		testOntManagerFactoryCls = ontmgrcls;
 	}
 
@@ -164,7 +165,7 @@ public class PluginManager {
 	 *            id dell'implementazione desiderata
 	 * @return handler dell'implementazione desiderata
 	 */
-	public static OntologyManagerFactory getOntManagerImpl(String idRepImpl) {
+	public static OntologyManagerFactory<ModelConfiguration> getOntManagerImpl(String idRepImpl) {
 		// test preamble
 		if (isDirectAccessTest()) {
 			try {
@@ -205,7 +206,7 @@ public class PluginManager {
 	 * client
 	 * 
 	 * @param map
-	 *            HashMap che conterrà le classi che gestiscono le richieste del client
+	 *            HashMap che conterrï¿½ le classi che gestiscono le richieste del client
 	 */
 	public static void loadExtensions(STServer stServer) {
 		String dirExtension = Resources.getExtensionPath();
@@ -263,7 +264,7 @@ public class PluginManager {
 
 
 	/**
-	 * Funzione che fa partire Felix, nel caso non sia già stato fatto partire
+	 * Funzione che fa partire Felix, nel caso non sia giï¿½ stato fatto partire
 	 * 
 	 */
 	private static void startFelix() {
@@ -346,7 +347,7 @@ public class PluginManager {
 		File dir = new File(dirName);
 		String[] children;
 		if (dir.isDirectory()) {
-			// è una estensione per Semantic Turkey
+			// ï¿½ una estensione per Semantic Turkey
 			children = dir.list();
 			for (int i = 0; i < children.length; i++) {
 				if (children[i].endsWith(".jar")) {
@@ -377,7 +378,7 @@ public class PluginManager {
 
 		bundle = getBundleByLocation(bundleJarFileURIString);
 
-		if (bundle == null) { // il bundle non è installato, quindi lo installo
+		if (bundle == null) { // il bundle non ï¿½ installato, quindi lo installo
 			try {
 				logger.info("bundle: " + bundleJarFile + " is not in the bundle cache, installing it now");
 				bundle = m_felix.getBundleContext().installBundle(bundleJarFileURIString);
@@ -393,10 +394,10 @@ public class PluginManager {
 				e.printStackTrace();
 			}
 		} else {
-			// Il bundle è installato, ora controllo se non è stato aggiornato
+			// Il bundle ï¿½ installato, ora controllo se non ï¿½ stato aggiornato
 			jarPresent.add(bundle.getLocation());
 			logger.info("bundle: " + bundleJarFile + " is present");
-			if (bundle.getLastModified() < bundleJarFile.lastModified()) { // il bundle è stato modificato
+			if (bundle.getLastModified() < bundleJarFile.lastModified()) { // il bundle ï¿½ stato modificato
 				logger.info("bundle: " + bundleJarFile + " has been modified");
 				try {
 					bundle.stop();
@@ -409,7 +410,7 @@ public class PluginManager {
 					e.printStackTrace();
 				}
 			}
-			// Il bundle non è stato modicato, quindi non faccio niente
+			// Il bundle non ï¿½ stato modicato, quindi non faccio niente
 		}
 
 	}

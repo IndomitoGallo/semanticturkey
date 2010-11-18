@@ -21,25 +21,39 @@
  *
  */
 
+
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
-import it.uniroma2.art.owlart.models.ModelFactory;
+import it.uniroma2.art.owlart.agraphimpl.factory.ARTModelFactoryAllegroGraphImpl;
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.sesame2impl.factory.ARTModelFactorySesame2Impl;
-import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2ModelConfiguration;
-import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactoryImpl;
+import it.uniroma2.art.owlart.sesame2impl.vocabulary.SESAME;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.project.Project;
 
-public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactoryImpl<Sesame2ModelConfiguration> {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	protected ModelFactory<Sesame2ModelConfiguration> createModelFactory() {
-		return new ARTModelFactorySesame2Impl();
+/**
+ * @author Armando Stellato
+ * 
+ */
+public class STOntologyManagerAllegroGraphImpl<MODELTYPE extends RDFModel> extends STOntologyManager<MODELTYPE> {
+
+	protected static Logger logger = LoggerFactory.getLogger(STOntologyManagerAllegroGraphImpl.class);
+
+	STOntologyManagerAllegroGraphImpl(Project<MODELTYPE> project) {
+		super(project, new ARTModelFactoryAllegroGraphImpl());
 	}
 
-	public <MODELTYPE extends RDFModel> STOntologyManager<MODELTYPE> createOntologyManager(
-			Project<MODELTYPE> project) {
-		return new STOntologyManagerSesame2Impl<MODELTYPE>(project);
+
+	@Override
+	public String getId() {
+		return "it.uniroma2.art.semanticturkey.ontology.sesame2.STOntologyManagerAllegroGraphImpl";
+	}
+
+	@Override
+	protected void declareSupportOntologies() {
+		declareSupportOntology(owlModel.createURIResource(SESAME.NAMESPACE), false, true);
 	}
 
 }

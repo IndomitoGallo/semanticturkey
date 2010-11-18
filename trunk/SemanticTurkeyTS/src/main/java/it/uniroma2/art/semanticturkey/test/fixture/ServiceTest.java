@@ -1,5 +1,6 @@
 package it.uniroma2.art.semanticturkey.test.fixture;
 
+import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.SemanticTurkey;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
@@ -112,8 +113,9 @@ public abstract class ServiceTest {
 
 	}
 
-	public Class<? extends OntologyManagerFactory> getOntologyManagerClass() {
-		return OntologyManagerFactorySesame2Impl.class;
+	@SuppressWarnings("unchecked")
+	public Class<? extends OntologyManagerFactory<ModelConfiguration>> getOntologyManagerClass() {
+		return (Class<? extends OntologyManagerFactory<ModelConfiguration>>)OntologyManagerFactorySesame2Impl.class;
 	}
 
 	public void directInitialize() throws STInitializationException, IOException {

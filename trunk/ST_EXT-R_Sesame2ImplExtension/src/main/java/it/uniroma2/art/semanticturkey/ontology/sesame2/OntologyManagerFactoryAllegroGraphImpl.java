@@ -23,23 +23,25 @@
 
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
+import it.uniroma2.art.owlart.agraphimpl.factory.ARTModelFactoryAllegroGraphImpl;
+import it.uniroma2.art.owlart.agraphimpl.models.conf.AllegroGraph4ModelConfiguration;
 import it.uniroma2.art.owlart.models.ModelFactory;
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.sesame2impl.factory.ARTModelFactorySesame2Impl;
-import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2ModelConfiguration;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactoryImpl;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.project.Project;
 
-public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactoryImpl<Sesame2ModelConfiguration> {
+public class OntologyManagerFactoryAllegroGraphImpl extends OntologyManagerFactoryImpl<AllegroGraph4ModelConfiguration> {
 
-	protected ModelFactory<Sesame2ModelConfiguration> createModelFactory() {
-		return new ARTModelFactorySesame2Impl();
+	@Override
+	protected ModelFactory<AllegroGraph4ModelConfiguration> createModelFactory() {
+		return new ARTModelFactoryAllegroGraphImpl();
 	}
 
-	public <MODELTYPE extends RDFModel> STOntologyManager<MODELTYPE> createOntologyManager(
-			Project<MODELTYPE> project) {
-		return new STOntologyManagerSesame2Impl<MODELTYPE>(project);
+	public <T extends RDFModel> STOntologyManager<T> createOntologyManager(Project<T> proj) {
+		return new STOntologyManagerAllegroGraphImpl<T>(proj);
 	}
+
+
 
 }
