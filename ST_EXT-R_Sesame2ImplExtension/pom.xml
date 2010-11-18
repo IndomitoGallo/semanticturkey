@@ -5,8 +5,31 @@
 	<artifactId>sesame2ontmanager</artifactId>
 	<packaging>bundle</packaging>
 	<name>ST EXT-R Sesame2ImplExtension</name>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<description>The OSGi bundle for Sesame2 implementation of Semantic Turkey Ontology Manager</description>
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/semanticturkey/issues/</url>
+	</issueManagement>
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+			<roles>
+				<role>Full Development</role>
+			</roles>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:svn:http://semanticturkey.googlecode.com/svn/trunk/ST_EXT-R_Sesame2ImplExtension</connection>
+		<developerConnection>scm:svn:https://semanticturkey.googlecode.com/svn/trunk/ST_EXT-R_Sesame2ImplExtension</developerConnection>
+		<tag>HEAD</tag>
+		<url>http://code.google.com/p/semanticturkey/source/browse/#svn/trunk/ST_EXT-R_Sesame2ImplExtension</url>
+	</scm>
 	<build>
 		<plugins>
 			<plugin>
@@ -36,24 +59,35 @@
 							<_exportcontents>it.uniroma2.art.semanticturkey.ontology.sesame2,
 							org.openrdf.*, info.aduna.*</_exportcontents>
 							<Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package>
-							
-							to import: 
+
+							to import:
 						-->
-						<Import-Package>!info.aduna.app.*,!info.aduna.webapp.views.*,!org.apache.commons.httpclient.auth,
-							!javax.naming, !org.springframework.web.servlet,
-							!org.apache.commons.cli, !javax.xml.parsers,
-							!org.springframework.context, !javax.xml.namespace,
-							!org.apache.commons.httpclient, !javax.activation,
-							!javax.servlet, !org.springframework.web.servlet.mvc,
-							!org.apache.commons.httpclient.methods, !org.apache.commons.dbcp,
-							!javax.sql, !org.springframework.web.servlet.handler,
-							!javax.swing, !org.apache.commons.httpclient.params,
-							!javax.xml.validation, !javax.servlet.http,
+						<Import-Package>!com.hp.*,
+							!org.apache.avalon.framework.*,
+							!org.apache.commons.cli,
+							!org.apache.commons.dbcp,
+							!org.apache.xerces.util,
+							!org.apache.log.*,
+							!info.aduna.app.*,
+							!info.aduna.webapp.views.*,												
+							!org.springframework.context,
+							!org.springframework.web.servlet,
+							!org.springframework.web.servlet.handler,							
+							!javax.activation,
+							!javax.naming,	
+							!javax.servlet,
+							!javax.servlet.http,
+							!javax.sql,					
+							!javax.swing,							
+							!javax.xml.namespace,
+							!javax.xml.parsers,														
+							!javax.xml.validation,
+							!org.springframework.web.servlet.mvc,							
 							org.w3c.dom,
 							org.xml.sax,
 							org.xml.sax.helpers,
 							javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation,
-							javax.*; 
+							javax.*;
 							*</Import-Package>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -66,10 +100,6 @@
 		</plugins>
 	</build>
 	<repositories>
-		<repository>
-			<id>Sesame2-releases</id>
-			<url>http://repo.aduna-software.org/maven2/releases/</url>
-		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -118,5 +148,17 @@
 			<version>1.0.2-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart.agraphimpl</groupId>
+			<artifactId>owlart-agraphimpl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+			<scope>provided</scope>
+		</dependency>		
 	</dependencies>
 </project>

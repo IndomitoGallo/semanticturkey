@@ -28,6 +28,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import java.util.Collection;
 
+import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
 import it.uniroma2.art.owlart.models.conf.ConfParameterNotFoundException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -85,28 +86,52 @@ public class OntManager extends ServiceAdapter {
 
 	public XMLResponse getOntologyManagerParameters(String ontMgrID) {
 		String request = getOntManagerParametersRequest;
-		OntologyManagerFactory ontMgrFact = PluginManager.getOntManagerImpl(ontMgrID);
-		ModelConfiguration mConf = ontMgrFact.getModelConfiguration();
-		Collection<String> pars = mConf.getConfigurationParameters();
+		OntologyManagerFactory<ModelConfiguration> ontMgrFact = PluginManager.getOntManagerImpl(ontMgrID);
+		Collection<Class<? extends ModelConfiguration>> mConfClasses = ontMgrFact.getModelConfigurations();
 
 		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
-		
-		try {			
-			for (String par : pars) {
-				String parDescr = mConf.getParameterDescription(par);
-				Element newPar = XMLHelp.newElement(dataElement, "par");
-				newPar.setAttribute("name", par);
-				newPar.setAttribute("description", parDescr);
-				newPar.setTextContent(mConf.getParameterValue(par).toString());
-			}
-		} catch (ConfParameterNotFoundException e) {
-			return servletUtilities.createExceptionResponse(request,
-					"strangely, the configuration parameter was not recognized: " + e.getMessage());
-		}
-		
-		return response;
 
+		try {
+
+			for (Class<? extends ModelConfiguration> confClass : mConfClasses) {
+				
+				ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(confClass);								
+
+				Element newConfType = XMLHelp.newElement(dataElement, "configuration");
+				
+				newConfType.setAttribute("type", confClass.getName());
+				
+				newConfType.setAttribute("editRequired", Boolean.toString(mConf.hasRequiredParameters()));								
+
+				Collection<String> pars = mConf.getConfigurationParameters();
+				
+				for (String par : pars) {
+					String parDescr = mConf.getParameterDescription(par);
+					Element newPar = XMLHelp.newElement(newConfType, "par");
+					newPar.setAttribute("name", par);
+					newPar.setAttribute("description", parDescr);
+					newPar.setAttribute("required", Boolean.toString(mConf.isRequiredParameter(par)));
+					String contentType = mConf.getParameterContentType(par);
+					if (contentType!=null)
+						newPar.setAttribute("type", contentType);
+					newPar.setTextContent(mConf.getParameterValue(par).toString());
+				}
+
+			}
+
+		} catch (ConfParameterNotFoundException e) {
+			return servletUtilities
+					.createExceptionResponse(
+							request,
+							"strangely, the configuration parameter (which should have provided by the same ontology manager) was not recognized: "
+									+ e.getMessage());
+		} catch (UnsupportedModelConfigurationException e) {
+			return servletUtilities.createExceptionResponse(request,
+					"strangely, the Model Configuration was not recognized: " + e.getMessage());
+		}
+
+		return response;
 	}
 
 }

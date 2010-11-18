@@ -38,8 +38,9 @@ public class Sesame2ImplBundle implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 
 		context.registerService(OntologyManagerFactory.class.getName(),
+				new OntologyManagerFactoryAllegroGraphImpl(), null);
+		context.registerService(OntologyManagerFactory.class.getName(),
 				new OntologyManagerFactorySesame2Impl(), null);
-
 	}
 
 	public void stop(BundleContext arg0) throws Exception {
