@@ -63,26 +63,27 @@
 							to import:
 						-->
 						<Import-Package>!com.hp.*,
+							!com.hp.jena.*,
 							!org.apache.avalon.framework.*,
 							!org.apache.commons.cli,
 							!org.apache.commons.dbcp,
 							!org.apache.xerces.util,
 							!org.apache.log.*,
 							!info.aduna.app.*,
-							!info.aduna.webapp.views.*,												
+							!info.aduna.webapp.views.*,
 							!org.springframework.context,
 							!org.springframework.web.servlet,
-							!org.springframework.web.servlet.handler,							
+							!org.springframework.web.servlet.handler,
 							!javax.activation,
-							!javax.naming,	
+							!javax.naming,
 							!javax.servlet,
 							!javax.servlet.http,
-							!javax.sql,					
-							!javax.swing,							
+							!javax.sql,
+							!javax.swing,
 							!javax.xml.namespace,
-							!javax.xml.parsers,														
+							!javax.xml.parsers,
 							!javax.xml.validation,
-							!org.springframework.web.servlet.mvc,							
+							!org.springframework.web.servlet.mvc,
 							org.w3c.dom,
 							org.xml.sax,
 							org.xml.sax.helpers,
@@ -153,12 +154,26 @@
 			<artifactId>owlart-agraphimpl</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.hp.hpl.jena</groupId>
+					<artifactId>jena</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.hp.hpl.jena</groupId>
+					<artifactId>arq</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.hp.hpl.jena</groupId>
+					<artifactId>json-jena</artifactId>
+				</exclusion>				
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 			<scope>provided</scope>
-		</dependency>		
+		</dependency>
 	</dependencies>
 </project>
