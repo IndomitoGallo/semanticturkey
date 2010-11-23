@@ -25,6 +25,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.filter.BaseRDFPropertyPredicate;
 import it.uniroma2.art.owlart.filter.RootPropertiesResourcePredicate;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -39,6 +40,7 @@ import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -46,6 +48,7 @@ import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.Iterator;
@@ -78,6 +81,7 @@ public class Property extends Resource {
 		final static public String getDomainClassesTreeRequest = "getDomainClassesTree";
 		final static public String getRangeClassesTreeRequest = "getRangeClassesTree";
 		final static public String getSuperPropertiesRequest = "getSuperProperties";
+		final static public String parseDataRangeRequest = "parseDataRange";
 		final static public String getDomainRequest = "getDomain";
 		final static public String getRangeRequest = "getRange";
 
@@ -97,6 +101,8 @@ public class Property extends Resource {
 	}
 
 	public static class Par {
+		final static public String nodeTypePar = "nodeType";
+		final static public String dataRangePar = "dataRange";
 		final static public String instanceQNamePar = "instanceQName";
 		final static public String propertyQNamePar = "propertyQName";
 		final static public String rangeQNamePar = "rangeQName";
@@ -104,6 +110,7 @@ public class Property extends Resource {
 		final static public String valueField = "value";
 		final static public String langField = "lang";
 		final public static String type = "type";
+		final public static String visualize = "visualize";
 	}
 
 	final public static String template = "template";
@@ -153,8 +160,16 @@ public class Property extends Resource {
 					return getDomain(propQName);
 				} else if (request.equals(Req.getRangeRequest)) {
 					String propQName = setHttpPar(Par.propertyQNamePar);
+					String visualize = setHttpPar(Par.visualize);
 					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getRange(propQName);
+					return getRange(propQName, visualize);
+				}
+
+				else if (request.equals(Req.parseDataRangeRequest)) {
+					String dataRange = setHttpPar(Par.dataRangePar);
+					String nodeType = setHttpPar(Par.nodeTypePar);
+					checkRequestParametersAllNotNull(Par.dataRangePar, Par.nodeTypePar);
+					return parseDataRange(dataRange, nodeType);
 				}
 
 				// EDIT_PROPERTY METHODS
@@ -204,7 +219,8 @@ public class Property extends Resource {
 					String rangeQName = setHttpPar(Par.rangeQNamePar);
 					String lang = setHttpPar(Par.langField);
 					String typeArg = setHttpPar(Par.type);
-					checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar, Par.valueField, Par.type);
+					checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar,
+							Par.valueField, Par.type);
 					VocabularyTypesEnum valueType = null;
 					if (typeArg != null)
 						valueType = VocabularyTypesEnum.valueOf(typeArg);
@@ -254,7 +270,12 @@ public class Property extends Resource {
 		}
 	}
 
-	public Response getRange(String propQName) {
+	public Response getRange(String propQName, String visualize) {
+		boolean boolVis;
+		if (visualize == null)
+			boolVis = false;
+		else
+			boolVis = Boolean.valueOf(visualize);
 		String request = Req.getRangeRequest;
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 				RepliesStatus.ok);
@@ -266,7 +287,7 @@ public class Property extends Resource {
 			if (property == null)
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ propQName);
-			injectPropertyRangeXML(ontModel, property, dataElement);
+			injectPropertyRangeXML(ontModel, property, dataElement, boolVis);
 			return response;
 
 		} catch (ModelAccessException e) {
@@ -622,20 +643,19 @@ public class Property extends Resource {
 							+ " and lang: " + lang);
 					model.instantiatePropertyWithPlainLiteral(individual, property, valueString, lang);
 				} else if (valueType == VocabularyTypesEnum.typedLiteral) {
-					logger.debug("instantiating property: " + property + " with value: "
-							+ valueString + "typed after: " + rangeQName);
-					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range.asURIResource());
+					logger.debug("instantiating property: " + property + " with value: " + valueString
+							+ "typed after: " + rangeQName);
+					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range
+							.asURIResource());
 				} else if (valueType == VocabularyTypesEnum.resource) {
 					model.addInstance(model.expandQName(valueString), range);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
 					model.instantiatePropertyWithResource(individual, property, objIndividual);
 				} else
-					return servletUtilities.createExceptionResponse(request,
-							valueType + " is not an admitted type for this value; only " + 
-							VocabularyTypesEnum.plainLiteral + ", " +
-							VocabularyTypesEnum.typedLiteral + ", and " + 
-							VocabularyTypesEnum.resource + " are admitted " 
-					);
+					return servletUtilities.createExceptionResponse(request, valueType
+							+ " is not an admitted type for this value; only "
+							+ VocabularyTypesEnum.plainLiteral + ", " + VocabularyTypesEnum.typedLiteral
+							+ ", and " + VocabularyTypesEnum.resource + " are admitted ");
 			} catch (ModelUpdateException e) {
 				// logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
 				return servletUtilities.createExceptionResponse(request,
@@ -696,6 +716,25 @@ public class Property extends Resource {
 
 		return response;
 
+	}
+
+	public Response parseDataRange(String dataRangeID, String nodeType) {
+		String request = Req.parseDataRangeRequest;
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		try {
+			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID, VocabularyTypesEnum.valueOf(nodeType));
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, dataRange, true);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return ServletUtilities.getService().createExceptionResponse(Req.parseDataRangeRequest, e);
+		} catch (UnavailableResourceException e) {
+			return ServletUtilities.getService().createExceptionResponse(Req.parseDataRangeRequest,
+					e.getMessage());
+		}
 	}
 
 	/**

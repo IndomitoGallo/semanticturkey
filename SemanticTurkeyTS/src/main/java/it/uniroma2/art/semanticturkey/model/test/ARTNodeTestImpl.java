@@ -1,5 +1,6 @@
 package it.uniroma2.art.semanticturkey.model.test;
 
+import it.uniroma2.art.owlart.model.ARTBNode;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -54,5 +55,9 @@ public class ARTNodeTestImpl implements ARTNode {
 	
 	public boolean equals(ARTNodeTestImpl other) {
 		return content.equals(other.content);
+	}
+
+	public ARTBNode asBNode() {
+		return (ARTBNode)this;
 	}
 }

@@ -32,6 +32,7 @@ import it.uniroma2.art.owlart.filter.NoSubclassPredicate;
 import it.uniroma2.art.owlart.filter.NoSubpropertyPredicate;
 import it.uniroma2.art.owlart.filter.NoTypePredicate;
 import it.uniroma2.art.owlart.filter.URIResourcePredicate;
+import it.uniroma2.art.owlart.model.ARTBNode;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -40,6 +41,8 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
@@ -49,7 +52,9 @@ import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
+import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -57,6 +62,7 @@ import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.PropertyShowOrderComparator;
+import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.STVocabUtilities;
 
@@ -66,8 +72,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.mortbay.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
@@ -380,24 +388,22 @@ public abstract class Resource extends ServiceAdapter {
 		domains.close();
 	}
 
-	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
-			throws ModelAccessException {
+	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
+			boolean visualization) throws ModelAccessException {
 		Element rangesElement = XMLHelp.newElement(treeElement, "ranges");
 		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, NodeFilters.MAINGRAPH);
-		Iterator<ARTResource> filteredRanges = Iterators.filter(ranges, URIResourcePredicate.uriFilter);
 		Collection<ARTResource> explicitRanges = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyRanges(property, false, NodeFilters.MAINGRAPH));
-		while (filteredRanges.hasNext()) {
-			ARTResource nextRange = filteredRanges.next();
+		while (ranges.hasNext()) {
+			ARTResource nextRange = ranges.next();
 			logger.debug("checking range: " + nextRange);
-			if (nextRange.isURIResource()) { // TODO waiting for anonymous resources support
-				Element rangeElement = XMLHelp.newElement(rangesElement, "range");
-				rangeElement.setAttribute("name", ontModel.getQName(nextRange.asURIResource().getURI()));
-				if (explicitRanges.contains(nextRange))
-					rangeElement.setAttribute("explicit", "true");
-				else
-					rangeElement.setAttribute("explicit", "false");
-			}
+			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange,
+					visualization);
+			if (explicitRanges.contains(nextRange))
+				rangeElement.setAttribute("explicit", "true");
+			else
+				rangeElement.setAttribute("explicit", "false");
+			rangeElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, nextRange).toString());
 		}
 		ranges.close();
 	}
@@ -407,7 +413,7 @@ public abstract class Resource extends ServiceAdapter {
 
 		// DOMAIN AND RANGES
 		injectPropertyDomainXML(ontModel, property, treeElement);
-		injectPropertyRangeXML(ontModel, property, treeElement);
+		injectPropertyRangeXML(ontModel, property, treeElement, true);
 
 		// FACETS
 		Element facetsElement = XMLHelp.newElement(treeElement, "facets");
