@@ -73,7 +73,7 @@ public class RDFUtilities {
 		if (node.isBlank())
 			return renderRDFNode(model, node.asBNode());
 		else
-			return node.toString(); // Literal
+			return node.asLiteral().getLabel(); // Literal
 	}
 
 	/**
