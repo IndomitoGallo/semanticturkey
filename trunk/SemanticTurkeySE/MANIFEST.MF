@@ -10,14 +10,15 @@ Export-Package: it.uniroma2.art.semanticturkey.servlet.main;uses:="it.
  anticturkey.exceptions,it.uniroma2.art.owlart.vocabulary,it.uniroma2.
  art.owlart.utilities,com.google.common.collect,com.google.common.base
  ,it.uniroma2.art.semanticturkey.filter,it.uniroma2.art.owlart.filter,
- it.uniroma2.art.owlart.io,it.uniroma2.art.owlart.models.conf,it.uniro
- ma2.art.semanticturkey.plugin,it.uniroma2.art.owlart.query,org.json,i
- t.uniroma2.art.owlart.query.io,org.xml.sax,org.osgi.framework,javax.s
- ervlet.http";version="0.7.2.SNAPSHOT"
+ it.uniroma2.art.owlart.io,it.uniroma2.art.semanticturkey.plugin,it.un
+ iroma2.art.owlart.models.conf,it.uniroma2.art.semanticturkey.ontology
+ .utilities,it.uniroma2.art.owlart.query,org.json,it.uniroma2.art.owla
+ rt.query.io,org.xml.sax,org.osgi.framework,javax.servlet.http";versio
+ n="0.7.2.SNAPSHOT"
 Bundle-Version: 0.7.2.SNAPSHOT
 Tool: Bnd-0.0.357
 Bundle-Name: Semantic Turkey SE
-Bnd-LastModified: 1289554356443
+Bnd-LastModified: 1290621469442
 Bundle-Activator: it.uniroma2.art.semanticturkey.servlet.main.ServletB
  undle
 Created-By: 1.6.0_16 (Sun Microsystems Inc.)
@@ -33,11 +34,12 @@ Import-Package: com.google.common.base,com.google.common.collect,it.un
  .uniroma2.art.owlart.utilities,it.uniroma2.art.owlart.vocabulary,it.u
  niroma2.art.semanticturkey,it.uniroma2.art.semanticturkey.exceptions,
  it.uniroma2.art.semanticturkey.filter,it.uniroma2.art.semanticturkey.
- ontology,it.uniroma2.art.semanticturkey.plugin,it.uniroma2.art.semant
- icturkey.plugin.extpts,it.uniroma2.art.semanticturkey.project,it.unir
- oma2.art.semanticturkey.resources,it.uniroma2.art.semanticturkey.serv
- let,it.uniroma2.art.semanticturkey.servlet.main;version="0.7",it.unir
- oma2.art.semanticturkey.utilities,it.uniroma2.art.semanticturkey.voca
- bulary,javax.servlet.http,org.json,org.osgi.framework;version="1.5",o
- rg.slf4j;version="1.5",org.w3c.dom,org.xml.sax
+ ontology,it.uniroma2.art.semanticturkey.ontology.utilities,it.uniroma
+ 2.art.semanticturkey.plugin,it.uniroma2.art.semanticturkey.plugin.ext
+ pts,it.uniroma2.art.semanticturkey.project,it.uniroma2.art.semantictu
+ rkey.resources,it.uniroma2.art.semanticturkey.servlet,it.uniroma2.art
+ .semanticturkey.servlet.main;version="0.7",it.uniroma2.art.semantictu
+ rkey.utilities,it.uniroma2.art.semanticturkey.vocabulary,javax.servle
+ t.http,org.json,org.osgi.framework;version="1.5",org.slf4j;version="1
+ .5",org.w3c.dom,org.xml.sax
 
