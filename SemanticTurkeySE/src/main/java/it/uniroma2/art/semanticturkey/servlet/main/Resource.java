@@ -53,6 +53,7 @@ import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
+import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -394,18 +395,24 @@ public abstract class Resource extends ServiceAdapter {
 		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, NodeFilters.MAINGRAPH);
 		Collection<ARTResource> explicitRanges = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyRanges(property, false, NodeFilters.MAINGRAPH));
+		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
 		while (ranges.hasNext()) {
 			ARTResource nextRange = ranges.next();
 			logger.debug("checking range: " + nextRange);
+			rangesSet.add(nextRange);
 			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange,
 					visualization);
 			if (explicitRanges.contains(nextRange))
 				rangeElement.setAttribute("explicit", "true");
 			else
 				rangeElement.setAttribute("explicit", "false");
-			rangeElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, nextRange).toString());
 		}
 		ranges.close();
+		try {
+			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, rangesSet).toString());
+		} catch (IncompatibleRangeException e) {
+			rangesElement.setAttribute("rngType", "inconsistent");
+		}
 	}
 
 	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement)

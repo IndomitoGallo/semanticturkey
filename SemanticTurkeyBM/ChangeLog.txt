@@ -1,5 +1,5 @@
 version 0.7.2 (SNAPSHOT)
-
+date: ??-12-2010
   * modified getSubClasses request from Cls.java for showing chosen labels instead of the class qname
   * fixed a BUG in the response packaging in the server to always reply with properly UTF-8 encoded characters
   * fixed BUG in SPARQL panel (on client, UI project) preventing language tagged property values to be shown (javscript null pointer exception)
@@ -8,6 +8,13 @@ version 0.7.2 (SNAPSHOT)
   * added support for SKOS / SKOS-XL
   * removed constraint on "at least a type (not owl:Thing) for each resource", now owl:Thing is always visible
   * added support for OWLART API ModelConfiguration (only in services, still to be implemented in client)
+  
+  FOR REVIEW:
+  * improved Mac compatibility (still considered unstable)
+  * improved assignment of values from properties, by inferring proper range type from both type of the range 
+    and of the property itself
+  * support for content negotation (now import functionality always asks for proper RDF format, by inferring it
+    from the file extension, default is RDF/XML)
 
 version 0.7.1
 

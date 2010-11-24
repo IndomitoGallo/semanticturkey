@@ -23,6 +23,11 @@
 
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.model.ARTBNode;
@@ -33,11 +38,16 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
+import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
+import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 
 public class RDFUtilities {
+
+	protected static Logger logger = LoggerFactory.getLogger(RDFUtilities.class);
 
 	// TODO this should be provided in next version of OWL ART API
 	public static String renderRDFNode(OWLModel model, ARTURIResource resource) throws ModelAccessException {
@@ -79,10 +89,13 @@ public class RDFUtilities {
 	/**
 	 * returns one of:
 	 * <ul>
-	 * <li>typedLiteral</li>
-	 * <li>dataRange</li>
-	 * <li>plainLiteral</li>
-	 * <li>resource</li>
+	 * <li><code>plainLiteral </code>: plainLiterals are admitted as possible values</li>
+	 * <li><code>typedLiteral </code>: typedLiteral (of the given range) are admitted as values</li>
+	 * <li><code>literal 	  </code>: literals (both typed - of any type - and plain) are admitted as values</li>
+	 * <li><code>dataRange    </code>: literals specified by the given range are admitted</li>
+	 * <li><code>resource     </code>: the property points to resources</li>
+	 * <li><code>undetermined </code>: the range is undetermined, any kind of object can be referenced through
+	 * it</li>
 	 * </ul>
 	 * 
 	 * on the type of values admitted by a given resource specified as the range of a property
@@ -91,22 +104,73 @@ public class RDFUtilities {
 	 * @param range
 	 * @return
 	 * @throws ModelAccessException
+	 * @throws IncompatibleRangeException
 	 */
-	public static VocabularyTypesEnum getRangeType(OWLModel model, ARTResource range)
-			throws ModelAccessException {
+	public static VocabularyTypesEnum getRangeType(OWLModel model, ARTURIResource property,
+			HashSet<ARTResource> rangesSet) throws ModelAccessException, IncompatibleRangeException {
+
+		// related to those annotation properties from RDFS/OWL vocabularies for which the range is known
+		// "de facto", though never declared
+		VocabularyTypesEnum specialCase = getRangeTypeSpecialCase(property);
+		if (specialCase != null)
+			return specialCase;
+
+		if (rangesSet.isEmpty()) {
+			return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.undetermined);
+		}
+
+		ARTResource range = rangesSet.iterator().next();
+
 		if (range.isURIResource()) {
 			if (XmlSchema.Res.isXMLDatatype(range.asURIResource()))
-				return VocabularyTypesEnum.typedLiteral;
+				return getInferredAndCompatiblePropertyRange(model, property,
+						VocabularyTypesEnum.typedLiteral);
 			if (range.equals(RDF.Res.PLAINLITERAL))
-				return VocabularyTypesEnum.plainLiteral;
+				return getInferredAndCompatiblePropertyRange(model, property,
+						VocabularyTypesEnum.plainLiteral);
+			if (range.equals(RDFS.Res.LITERAL))
+				return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.literal);
 		}
+
 		// has to be tested in any case: though it is not common, even a URI can be a dataRange
 		if (model.isDataRange(range, NodeFilters.MAINGRAPH))
-			return VocabularyTypesEnum.dataRange;
+			return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.dataRange);
+
 		return VocabularyTypesEnum.resource;
 	}
 
-	
+	private static VocabularyTypesEnum getRangeTypeSpecialCase(ARTURIResource property) {
+		if (property.equals(OWL.Res.VERSIONINFO) || property.equals(RDFS.Res.LABEL)
+				|| property.equals(RDFS.Res.COMMENT))
+			return VocabularyTypesEnum.plainLiteral;
+		if (property.equals(RDFS.Res.SEEALSO) || property.equals(RDFS.Res.ISDEFINEDBY))
+			return VocabularyTypesEnum.resource;
+		return null;
+	}
+
+	private static VocabularyTypesEnum getInferredAndCompatiblePropertyRange(OWLModel model,
+			ARTURIResource property, VocabularyTypesEnum suggestedType) throws ModelAccessException,
+			IncompatibleRangeException {
+		if (suggestedType == VocabularyTypesEnum.undetermined) {
+			if (model.isObjectProperty(property))
+				return VocabularyTypesEnum.resource;
+			if (model.isDatatypeProperty(property))
+				return VocabularyTypesEnum.literal;
+		} else if (suggestedType == VocabularyTypesEnum.literal
+				|| suggestedType == VocabularyTypesEnum.plainLiteral
+				|| suggestedType == VocabularyTypesEnum.typedLiteral
+				|| suggestedType == VocabularyTypesEnum.dataRange) {
+			if (model.isObjectProperty(property))
+				throw new IncompatibleRangeException(property, suggestedType);
+		} else if (suggestedType == VocabularyTypesEnum.resource) {
+			if (model.isDatatypeProperty(property))
+				throw new IncompatibleRangeException(property, suggestedType);
+		}
+		logger.debug("no contraint from given property, using range type inferred from range object: "
+				+ suggestedType);
+		return suggestedType;
+	}
+
 	public static ARTResource retrieveResource(RDFModel model, String URI_ID, VocabularyTypesEnum type)
 			throws ModelAccessException, UnavailableResourceException {
 		ARTResource res;
