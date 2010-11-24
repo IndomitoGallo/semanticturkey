@@ -86,7 +86,7 @@ public class SPARQL extends ServiceAdapter {
 		}
 	}
 
-//	Ramon Orrù (2010): introduzione parametro ser_type, popolamento richiesta con serializzaione JSON
+//	Ramon OrrÃ¹ (2010): introduzione parametro ser_type, popolamento richiesta con serializzaione JSON
 	public Response resolveQuery(String queryString, String lang, String inferString,SerializationType ser_type) {
 
 		String request = resolveQueryRequest;
@@ -137,7 +137,7 @@ public class SPARQL extends ServiceAdapter {
 				}
 			}
 			else{
-//				Ramon Orrù (2010): Serializzazione JSON
+//				Ramon OrrÃ¹ (2010): Serializzazione JSON
 				if(response instanceof JSONResponseREPLY){
 					JSONObject data=null;	
 					data=((JSONResponseREPLY)response).getDataElement();
@@ -161,7 +161,7 @@ public class SPARQL extends ServiceAdapter {
 						data.put("result",Boolean.toString(result));
 					}
 					
-//------------------  Ramon Orrù (2010): stampa per debug ----------------
+//------------------  Ramon OrrÃ¹ (2010): stampa per debug ----------------
 						logger.debug("JSON data: \n"+data.toString(3));
 //----------------------------------------------------------------------------------------------------
 					
@@ -194,7 +194,7 @@ public class SPARQL extends ServiceAdapter {
 		} catch (IOException e) {
 			logger.error(Utilities.printFullStackTrace(e));
 			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
-//			Ramon Orrù (2010): aggiunta catching JSONException
+//			Ramon OrrÃ¹ (2010): aggiunta catching JSONException
 		} catch (JSONException e) {
 			logger.error(Utilities.printFullStackTrace(e));
 			logger.error("******Errore JSON*****");

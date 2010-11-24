@@ -33,6 +33,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
@@ -726,7 +727,11 @@ public class Property extends Resource {
 			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, dataRange, true);
+			ARTLiteralIterator it = ontModel.parseDataRange(dataRange, NodeFilters.MAINGRAPH);
+			while (it.streamOpen()) {
+				RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, it.getNext(), true);
+			}	
+			it.close();
 			return response;
 
 		} catch (ModelAccessException e) {
