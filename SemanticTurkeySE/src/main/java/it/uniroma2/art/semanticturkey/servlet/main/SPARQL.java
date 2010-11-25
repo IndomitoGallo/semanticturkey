@@ -68,8 +68,8 @@ public class SPARQL extends ServiceAdapter {
 	 * @return
 	 */
 	public Response getResponse() {
-		SerializationType ser_type = _oReq.getAcceptContent(); 
-		
+		SerializationType ser_type = _oReq.getAcceptContent();
+
 		String request = setHttpPar("request");
 		try {
 			if (request.equals(resolveQueryRequest)) {
@@ -77,7 +77,7 @@ public class SPARQL extends ServiceAdapter {
 				String lang = setHttpPar(languagePar);
 				String infer = setHttpPar(inferPar);
 				checkRequestParametersAllNotNull(queryPar);
-				return resolveQuery(query, lang, infer,ser_type);
+				return resolveQuery(query, lang, infer, ser_type);
 			} else {
 				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 			}
@@ -86,8 +86,8 @@ public class SPARQL extends ServiceAdapter {
 		}
 	}
 
-//	Ramon Orrù (2010): introduzione parametro ser_type, popolamento richiesta con serializzaione JSON
-	public Response resolveQuery(String queryString, String lang, String inferString,SerializationType ser_type) {
+	public Response resolveQuery(String queryString, String lang, String inferString,
+			SerializationType ser_type) {
 
 		String request = resolveQueryRequest;
 
@@ -110,10 +110,11 @@ public class SPARQL extends ServiceAdapter {
 		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 
 		try {
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok,ser_type);
-			
-			if(response instanceof XMLResponseREPLY){
-				Element dataElement = ((XMLResponseREPLY)response).getDataElement();
+			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok, ser_type);
+
+			if (response instanceof XMLResponseREPLY) {
+				Element dataElement = ((XMLResponseREPLY) response).getDataElement();
 				Query query = owlModel.createQuery(ql, queryString);
 				if (query instanceof TupleQuery) {
 					logger.debug("query is a tuple query");
@@ -121,7 +122,8 @@ public class SPARQL extends ServiceAdapter {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					((TupleQuery) query).evaluate(infer, TupleBindingsWritingFormat.XML, baos);
 					Document doc = XMLHelp.byteArrayOutputStream2XML(baos);
-					Node importedSPARQLResult = ((Document)response.getResponseObject()).importNode(doc.getDocumentElement(), true);
+					Node importedSPARQLResult = ((Document) response.getResponseObject()).importNode(doc
+							.getDocumentElement(), true);
 					dataElement.appendChild(importedSPARQLResult);
 					logger.debug(XMLHelp.XML2String(doc));
 				} else if (query instanceof GraphQuery) {
@@ -135,36 +137,33 @@ public class SPARQL extends ServiceAdapter {
 					boolean result = ((BooleanQuery) query).evaluate(infer);
 					XMLHelp.newElement(dataElement, "result", Boolean.toString(result));
 				}
-			}
-			else{
-//				Ramon Orrù (2010): Serializzazione JSON
-				if(response instanceof JSONResponseREPLY){
-					JSONObject data=null;	
-					data=((JSONResponseREPLY)response).getDataElement();
+			} else {
+
+				if (response instanceof JSONResponseREPLY) {
+					JSONObject data = null;
+					data = ((JSONResponseREPLY) response).getDataElement();
 					Query query = owlModel.createQuery(ql, queryString);
 					if (query instanceof TupleQuery) {
 						logger.debug("query is a tuple query");
-						data.put(resultTypeAttr,  "tuple");
+						data.put(resultTypeAttr, "tuple");
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						((TupleQuery) query).evaluate(infer, TupleBindingsWritingFormat.JSON, baos);
-						String sparql_result=baos.toString();
-						data.put("sparql",new JSONObject(sparql_result));
+						String sparql_result = baos.toString();
+						data.put("sparql", new JSONObject(sparql_result));
 					} else if (query instanceof GraphQuery) {
 						logger.debug("query is a graph query");
-						data.put(resultTypeAttr,  "graph");
+						data.put(resultTypeAttr, "graph");
 						ARTStatementIterator statIt = ((GraphQuery) query).evaluate(infer);
-						Statement.createStatementsList(owlModel, statIt, data); 
+						Statement.createStatementsList(owlModel, statIt, data);
 					} else if (query instanceof BooleanQuery) {
-						logger.debug("query is a boolean query");					
+						logger.debug("query is a boolean query");
 						data.put(resultTypeAttr, "boolean");
 						boolean result = ((BooleanQuery) query).evaluate(infer);
-						data.put("result",Boolean.toString(result));
+						data.put("result", Boolean.toString(result));
 					}
-					
-//------------------  Ramon Orrù (2010): stampa per debug ----------------
-						logger.debug("JSON data: \n"+data.toString(3));
-//----------------------------------------------------------------------------------------------------
-					
+
+					logger.debug("JSON data: \n" + data.toString(3));
+
 				}
 			}
 			return response;
@@ -194,13 +193,12 @@ public class SPARQL extends ServiceAdapter {
 		} catch (IOException e) {
 			logger.error(Utilities.printFullStackTrace(e));
 			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
-//			Ramon Orrù (2010): aggiunta catching JSONException
 		} catch (JSONException e) {
 			logger.error(Utilities.printFullStackTrace(e));
 			logger.error("******Errore JSON*****");
 			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		}
-	}		
+	}
 }
 
 /*
