@@ -156,7 +156,7 @@ public class STServer extends HttpServlet {
 		logger.debug("analyzing response type");
 
 		if (response != null) {
-			if (response instanceof JSONResponseREPLY) {
+			if (response instanceof JSONResponse) {
 				oRes.setContentType("application/json");
 				logger.debug(response.getResponseContent());
 				out = oRes.getOutputStream();
