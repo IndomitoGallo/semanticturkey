@@ -100,6 +100,10 @@ public class SKOS extends Resource {
 	public SKOS(String id) {
 		super(id);
 	}
+	
+	public Logger getLogger() {
+		return logger;
+	}
 
 	@Override
 	public Response getResponse() {

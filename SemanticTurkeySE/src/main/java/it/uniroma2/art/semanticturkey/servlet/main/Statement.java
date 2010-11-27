@@ -89,6 +89,10 @@ public class Statement extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	@Override
 	public Response getResponse() {
 		String request = setHttpPar("request");

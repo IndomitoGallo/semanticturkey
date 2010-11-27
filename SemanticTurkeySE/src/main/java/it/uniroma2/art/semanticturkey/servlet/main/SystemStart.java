@@ -28,7 +28,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
@@ -45,6 +46,7 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,8 @@ public class SystemStart extends ServiceAdapter {
 	public final static String baseuriPar = "baseuri";
 	public final static String ontmanagerPar = "ontmanager";
 	public final static String projectNamePar = "name";
+	public final static String ontMgrConfigurationPar = "ontMgrConfiguration";
+	public final static String cfgParsPar = "cfgPars";
 
 	// response tags
 	public final static String baseuriTag = "baseuri";
@@ -71,23 +75,36 @@ public class SystemStart extends ServiceAdapter {
 		super(id);
 	}
 
-
-	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto � segnato,
-	// ma dire cosa manca di modo che il client pu� fare ulteriri richieste all'utente
+	public Logger getLogger() {
+		return logger;
+	}
+	
+	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
+	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
 	public Response getResponse() {
 		String request = setHttpPar("request");
 
-		if (request.equals(startRequest)) {		
-			String baseuri = setHttpPar(baseuriPar);
-			String ontModelImpl = setHttpPar(ontmanagerPar);
-			return startSystem(baseuri, ontModelImpl);
+		try {
+
+			if (request.equals(startRequest)) {
+				String baseuri = setHttpPar(baseuriPar);
+				String ontModelImpl = setHttpPar(ontmanagerPar);
+				String ontMgrConfigurationClass = setHttpPar(ontMgrConfigurationPar);
+				String cfgPars = setHttpPar(cfgParsPar);
+				checkRequestParametersAllNotNull(baseuriPar);
+
+				return startSystem(baseuri, ontModelImpl, ontMgrConfigurationClass, cfgPars);
+			}
+
+			if (request.equals(listTripleStoresRequest))
+				return listAvailableOntManagerImplementations();
+
+			else
+				return servletUtilities.createExceptionResponse(request, "no handler for such a request!");
+
+		} catch (HTTPParameterUnspecifiedException e) {
+			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
 		}
-
-		if (request.equals(listTripleStoresRequest))
-			return listAvailableOntManagerImplementations();
-
-		else
-			return servletUtilities.createExceptionResponse(request, "no handler for such a request!");
 	}
 
 	/**
@@ -98,8 +115,8 @@ public class SystemStart extends ServiceAdapter {
 	public Response listAvailableOntManagerImplementations() {
 		logger.info("getting the list of available OntologyManager Implementations");
 		ArrayList<String> ontModelList = PluginManager.getOntManagerImplIDs();
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(listTripleStoresRequest,
-				RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
+				listTripleStoresRequest, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element repElement = null;
 		Iterator<String> iter = ontModelList.iterator();
@@ -124,7 +141,7 @@ public class SystemStart extends ServiceAdapter {
 	 *         uri="http://art.uniroma2.it/ontologies/rtv"> <ontModelImplementation id="sesame"> <response/>
 	 *         </Tree>
 	 */
-	public Response startSystem(String baseuri, String ontModelImplID) {
+	public Response startSystem(String baseuri, String ontModelImplID, String ontMgrConfig, String ontPars) {
 
 		String request = startRequest;
 		logger.info("requested to start system with the following parameters:\nbaseuri=" + baseuri
@@ -140,11 +157,12 @@ public class SystemStart extends ServiceAdapter {
 			logger.info("main project has never been initialized; initializing it now");
 
 			// if ontModelImplID has not been specified, we guess it in case it is unique
-			if (ontModelImplID == null) {				
+			if (ontModelImplID == null) {
 				ArrayList<String> IDs = PluginManager.getOntManagerImplIDs();
 				if (IDs.size() == 1)
 					ontModelImplID = IDs.get(0);
-				logger.info("OntologyManager Id not specified, the sole available one:\n" + ontModelImplID + ", has been chosen");
+				logger.info("OntologyManager Id not specified, the sole available one:\n" + ontModelImplID
+						+ ", has been chosen");
 			}
 
 			// after retrieving the parameters, if any of them is still null, then the startUnavailable method
@@ -154,13 +172,17 @@ public class SystemStart extends ServiceAdapter {
 
 			String defaultNamespace = ModelUtilities.createDefaultNamespaceFromBaseURI(baseuri);
 			try {
-				ProjectManager.createMainProject(baseuri, defaultNamespace, ontModelImplID);
+
+				Properties configuration = Projects.resolveConfigParameters(ontPars);
+
+				ProjectManager.createMainProject(baseuri, defaultNamespace, ontModelImplID, ontMgrConfig,
+						configuration);
 			} catch (ProjectInconsistentException e1) {
 				return ServletUtilities.getService().createExceptionResponse(request, e1.getMessage());
 			} catch (ProjectUpdateException e1) {
 				return ServletUtilities.getService().createExceptionResponse(request, e1.getMessage());
 			}
-		} catch (ProjectCreationException e) {
+		} catch (ProjectAccessException e) {
 			logger.info("problems in project creation", e);
 			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
 		}
@@ -204,8 +226,8 @@ public class SystemStart extends ServiceAdapter {
 	}
 
 	private Response sendStartOk(String baseuri, String ontModelImplID) {
-		XMLResponseREPLY response = ServletUtilities.getService()
-				.createReplyResponse(startRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(startRequest,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		Element baseuriElement = XMLHelp.newElement(dataElement, baseuriTag);

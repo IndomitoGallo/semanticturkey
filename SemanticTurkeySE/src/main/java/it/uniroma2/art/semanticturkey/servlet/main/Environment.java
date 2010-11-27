@@ -29,6 +29,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -42,6 +44,8 @@ public class Environment extends ServiceAdapter {
 
 	public static String systemPropertiesRequest = "systemprops";
 
+	protected static Logger logger = LoggerFactory.getLogger(Environment.class);
+	
 	public Environment(String id) {
 		super(id);
 	}
@@ -58,6 +62,10 @@ public class Environment extends ServiceAdapter {
 			response = ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 		
 		return response;
+	}
+	
+	public Logger getLogger() {
+		return logger;
 	}
 
 	public Response getSystemProperties() {

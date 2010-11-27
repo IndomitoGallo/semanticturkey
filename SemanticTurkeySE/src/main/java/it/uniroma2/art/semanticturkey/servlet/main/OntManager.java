@@ -28,6 +28,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import java.util.Collection;
 
+import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
+import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
 import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
 import it.uniroma2.art.owlart.models.conf.ConfParameterNotFoundException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
@@ -62,6 +64,10 @@ public class OntManager extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public Response getResponse() {
 		String request = setHttpPar("request");
 		fireServletEvent();
@@ -86,7 +92,12 @@ public class OntManager extends ServiceAdapter {
 
 	public XMLResponse getOntologyManagerParameters(String ontMgrID) {
 		String request = getOntManagerParametersRequest;
-		OntologyManagerFactory<ModelConfiguration> ontMgrFact = PluginManager.getOntManagerImpl(ontMgrID);
+		OntologyManagerFactory<ModelConfiguration> ontMgrFact;
+		try {
+			ontMgrFact = PluginManager.getOntManagerImpl(ontMgrID);
+		} catch (UnavailableResourceException e1) {
+			return servletUtilities.createExceptionResponse(request, e1.getMessage());
+		}
 		Collection<Class<? extends ModelConfiguration>> mConfClasses = ontMgrFact.getModelConfigurations();
 
 		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
@@ -95,17 +106,19 @@ public class OntManager extends ServiceAdapter {
 		try {
 
 			for (Class<? extends ModelConfiguration> confClass : mConfClasses) {
-				
-				ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(confClass);								
+
+				ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(confClass);
 
 				Element newConfType = XMLHelp.newElement(dataElement, "configuration");
-				
+
 				newConfType.setAttribute("type", confClass.getName());
-				
-				newConfType.setAttribute("editRequired", Boolean.toString(mConf.hasRequiredParameters()));								
+
+				newConfType.setAttribute("shortName", mConf.getShortName());
+
+				newConfType.setAttribute("editRequired", Boolean.toString(mConf.hasRequiredParameters()));
 
 				Collection<String> pars = mConf.getConfigurationParameters();
-				
+
 				for (String par : pars) {
 					String parDescr = mConf.getParameterDescription(par);
 					Element newPar = XMLHelp.newElement(newConfType, "par");
@@ -113,9 +126,11 @@ public class OntManager extends ServiceAdapter {
 					newPar.setAttribute("description", parDescr);
 					newPar.setAttribute("required", Boolean.toString(mConf.isRequiredParameter(par)));
 					String contentType = mConf.getParameterContentType(par);
-					if (contentType!=null)
+					if (contentType != null)
 						newPar.setAttribute("type", contentType);
-					newPar.setTextContent(mConf.getParameterValue(par).toString());
+					Object parValue = mConf.getParameterValue(par);
+					if (parValue != null)
+						newPar.setTextContent(parValue.toString());
 				}
 
 			}
@@ -129,6 +144,8 @@ public class OntManager extends ServiceAdapter {
 		} catch (UnsupportedModelConfigurationException e) {
 			return servletUtilities.createExceptionResponse(request,
 					"strangely, the Model Configuration was not recognized: " + e.getMessage());
+		} catch (UnloadableModelConfigurationException e) {
+			return servletUtilities.createExceptionResponse(request, e.getMessage());
 		}
 
 		return response;

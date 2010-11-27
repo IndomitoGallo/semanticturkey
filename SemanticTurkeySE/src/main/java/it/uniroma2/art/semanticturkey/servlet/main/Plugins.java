@@ -67,6 +67,10 @@ public class Plugins extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public Response getResponse() {
 		String request = setHttpPar("request");
 		try {

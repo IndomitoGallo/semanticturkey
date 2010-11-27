@@ -54,6 +54,10 @@ public class Annotate extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Annotate.class);
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public String XSLpath = Resources.getXSLDirectoryPath() + "annotation.xsl";
 
 	public Response getResponse() {

@@ -36,7 +36,6 @@ import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.InvalidProjectNameException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
-import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectDeletionException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
@@ -58,6 +57,7 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +92,8 @@ public class Projects extends ServiceAdapter {
 	public final static String newProjectNamePar = "newName";
 	public final static String ontologyTypePar = "ontologyType";
 	public final static String projectTypePar = "type";
+	public final static String ontMgrConfigurationPar = "ontMgrConfiguration";
+	public final static String cfgParsPar = "cfgPars";
 	public final static String ontFilePar = "file";
 	public final static String projectFilePar = "projfile";
 	public final static String propNamesPar = "propNames";
@@ -113,104 +115,111 @@ public class Projects extends ServiceAdapter {
 	public Projects(String id) {
 		super(id);
 	}
+	
+	public Logger getLogger() {
+		return logger;
+	}
 
-	public Response getResponse() {
-		String request = setHttpPar("request");
-		try {
-			if (request.equals(Req.openProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				checkRequestParametersAllNotNull(projectNamePar);
-				return openProject(projectName);
-			}
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 
-			else if (request.equals(Req.openMainProjectRequest)) {
-				return openMainProject();
-			}
-
-			else if (request.equals(Req.createNewProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				String ontologyType = setHttpPar(ontologyTypePar);
-				String baseuri = setHttpPar(baseuriPar);
-				String ontmanager = setHttpPar(ontmanagerPar);
-				String projectType = setHttpPar(projectTypePar);
-				checkRequestParametersAllNotNull(projectNamePar, baseuriPar, ontmanagerPar, projectTypePar);
-				return newEmptyProject(projectName, ontologyType, baseuri, ontmanager, projectType);
-			}
-
-			else if (request.equals(Req.createNewProjectFromFileRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				String ontologyType = setHttpPar(ontologyTypePar); // not checked for existence
-				String baseuri = setHttpPar(baseuriPar);
-				String ontmanager = setHttpPar(ontmanagerPar);
-				String projectType = setHttpPar(projectTypePar);
-				String ontFile = setHttpPar(ontFilePar);
-				checkRequestParametersAllNotNull(projectNamePar, baseuriPar, ontmanagerPar, projectTypePar,
-						ontFilePar);
-				return newProjectFromFile(projectName, ontologyType, baseuri, ontmanager, projectType,
-						ontFile);
-			}
-
-			else if (request.equals(Req.closeProjectRequest)) {
-				return closeCurrentProject();
-			}
-
-			else if (request.equals(Req.deleteProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				checkRequestParametersAllNotNull(projectNamePar);
-				return deleteProject(projectName);
-			}
-
-			else if (request.equals(Req.exportProjectRequest)) {
-				String projectFile = setHttpPar(projectFilePar);
-				checkRequestParametersAllNotNull(projectFilePar);
-				return exportProject(projectFile);
-			}
-
-			else if (request.equals(Req.importProjectRequest)) {
-				String projectFile = setHttpPar(projectFilePar);
-				String projectName = setHttpPar(projectNamePar);
-				checkRequestParametersAllNotNull(projectFilePar);
-				return importProject(projectFile, projectName);
-			}
-
-			else if (request.equals(Req.saveProjectAsRequest)) {
-				String newProject = setHttpPar(newProjectNamePar);
-				checkRequestParametersAllNotNull(newProjectNamePar);
-				return saveProjectAs(newProject);
-			}
-
-			else if (request.equals(Req.saveProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				return saveProject(projectName);
-			}
-
-			else if (request.equals(Req.cloneProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				String newProject = setHttpPar(newProjectNamePar);
-				checkRequestParametersAllNotNull(projectNamePar, newProjectNamePar);
-				return cloneProject(projectName, newProject);
-			}
-
-			else if (request.equals(Req.listProjectsRequest)) {
-				return listProjects();
-			}
-
-			else if (request.equals(Req.getProjectPropertyRequest)) {
-				String propNamesCompact = setHttpPar(propNamesPar);
-				String projectName = setHttpPar(projectNamePar);
-				checkRequestParametersAllNotNull(propNamesPar);
-				return getProjectProperty(propNamesCompact, projectName);
-			}
-
-			else if (request.equals(Req.getCurrentProjectRequest)) {
-				return getCurrentProject();
-			}
-
-			else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		if (request.equals(Req.openProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			checkRequestParametersAllNotNull(projectNamePar);
+			return openProject(projectName);
 		}
+
+		else if (request.equals(Req.openMainProjectRequest)) {
+			return openMainProject();
+		}
+
+		else if (request.equals(Req.createNewProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			String ontologyType = setHttpPar(ontologyTypePar);
+			String baseuri = setHttpPar(baseuriPar);
+			String ontmanager = setHttpPar(ontmanagerPar);
+			String ontManagerConfiguration = setHttpPar(ontMgrConfigurationPar);
+			String cfgPars = setHttpPar(cfgParsPar);
+
+			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar, baseuriPar, ontmanagerPar,
+					ontMgrConfigurationPar);
+
+			return newEmptyProject(projectName, ontologyType, baseuri, ontmanager, ontManagerConfiguration,
+					cfgPars);
+		}
+
+		else if (request.equals(Req.createNewProjectFromFileRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			String ontologyType = setHttpPar(ontologyTypePar); // not checked for existence
+			String baseuri = setHttpPar(baseuriPar);
+			String ontmanager = setHttpPar(ontmanagerPar);
+			String ontManagerConfiguration = setHttpPar(ontMgrConfigurationPar);
+			String cfgPars = setHttpPar(cfgParsPar);
+			String ontFile = setHttpPar(ontFilePar);
+
+			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar, baseuriPar, ontmanagerPar,
+					ontMgrConfigurationPar, ontFilePar);
+			return newProjectFromFile(projectName, ontologyType, baseuri, ontmanager,
+					ontManagerConfiguration, cfgPars, ontFile);
+		}
+
+		else if (request.equals(Req.closeProjectRequest)) {
+			return closeCurrentProject();
+		}
+
+		else if (request.equals(Req.deleteProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			checkRequestParametersAllNotNull(projectNamePar);
+			return deleteProject(projectName);
+		}
+
+		else if (request.equals(Req.exportProjectRequest)) {
+			String projectFile = setHttpPar(projectFilePar);
+			checkRequestParametersAllNotNull(projectFilePar);
+			return exportProject(projectFile);
+		}
+
+		else if (request.equals(Req.importProjectRequest)) {
+			String projectFile = setHttpPar(projectFilePar);
+			String projectName = setHttpPar(projectNamePar);
+			checkRequestParametersAllNotNull(projectFilePar);
+			return importProject(projectFile, projectName);
+		}
+
+		else if (request.equals(Req.saveProjectAsRequest)) {
+			String newProject = setHttpPar(newProjectNamePar);
+			checkRequestParametersAllNotNull(newProjectNamePar);
+			return saveProjectAs(newProject);
+		}
+
+		else if (request.equals(Req.saveProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			return saveProject(projectName);
+		}
+
+		else if (request.equals(Req.cloneProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			String newProject = setHttpPar(newProjectNamePar);
+			checkRequestParametersAllNotNull(projectNamePar, newProjectNamePar);
+			return cloneProject(projectName, newProject);
+		}
+
+		else if (request.equals(Req.listProjectsRequest)) {
+			return listProjects();
+		}
+
+		else if (request.equals(Req.getProjectPropertyRequest)) {
+			String propNamesCompact = setHttpPar(propNamesPar);
+			String projectName = setHttpPar(projectNamePar);
+			checkRequestParametersAllNotNull(propNamesPar);
+			return getProjectProperty(propNamesCompact, projectName);
+		}
+
+		else if (request.equals(Req.getCurrentProjectRequest)) {
+			return getCurrentProject();
+		}
+
+		else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 	}
 
 	public Response getCurrentProject() {
@@ -277,7 +286,7 @@ public class Projects extends ServiceAdapter {
 
 		try {
 			ProjectManager.openMainProject();
-		} catch (ProjectCreationException e) {
+		} catch (ProjectAccessException e) {
 			logger.error("", e);
 			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
 		} catch (ProjectInexistentException e) {
@@ -379,49 +388,37 @@ public class Projects extends ServiceAdapter {
 			return servletUtilities.createReplyFAIL(request, "cannot save as the main project");
 		}
 
-		if (ProjectManager.existsProject(newProjectName)) {
-			return servletUtilities
-					.createReplyFAIL(request, "project " + newProjectName + " already exists!");
-		}
-
-		if (!ProjectManager.validProjectName(newProjectName)) {
-			return servletUtilities.createReplyFAIL(request, "name " + newProjectName
-					+ " is not a valid name for a project");
-		}
-
 		String projectName = ProjectManager.getCurrentProject().getName();
 		try {
+
+			if (ProjectManager.existsProject(newProjectName)) {
+				return servletUtilities.createReplyFAIL(request, "project " + newProjectName
+						+ " already exists!");
+			}
+
 			ProjectManager.closeCurrentProject();
 			ProjectManager.cloneProjectToNewProject(projectName, newProjectName);
 			ProjectManager.openProject(newProjectName);
 		} catch (ModelUpdateException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
 		} catch (InvalidProjectNameException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
 		} catch (DuplicatedResourceException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
 		} catch (IOException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
 		} catch (UnavailableResourceException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
 		} catch (ProjectAccessException e) {
-			return prepareForException(request, e);
+			return logAndSendException(request, e);
+		} catch (ProjectInexistentException e) {
+			return logAndSendException(
+					request,
+					e,
+					"weird error: ProjectManager reported that it is impossible to clone the current project because it does not exist!");
 		}
 
 		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
-	}
-
-	private Response prepareForException(String request, Exception e) {
-		logger.error(e.toString());
-		e.printStackTrace(System.err);
-		return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
-	}
-
-	@SuppressWarnings("unused")
-	private Response prepareForException(String request, Exception e, String msg) {
-		logger.error(e.toString());
-		e.printStackTrace(System.err);
-		return ServletUtilities.getService().createExceptionResponse(request, msg);
 	}
 
 	/**
@@ -512,6 +509,18 @@ public class Projects extends ServiceAdapter {
 		return ServletUtilities.getService().createExceptionResponse(request, intendedMsg);
 	}
 
+	public static Properties resolveConfigParameters(String configParameters) {
+		Properties props = new Properties();
+		if (configParameters != null) {
+			String[] splits = configParameters.split("\\|_\\|");
+			for (String split : splits) {
+				String[] nameValue = split.split(":::");
+				props.setProperty(nameValue[0], nameValue[1]);
+			}
+		}
+		return props;
+	}
+
 	/**
 	 * creates and opens a new empty project
 	 * 
@@ -524,16 +533,18 @@ public class Projects extends ServiceAdapter {
 	 * @return
 	 */
 	public Response newEmptyProject(String projectName, String ontologyType, String baseuri,
-			String ontmanager, String projectType) {
+			String ontmanager, String modelConfigurationClass, String configPars) {
 
 		String request = Req.createNewProjectRequest;
 		logger.info("requested to create new project with name:  " + projectName);
-		logger.info("project type:  " + projectType);
 		logger.debug("ontologyType: " + ontologyType);
 		try {
 			Class<? extends RDFModel> modelType = ModelTypeRegistry.getModelClass(ontologyType);
-			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager, ProjectType
-					.valueOf(projectType));
+
+			Properties modelConfiguration = resolveConfigParameters(configPars);
+
+			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+					modelConfigurationClass, modelConfiguration);
 		} catch (InvalidProjectNameException e) {
 			logger.error(e.getMessage());
 			return servletUtilities.createExceptionResponse(request, e.toString());
@@ -566,11 +577,10 @@ public class Projects extends ServiceAdapter {
 	 * @return
 	 */
 	public Response newProjectFromFile(String projectName, String ontologyType, String baseuri,
-			String ontmanager, String projectType, String file) {
+			String ontmanager, String modelConfigurationClass, String configPars, String file) {
 
 		String request = Req.createNewProjectFromFileRequest;
 		logger.info("requested to create new project with name:  " + projectName + " from file: " + file);
-		logger.info("project type:  " + projectType);
 
 		try {
 			File ontFileToImport = new File(file);
@@ -580,8 +590,11 @@ public class Projects extends ServiceAdapter {
 			else
 				modelType = ModelTypeRegistry.getModelClass(ontologyType);
 
-			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager, ProjectType
-					.valueOf(projectType));
+			Properties modelConfiguration = resolveConfigParameters(configPars);
+
+			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+					modelConfigurationClass, modelConfiguration);
+
 			logger.info("project: " + projectName + " created, importing rdf data from file: " + file);
 			ProjectManager.getCurrentProject().getOntModel().addRDF(ontFileToImport, baseuri,
 					RDFFormat.guessRDFFormatFromFile(ontFileToImport), NodeFilters.MAINGRAPH);
@@ -651,6 +664,14 @@ public class Projects extends ServiceAdapter {
 				for (int i = 0; i < propNames.length; i++)
 					propValues[i] = ProjectManager.getProjectProperty(projName, propNames[i]);
 			} catch (IOException e) {
+				e.printStackTrace();
+				logger.error("" + e);
+				return servletUtilities.createExceptionResponse(request, e.toString());
+			} catch (InvalidProjectNameException e) {
+				e.printStackTrace();
+				logger.error("" + e);
+				return servletUtilities.createExceptionResponse(request, e.toString());
+			} catch (ProjectInexistentException e) {
 				e.printStackTrace();
 				logger.error("" + e);
 				return servletUtilities.createExceptionResponse(request, e.toString());

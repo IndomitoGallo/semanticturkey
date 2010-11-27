@@ -228,27 +228,27 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	 * @return
 	 * @throws RepositoryCreationException
 	 */
-	public T startOntModel(String baseuri, File directoryFile, boolean persist)
+	public T startOntModel(String baseuri, File directoryFile, ModelConfiguration modelConfiguration)
 			throws ModelCreationException {
-		
+
 		logger.debug("loading the model");
-		
+
 		if (!directoryFile.exists())
 			throw new ModelCreationException("the directory specified for hosting the ontology ("
 					+ directoryFile + ") does not exist");
 
 		logger.debug("directory exists: " + directoryFile);
-		
+
 		refreshedOntologies = HashMultimap.create();
 
 		try {
 			// creates the model
 			logger.debug("loading model; type: " + proj.getModelType());
-			owlModel = modelFactory.loadModel(proj.getModelType(), baseuri, directoryFile.getAbsolutePath(), persist);
-		
+			owlModel = modelFactory.loadModel(proj.getModelType(), baseuri, directoryFile.getAbsolutePath(),
+					modelConfiguration);
+
 			tripleStoreDir = directoryFile;
 
-			
 			// delegates to specific triple store implementation of this class which ontologies will be
 			// considered as support ontologies
 			declareSupportOntologies();

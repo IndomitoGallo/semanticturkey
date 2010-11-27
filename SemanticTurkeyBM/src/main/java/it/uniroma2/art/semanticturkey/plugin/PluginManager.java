@@ -23,6 +23,7 @@
 
 package it.uniroma2.art.semanticturkey.plugin;
 
+import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.plugin.extpts.PluginInterface;
@@ -83,7 +84,8 @@ public class PluginManager {
 		PluginManager.directAccessTest = test;
 	}
 
-	public static void setTestOntManagerFactoryImpl(Class<? extends OntologyManagerFactory<ModelConfiguration>> ontmgrcls) {
+	public static void setTestOntManagerFactoryImpl(
+			Class<? extends OntologyManagerFactory<ModelConfiguration>> ontmgrcls) {
 		testOntManagerFactoryCls = ontmgrcls;
 	}
 
@@ -152,7 +154,7 @@ public class PluginManager {
 			repImplIdList.add(testOntManagerFactoryCls.getName());
 			return repImplIdList;
 		} else {
-			//real use section
+			// real use section
 			return getServletExtensionsIDForType(OntologyManagerFactory.class);
 		}
 
@@ -164,21 +166,32 @@ public class PluginManager {
 	 * @param idRepImpl
 	 *            id dell'implementazione desiderata
 	 * @return handler dell'implementazione desiderata
+	 * @throws UnavailableResourceException
 	 */
-	public static OntologyManagerFactory<ModelConfiguration> getOntManagerImpl(String idRepImpl) {
+	@SuppressWarnings("unchecked")
+	public static OntologyManagerFactory<ModelConfiguration> getOntManagerImpl(String idRepImpl)
+			throws UnavailableResourceException {
+
+		OntologyManagerFactory<ModelConfiguration> ontMgrFactory = null;
+
 		// test preamble
 		if (isDirectAccessTest()) {
 			try {
-				return testOntManagerFactoryCls.newInstance();
+				ontMgrFactory = testOntManagerFactoryCls.newInstance();
 			} catch (InstantiationException e) {
 				e.printStackTrace(); // this will be caught by the test unit
 			} catch (IllegalAccessException e) {
 				e.printStackTrace(); // this will be caught by the test unit
 			}
-		}
+		} else
+			// real use section
+			ontMgrFactory = getServletExtensionByID(idRepImpl, OntologyManagerFactory.class);
 
-		// real use section
-		return getServletExtensionByID(idRepImpl, OntologyManagerFactory.class);
+		if (ontMgrFactory == null)
+			throw new UnavailableResourceException("OntManagerFactory: " + idRepImpl
+					+ " is not available among the registered OSGi Ont Manager factories");
+
+		return ontMgrFactory;
 	}
 
 	/**
@@ -261,7 +274,6 @@ public class PluginManager {
 		}
 		;
 	}
-
 
 	/**
 	 * Funzione che fa partire Felix, nel caso non sia gi� stato fatto partire
@@ -347,7 +359,7 @@ public class PluginManager {
 		File dir = new File(dirName);
 		String[] children;
 		if (dir.isDirectory()) {
-			// � una estensione per Semantic Turkey
+			// è una estensione per Semantic Turkey
 			children = dir.list();
 			for (int i = 0; i < children.length; i++) {
 				if (children[i].endsWith(".jar")) {
@@ -468,42 +480,33 @@ public class PluginManager {
 	 */
 	private static void installPluginAndServices(STServer stServer) {
 		logger.debug("registering services on Semantic Turkey HTTP Server");
-		
+
 		ArrayList<ServiceInterface> services = getServletExtensionsForType(ServiceInterface.class);
 		for (ServiceInterface service : services) {
 			stServer.registerService(service.getId(), service);
 		}
-		
+
 		ArrayList<PluginInterface> plugins = getServletExtensionsForType(PluginInterface.class);
 		for (PluginInterface plugin : plugins) {
 			stServer.registerPlugin(plugin.getId(), plugin);
 		}
-		
-		/*
-		ServiceTracker m_tracker = null;
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), ServiceInterface.class.getName(), null);
-		m_tracker.open();
-		Object[] services = m_tracker.getServices();
-		for (int i = 0; (services != null) && i < services.length; ++i) {
-			logger.info("service: " + services[i]);
-			stServer
-					.registerService(((ServiceInterface) services[i]).getId(), (ServiceInterface) services[i]);
-			logger.info("has been registered");
-		}
-		m_tracker.close();
 
-		logger.debug("registering plugin services on Semantic Turkey HTTP Server");
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), PluginInterface.class.getName(), null);
-		m_tracker.open();
-		Object[] plugins = m_tracker.getServices();
-		for (int i = 0; (plugins != null) && i < plugins.length; ++i) {
-			logger.info("plugin service: " + plugins[i]);
-			stServer.registerPlugin(((PluginInterface) plugins[i]).getId(), (PluginInterface) plugins[i]);
-			logger.info("has been registered");
-		}
-		m_tracker.close();
-		logger.debug("all services have been registered on Semantic Turkey HTTP Server");
-		*/
+		/*
+		 * ServiceTracker m_tracker = null; m_tracker = new ServiceTracker(m_felix.getBundleContext(),
+		 * ServiceInterface.class.getName(), null); m_tracker.open(); Object[] services =
+		 * m_tracker.getServices(); for (int i = 0; (services != null) && i < services.length; ++i) {
+		 * logger.info("service: " + services[i]); stServer .registerService(((ServiceInterface)
+		 * services[i]).getId(), (ServiceInterface) services[i]); logger.info("has been registered"); }
+		 * m_tracker.close();
+		 * 
+		 * logger.debug("registering plugin services on Semantic Turkey HTTP Server"); m_tracker = new
+		 * ServiceTracker(m_felix.getBundleContext(), PluginInterface.class.getName(), null);
+		 * m_tracker.open(); Object[] plugins = m_tracker.getServices(); for (int i = 0; (plugins != null) &&
+		 * i < plugins.length; ++i) { logger.info("plugin service: " + plugins[i]);
+		 * stServer.registerPlugin(((PluginInterface) plugins[i]).getId(), (PluginInterface) plugins[i]);
+		 * logger.info("has been registered"); } m_tracker.close();
+		 * logger.debug("all services have been registered on Semantic Turkey HTTP Server");
+		 */
 	}
 
 	/**

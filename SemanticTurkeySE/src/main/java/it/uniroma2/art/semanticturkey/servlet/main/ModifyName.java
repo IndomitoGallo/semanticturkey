@@ -59,6 +59,10 @@ public class ModifyName extends ServiceAdapter {
 		public static String newName = "newName";
 	}
 	
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public static String renameRequest = "rename";
 
 	public ModifyName(String id) {

@@ -27,7 +27,6 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
-import static org.junit.Assert.*;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;

@@ -62,6 +62,9 @@ public class Page extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
 	
 	/* (non-Javadoc)
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()

@@ -70,7 +70,11 @@ public class Administration extends ServiceAdapter {
 		super(id);
 	}
 
-	public Response getResponse() {
+	public Logger getLogger() {
+		return logger;
+	}
+	
+	public Response getPreCheckedResponse() {
 		String request = setHttpPar("request");
 		fireServletEvent();
 		if (request.equals(setAdminLevel))

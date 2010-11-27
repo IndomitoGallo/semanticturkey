@@ -80,7 +80,7 @@ public class SaveToStoreProject<MODELTYPE extends RDFModel> extends Project<MODE
 			logger.debug("clearing RDF data");
 			ontManager.clearData();
 			logger.debug("starting the ont model");
-			ontManager.startOntModel(getBaseURI(), getProjectStoreDir(), false);
+			ontManager.startOntModel(getBaseURI(), getProjectStoreDir(), modelConfiguration);
 			logger.debug("loading ontology data");
 			ontManager.loadOntologyData(triplesFile, getBaseURI(), RDFFormat.NTRIPLES);
 		} catch (UnsupportedRDFFormatException e) {

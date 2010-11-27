@@ -71,6 +71,10 @@ public class Metadata extends Resource {
 	protected static Logger logger = LoggerFactory.getLogger(Metadata.class);
 	public String XSLpath = Resources.getXSLDirectoryPath() + "createClassForm.xsl";
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	// TODO raccogliere opportunamente le eccezioni!
 	public int fromWebToMirror = 0;
 	public int fromWeb = 1;

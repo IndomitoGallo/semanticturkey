@@ -28,9 +28,13 @@ package it.uniroma2.art.semanticturkey.project;
 
 import it.uniroma2.art.owlart.exceptions.ModelCreationException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.exceptions.VocabularyInitializationException;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
+import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
+import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 
 import it.uniroma2.art.semanticturkey.SemanticTurkey;
@@ -61,12 +65,17 @@ import org.slf4j.LoggerFactory;
 public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProject {
 
 	protected File infoSTPFile;
+	protected File modelConfigFile;
 
 	protected STOntologyManager<MODELTYPE> ontManager;
+	Class<? extends ModelConfiguration> modelConfigClass;
+	ModelConfiguration modelConfiguration;
 
 	public static final String INFOFILENAME = "project.info";
+	public static final String MODELCONFIG_FILENAME = "model.config";
 	public static final String TIMESTAMP_PROP = "timeStamp";
 	public static final String PROJECT_NAME_PROP = "name";
+	public static final String MODELCONFIG_ID = "modelConfigID";
 	public static final String ONTOLOGY_MANAGER_ID_PROP = "STOntologyManagerID";
 	public static final String BASEURI_PROP = "baseURI";
 	public static final String DEF_NS_PROP = "defaultNamespace";
@@ -78,7 +87,7 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	private static final String SEPARATION_SYMBOL = ";";
 
 	protected static Logger logger = LoggerFactory.getLogger(Project.class);
-	
+
 	private Properties stp_properties;
 	public NSPrefixMappings nsPrefixMappingsPersistence;
 
@@ -99,7 +108,10 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	 */
 	Project(String projectName, File projectDir) throws ProjectCreationException {
 		super(projectName, projectDir);
+		logger.debug("initializing project: " + projectName);
 		infoSTPFile = new File(projectDir, INFOFILENAME);
+		modelConfigFile = new File(projectDir, MODELCONFIG_FILENAME);
+		
 		stp_properties = new Properties();
 		try {
 			FileInputStream propFileInStream = new FileInputStream(infoSTPFile);
@@ -110,22 +122,29 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 					+ NSPrefixMappings.prefixMappingFileName + " in directory: " + projectDir);
 		}
 	}
-	
+
 	void activate() throws ProjectIncompatibleException, ProjectInconsistentException,
-			ModelCreationException, ProjectUpdateException {
+			ModelCreationException, ProjectUpdateException, UnavailableResourceException,
+			UnsupportedModelConfigurationException, UnloadableModelConfigurationException {
 		try {
-			OntologyManagerFactory ontMgrFact = PluginManager.getOntManagerImpl(getOntologyManagerImplID());
+			OntologyManagerFactory<ModelConfiguration> ontMgrFact = PluginManager
+					.getOntManagerImpl(getOntologyManagerImplID());
 			ontManager = ontMgrFact.createOntologyManager(this);
 			if (ontManager == null)
 				throw new ProjectIncompatibleException(
 						"there is no OSGi bundle loaded in Semantic Turkey for the required OntologyManager: "
 								+ getOntologyManagerImplID());
+
+			modelConfigClass = (Class<? extends ModelConfiguration>) Class.forName(getModelConfigurationID());
+
+			modelConfiguration = ontMgrFact.createModelConfigurationObject(modelConfigClass);
+
 			String baseURI = getBaseURI();
 			if (baseURI == null)
 				throw new ProjectInconsistentException("baseURI is not specified");
-			
+
 			logger.debug("activation of project: " + getName() + ": baseuri and OntologyManager ok");
-			
+
 			// activates the ontModel loads the triples (implementation depends on project type)
 			loadTriples();
 			logger.debug("activation of project: " + getName() + ": all triples loaded");
@@ -135,25 +154,28 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 				logger.info("generating defaultNamespace from baseuri: " + defaultNamespace);
 			}
 			getOntModel().setDefaultNamespace(defaultNamespace);
-			logger.debug("activation of project: " + getName() + ": defaultnamespace set to: " + defaultNamespace);
-			
-			ontManager.declareApplicationOntology(getOntModel().createURIResource(SemAnnotVocab.NAMESPACE), false, true);
-			
+			logger.debug("activation of project: " + getName() + ": defaultnamespace set to: "
+					+ defaultNamespace);
+
+			ontManager.declareApplicationOntology(getOntModel().createURIResource(SemAnnotVocab.NAMESPACE),
+					false, true);
+
 			// nsPrefixMappingsPersistence must have been already created by constructor of Project subclasses
 			ontManager.initializeMappingsPersistence(nsPrefixMappingsPersistence);
-			
+
 			SemanticTurkey.initializeVocabularies(getOntModel());
 			logger.info("defaultnamespace set to: " + defaultNamespace);
 		} catch (ModelUpdateException e) {
 			throw new ProjectUpdateException(e);
 		} catch (VocabularyInitializationException e) {
 			throw new ProjectUpdateException(e);
+		} catch (ClassNotFoundException e) {
+			throw new UnloadableModelConfigurationException(e);
 		}
 
 		updateTimeStamp();
 	}
 
-	
 	/**
 	 * this initializes the {@link #owlModel} field with a newly created {@link OWLModel} for this project
 	 * 
@@ -176,6 +198,10 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		return stp_properties.getProperty(ONTOLOGY_MANAGER_ID_PROP);
 	}
 
+	public String getModelConfigurationID() {
+		return stp_properties.getProperty(MODELCONFIG_ID);
+	}
+
 	public STOntologyManager<MODELTYPE> getOntologyManager() {
 		return ontManager;
 	}
@@ -191,11 +217,11 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public String getDefaultNamespace() {
 		return stp_properties.getProperty(DEF_NS_PROP);
 	}
-	
+
 	public String getType() {
 		return stp_properties.getProperty(PROJECT_TYPE);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Class<MODELTYPE> getModelType() throws ProjectInconsistentException {
 		logger.debug("getting model type for this project");
@@ -203,7 +229,8 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		logger.debug("model type declared for this project: " + propValue);
 		Class modelType;
 		if (propValue == null) {
-			throw new ProjectInconsistentException("property: " + PROJECT_MODEL_TYPE + " not defined for this project");
+			throw new ProjectInconsistentException("property: " + PROJECT_MODEL_TYPE
+					+ " not defined for this project");
 		}
 		try {
 			modelType = Class.forName(propValue);
@@ -212,18 +239,22 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 			if (RDFModel.class.isAssignableFrom(modelType))
 				return (Class<MODELTYPE>) modelType;
 			else
-				throw new ProjectInconsistentException (
-						"ModelType \"" + modelType +  "\" assigned to this project is a legal java class, but is not a know RDFModel subclass");
+				throw new ProjectInconsistentException(
+						"ModelType \""
+								+ modelType
+								+ "\" assigned to this project is a legal java class, but is not a know RDFModel subclass");
 
 		} catch (ClassNotFoundException e) {
-			throw new ProjectInconsistentException("class " + e.getMessage() + ", specified as model for this project, does not exists");
+			throw new ProjectInconsistentException("class " + e.getMessage()
+					+ ", specified as model for this project, does not exists");
 		}
 	}
-	
+
 	/**
 	 * returns the value associated to a given property for this project
 	 * 
-	 * @param propName the name of the queried property
+	 * @param propName
+	 *            the name of the queried property
 	 * @return the value associated to this property
 	 */
 	public String getProperty(String propName) {
@@ -234,6 +265,15 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public void setOntologyManagerImpl(String tripleStoreImplId) throws ProjectUpdateException {
 		try {
 			stp_properties.setProperty(ONTOLOGY_MANAGER_ID_PROP, tripleStoreImplId);
+			updateProjectProperties();
+		} catch (IOException e) {
+			throw new ProjectUpdateException(e);
+		}
+	}
+
+	public void setModelConfigurationID(String modelConfigID) throws ProjectUpdateException {
+		try {
+			stp_properties.setProperty(MODELCONFIG_ID, modelConfigID);
 			updateProjectProperties();
 		} catch (IOException e) {
 			throw new ProjectUpdateException(e);
@@ -268,9 +308,7 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 			throw new ProjectUpdateException(e);
 		}
 	}
-	
-	
-	
+
 	public void updateTimeStamp() throws ProjectUpdateException {
 		Date currentDate = new Date();
 		stp_properties.setProperty(TIMESTAMP_PROP, Long.toString(currentDate.getTime()));
@@ -366,9 +404,7 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public OWLModel getOWLModel() {
 		return getOntologyManager().getOWLModel();
 	}
-	
-	
-	
+
 	public File getProjectStoreDir() {
 		return new File(_projectDir, PROJECT_STORE_DIR_NAME);
 	}

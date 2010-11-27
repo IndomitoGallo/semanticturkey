@@ -24,6 +24,8 @@
 package it.uniroma2.art.semanticturkey.resources;
 
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.semanticturkey.exceptions.InvalidProjectNameException;
+import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 
@@ -45,45 +47,68 @@ import org.slf4j.LoggerFactory;
 public class UpdateRoutines {
 
 	protected static Logger logger = LoggerFactory.getLogger(UpdateRoutines.class);
-	
+
 	static void startUpdatesCheckAndRepair() {
 		// from version 0.6.x to version 0.7.x
 		align_from_06x_to_07x();
 		align_from_071_to_072();
 	}
-	
-	
+
 	/**
 	 * upgrade from version 0.6.x of SemanticTurkeyData
 	 * 
-	 * this limits to check that the Projects Folder exists and, in negative case, create it 
-	 * @throws IOException 
+	 * this limits to check that the Projects Folder exists and, in negative case, create it
+	 * 
+	 * @throws IOException
 	 */
 	private static void align_from_06x_to_07x() {
 		File projDir = Resources.getProjectsDir();
 		if (!projDir.exists())
 			projDir.mkdir();
 	}
-	
+
 	/**
 	 * upgrade from version 0.7.1 of SemanticTurkeyData to 0.7.2
 	 * 
-	 * this checks that the main-project exists, and, in case 
-	 * @throws IOException 
+	 * this checks that the main-project exists, and, in case
+	 * 
+	 * @throws IOException
 	 */
 	private static void align_from_071_to_072() {
 		File mainProjDir = Resources.getMainProjectDir();
 		if (mainProjDir.exists()) {
 			try {
-				String modelType = ProjectManager.getProjectProperty(ProjectManager.mainProjectName, Project.PROJECT_MODEL_TYPE);
-				if (modelType==null) {
-					logger.info("main project is present, though it shows no modeltype. Since it is a project previous to version 0.7.2, its model type is being set to OWLModel");
-					ProjectManager.setProjectProperty(ProjectManager.mainProjectName, Project.PROJECT_MODEL_TYPE, OWLModel.class.getName());
-					
+				String modelType = ProjectManager.getProjectProperty(ProjectManager.mainProjectName,
+						Project.PROJECT_MODEL_TYPE);
+				if (modelType == null) {
+					logger
+							.error(Resources.mainProjectName
+									+ " is present, though it shows no modeltype. Since it is a project previous to version 0.7.2, its model type is being set to OWLModel");
+					ProjectManager.setProjectProperty(ProjectManager.mainProjectName,
+							Project.PROJECT_MODEL_TYPE, OWLModel.class.getName());
+
 				}
 			} catch (IOException e) {
-				logger.error("unable to access property file for main project (which seems however to exist)");
+				logger
+						.error("unable to access property file for main project (which seems however to exist)");
 				e.printStackTrace();
+			} catch (InvalidProjectNameException e) {
+				logger.error("UPDATING OLD PROJECT TO NEW FORMAT: strangely, the project name is invalid");
+			} catch (ProjectInexistentException e) {
+				logger
+						.error("UPDATING OLD PROJECT TO NEW FORMAT: strangely, the main project does not exist, while it has been previously checked for existence");
+			}
+
+			File modelConfigFile = new File(mainProjDir, Project.MODELCONFIG_FILENAME);
+			if (!modelConfigFile.exists()) {
+				try {
+					modelConfigFile.createNewFile();
+				} catch (IOException e) {
+					logger
+							.error("UPDATING OLD PROJECT TO NEW FORMAT: unable to create "
+									+ Project.MODELCONFIG_FILENAME + " file in Project: "
+									+ Resources.mainProjectName);
+				}
 			}
 		}
 	}

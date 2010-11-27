@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
 
 /**
  * @author Andrea Turbati
@@ -47,7 +48,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected ServiceRequest _oReq = null;
 	protected List<ServletListener> listeners = new ArrayList<ServletListener>();
 	protected ServletUtilities servletUtilities;
-	
+
 	protected HashMap<String, String> httpParameters;
 
 	public ServiceAdapter(String id) {
@@ -55,7 +56,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		httpParameters = new HashMap<String, String>();
 		this.id = id;
 	}
-	
+
 	/**
 	 * this method performs the following operations:
 	 * <ul>
@@ -146,7 +147,59 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 * 
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceInterface#XMLData()
 	 */
-	public abstract Response getResponse();
+	public Response getResponse() {
+		Response resp;
 
+		// RDFModel model = ProjectManager.getCurrentProject().getOntModel();
+		// if (model instanceof TransactionBasedModel) { setAutoCommit(false);
+		String request = setHttpPar("request");
+
+		try {
+			resp = getPreCheckedResponse(request);
+		} catch (HTTPParameterUnspecifiedException e) {
+			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		}
+
+		// } final {
+		// if (model instanceof TransactionBasedModel) {
+		// setAutoCommit(true);
+
+		return resp;
+	}
+
+	protected Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+		return getResponse();
+	};
+
+	protected abstract Logger getLogger();
+
+	/**
+	 * this convenience method prepares an exception response initialized with the given arguments, logs
+	 * the occurred exception with level "error" and prints the stack trace
+	 * 
+	 * @param request
+	 * @param e
+	 * @return
+	 */
+	protected Response logAndSendException(String request, Exception e) {
+		getLogger().error(e.toString());
+		e.printStackTrace(System.err);
+		return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
+	}
+
+	/**
+	 * this convenience method prepares an exception response initialized with the given arguments, logs
+	 * the occurred exception with level "error" and prints the stack trace
+	 * 
+	 * @param request
+	 * @param e
+	 * @param msg
+	 * @return
+	 */
+	protected Response logAndSendException(String request, Exception e, String msg) {
+		getLogger().error(e.toString());
+		e.printStackTrace(System.err);
+		return ServletUtilities.getService().createExceptionResponse(request, msg);
+	}
 
 }

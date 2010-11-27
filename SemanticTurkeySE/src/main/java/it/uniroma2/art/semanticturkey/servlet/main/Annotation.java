@@ -103,6 +103,10 @@ public class Annotation extends ServiceAdapter {
 		servletUtilities = ServletUtilities.getService();
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	protected void initializeDeletePropertyPropagationTreeForAnnotations() {
 		deletePropertyPropagationTreeForAnnotations = new DeletePropagationPropertyTree();
 		deletePropertyPropagationTreeForAnnotations.addChild(SemAnnotVocab.Res.location);
