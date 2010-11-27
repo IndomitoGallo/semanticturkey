@@ -121,6 +121,10 @@ public class Property extends Resource {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	/**
 	 * 
 	 * @return Document

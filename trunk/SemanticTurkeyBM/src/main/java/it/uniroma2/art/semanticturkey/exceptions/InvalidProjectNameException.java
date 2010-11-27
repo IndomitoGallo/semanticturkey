@@ -26,7 +26,6 @@
  */
 package it.uniroma2.art.semanticturkey.exceptions;
 
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 
 public class InvalidProjectNameException extends Exception {
 
@@ -36,14 +35,12 @@ public class InvalidProjectNameException extends Exception {
 	private static final long serialVersionUID = 6891890698836795808L;
 
 	public InvalidProjectNameException() {
-		super("the selected Project Name may not contain the following symbols: \\/:*?\"<>| nor be: "
-				+ ProjectManager.mainProjectName);
+		super("the selected Project Name may not contain the following symbols: \\/:*?\"<>|");
 	}
 
 	public InvalidProjectNameException(String projectName) {
 		super("the selected Project Name, which is: \"" + projectName
-				+ "\", may not contain the following symbols: \\/:*?\"<>| nor be: "
-				+ ProjectManager.mainProjectName);
+				+ "\", may not contain the following symbols: \\/:*?\"<>|");
 	}
 
 }

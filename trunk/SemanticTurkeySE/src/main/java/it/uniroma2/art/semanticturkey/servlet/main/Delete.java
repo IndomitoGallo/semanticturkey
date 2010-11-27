@@ -64,6 +64,10 @@ public class Delete extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	private void initializeDeletePropertyPropagationTree() {
 		deletePropertyPropagationTree = new DeletePropagationPropertyTree();
 		deletePropertyPropagationTree.addChild(SemAnnotVocab.Res.annotation).addChild(

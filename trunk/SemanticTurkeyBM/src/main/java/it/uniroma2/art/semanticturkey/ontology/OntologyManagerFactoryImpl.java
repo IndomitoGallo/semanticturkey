@@ -27,6 +27,7 @@
 package it.uniroma2.art.semanticturkey.ontology;
 
 import it.uniroma2.art.owlart.models.ModelFactory;
+import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
 import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 
@@ -47,7 +48,7 @@ public abstract class OntologyManagerFactoryImpl<MC extends ModelConfiguration> 
 	}
 
 	public <MCImpl extends MC> MCImpl createModelConfigurationObject(Class<MCImpl> mcType)
-			throws UnsupportedModelConfigurationException {
+			throws UnsupportedModelConfigurationException, UnloadableModelConfigurationException {
 		return createModelFactory().createModelConfigurationObject(mcType);
 	}
 }

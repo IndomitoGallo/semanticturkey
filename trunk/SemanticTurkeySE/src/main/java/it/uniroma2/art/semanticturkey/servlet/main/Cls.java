@@ -129,83 +129,81 @@ public class Cls extends Resource {
 		super(id);
 	}
 
-	public Response getResponse() {
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to cls");
 
 		Response response = null;
 		ServletUtilities servletUtilities = new ServletUtilities();
 		Individual individual = new Individual("individual");
 
-		String request = setHttpPar("request");
 		// all new fashoned requests are put inside these grace brackets
 
-		try {
-			if (request == null)
-				return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
+		if (request == null)
+			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 
-			// GET CLASS METHODS
-			if (request.equals(getClassTreeRequest)) {
-				response = createClassXMLTree();
-			} else if (request.equals(getClassAndInstancesInfoRequest)) {
-				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
-				String listMod = setHttpPar(directInstPar);
-				String hasSubClassesMod = setHttpPar(hasSubClassesPar);
-				checkRequestParametersAllNotNull(clsQNameField);
-				response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesMod);
-			} else if (request.equals(getSuperClassesRequest)) {
-				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
-				checkRequestParametersAllNotNull(clsQNameField);
-				response = getSuperClasses(clsQName);
-			} else if (request.equals(getSubClassesRequest)) {
-				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
-				String tree = setHttpPar(treePar);
-				String instNum = setHttpPar(instNumPar);
-				checkRequestParametersAllNotNull(clsQNameField);
-				boolean treeBool = (tree == null) ? false : (Boolean.parseBoolean(tree));
-				boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
-				String labelQuery = setHttpPar(labelQueryPar);
-				response = getSubClasses(clsQName, treeBool, instNumBool, labelQuery);
-			} else if (request.equals(getClassesInfoAsRootsForTreeRequest)) {
-				String clsesQNames = servletUtilities.removeInstNumberParentheses(setHttpPar(clsesQNamesPar));
-				String instNum = setHttpPar(instNumPar);
-				boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
-				checkRequestParametersAllNotNull(clsesQNamesPar);
-				response = getClassesInfoAsRootsForTree(clsesQNames, instNumBool);
-			}
-
-			// EDIT CLASS METHODS
-			else if (request.equals(classDescriptionRequest)) {
-				String classQNameEncoded = setHttpPar(clsQNameField);
-				String method = setHttpPar("method");
-				checkRequestParametersAllNotNull(clsQNameField, "method");
-				response = getClassDescription(classQNameEncoded, method);
-			} else if (request.equals(createInstanceRequest)) {
-				String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
-				String instanceQName = setHttpPar(instanceNamePar);
-				checkRequestParametersAllNotNull(instanceNamePar, clsQNameField);
-				response = createInstanceOption(instanceQName, clsQName);
-			} else if (request.equals(addTypeRequest)) {
-				String clsQName = setHttpPar(clsQNamePar);
-				String typeQName = setHttpPar(typeQNamePar);
-				checkRequestParametersAllNotNull(clsQNamePar, typeQNamePar);
-				response = individual.addType(clsQName, typeQName);
-			} else if (request.equals(removeTypeRequest))
-				response = individual.removeType(setHttpPar("clsqname"), _oReq.getParameter("typeqname"));
-			else if (request.equals(addSuperClsRequest))
-				response = addSuperClass(setHttpPar("clsqname"), setHttpPar("superclsqname"));
-			else if (request.equals(removeSuperClsRequest))
-				response = removeSuperClass(setHttpPar("clsqname"), _oReq.getParameter("superclsqname"));
-			else if (request.equals(createClassRequest)) {
-				String superClassName = setHttpPar(superClassNamePar);
-				String newClassName = setHttpPar(newClassNamePar);
-				checkRequestParametersAllNotNull(superClassNamePar, newClassNamePar);
-				response = createClass(newClassName, superClassName);
-			} else
-				return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		// GET CLASS METHODS
+		if (request.equals(getClassTreeRequest)) {
+			response = createClassXMLTree();
+		} else if (request.equals(getClassAndInstancesInfoRequest)) {
+			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String listMod = setHttpPar(directInstPar);
+			String hasSubClassesMod = setHttpPar(hasSubClassesPar);
+			checkRequestParametersAllNotNull(clsQNameField);
+			response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesMod);
+		} else if (request.equals(getSuperClassesRequest)) {
+			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			checkRequestParametersAllNotNull(clsQNameField);
+			response = getSuperClasses(clsQName);
+		} else if (request.equals(getSubClassesRequest)) {
+			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String tree = setHttpPar(treePar);
+			String instNum = setHttpPar(instNumPar);
+			checkRequestParametersAllNotNull(clsQNameField);
+			boolean treeBool = (tree == null) ? false : (Boolean.parseBoolean(tree));
+			boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
+			String labelQuery = setHttpPar(labelQueryPar);
+			response = getSubClasses(clsQName, treeBool, instNumBool, labelQuery);
+		} else if (request.equals(getClassesInfoAsRootsForTreeRequest)) {
+			String clsesQNames = servletUtilities.removeInstNumberParentheses(setHttpPar(clsesQNamesPar));
+			String instNum = setHttpPar(instNumPar);
+			boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
+			checkRequestParametersAllNotNull(clsesQNamesPar);
+			response = getClassesInfoAsRootsForTree(clsesQNames, instNumBool);
 		}
+
+		// EDIT CLASS METHODS
+		else if (request.equals(classDescriptionRequest)) {
+			String classQNameEncoded = setHttpPar(clsQNameField);
+			String method = setHttpPar("method");
+			checkRequestParametersAllNotNull(clsQNameField, "method");
+			response = getClassDescription(classQNameEncoded, method);
+		} else if (request.equals(createInstanceRequest)) {
+			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String instanceQName = setHttpPar(instanceNamePar);
+			checkRequestParametersAllNotNull(instanceNamePar, clsQNameField);
+			response = createInstanceOption(instanceQName, clsQName);
+		} else if (request.equals(addTypeRequest)) {
+			String clsQName = setHttpPar(clsQNamePar);
+			String typeQName = setHttpPar(typeQNamePar);
+			checkRequestParametersAllNotNull(clsQNamePar, typeQNamePar);
+			response = individual.addType(clsQName, typeQName);
+		} else if (request.equals(removeTypeRequest))
+			response = individual.removeType(setHttpPar("clsqname"), _oReq.getParameter("typeqname"));
+		else if (request.equals(addSuperClsRequest))
+			response = addSuperClass(setHttpPar("clsqname"), setHttpPar("superclsqname"));
+		else if (request.equals(removeSuperClsRequest))
+			response = removeSuperClass(setHttpPar("clsqname"), _oReq.getParameter("superclsqname"));
+		else if (request.equals(createClassRequest)) {
+			String superClassName = setHttpPar(superClassNamePar);
+			String newClassName = setHttpPar(newClassNamePar);
+			checkRequestParametersAllNotNull(superClassNamePar, newClassNamePar);
+			response = createClass(newClassName, superClassName);
+		} else
+			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
 		return response;
@@ -244,7 +242,7 @@ public class Cls extends Resource {
 			root.setAttribute("name", ontModel.getQName(clsURI));
 
 			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkWriteOnly(cls)));
-			
+
 			if (hasSubClassesRequest) {
 				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls);
 				if (subSubClassesIterator.hasNext())
@@ -252,8 +250,8 @@ public class Cls extends Resource {
 				else
 					root.setAttribute("more", "0"); // the subclass has no subclasses itself
 				subSubClassesIterator.close();
-			}			
-			
+			}
+
 			// the instance widget is a tree where the root is the class which has a flat list of children
 			// given by its instances. The name of the class is necessary to sync the number of instances
 			// reported in brackets near the classes in the classs tree (he has to find the class by

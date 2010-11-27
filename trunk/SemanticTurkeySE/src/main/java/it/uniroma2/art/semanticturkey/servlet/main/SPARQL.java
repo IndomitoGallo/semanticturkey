@@ -86,6 +86,10 @@ public class SPARQL extends ServiceAdapter {
 		}
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public Response resolveQuery(String queryString, String lang, String inferString,
 			SerializationType ser_type) {
 

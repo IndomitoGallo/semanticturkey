@@ -80,6 +80,10 @@ public class Synonyms extends ServiceAdapter {
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public Response getSynonyms() {
 
 		String request = getSynonymsRequest;

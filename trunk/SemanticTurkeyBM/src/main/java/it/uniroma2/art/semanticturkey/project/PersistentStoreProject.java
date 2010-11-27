@@ -48,7 +48,7 @@ public class PersistentStoreProject<MODELTYPE extends RDFModel> extends Project<
 	@Override
 	protected void loadTriples() throws ModelCreationException {
 		logger.debug("loading triples");
-		ontManager.startOntModel(getBaseURI(), getProjectStoreDir(), true);
+		ontManager.startOntModel(getBaseURI(), getProjectStoreDir(), modelConfiguration);
 	}
 	
 	

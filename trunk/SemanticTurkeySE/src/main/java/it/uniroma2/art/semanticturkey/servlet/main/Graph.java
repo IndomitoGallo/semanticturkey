@@ -72,6 +72,10 @@ public class Graph extends ServiceAdapter {
 		super(id);
 	}
 	
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	
 	/**Metodo che si occupa della creazione dell'elemento xml relativo al grafico rappresentante l'ontologia
 	 *@return Document  graphDocument*/

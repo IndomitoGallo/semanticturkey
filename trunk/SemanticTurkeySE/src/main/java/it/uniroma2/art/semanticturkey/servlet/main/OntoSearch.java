@@ -70,6 +70,10 @@ public class OntoSearch extends ServiceAdapter {
 		super(id);
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	/**
 	 * Metodo che effettua la ricerca di una parola all'interno dell'ontologia e restituisce l'elemento xml
 	 * contenente la lista dei risultati

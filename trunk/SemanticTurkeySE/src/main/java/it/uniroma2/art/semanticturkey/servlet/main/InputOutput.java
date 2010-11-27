@@ -54,6 +54,10 @@ import org.w3c.dom.Element;
 public class InputOutput extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(InputOutput.class);
 
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public static String saveRDFRequest = "saveRDF";
 	public static String loadRDFRequest = "loadRDF";
 	public static String clearDataRequest = "clearData";
