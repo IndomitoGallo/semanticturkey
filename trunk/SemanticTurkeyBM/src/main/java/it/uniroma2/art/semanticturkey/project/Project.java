@@ -39,6 +39,7 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 
 import it.uniroma2.art.semanticturkey.SemanticTurkey;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
+import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectIncompatibleException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
@@ -111,21 +112,21 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		logger.debug("initializing project: " + projectName);
 		infoSTPFile = new File(projectDir, INFOFILENAME);
 		modelConfigFile = new File(projectDir, MODELCONFIG_FILENAME);
-		
+
 		stp_properties = new Properties();
 		try {
 			FileInputStream propFileInStream = new FileInputStream(infoSTPFile);
 			stp_properties.load(propFileInStream);
 			propFileInStream.close();
 		} catch (IOException e1) {
-			throw new ProjectCreationException("some problem occurred in accessing file: "
-					+ NSPrefixMappings.prefixMappingFileName + " in directory: " + projectDir);
+			throw new ProjectCreationException(e1);
 		}
 	}
 
 	void activate() throws ProjectIncompatibleException, ProjectInconsistentException,
 			ModelCreationException, ProjectUpdateException, UnavailableResourceException,
-			UnsupportedModelConfigurationException, UnloadableModelConfigurationException {
+			UnsupportedModelConfigurationException, UnloadableModelConfigurationException,
+			ProjectAccessException {
 		try {
 			OntologyManagerFactory<ModelConfiguration> ontMgrFact = PluginManager
 					.getOntManagerImpl(getOntologyManagerImplID());
@@ -135,9 +136,15 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 						"there is no OSGi bundle loaded in Semantic Turkey for the required OntologyManager: "
 								+ getOntologyManagerImplID());
 
-			modelConfigClass = (Class<? extends ModelConfiguration>) Class.forName(getModelConfigurationID());
+			// modelConfigClass = (Class<? extends ModelConfiguration>)
+			// Class.forName(getModelConfigurationID());
 
-			modelConfiguration = ontMgrFact.createModelConfigurationObject(modelConfigClass);
+			try {
+				modelConfiguration = ontMgrFact
+						.createModelConfigurationObject(getModelConfigurationID());
+			} catch (ClassNotFoundException e) {
+				throw new ProjectAccessException(e);
+			}
 
 			String baseURI = getBaseURI();
 			if (baseURI == null)
@@ -169,8 +176,6 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 			throw new ProjectUpdateException(e);
 		} catch (VocabularyInitializationException e) {
 			throw new ProjectUpdateException(e);
-		} catch (ClassNotFoundException e) {
-			throw new UnloadableModelConfigurationException(e);
 		}
 
 		updateTimeStamp();
@@ -194,12 +199,58 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		return Long.parseLong(stp_properties.getProperty(TIMESTAMP_PROP));
 	}
 
-	public String getOntologyManagerImplID() {
-		return stp_properties.getProperty(ONTOLOGY_MANAGER_ID_PROP);
+	public String getOntologyManagerImplID() throws ProjectInconsistentException {
+		return getRequiredProperty(ONTOLOGY_MANAGER_ID_PROP);
 	}
 
-	public String getModelConfigurationID() {
-		return stp_properties.getProperty(MODELCONFIG_ID);
+	/*
+	 * @SuppressWarnings("unchecked") public Class<? extends STOntologyManager> getOntologyManagerImplClass()
+	 * throws ProjectInconsistentException { return getClassTypedProperty(ONTOLOGY_MANAGER_ID_PROP,
+	 * STOntologyManager.class); }
+	 */
+
+	/*
+	 * public Class<? extends ModelConfiguration> getModelConfigurationClass() throws
+	 * ProjectInconsistentException { return getClassTypedProperty(MODELCONFIG_ID, ModelConfiguration.class);
+	 * }
+	 */
+
+	// casting is checked internally
+	@SuppressWarnings("unchecked")
+	public Class<MODELTYPE> getModelType() throws ProjectInconsistentException {
+		return (Class<MODELTYPE>) getClassTypedProperty(Project.PROJECT_MODEL_TYPE, RDFModel.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Class<? extends T> getClassTypedProperty(String propertyName, Class<T> definingClass)
+			throws ProjectInconsistentException {
+		logger.debug("getting " + propertyName + " for this project");
+		String propValue = getProperty(propertyName);
+		logger.debug(propertyName + " declared for this project: " + propValue);
+		Class<?> classTypedPropertyValue;
+		if (propValue == null) {
+			throw new ProjectInconsistentException("property: " + propertyName
+					+ " not defined for this project");
+		}
+		try {
+			classTypedPropertyValue = Class.forName(propValue);
+			// this should check that the returned model is a subclass of RDFModel
+			logger.debug(propertyName + " for this project: " + classTypedPropertyValue);
+			if (definingClass.isAssignableFrom(classTypedPropertyValue))
+				return (Class<? extends T>) classTypedPropertyValue;
+			else
+				throw new ProjectInconsistentException(propertyName + " \"" + classTypedPropertyValue
+						+ "\" assigned to this project is a legal java class, but is not a know "
+						+ definingClass.getName() + " subclass");
+
+		} catch (ClassNotFoundException e) {
+			throw new ProjectInconsistentException("class " + e.getMessage() + ", specified as: "
+					+ propertyName + " for this project, does not exists");
+		}
+	}
+
+	public String getModelConfigurationID() throws ProjectInconsistentException {
+		return getRequiredProperty(MODELCONFIG_ID);
 	}
 
 	public STOntologyManager<MODELTYPE> getOntologyManager() {
@@ -218,38 +269,19 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		return stp_properties.getProperty(DEF_NS_PROP);
 	}
 
-	public String getType() {
-		return stp_properties.getProperty(PROJECT_TYPE);
+	public String getType() throws ProjectInconsistentException {		
+		return getRequiredProperty(PROJECT_TYPE);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Class<MODELTYPE> getModelType() throws ProjectInconsistentException {
-		logger.debug("getting model type for this project");
-		String propValue = getProperty(Project.PROJECT_MODEL_TYPE);
-		logger.debug("model type declared for this project: " + propValue);
-		Class modelType;
-		if (propValue == null) {
-			throw new ProjectInconsistentException("property: " + PROJECT_MODEL_TYPE
-					+ " not defined for this project");
-		}
-		try {
-			modelType = Class.forName(propValue);
-			// this should check that the returned model is a subclass of RDFModel
-			logger.debug("model type for this project: " + modelType);
-			if (RDFModel.class.isAssignableFrom(modelType))
-				return (Class<MODELTYPE>) modelType;
-			else
-				throw new ProjectInconsistentException(
-						"ModelType \""
-								+ modelType
-								+ "\" assigned to this project is a legal java class, but is not a know RDFModel subclass");
-
-		} catch (ClassNotFoundException e) {
-			throw new ProjectInconsistentException("class " + e.getMessage()
-					+ ", specified as model for this project, does not exists");
-		}
+	String getRequiredProperty(String propertyName) throws ProjectInconsistentException {
+		String propValue = stp_properties.getProperty(propertyName);
+		if (propValue!=null)
+			return propValue;
+		else
+			throw new ProjectInconsistentException("missing required " + propertyName
+					+ " value from description of project: " + this.getName());
 	}
-
+	
 	/**
 	 * returns the value associated to a given property for this project
 	 * 
@@ -260,24 +292,6 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public String getProperty(String propName) {
 		logger.debug("getting value of property: " + propName);
 		return stp_properties.getProperty(propName);
-	}
-
-	public void setOntologyManagerImpl(String tripleStoreImplId) throws ProjectUpdateException {
-		try {
-			stp_properties.setProperty(ONTOLOGY_MANAGER_ID_PROP, tripleStoreImplId);
-			updateProjectProperties();
-		} catch (IOException e) {
-			throw new ProjectUpdateException(e);
-		}
-	}
-
-	public void setModelConfigurationID(String modelConfigID) throws ProjectUpdateException {
-		try {
-			stp_properties.setProperty(MODELCONFIG_ID, modelConfigID);
-			updateProjectProperties();
-		} catch (IOException e) {
-			throw new ProjectUpdateException(e);
-		}
 	}
 
 	public void setBaseURI(String baseURI) throws ProjectUpdateException {

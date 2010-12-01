@@ -240,7 +240,7 @@ function relateAndAnnotate(instanceQName,propertyQName,objectQName,urlPage,title
  * @return
  */
 function chkAnnotation(urlPage) {
-	urlPage="urlPage="+urlPage;
+	var urlPage="urlPage="+urlPage;
 	return HttpMgr.GET(serviceName, service.chkAnnotationsRequest,urlPage);
 }
 
@@ -253,8 +253,16 @@ function chkAnnotation(urlPage) {
  * @return
  */
 function getPageAnnotations(urlPage) {
-	urlPage="urlPage="+urlPage;
+	var urlPage="urlPage="+urlPage;
 	return HttpMgr.GET(serviceName, service.getPageAnnotationsRequest,urlPage);
+}
+
+function addAnnotation(urlPage,instanceQName,text,title){
+	var urlPage="urlPage="+urlPage;
+	var instanceQName="instanceQName="+instanceQName;
+	var text="text="+text;
+	var title="title="+title;
+	return HttpMgr.GET(serviceName, service.addAnnotationRequest,urlPage,instanceQName,text,title);
 }
 // Annotation SERVICE INITIALIZATION
 service.chkAnnotation = chkAnnotation;
@@ -263,3 +271,4 @@ service.createAndAnnotate = createAndAnnotate;
 service.relateAndAnnotateBindAnnot = relateAndAnnotateBindAnnot;
 service.relateAndAnnotateBindCreate = relateAndAnnotateBindCreate;
 service.createFurtherAnnotation = createFurtherAnnotation;
+service.addAnnotation=addAnnotation;

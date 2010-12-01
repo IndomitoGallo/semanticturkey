@@ -93,17 +93,27 @@ public class Resources {
 			try {
 				// first Copy Of User Resources
 				Utilities.recursiveCopy(new File(_sourceUserDirectoryPath), new File(_userDirectoryPath));
+				Config.initialize(_semTurkeyPropertyFile);
 			} catch (IOException e) {
 				throw new STInitializationException(
 						"initial copy of Semantic Turkey resources failed during first install: "
 								+ e.getMessage());
 			}
 		} else {
-			UpdateRoutines.startUpdatesCheckAndRepair();
+			try {
+				Config.initialize(_semTurkeyPropertyFile);
+				UpdateRoutines.startUpdatesCheckAndRepair();
+			} catch (FileNotFoundException e) {
+				throw new STInitializationException(
+						"Semantic Turkey initilization failed: unable to find Semantic Turkey Configuration File: "
+								+ _semTurkeyPropertyFile);
+			} catch (IOException e) {
+				throw new STInitializationException("Semantic Turkey initilization failed: " + e.getMessage());
+			}
+
 		}
 
 		try {
-			Config.initialize(_semTurkeyPropertyFile);
 			OntologiesMirror.setOntologiesMirrorRegistry(_ontologiesMirrorFile);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();

@@ -128,6 +128,9 @@ STRequests.Property.addPropertyDomainRequest = "addPropertyDomain";
 STRequests.Property.removePropertyDomainRequest = "removePropertyDomain";
 STRequests.Property.addPropertyRangeRequest = "addPropertyRange";
 STRequests.Property.removePropertyRangeRequest = "removePropertyRange";
+STRequests.Property.getDomainRequest = "getDomain";
+STRequests.Property.getRangeRequest = "getRange";
+STRequests.Property.parseDataRangeRequest = "parseDataRange";
 
 //delete service requests
 STRequests.Delete.serviceName = "delete";
@@ -156,6 +159,7 @@ STRequests.Annotation.getPageAnnotationsRequest = "getPageAnnotations";
 STRequests.Annotation.createAndAnnotateRequest = "createAndAnnotate";
 STRequests.Annotation.createFurtherAnnotationRequest = "addAnnotation";
 STRequests.Annotation.relateAndAnnotateRequest = "relateAndAnnotate";
+STRequests.Annotation.addAnnotationRequest = "addAnnotation";
 
 // individual service request
 STRequests.Individual.serviceName = "individual";

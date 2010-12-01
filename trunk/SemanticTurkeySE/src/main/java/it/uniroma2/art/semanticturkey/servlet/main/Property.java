@@ -37,7 +37,7 @@ import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
@@ -79,6 +79,7 @@ public class Property extends Resource {
 		final static public String getObjPropertiesTreeRequest = "getObjPropertiesTree";
 		final static public String getDatatypePropertiesTreeRequest = "getDatatypePropertiesTree";
 		final static public String getAnnotationPropertiesTreeRequest = "getAnnotationPropertiesTree";
+		final static public String getOntologyPropertiesTreeRequest = "getOntologyPropertiesTree";
 		final static public String getDomainClassesTreeRequest = "getDomainClassesTree";
 		final static public String getRangeClassesTreeRequest = "getRangeClassesTree";
 		final static public String getSuperPropertiesRequest = "getSuperProperties";
@@ -103,7 +104,7 @@ public class Property extends Resource {
 
 	public static class Par {
 		final static public String nodeTypePar = "nodeType";
-		final static public String dataRangePar = "dataRange";
+		final static public String dataRangePar = "	";
 		final static public String instanceQNamePar = "instanceQName";
 		final static public String propertyQNamePar = "propertyQName";
 		final static public String rangeQNamePar = "rangeQName";
@@ -124,7 +125,7 @@ public class Property extends Resource {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	/**
 	 * 
 	 * @return Document
@@ -141,13 +142,15 @@ public class Property extends Resource {
 
 				// PROPERTIES TREE METHODS
 				if (request.equals(Req.getPropertiesTreeRequest)) {
-					return getPropertyTree(true, true, true, true);
+					return getPropertyTree(true, true, true, true, true);
 				} else if (request.equals(Req.getObjPropertiesTreeRequest)) {
-					return getPropertyTree(true, true, false, false);
+					return getPropertyTree(true, true, false, false, false);
 				} else if (request.equals(Req.getDatatypePropertiesTreeRequest)) {
-					return getPropertyTree(false, false, true, false);
+					return getPropertyTree(false, false, true, false, false);
 				} else if (request.equals(Req.getAnnotationPropertiesTreeRequest)) {
-					return getPropertyTree(false, false, false, true);
+					return getPropertyTree(false, false, false, true, false);
+				} else if (request.equals(Req.getOntologyPropertiesTreeRequest)) {
+					return getPropertyTree(false, false, false, false, true);
 				}
 
 				// PROPERTY DESCRIPTION METHOD
@@ -226,9 +229,9 @@ public class Property extends Resource {
 					String typeArg = setHttpPar(Par.type);
 					checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar,
 							Par.valueField, Par.type);
-					VocabularyTypesEnum valueType = null;
+					RDFTypesEnum valueType = null;
 					if (typeArg != null)
-						valueType = VocabularyTypesEnum.valueOf(typeArg);
+						valueType = RDFTypesEnum.valueOf(typeArg);
 
 					return editPropertyValue(request, instanceQName, propertyQName, value, valueType,
 							rangeQName, lang);
@@ -314,7 +317,7 @@ public class Property extends Resource {
 	 * @return Response tree
 	 */
 	public Response getPropertyTree(boolean props, boolean objprops, boolean datatypeprops,
-			boolean annotationprops) {
+			boolean annotationprops, boolean ontologyprops) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getPropertiesTreeRequest, RepliesStatus.ok);
@@ -333,6 +336,7 @@ public class Property extends Resource {
 		Iterator<ARTURIResource> filteredPropsIterator;
 
 		try {
+
 			// OBJECT PROPERTIES
 			if (objprops == true) {
 
@@ -362,6 +366,16 @@ public class Property extends Resource {
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
 							"owl:AnnotationProperty");
+			}
+
+			// ONTOLOGY PROPERTIES
+			if (annotationprops == true) {
+				filteredPropsIterator = Iterators.filter(ontModel.listOntologyProperties(true,
+						NodeFilters.MAINGRAPH), rootUserPropsPred);
+				logger.debug("\n\nontology root annotation properties: \n");
+				while (filteredPropsIterator.hasNext())
+					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
+							"owl:OntologyProperty");
 			}
 
 			// BASE PROPERTIES
@@ -603,7 +617,7 @@ public class Property extends Resource {
 	 * @return
 	 */
 	public Response editPropertyValue(String request, String individualQName, String propertyQName,
-			String valueString, VocabularyTypesEnum valueType, String rangeQName, String lang) {
+			String valueString, RDFTypesEnum valueType, String rangeQName, String lang) {
 		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();
 
@@ -643,24 +657,24 @@ public class Property extends Resource {
 
 		if (request.equals("createAndAddPropValue")) {
 			try {
-				if (valueType == VocabularyTypesEnum.plainLiteral) {
+				if (valueType == RDFTypesEnum.plainLiteral) {
 					logger.debug("instantiating property: " + property + " with value: " + valueString
 							+ " and lang: " + lang);
 					model.instantiatePropertyWithPlainLiteral(individual, property, valueString, lang);
-				} else if (valueType == VocabularyTypesEnum.typedLiteral) {
+				} else if (valueType == RDFTypesEnum.typedLiteral) {
 					logger.debug("instantiating property: " + property + " with value: " + valueString
 							+ "typed after: " + rangeQName);
 					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range
 							.asURIResource());
-				} else if (valueType == VocabularyTypesEnum.resource) {
+				} else if (valueType == RDFTypesEnum.resource) {
 					model.addInstance(model.expandQName(valueString), range);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
 					model.instantiatePropertyWithResource(individual, property, objIndividual);
 				} else
 					return servletUtilities.createExceptionResponse(request, valueType
-							+ " is not an admitted type for this value; only "
-							+ VocabularyTypesEnum.plainLiteral + ", " + VocabularyTypesEnum.typedLiteral
-							+ ", and " + VocabularyTypesEnum.resource + " are admitted ");
+							+ " is not an admitted type for this value; only " + RDFTypesEnum.plainLiteral
+							+ ", " + RDFTypesEnum.typedLiteral + ", and " + RDFTypesEnum.resource
+							+ " are admitted ");
 			} catch (ModelUpdateException e) {
 				// logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
 				return servletUtilities.createExceptionResponse(request,
@@ -689,18 +703,28 @@ public class Property extends Resource {
 			}
 		} else if (request.equals("removePropValue")) {
 			try {
-				if (model.isDatatypeProperty(property) || model.isAnnotationProperty(property)
-						|| valueType == VocabularyTypesEnum.literal)
+				if (valueType == RDFTypesEnum.plainLiteral)
 					model.deleteTriple(individual, property, model.createLiteral(valueString, lang));
-				else {
-					String valueURI = model.expandQName(valueString);
-					ARTURIResource valueObject = model.createURIResource(valueURI);
-					if (!ModelUtilities.checkExistingResource(model, valueObject)) {
-						logger.debug("there is no object named: " + valueURI + " !");
-						return servletUtilities.createExceptionResponse(request, "there is no object named: "
-								+ valueURI + " !");
+				else if (valueType == RDFTypesEnum.typedLiteral) {
+					model.deleteTriple(individual, property, model.createLiteral(valueString, range
+							.asURIResource()));
+				} else if (RDFTypesEnum.isResource(valueType)) {
+					ARTResource valueResourceObject;
+					if (valueType == RDFTypesEnum.uri) {
+						String valueURI = model.expandQName(valueString);
+						valueResourceObject = model.createURIResource(valueURI);
+					} else { // bnode
+						valueResourceObject = model.createBNode(valueString);
 					}
-					model.deleteTriple(individual, property, valueObject);
+					if (!ModelUtilities.checkExistingResource(model, valueResourceObject)) {
+						logger.debug("there is no object: " + valueResourceObject + " !");
+						return servletUtilities.createExceptionResponse(request, "there is no object: "
+								+ valueResourceObject + " !");
+					}
+					model.deleteTriple(individual, property, valueResourceObject);
+				} else {
+					return servletUtilities.createErrorResponse(request, "unable to delete value; type: "
+							+ valueType + " is not recognized");
 				}
 			} catch (ModelUpdateException e) {
 				logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
@@ -716,8 +740,7 @@ public class Property extends Resource {
 					+ request + " !");
 		}
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok,
-				"");
+		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 
 		return response;
 
@@ -727,22 +750,22 @@ public class Property extends Resource {
 		String request = Req.parseDataRangeRequest;
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		try {
-			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID, VocabularyTypesEnum.valueOf(nodeType));
+			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID, RDFTypesEnum
+					.valueOf(nodeType));
 			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			ARTLiteralIterator it = ontModel.parseDataRange(dataRange, NodeFilters.MAINGRAPH);
 			while (it.streamOpen()) {
-				RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, it.getNext(), true);
-			}	
+				RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, it.getNext(), false, true);
+			}
 			it.close();
 			return response;
 
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(Req.parseDataRangeRequest, e);
+			return ServletUtilities.getService().createExceptionResponse(request, e);
 		} catch (UnavailableResourceException e) {
-			return ServletUtilities.getService().createExceptionResponse(Req.parseDataRangeRequest,
-					e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 	}
 

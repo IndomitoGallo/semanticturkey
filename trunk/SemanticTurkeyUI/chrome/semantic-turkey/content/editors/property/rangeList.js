@@ -30,8 +30,17 @@ window.onload = function() {
 	
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onCancel, true);
+	art_semanticturkey.setRangeList();					
 };
-
+art_semanticturkey.setRangeList = function(){
+	var rangList = new art_semanticturkey.dataRangeList();
+	var listLength = rangList.getLength();
+	for(var i=0; i<listLength; ++i){
+		li = document.createElement("listitem");
+		li.setAttribute("label",rangList.getElement(i));
+		document.getElementById("ranges").appendChild(li);
+	}
+};
 art_semanticturkey.onAccept= function() {
 			var newRange=document.getElementById("ranges").selectedItem.label;
 			window.arguments[0].rangeName=newRange;

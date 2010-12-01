@@ -27,8 +27,15 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import static org.junit.Assert.*;
+import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
@@ -38,7 +45,10 @@ import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+
 
 /**
  * @author Armando Stellato
@@ -46,6 +56,24 @@ import org.w3c.dom.NodeList;
  */
 public class Property_UT extends ServiceUTFixture {
 
+	/**
+	 * accesses the dataElement in a Response and retrieves the first element of name <code>elemName</code>
+	 * 
+	 * @param resp
+	 * @param elemName
+	 * @return
+	 */
+	public static Element getFirstElement(Response resp, String elemName) {
+		return (Element) ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName(elemName)
+		.item(0);
+	}
+	
+	public static Element getRangesElement(Response resp) {
+		return getFirstElement(resp, "ranges");
+	}
+
+	
+	
 	@BeforeClass
 	public static void init() throws IOException, STInitializationException {
 		ServiceTest tester = new Property_UT();
@@ -62,15 +90,30 @@ public class Property_UT extends ServiceUTFixture {
 		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
 				Property.Par.propertyQNamePar, "propertyRanges:dataRangedProperty"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+
+		System.out.println("resp for: getDataRangedPropertyDescriptionTest\n" + resp);
+
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.literal.toString(), rngType);
+
+		Element bnode = getFirstElement(resp, "bnode");
+		String role = bnode.getAttribute("role");
+		assertEquals(RDFResourceRolesEnum.dataRange.toString(), role);
 	}
 
 	@Test
 	public void getEmptyRangePropertyDescriptionTest() {
+
 		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
-				Property.Par.propertyQNamePar, "propertyRanges:emptyRangeProperty"));
+				Property.Par.propertyQNamePar, "propertyRanges:emptyRangeDatatypeProperty"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+
+		System.out.println("resp for: getEmptyRangePropertyDescriptionTest\n" + resp);
+
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.literal.toString(), rngType);
 	}
 
 	@Test
@@ -78,7 +121,12 @@ public class Property_UT extends ServiceUTFixture {
 		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
 				Property.Par.propertyQNamePar, "propertyRanges:integerRangedProperty"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+
+		System.out.println("resp for: getIntegerRangedPropertyDescriptionTest\n" + resp);
+		
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.typedLiteral.toString(), rngType);
 	}
 
 	@Test
@@ -86,7 +134,12 @@ public class Property_UT extends ServiceUTFixture {
 		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
 				Property.Par.propertyQNamePar, "propertyRanges:BRangedProperty"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+		
+		System.out.println("resp for: getResourceRangedPropertyDescriptionTest\n" + resp);
+		
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.resource.toString(), rngType);		
 	}
 
 	@Test
@@ -94,7 +147,12 @@ public class Property_UT extends ServiceUTFixture {
 		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
 				Property.Par.propertyQNamePar, "propertyRanges:BRangedObjectProperty"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+		
+		System.out.println("resp for: getResourceRangedObjectPropertyDescriptionTest\n" + resp);
+		
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.resource.toString(), rngType);
 	}
 
 	@Test
@@ -103,7 +161,12 @@ public class Property_UT extends ServiceUTFixture {
 				Property.Par.propertyQNamePar, "propertyRanges:integerRangedProperty"), par(
 				Property.Par.visualize, "true"));
 		assertAffirmativeREPLY(resp);
-		System.out.println(resp);
+
+		System.out.println("resp for: getRangeOfIntegerRangedPropertyTest\n" + resp);
+		
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.typedLiteral.toString(), rngType);
 	}
 
 	@Test
@@ -114,24 +177,18 @@ public class Property_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 
-		NodeList bnodes = ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName("bnode");
-
+		Element bnode = getFirstElement(resp, "bnode");
 		// accesses the sole node that should be present, assuming the text is written correctly
-		String dataRangeBNodeID = bnodes.item(0).getTextContent(); 
-		
-		System.out.println("dataRangeBNodeID: " + dataRangeBNodeID); 
-		
-		resp = serviceTester.propertyService.makeRequest(Property.Req.parseDataRangeRequest,
-				par(Property.Par.dataRangePar, dataRangeBNodeID),
-				par(Property.Par.nodeTypePar, VocabularyTypesEnum.bnode.toString())
-		);
+		String dataRangeBNodeID = bnode.getTextContent();
+
+		System.out.println("dataRangeBNodeID: " + dataRangeBNodeID);
+
+		resp = serviceTester.propertyService.makeRequest(Property.Req.parseDataRangeRequest, par(
+				Property.Par.dataRangePar, dataRangeBNodeID), par(Property.Par.nodeTypePar,
+				RDFTypesEnum.bnode.toString()));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
-		
-		
-		
 
-		
 	}
 
 }

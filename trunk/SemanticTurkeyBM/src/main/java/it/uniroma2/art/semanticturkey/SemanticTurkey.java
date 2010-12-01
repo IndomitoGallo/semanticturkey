@@ -27,6 +27,7 @@ import it.uniroma2.art.owlart.exceptions.VocabularyInitializationException;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
+import it.uniroma2.art.semanticturkey.resources.VersionNumber;
 import it.uniroma2.art.semanticturkey.servlet.Proxy;
 import it.uniroma2.art.semanticturkey.servlet.STServer;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
@@ -56,6 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class SemanticTurkey {
+	public final static VersionNumber versionNumber = new VersionNumber(0, 7, 2);
 	static protected HttpServer s_httpServer;
 	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
 	private final static int port = 1979;

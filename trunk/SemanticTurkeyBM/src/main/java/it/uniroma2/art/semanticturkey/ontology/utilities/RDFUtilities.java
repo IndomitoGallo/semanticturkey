@@ -41,7 +41,7 @@ import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 
@@ -106,63 +106,64 @@ public class RDFUtilities {
 	 * @throws ModelAccessException
 	 * @throws IncompatibleRangeException
 	 */
-	public static VocabularyTypesEnum getRangeType(OWLModel model, ARTURIResource property,
+	public static RDFTypesEnum getRangeType(OWLModel model, ARTURIResource property,
 			HashSet<ARTResource> rangesSet) throws ModelAccessException, IncompatibleRangeException {
 
+		logger.debug("determining range type for property: " + property);
+		
 		// related to those annotation properties from RDFS/OWL vocabularies for which the range is known
 		// "de facto", though never declared
-		VocabularyTypesEnum specialCase = getRangeTypeSpecialCase(property);
+		RDFTypesEnum specialCase = getRangeTypeSpecialCase(property);
 		if (specialCase != null)
 			return specialCase;
 
 		if (rangesSet.isEmpty()) {
-			return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.undetermined);
+			return getInferredAndCompatiblePropertyRange(model, property, RDFTypesEnum.undetermined);
 		}
 
 		ARTResource range = rangesSet.iterator().next();
+		
+		logger.debug("determing range type by checking range: " + range);
 
 		if (range.isURIResource()) {
 			if (XmlSchema.Res.isXMLDatatype(range.asURIResource()))
 				return getInferredAndCompatiblePropertyRange(model, property,
-						VocabularyTypesEnum.typedLiteral);
+						RDFTypesEnum.typedLiteral);
 			if (range.equals(RDF.Res.PLAINLITERAL))
 				return getInferredAndCompatiblePropertyRange(model, property,
-						VocabularyTypesEnum.plainLiteral);
+						RDFTypesEnum.plainLiteral);
 			if (range.equals(RDFS.Res.LITERAL))
-				return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.literal);
+				return getInferredAndCompatiblePropertyRange(model, property, RDFTypesEnum.literal);
 		}
 
 		// has to be tested in any case: though it is not common, even a URI can be a dataRange
 		if (model.isDataRange(range, NodeFilters.MAINGRAPH))
-			return getInferredAndCompatiblePropertyRange(model, property, VocabularyTypesEnum.dataRange);
+			return getInferredAndCompatiblePropertyRange(model, property, RDFTypesEnum.literal);
 
-		return VocabularyTypesEnum.resource;
+		return RDFTypesEnum.resource;
 	}
 
-	private static VocabularyTypesEnum getRangeTypeSpecialCase(ARTURIResource property) {
+	private static RDFTypesEnum getRangeTypeSpecialCase(ARTURIResource property) {
 		if (property.equals(OWL.Res.VERSIONINFO) || property.equals(RDFS.Res.LABEL)
 				|| property.equals(RDFS.Res.COMMENT))
-			return VocabularyTypesEnum.plainLiteral;
+			return RDFTypesEnum.plainLiteral;
 		if (property.equals(RDFS.Res.SEEALSO) || property.equals(RDFS.Res.ISDEFINEDBY))
-			return VocabularyTypesEnum.resource;
+			return RDFTypesEnum.resource;
 		return null;
 	}
 
-	private static VocabularyTypesEnum getInferredAndCompatiblePropertyRange(OWLModel model,
-			ARTURIResource property, VocabularyTypesEnum suggestedType) throws ModelAccessException,
+	private static RDFTypesEnum getInferredAndCompatiblePropertyRange(OWLModel model,
+			ARTURIResource property, RDFTypesEnum suggestedType) throws ModelAccessException,
 			IncompatibleRangeException {
-		if (suggestedType == VocabularyTypesEnum.undetermined) {
+		if (suggestedType == RDFTypesEnum.undetermined) {
 			if (model.isObjectProperty(property))
-				return VocabularyTypesEnum.resource;
+				return RDFTypesEnum.resource;
 			if (model.isDatatypeProperty(property))
-				return VocabularyTypesEnum.literal;
-		} else if (suggestedType == VocabularyTypesEnum.literal
-				|| suggestedType == VocabularyTypesEnum.plainLiteral
-				|| suggestedType == VocabularyTypesEnum.typedLiteral
-				|| suggestedType == VocabularyTypesEnum.dataRange) {
+				return RDFTypesEnum.literal;
+		} else if (RDFTypesEnum.isLiteral(suggestedType)) {
 			if (model.isObjectProperty(property))
 				throw new IncompatibleRangeException(property, suggestedType);
-		} else if (suggestedType == VocabularyTypesEnum.resource) {
+		} else if (suggestedType == RDFTypesEnum.resource) {
 			if (model.isDatatypeProperty(property))
 				throw new IncompatibleRangeException(property, suggestedType);
 		}
@@ -171,12 +172,12 @@ public class RDFUtilities {
 		return suggestedType;
 	}
 
-	public static ARTResource retrieveResource(RDFModel model, String URI_ID, VocabularyTypesEnum type)
+	public static ARTResource retrieveResource(RDFModel model, String URI_ID, RDFTypesEnum type)
 			throws ModelAccessException, UnavailableResourceException {
 		ARTResource res;
-		if (type == VocabularyTypesEnum.uri) {
+		if (type == RDFTypesEnum.uri) {
 			res = model.retrieveURIResource(URI_ID);
-		} else if (type == VocabularyTypesEnum.bnode) {
+		} else if (type == RDFTypesEnum.bnode) {
 			res = model.retrieveBNode(URI_ID);
 		} else
 			throw new IllegalArgumentException("type: \"" + type + "\" is not allowed: either uri or bnode");

@@ -23,23 +23,59 @@ if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 	
  window.onload = function(){
- 	if(typeof window.arguments[0].objName == 'undefined'){
- 		window.arguments[0].objName  = " new value";
- 	}
- 	var question = "Do you want to add "+window.arguments[0].objName+" as literal or as individual?";
- 	document.getElementById("question").setAttribute("value",question);
- 	document.getElementById("isLiteral").addEventListener("click",
-			art_semanticturkey.isLiteral, true);
- 	document.getElementById("individual").addEventListener("click",
-			art_semanticturkey.isIndividual, true);
+ 	var plainButton=document.createElement("button");
+ 	plainButton.setAttribute("id","plainLiteral");
+ 	plainButton.setAttribute("label","plainLiteral");
+ 	plainButton.setAttribute("flex","1");
+ 	var typedButton=document.createElement("button");
+ 	typedButton.setAttribute("id","typedLiteral");
+ 	typedButton.setAttribute("label","typedLiteral");
+ 	typedButton.setAttribute("flex","1");
+ 	plainButton.addEventListener("click",art_semanticturkey.isPlainLiteral, true);
+	typedButton.addEventListener("click",art_semanticturkey.isTypedLiteral, true);
+	var choiseRow =document.getElementById("choiseRow");
+	choiseRow.appendChild(plainButton);
+	choiseRow.appendChild(typedButton);
+	if(window.arguments[0].isLiteral =="undetermined"){
+		if(typeof window.arguments[0].objName == 'undefined'){
+	 		window.arguments[0].objName  = " new value";
+	 	}
+	 	var question = "Do you want to add "+window.arguments[0].objName+" as plainLiteral, typedLiteral or as resource?";
+	 	document.getElementById("question").setAttribute("value",question);
+	 	var resourceButton=document.createElement("button");
+	 	resourceButton.setAttribute("id","resource");
+	 	resourceButton.setAttribute("label","resource");
+	 	resourceButton.setAttribute("flex","1");
+	 	var columnrow= document.getElementById("column");
+	 	var column = document.createElement("column");
+	 	column.setAttribute("flex","1");
+	 	columnrow.appendChild(column);
+	 	resourceButton.addEventListener("click",art_semanticturkey.isResource, true);
+		choiseRow.appendChild(resourceButton);		
+		
+	}else{
+			alert("literal ");
+		alert(document.getElementById("question").getAttribute("value"));
+	 		
+		if(typeof window.arguments[0].objName == 'undefined'){
+	 		window.arguments[0].objName  = " new value";
+	 	}
+	 	var question = "Do you want to add "+window.arguments[0].objName+" as plainLiteral or as typedLiteral?";
+	 	document.getElementById("question").setAttribute("value",question);
+	}
  };
  
- art_semanticturkey.isLiteral = function(){
- 	window.arguments[0].isLiteral = "true";
+ art_semanticturkey.isPlainLiteral = function(){
+ 	window.arguments[0].isLiteral = "plainLiteral";
  	close();
  };
  
- art_semanticturkey.isIndividual = function(){
- 	window.arguments[0].isLiteral = "false";
+ art_semanticturkey.isTypedLiteral = function(){
+ 	window.arguments[0].isLiteral = "typedLiteral";
+ 	close();
+ };
+ 
+ art_semanticturkey.isResource = function(){
+ 	window.arguments[0].isLiteral = "resource";
  	close();
  };

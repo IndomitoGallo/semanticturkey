@@ -47,6 +47,7 @@ import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.project.SaveToStoreProject;
 import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
+import it.uniroma2.art.semanticturkey.resources.UpdateRoutines;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
@@ -83,6 +84,7 @@ public class Projects extends ServiceAdapter {
 		public final static String listProjectsRequest = "listProjects";
 		public final static String getProjectPropertyRequest = "getProjectProperty";
 		public final static String getCurrentProjectRequest = "getCurrentProject";
+		public final static String repairProjectRequest = "repairProject";
 	}
 
 	// parameters
@@ -107,6 +109,7 @@ public class Projects extends ServiceAdapter {
 	public final static String ontMgrAttr = "ontmgr";
 	public final static String typeAttr = "type";
 	public final static String ontoTypeAttr = "ontoType";
+	public final static String modelConfigAttr = "modelConfigType";
 	public final static String statusAttr = "status";
 	public final static String statusMsgAttr = "stMsg";
 
@@ -115,7 +118,7 @@ public class Projects extends ServiceAdapter {
 	public Projects(String id) {
 		super(id);
 	}
-	
+
 	public Logger getLogger() {
 		return logger;
 	}
@@ -218,8 +221,33 @@ public class Projects extends ServiceAdapter {
 			return getCurrentProject();
 		}
 
+		else if (request.equals(Req.repairProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			return repairProject(projectName);
+		}
+
 		else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+	}
+
+	private Response repairProject(String projectName) {
+		String request = Req.repairProjectRequest;
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		try {
+			UpdateRoutines.repairProject(projectName);
+			return resp;
+		} catch (IOException e) {
+			return logAndSendException(request, e, "unable to access property file for project: " + projectName
+					+ " (which seems however to exist)");
+		} catch (InvalidProjectNameException e) {
+			return logAndSendException(request, e,
+					"UPDATING OLD PROJECT TO NEW FORMAT: strangely, the project name is invalid");
+		} catch (ProjectInexistentException e) {
+			return logAndSendException(request, e, "UPDATING OLD PROJECT TO NEW FORMAT: strangely, project: "
+					+ projectName + " does not exist, while it has been previously checked for existence");
+		} catch (ProjectInconsistentException e) {
+			return logAndSendException(request, e, "the project was in a inconsistent state which I'm unable to repair: " + e.getMessage());
+		}
 	}
 
 	public Response getCurrentProject() {
@@ -254,16 +282,22 @@ public class Projects extends ServiceAdapter {
 					Project<? extends RDFModel> proj = (Project<? extends RDFModel>) absProj;
 					try {
 						projElem.setAttribute(ontoTypeAttr, ((Project) proj).getModelType().getName());
+						String ontMgr = ((Project) proj).getOntologyManagerImplID();
+						projElem.setAttribute(ontMgrAttr, ontMgr);
+						String mConfID = ((Project) proj).getModelConfigurationID();
+						projElem.setAttribute(modelConfigAttr, mConfID);
+						projElem.setAttribute(typeAttr, ((Project) proj).getType());
+
 						projElem.setAttribute(statusAttr, "ok");
 					} catch (DOMException e) {
 						projElem.setAttribute(statusAttr, "error");
-						projElem.setAttribute(statusMsgAttr, "unrecognized ontology type");
+						projElem.setAttribute(statusMsgAttr,
+								"problem when building XML response for this project");
 					} catch (ProjectInconsistentException e) {
 						projElem.setAttribute(statusAttr, "error");
-						projElem.setAttribute(statusMsgAttr, "unrecognized ontology type");
+						projElem.setAttribute(statusMsgAttr, e.getMessage());
 					}
-					projElem.setAttribute(ontMgrAttr, ((Project) proj).getOntologyManagerImplID());
-					projElem.setAttribute(typeAttr, ((Project) proj).getType());
+					
 				} else
 					// proj instanceof CorruptedProject
 					projElem.setAttribute(statusAttr, "corrupted");
@@ -497,6 +531,7 @@ public class Projects extends ServiceAdapter {
 	private Response recoverFromFailedProjectCreation(String request, String projectName, String intendedMsg) {
 		try {
 			logger.error("not able to open project: " + projectName + "; raised exception: " + intendedMsg);
+
 			logger.error("now deleting project folder");
 			ProjectManager.deleteProject(projectName);
 		} catch (ProjectDeletionException e1) {
@@ -549,7 +584,7 @@ public class Projects extends ServiceAdapter {
 			logger.error(e.getMessage());
 			return servletUtilities.createExceptionResponse(request, e.toString());
 		} catch (RuntimeException e) {
-			logger.error(Utilities.printFullStackTrace(e));
+			e.printStackTrace(System.err);
 			recoverFromFailedProjectCreation(request, projectName, "");
 			throw e;
 		} catch (DuplicatedResourceException e) {
@@ -559,7 +594,7 @@ public class Projects extends ServiceAdapter {
 		} catch (Exception e) {
 			logger.error("exception when creating a new empty project: " + e + "\nexception type: "
 					+ e.getClass());
-			logger.error(Utilities.printFullStackTrace(e));
+			e.printStackTrace(System.err);
 			return recoverFromFailedProjectCreation(request, projectName, e.getMessage());
 		}
 

@@ -47,7 +47,7 @@ import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
@@ -122,8 +122,8 @@ public abstract class Resource extends ServiceAdapter {
 	 * 
 	 * @param resourceQName
 	 * @param restype
-	 *            the type of the resource. Since each resource may have more than one type (for example, an
-	 *            individual can also be a class)
+	 *            the type considered for inspecting the resource. Since each resource may have more than one
+	 *            type (for example, an individual can also be a class)
 	 * @param method
 	 *            if it is equal to "templateandvalued", then also property values for this resources are
 	 *            reported
@@ -320,26 +320,9 @@ public abstract class Resource extends ServiceAdapter {
 					// collected before
 					for (ARTNode value : (Collection<ARTNode>) propertyValuesMap.get(prop)) {
 						logger.debug("resource viewer: writing value: " + value + " for property: " + prop);
-						Element valueElem = XMLHelp.newElement(propertyElem, "Value");
-
-						// TYPE ASSIGNMENT
-						VocabularyTypesEnum valueType = ModelUtilities.getOntType(value, ontModel);
-						valueElem.setAttribute("type", valueType.toString());
-
-						// VALUE ASSIGNMENT
-						if (value.isURIResource()) {
-							valueElem
-									.setAttribute("value", ontModel.getQName(value.asURIResource().getURI()));
-						} else if (valueType == VocabularyTypesEnum.literal) {
-							ARTLiteral lit = value.asLiteral();
-							valueElem.setAttribute("value", lit.getLabel());
-							String lang = lit.getLanguage();
-							if (lang != null)
-								valueElem.setAttribute("lang", lang);
-						} else
-							// bnode
-							valueElem.setAttribute("value", value.toString());
-
+						
+						Element valueElem = RDFXMLHelp.addRDFNodeXMLElement(propertyElem, ontModel, value, true, true);
+						
 						// EXPLICIT-STATUS ASSIGNMENT
 						valueElem.setAttribute("explicit", checkExplicit(ontModel, resource, prop, value));
 					}
@@ -390,11 +373,11 @@ public abstract class Resource extends ServiceAdapter {
 		Collection<ARTResource> explicitRanges = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyRanges(property, false, NodeFilters.MAINGRAPH));
 		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
+
 		while (ranges.hasNext()) {
 			ARTResource nextRange = ranges.next();
-			logger.debug("checking range: " + nextRange);
 			rangesSet.add(nextRange);
-			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange,
+			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange, true, 
 					visualization);
 			if (explicitRanges.contains(nextRange))
 				rangeElement.setAttribute("explicit", "true");
@@ -402,8 +385,10 @@ public abstract class Resource extends ServiceAdapter {
 				rangeElement.setAttribute("explicit", "false");
 		}
 		ranges.close();
+		
 		try {
-			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, rangesSet).toString());
+			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, rangesSet)
+					.toString());
 		} catch (IncompatibleRangeException e) {
 			rangesElement.setAttribute("rngType", "inconsistent");
 		}

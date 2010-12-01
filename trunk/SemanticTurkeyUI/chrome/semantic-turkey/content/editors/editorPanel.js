@@ -31,11 +31,11 @@ Components.utils.import("resource://stservices/SERVICE_Property.jsm",
 Components.utils.import("resource://stservices/SERVICE_ModifyName.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
-Components.utils.import("resource://stmodules/stEvtMgr.jsm", 
-		art_semanticturkey);
+Components.utils
+		.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 
-art_semanticturkey.eventListenerArrayObject = null;		
-		
+art_semanticturkey.eventListenerArrayObject = null;
+
 window.onload = function() {
 	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	document.getElementById("buttonModify").addEventListener("command",
@@ -53,18 +53,34 @@ window.onload = function() {
 
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);
-	
-	// add all the lister for all the events that trigger the refresh of the panel
+
+	// add all the lister for all the events that trigger the refresh of the
+	// panel
 	art_semanticturkey.eventListenerArrayObject = new art_semanticturkey.eventListenerArrayClass();
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedClass",art_semanticturkey.refreshPanel, null);		
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("createdSubClass",art_semanticturkey.refreshPanel, null);		
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("subClsOfAddedClass",art_semanticturkey.refreshPanel, null);		
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("subClsOfRemovedClass",art_semanticturkey.refreshPanel, null);		
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedSuperClass",art_semanticturkey.refreshPanel, null);		
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("renamedClass",art_semanticturkey.refreshPanel, null);		
-	//art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel, null);
-	
-	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("refreshEditor",art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("removedClass",
+					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("createdSubClass",
+					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("subClsOfAddedClass",
+					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("subClsOfRemovedClass",
+					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("removedSuperClass",
+					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("renamedClass",
+					art_semanticturkey.refreshPanel, null);
+	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
+	// null);
+
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("refreshEditor",
+					art_semanticturkey.refreshPanel, null);
 };
 
 window.onunload = function() {
@@ -89,23 +105,26 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	lbl.setAttribute("class", "header");
 	var img = document.createElement("image");
 	var txbox = document.createElement("textbox");
-	//alert("explicit = "+window.arguments[0].explicit); // da cancellare
+	// alert("explicit = "+window.arguments[0].explicit); // da cancellare
 	var isFirstEditor = window.arguments[0].isFirstEditor;
 	if (type == "cls") {
 		var deleteForbidden;
-		if(isFirstEditor == false){
+		if (isFirstEditor == false) {
 			deleteForbidden = "true";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this class, open the editor from the class panel");
-		}
-		else
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this class, open the editor from the class panel");
+		} else
 			deleteForbidden = window.arguments[0].deleteForbidden;
 		if (deleteForbidden == "true") {
 			document.getElementById("buttonModify").disabled = true;
-			//buttonModify.setAttribute("disabled", "true");
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/class_imported.png");
+			// buttonModify.setAttribute("disabled", "true");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/class_imported.png");
 			// txbox.setAttribute("disabled","true");
-			
+
 		} else {
 			img.setAttribute("src",
 					"chrome://semantic-turkey/content/images/class.png");
@@ -113,14 +132,18 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	} else if (type == "individual") {
 		if (isFirstEditor == false) {
 			explicit = "false";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this instance, open the editor from the class panel");
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this instance, open the editor from the class panel");
 		} else {
 			explicit = sourceElement.getAttribute("explicit");
 		}
 		if (explicit == "false") {
 			buttonModify.setAttribute("disabled", "true");
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/individual_noexpl.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/individual_noexpl.png");
 		} else {
 			img.setAttribute("src",
 					"chrome://semantic-turkey/content/images/individual.png");
@@ -128,69 +151,85 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	} else if (type == "Ontology") {
 		document.getElementById("buttonModify").disabled = true;
 	} else if (type.indexOf("ObjectProperty") != -1) {
-		if(isFirstEditor == false){
+		if (isFirstEditor == false) {
 			deleteForbidden = "true";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this property, open the editor from the property panel");
-		}else
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this property, open the editor from the property panel");
+		} else
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
 		if (deleteForbidden == "true") {
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/propObject_imported.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/propObject_imported.png");
 			buttonModify.setAttribute("disabled", "true");
 			edPnl.setAttribute("title", "ObjectProperty Editor");
 			mytype = "ObjectProperty";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/propObject20x20.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/propObject20x20.png");
 		}
 	} else if (type.indexOf("DatatypeProperty") != -1) {
-		if(isFirstEditor == false){
+		if (isFirstEditor == false) {
 			deleteForbidden = "true";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this property, open the editor from the property panel");
-		}
-		else
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this property, open the editor from the property panel");
+		} else
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/propDatatype_imported.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/propDatatype_imported.png");
 			edPnl.setAttribute("title", "DatatypeProperty Editor");
 			mytype = "DatatypeProperty";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/propDatatype20x20.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/propDatatype20x20.png");
 		}
 	} else if (type.indexOf("AnnotationProperty") != -1) {
-		if(isFirstEditor == false){
+		if (isFirstEditor == false) {
 			deleteForbidden = "true";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this property, open the editor from the property panel");
-		}
-		else
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this property, open the editor from the property panel");
+		} else
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
-			img.setAttribute("src",
+			img
+					.setAttribute("src",
 							"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
 			edPnl.setAttribute("title", "AnnotationProperty Editor");
 			mytype = "AnnotationProperty";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
 		}
 
 	} else if (type.indexOf("Property") != -1) {
-		if(isFirstEditor == false){
+		if (isFirstEditor == false) {
 			deleteForbidden = "true";
-			document.getElementById("buttonModify").setAttribute("tooltiptext", "To change the name of this property, open the editor from the property panel");
-		}
-		else
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this property, open the editor from the property panel");
+		} else
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
-			img.setAttribute("src",
+			img
+					.setAttribute("src",
 							"chrome://semantic-turkey/content/images/prop_imported.png");
 			edPnl.setAttribute("title", "Property Editor");
 			mytype = "Property";
@@ -214,27 +253,25 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	titleBox.appendChild(lbl);
 	mypanel.insertBefore(lblName, buttonModify);
 	mypanel.insertBefore(txbox, buttonModify);
-	
-	//Fill the rest of the editor depending on the type of the resource
+
+	// Fill the rest of the editor depending on the type of the resource
 	var parentBox = document.getElementById("parentBoxRows");
 	try {
 		var responseXML;
 		if (type == "cls") {
 			responseXML = art_semanticturkey.STRequests.Cls
-					.getClassDescription(sourceElementName,
-							"templateandvalued");
+					.getClassDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 		} else if (type == "individual") {
 			responseXML = art_semanticturkey.STRequests.Individual
-					.getIndividualDescription(
-							sourceElementName,
+					.getIndividualDescription(sourceElementName,
 							"templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-			//add all the web link of this instance
+			// add all the web link of this instance
 			responseXML = art_semanticturkey.STRequests.Page
-				.getBookmarks(sourceElementName);
+					.getBookmarks(sourceElementName);
 			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
-			
+
 		} else if (type == "Ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
@@ -251,23 +288,29 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 
 /**
  * Populate editor panel with the web link of the selected resource
- * @param {} responseElement
+ * 
+ * @param {}
+ *            responseElement
  */
-art_semanticturkey.getWebLinks_RESPONSE = function(responseElement){
-	document.getElementById("webLink").hidden=false;
+art_semanticturkey.getWebLinks_RESPONSE = function(responseElement) {
+	document.getElementById("webLink").hidden = false;
 	var bookmarksList = responseElement.getElementsByTagName("URL");
 	var rowsBox = document.getElementById("rowsBoxWebLink");
-	for ( var i = 0; i < bookmarksList.length; i++) {
-		var linkTitle =  bookmarksList[i].getAttribute("title");
+	for (var i = 0; i < bookmarksList.length; i++) {
+		var linkTitle = bookmarksList[i].getAttribute("title");
 		var linkUrl = bookmarksList[i].getAttribute("value");
 		var row = document.createElement("row");
 		var textbox = document.createElement("textbox");
 		textbox.setAttribute("value", linkTitle);
 		textbox.setAttribute("readonly", "true");
 		textbox.setAttribute("class", "text-link");
-		textbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-		textbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
-		textbox.addEventListener("click", art_semanticturkey.openUrlEvent, true);
+		textbox.addEventListener("mouseover",
+				art_semanticturkey.setCursorPointerEvent, true);
+		textbox.addEventListener("mouseout",
+				art_semanticturkey.setCursorDefaultEvent, true);
+		textbox
+				.addEventListener("click", art_semanticturkey.openUrlEvent,
+						true);
 		var containerObj = new Object();
 		containerObj.value = linkUrl;
 		textbox.containerObj = containerObj;
@@ -275,7 +318,6 @@ art_semanticturkey.getWebLinks_RESPONSE = function(responseElement){
 		rowsBox.appendChild(row);
 	}
 };
-
 
 /**
  * Populate editor panel with description of selected resource
@@ -327,18 +369,20 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		typeToolbox.appendChild(typeToolbar);
 		var typeToolbarButton = document.createElement("toolbarbutton");
 		var typeToolbarButton2 = document.createElement("toolbarbutton");
-		if (request == "getClsDescription") { //Class
+		if (request == "getClsDescription") { // Class
 			var separator = document.createElement("separator");
 			separator.setAttribute("class", "groove");
 			separator.setAttribute("orient", "orizontal");
 			parentBox.appendChild(separator);
 			typeToolbarButton.setAttribute("image",
 					"chrome://semantic-turkey/content/images/class_create.png");
-			typeToolbarButton.addEventListener("click", art_semanticturkey.addSuperClass, true);		
+			typeToolbarButton.addEventListener("click",
+					art_semanticturkey.addSuperClass, true);
 			typeToolbarButton.setAttribute("tooltiptext", "Add Super Class");
 			typeToolbarButton2.setAttribute("image",
 					"chrome://semantic-turkey/content/images/class_delete.png");
-			typeToolbarButton2.addEventListener("click", art_semanticturkey.removeSuperClassEvent, true);
+			typeToolbarButton2.addEventListener("click",
+					art_semanticturkey.removeSuperClassEvent, true);
 			var containerObj = new Object();
 			containerObj.value = "list";
 			containerObj.isList = true;
@@ -348,12 +392,14 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		} else { // Property
 			typeToolbarButton.setAttribute("image",
 					"chrome://semantic-turkey/content/images/prop_create.png");
-			typeToolbarButton.addEventListener("click", art_semanticturkey.addSuperProperty, true);		
+			typeToolbarButton.addEventListener("click",
+					art_semanticturkey.addSuperProperty, true);
 			typeToolbarButton.setAttribute("tooltiptext", "Add SuperProperty");
 			typeToolbarButton2 = document.createElement("toolbarbutton");
 			typeToolbarButton2.setAttribute("image",
 					"chrome://semantic-turkey/content/images/prop_delete.png");
-			typeToolbarButton2.addEventListener("click", art_semanticturkey.removeSuperPropertyEvent, true);
+			typeToolbarButton2.addEventListener("click",
+					art_semanticturkey.removeSuperPropertyEvent, true);
 			var containerObj = new Object();
 			containerObj.superPropValue = "list";
 			typeToolbarButton2.containerObj = containerObj;
@@ -401,16 +447,21 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				lsti.setAttribute("label", value);
 				lsti.setAttribute("explicit", superTypeList[i]
 								.getAttribute("explicit"));
-				lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				lsti.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				lsti.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				lsti.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
-				containerObjTx.explicit = superTypeList[i][i].getAttribute("explicit");
+				containerObjTx.explicit = superTypeList[i][i]
+						.getAttribute("explicit");
 				containerObjTx.sourceElementName = value;
-				if(request == "getClsDescription") //Class
+				if (request == "getClsDescription") // Class
 					containerObjTx.sourceType = "cls";
-				else // Property
+				else
+					// Property
 					containerObjTx.sourceType = window.arguments[0].sourceType;
 				lsti.containerObj = containerObjTx;
 				lbl.setAttribute("value", value);
@@ -419,7 +470,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				list.appendChild(lsti);
 			}
 		}
-	} else {//superTypeList.length <= 3
+	} else {// superTypeList.length <= 3
 		var lbl2 = document.createElement("label");
 		var img2 = document.createElement("image");
 		var row3 = document.createElement("row");
@@ -434,7 +485,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			lbl2.setAttribute("value", "Super Classes:");
 			typeButton2.setAttribute("image",
 					"chrome://semantic-turkey/content/images/class_create.png");
-			typeButton2.addEventListener("click", art_semanticturkey.addSuperClass, true);
+			typeButton2.addEventListener("click",
+					art_semanticturkey.addSuperClass, true);
 			typeButton2.setAttribute("tooltiptext", "Add Super Class");
 		} else {
 			img2.setAttribute("src",
@@ -443,7 +495,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			lbl2.setAttribute("value", "SuperProperty:");
 			typeButton2.setAttribute("image",
 					"chrome://semantic-turkey/content/images/prop_create.png");
-			typeButton2.addEventListener("click", art_semanticturkey.addSuperProperty, true);;
+			typeButton2.addEventListener("click",
+					art_semanticturkey.addSuperProperty, true);;
 			typeButton2.setAttribute("tooltiptext", "Add SuperProperty");
 		}
 
@@ -460,14 +513,17 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				txbox2.setAttribute("value", value2);
 				txbox2.setAttribute("id", "tx" + value2);
 				txbox2.setAttribute("readonly", "true");
-				txbox2.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				txbox2.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				txbox2.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				txbox2.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				txbox2.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				txbox2.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
 				containerObjTx.explicit = explicit;
 				containerObjTx.sourceElementName = value2;
-				if(request == "getClsDescription")
+				if (request == "getClsDescription")
 					containerObjTx.sourceType = "cls";
 				else
 					containerObjTx.sourceType = window.arguments[0].sourceType;
@@ -476,7 +532,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				typeButton3.setAttribute("id", "typeButton");
 				typeButton3.setAttribute("flex", "0");
 				if (request == "getClsDescription") {
-					typeButton3.addEventListener("command", art_semanticturkey.removeSuperClassEvent, true);
+					typeButton3.addEventListener("command",
+							art_semanticturkey.removeSuperClassEvent, true);
 					var containerObj = new Object();
 					containerObj.value = value2;
 					containerObj.isList = false;
@@ -486,7 +543,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 							.setAttribute("image",
 									"chrome://semantic-turkey/content/images/class_delete.png");
 				} else {
-					typeButton3.addEventListener("command", art_semanticturkey.removeSuperPropertyEvent, true);
+					typeButton3.addEventListener("command",
+							art_semanticturkey.removeSuperPropertyEvent, true);
 					var containerObj = new Object();
 					containerObj.superPropValue = value2;
 					typeButton3.containerObj = containerObj;
@@ -525,12 +583,14 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		typeToolbarButton.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_create.png");
 		if (request == "getClsDescription") {
-			typeToolbarButton.addEventListener("click", art_semanticturkey.addTypeEvent, true);
+			typeToolbarButton.addEventListener("click",
+					art_semanticturkey.addTypeEvent, true);
 			var containerObj = new Object();
 			containerObj.type = "Class";
 			typeToolbarButton.containerObj = containerObj;
 		} else {
-			typeToolbarButton.addEventListener("click", art_semanticturkey.addTypeEvent, true);
+			typeToolbarButton.addEventListener("click",
+					art_semanticturkey.addTypeEvent, true);
 			var containerObj = new Object();
 			containerObj.type = "individual";
 			typeToolbarButton.containerObj = containerObj;
@@ -540,13 +600,14 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		var typeToolbarButton2 = document.createElement("toolbarbutton");
 		typeToolbarButton2.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_delete.png");
-		typeToolbarButton2.addEventListener("click", art_semanticturkey.removeTypeEvent, true);
+		typeToolbarButton2.addEventListener("click",
+				art_semanticturkey.removeTypeEvent, true);
 		var containerObj = new Object();
 		containerObj.value = "list";
 		containerObj.sourceType = window.arguments[0].sourceType;
 		containerObj.isList = true;
 		typeToolbarButton2.containerObj = containerObj;
-		
+
 		typeToolbarButton2.setAttribute("tooltiptext", "Remove Type");
 		typeToolbar.appendChild(typeToolbarButton2);
 		parentBox.appendChild(typeToolbox);
@@ -577,9 +638,12 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 				lsti.setAttribute("label", value);
 				lsti.setAttribute("explicit", typeList[i]
 								.getAttribute("explicit"));
-				lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				lsti.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				lsti.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				lsti.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
 				containerObjTx.explicit = typeList[i].getAttribute("explicit");
@@ -604,12 +668,14 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		row.setAttribute("flex", "0");
 		var typeButton = document.createElement("toolbarbutton");
 		if (request == "getClsDescription") {
-			typeButton.addEventListener("click", art_semanticturkey.addTypeEvent, true);
+			typeButton.addEventListener("click",
+					art_semanticturkey.addTypeEvent, true);
 			var containerObj = new Object();
 			containerObj.type = "Class";
 			typeButton.containerObj = containerObj;
-		} else { //individual
-			typeButton.addEventListener("click", art_semanticturkey.addTypeEvent, true);
+		} else { // individual
+			typeButton.addEventListener("click",
+					art_semanticturkey.addTypeEvent, true);
 			var containerObj = new Object();
 			containerObj.type = "individual";
 			typeButton.containerObj = containerObj;
@@ -630,9 +696,12 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 				txbox.setAttribute("id", "tx" + value);
 				txbox.setAttribute("value", value);
 				txbox.setAttribute("readonly", "true");
-				txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				txbox.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				txbox.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				txbox.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
 				containerObjTx.explicit = explicit;
@@ -642,7 +711,8 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 				var typeButton = document.createElement("button");
 				typeButton.setAttribute("id", "typeButton");
 				typeButton.setAttribute("flex", "0");
-				typeButton.addEventListener("command", art_semanticturkey.removeTypeEvent, true);
+				typeButton.addEventListener("command",
+						art_semanticturkey.removeTypeEvent, true);
 				var containerObj = new Object();
 				containerObj.value = value;
 				containerObj.sourceType = window.arguments[0].sourceType;
@@ -680,7 +750,8 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 	var typeTitleToolbarButton = document.createElement("toolbarbutton");
 	typeTitleToolbarButton.setAttribute("image",
 			"chrome://semantic-turkey/content/images/prop_create.png");
-	typeTitleToolbarButton.addEventListener("click", art_semanticturkey.addNewProperty, true);
+	typeTitleToolbarButton.addEventListener("click",
+			art_semanticturkey.addNewProperty, true);
 	typeTitleToolbarButton.setAttribute("tooltiptext", "Add New Property");
 	titleBox.appendChild(typeTitleToolbarButton);
 	titleBox.insertBefore(propTitle, typeTitleToolbarButton);
@@ -700,7 +771,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				// typeToolbarButton
 				// .setAttribute("image",
 				// "chrome://semantic-turkey/content/images/propObject_create.png");
-				typeToolbarButton.addEventListener("click", 
+				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
@@ -716,7 +787,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				// typeToolbarButton
 				// .setAttribute("image",
 				// "chrome://semantic-turkey/content/images/propDatatype_create.png");
-				typeToolbarButton.addEventListener("click", 
+				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
@@ -731,7 +802,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				// typeToolbarButton
 				// .setAttribute("image",
 				// "chrome://semantic-turkey/content/images/propAnnotation_create.png");
-				typeToolbarButton.addEventListener("click", 
+				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
@@ -747,7 +818,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				 * typeToolbarButton .setAttribute("image",
 				 * "chrome://semantic-turkey/content/images/prop_create.png");
 				 */
-				typeToolbarButton.addEventListener("click", 
+				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
@@ -756,14 +827,15 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				typeToolbarButton.setAttribute("tooltiptext", "Add Value");
 				var typeToolbarButtonLiteral = document
 						.createElement("toolbarbutton");
-				typeToolbarButtonLiteral.addEventListener("click", 
+				typeToolbarButtonLiteral.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
 				containerObj.typeValue = typeValue;
+				// TODO getRange per vedere se è literal o no
 				containerObj.isLiteral = "true";
 				typeToolbarButtonLiteral.containerObj = containerObj;
-				
+
 				typeToolbarButtonLiteral
 						.setAttribute("image",
 								"chrome://semantic-turkey/content/images/Blocnote-32.png");
@@ -803,40 +875,44 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				if (typeValue == "owl:ObjectProperty") {
 					typeToolbarButton2.setAttribute("tooltiptext",
 							"Remove Value");
-					var containerObj= new Object();
+					var containerObj = new Object();
 					containerObj.value = "list";
 					containerObj.nameValue = nameValue;
 					containerObj.typeValue = typeValue;
 					typeToolbarButton2.containerObj = containerObj;
-					typeToolbarButton2.addEventListener("click", art_semanticturkey.removePropValueEvent, true);
+					typeToolbarButton2.addEventListener("click",
+							art_semanticturkey.removePropValueEvent, true);
 					var propertyToolbar = document.createElement("toolbar");
 
 				} else if (typeValue == "owl:DatatypeProperty") {
-					var containerObj= new Object();
+					var containerObj = new Object();
 					containerObj.value = "list";
 					containerObj.nameValue = nameValue;
 					containerObj.typeValue = typeValue;
 					typeToolbarButton2.containerObj = containerObj;
-					typeToolbarButton2.addEventListener("click", art_semanticturkey.removePropValueEvent, true);
+					typeToolbarButton2.addEventListener("click",
+							art_semanticturkey.removePropValueEvent, true);
 					typeToolbarButton2.setAttribute("tooltiptext",
 							"Remove Value");
 
 				} else if (typeValue == "owl:AnnotationProperty") {
-					var containerObj= new Object();
+					var containerObj = new Object();
 					containerObj.value = "list";
 					containerObj.nameValue = nameValue;
 					containerObj.typeValue = typeValue;
 					typeToolbarButton2.containerObj = containerObj;
-					typeToolbarButton2.addEventListener("click", art_semanticturkey.removePropValueEvent, true);
+					typeToolbarButton2.addEventListener("click",
+							art_semanticturkey.removePropValueEvent, true);
 					typeToolbarButton2.setAttribute("tooltiptext",
 							"Remove Value");
 				} else {
-					var containerObj= new Object();
+					var containerObj = new Object();
 					containerObj.value = "list";
 					containerObj.nameValue = nameValue;
 					containerObj.typeValue = typeValue;
 					typeToolbarButton2.containerObj = containerObj;
-					typeToolbarButton2.addEventListener("click", art_semanticturkey.removePropValueEvent, true);
+					typeToolbarButton2.addEventListener("click",
+							art_semanticturkey.removePropValueEvent, true);
 					typeToolbarButton2.setAttribute("tooltiptext",
 							"Remove Value");
 				}
@@ -846,7 +922,8 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				var propList = document.createElement("listbox");
 				propList.setAttribute("id", nameValue);
 				if (typeValue == "owl:ObjectProperty") {
-					//propList.setAttribute("ondblclick", "listdblclick(event);");
+					// propList.setAttribute("ondblclick",
+					// "listdblclick(event);");
 				}
 				propList.setAttribute("flex", "1");
 				for (var j = 0; j < valueList.length; j++) {
@@ -859,8 +936,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 								.setAttribute("src",
 										"chrome://semantic-turkey/content/images/individual.png");
 						lci.appendChild(img);
-					}
-					else if (type == "cls") {
+					} else if (type == "cls") {
 						var img = document.createElement("image");
 						img
 								.setAttribute("src",
@@ -884,19 +960,23 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 					lci.appendChild(lbl);
 					lsti.setAttribute("label", value);
 					var explicit = valueList[j].getAttribute("explicit");
-					if(type != "literal") {
-						lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-						lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-						lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+					if (type != "literal") {
+						lsti.addEventListener("dblclick",
+								art_semanticturkey.resourcedblClickEvent, true);
+						lsti.addEventListener("mouseover",
+								art_semanticturkey.setCursorPointerEvent, true);
+						lsti.addEventListener("mouseout",
+								art_semanticturkey.setCursorDefaultEvent, true);
 
 						var containerObjTx = new Object();
 						containerObjTx.explicit = explicit;
 						containerObjTx.sourceElementName = value;
-						if(type == "cls")
+						if (type == "cls")
 							containerObjTx.sourceType = "cls";
-						else if(type == "individual")
+						else if (type == "individual")
 							containerObjTx.sourceType = "individual";
-						else // property
+						else
+							// property
 							containerObjTx.sourceType = "property";
 						lsti.containerObj = containerObjTx;
 					}
@@ -907,7 +987,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				var row2 = document.createElement("row");
 				row2.appendChild(propList);
 				rowsBox.appendChild(row2);
-			} else { //valueList.length <= 10
+			} else { // valueList.length <= 10
 				for (var j = 0; j < valueList.length; j++) {
 					if (valueList[j].nodeType == 1) {
 						var value = valueList[j].getAttribute("value");
@@ -947,18 +1027,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType == "cls") {
 							propButton
 									.setAttribute("image",
@@ -974,18 +1063,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType.indexOf("DatatypeProperty") != -1) {
 							propButton
 									.setAttribute("image",
@@ -1001,18 +1099,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType.indexOf("ObjectProperty") != -1) {
 							propButton
 									.setAttribute("image",
@@ -1028,18 +1135,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType.indexOf("AnnotationProperty") != -1) {
 							propButton
 									.setAttribute("image",
@@ -1055,18 +1171,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType.indexOf("Property") != -1) {
 							propButton
 									.setAttribute("image",
@@ -1082,28 +1207,45 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
-							txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = valueType;
 							txbox.containerObj = containerObj;
-							//txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//resImg.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							//txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
 						} else if (valueType.indexOf("literal") != -1) {
 							if (art_semanticturkey.isUrl(value)) {
 								txbox.setAttribute("class", "text-link");
-								txbox.addEventListener("click", art_semanticturkey.openUrlEvent, 
-										true);
+								txbox.addEventListener("click",
+										art_semanticturkey.openUrlEvent, true);
 								var containerObj = new Object();
 								containerObj.value = value;
 								txbox.containerObj = containerObj;
-								txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-								txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+								txbox
+										.addEventListener(
+												"mouseover",
+												art_semanticturkey.setCursorPointerEvent,
+												true);
+								txbox
+										.addEventListener(
+												"mouseout",
+												art_semanticturkey.setCursorDefaultEvent,
+												true);
 							}
 						} else if (valueType.indexOf("bnodes") != -1) {
 							// vedere se mettere img o no
@@ -1115,13 +1257,14 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							txbox.setAttribute("multiline", "true");
 						}
 						propButton.setAttribute("label", "Remove Value");
-						var containerObj= new Object();
+						var containerObj = new Object();
 						containerObj.value = value;
 						containerObj.nameValue = nameValue;
 						containerObj.typeValue = typeValue;
 						containerObj.valueType = valueType;
 						propButton.containerObj = containerObj;;
-						propButton.addEventListener("command", art_semanticturkey.removePropValueEvent, true);
+						propButton.addEventListener("command",
+								art_semanticturkey.removePropValueEvent, true);
 						if (explicit == "false") {
 							propButton.setAttribute("disabled", "true");
 						}
@@ -1144,13 +1287,15 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		var domainToolbarButton = document.createElement("toolbarbutton");
 		domainToolbarButton.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_create.png");
-		domainToolbarButton.addEventListener("click", art_semanticturkey.insertDomain, true);		
+		domainToolbarButton.addEventListener("click",
+				art_semanticturkey.insertDomain, true);
 		domainToolbarButton.setAttribute("tooltiptext", "Add Domain");
 		domainToolbar.appendChild(domainToolbarButton);
 		var domainToolbarButton2 = document.createElement("toolbarbutton");
 		domainToolbarButton2.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_delete.png");
-		domainToolbarButton2.addEventListener("click", art_semanticturkey.removeDomainEvent, true);
+		domainToolbarButton2.addEventListener("click",
+				art_semanticturkey.removeDomainEvent, true);
 		var containerObj = new Object();
 		containerObj.domainValue = "no";
 		containerObj.isList = "true";
@@ -1185,9 +1330,12 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				lsti.setAttribute("label", value);
 				var explicit = domainNodeList[i].getAttribute("explicit");
 				lsti.setAttribute("explicit", explicit);
-				lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				lsti.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				lsti.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				lsti.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
 				containerObjTx.explicit = explicit;
@@ -1200,7 +1348,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				list.appendChild(lsti);
 			}
 		}
-	} else { //domainNodeList.length <= 3
+	} else { // domainNodeList.length <= 3
 		var lbl = document.createElement("label");
 		var img = document.createElement("image");
 		img.setAttribute("src",
@@ -1210,7 +1358,8 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		var box = document.createElement("box");
 		row.setAttribute("flex", "4");
 		var domainButton = document.createElement("toolbarbutton");
-		domainButton.addEventListener("click", art_semanticturkey.insertDomain, true);
+		domainButton.addEventListener("click", art_semanticturkey.insertDomain,
+				true);
 		domainButton.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_create.png");
 		domainButton.setAttribute("tooltiptext", "Add domain");
@@ -1227,9 +1376,12 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				txbox.setAttribute("id", "tx" + value);
 				txbox.setAttribute("explicit", explicit);
 				txbox.setAttribute("readonly", "true");
-				txbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-				txbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-				txbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				txbox.addEventListener("dblclick",
+						art_semanticturkey.resourcedblClickEvent, true);
+				txbox.addEventListener("mouseover",
+						art_semanticturkey.setCursorPointerEvent, true);
+				txbox.addEventListener("mouseout",
+						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
 				containerObjTx.explicit = explicit;
@@ -1239,7 +1391,8 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				var domainButton = document.createElement("button");
 				domainButton.setAttribute("id", "domainButton");
 				domainButton.setAttribute("flex", "0");
-				domainButton.addEventListener("click", art_semanticturkey.removeDomainEvent, true);
+				domainButton.addEventListener("click",
+						art_semanticturkey.removeDomainEvent, true);
 				var containerObj = new Object();
 				containerObj.domainValue = value;
 				containerObj.isList = "false";
@@ -1277,13 +1430,15 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		var typeToolbarButton = document.createElement("toolbarbutton");
 		typeToolbarButton.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_create.png");
-		typeToolbarButton.addEventListener("click", art_semanticturkey.insertRange, true);
+		typeToolbarButton.addEventListener("click",
+				art_semanticturkey.insertRange, true);
 		typeToolbarButton.setAttribute("tooltiptext", "Add Range");
 		typeToolbar.appendChild(typeToolbarButton);
 		var typeToolbarButton2 = document.createElement("toolbarbutton");
 		typeToolbarButton2.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_delete.png");
-		typeToolbarButton2.addEventListener("click", art_semanticturkey.removeRangeEvent, true);
+		typeToolbarButton2.addEventListener("click",
+				art_semanticturkey.removeRangeEvent, true);
 		var containerObj = new Object();
 		containerObj.value = "";
 		containerObj.isList = "true";
@@ -1318,10 +1473,13 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 				lsti.setAttribute("label", value);
 				var explicit = rangeList[k].getAttribute("explicit");
 				lsti.setAttribute("explicit", explicit);
-				if(sourceType == "ObjectProperty"){
-					lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-					lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-					lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				if (sourceType == "ObjectProperty") {
+					lsti.addEventListener("dblclick",
+							art_semanticturkey.resourcedblClickEvent, true);
+					lsti.addEventListener("mouseover",
+							art_semanticturkey.setCursorPointerEvent, true);
+					lsti.addEventListener("mouseout",
+							art_semanticturkey.setCursorDefaultEvent, true);
 
 					var containerObjTx = new Object();
 					containerObjTx.explicit = explicit;
@@ -1347,7 +1505,8 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		var typeButton2 = document.createElement("toolbarbutton");
 		typeButton2.setAttribute("image",
 				"chrome://semantic-turkey/content/images/class_create.png");
-		typeButton2.addEventListener("click", art_semanticturkey.insertRange, true);
+		typeButton2.addEventListener("click", art_semanticturkey.insertRange,
+				true);
 		typeButton2.setAttribute("tooltiptext", "Add Range");
 		if (sourceType.indexOf("DatatypeProperty") != -1
 				&& rangeList.length != 0) {
@@ -1365,10 +1524,13 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 				txbox2.setAttribute("value", value2);
 				txbox2.setAttribute("readonly", "true");
 				txbox2.setAttribute("id", "tx" + value2);
-				if(sourceType == "ObjectProperty"){
-					txbox2.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-					txbox2.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-					txbox2.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+				if (sourceType == "ObjectProperty") {
+					txbox2.addEventListener("dblclick",
+							art_semanticturkey.resourcedblClickEvent, true);
+					txbox2.addEventListener("mouseover",
+							art_semanticturkey.setCursorPointerEvent, true);
+					txbox2.addEventListener("mouseout",
+							art_semanticturkey.setCursorDefaultEvent, true);
 
 					var containerObjTx = new Object();
 					containerObjTx.explicit = "false";
@@ -1382,7 +1544,8 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 						.setAttribute("image",
 								"chrome://semantic-turkey/content/images/class_delete.png");
 				typeButton3.setAttribute("flex", "0");
-				typeButton3.addEventListener("click", art_semanticturkey.removeRangeEvent, true);
+				typeButton3.addEventListener("click",
+						art_semanticturkey.removeRangeEvent, true);
 				var containerObj = new Object();
 				containerObj.value = value2;
 				containerObj.isList = "false";
@@ -1463,7 +1626,8 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 	inversBtn.setAttribute("image",
 			"chrome://semantic-turkey/content/images/individual_add.png");
 	inversBtn.setAttribute("id", "addInverseOf");
-	inversBtn.addEventListener("command", art_semanticturkey.addInverseOf, true);
+	inversBtn
+			.addEventListener("command", art_semanticturkey.addInverseOf, true);
 	inversBtn.setAttribute("tooltiptext", "Add New Property");
 	inversBtn.setAttribute("disabled", "false");
 	titleBox.appendChild(inversBtn);
@@ -1492,7 +1656,8 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 					remInverseBtn.setAttribute("label", "Remove Value");
 					remInverseBtn.setAttribute("id", "removeInverseOf");
 					remInverseBtn.setAttribute("flex", "0");
-					remInverseBtn.addEventListener("command", art_semanticturkey.removeInverseOfEvent, true);
+					remInverseBtn.addEventListener("command",
+							art_semanticturkey.removeInverseOfEvent, true);
 					var containerObj = new Object();
 					containerObj.value = "list";
 					containerObj.isList = "true";
@@ -1519,9 +1684,15 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							var explicit = valueList[j]
 									.getAttribute("explicit");
 							lsti.setAttribute("explicit", explicit);
-							lsti.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							lsti.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							lsti.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							lsti.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							lsti.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							lsti.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObjTx = new Object();
 							containerObjTx.explicit = explicit;
@@ -1545,9 +1716,15 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							inverseTxbox.setAttribute("value", value);
 							inverseTxbox.setAttribute("flex", "1");
 							inverseTxbox.setAttribute("readonly", "true");
-							inverseTxbox.addEventListener("dblclick", art_semanticturkey.resourcedblClickEvent, true);
-							inverseTxbox.addEventListener("mouseover", art_semanticturkey.setCursorPointerEvent, true);
-							inverseTxbox.addEventListener("mouseout", art_semanticturkey.setCursorDefaultEvent, true);
+							inverseTxbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							inverseTxbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							inverseTxbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
 
 							var containerObjTx = new Object();
 							containerObjTx.explicit = explicit;
@@ -1566,7 +1743,9 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							remInverseBtn.setAttribute("label", "Remove Value");
 							remInverseBtn.setAttribute("id", "removeInverseOf");
 							remInverseBtn.setAttribute("flex", "0");
-							remInverseBtn.addEventListener("command", art_semanticturkey.removeInverseOfEvent, true);
+							remInverseBtn.addEventListener("command",
+									art_semanticturkey.removeInverseOfEvent,
+									true);
 							var containerObj = new Object();
 							containerObj.value = value;
 							containerObj.isList = "false";
@@ -1594,11 +1773,9 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 
 };
 
-art_semanticturkey.onClose = function(){
+art_semanticturkey.onClose = function() {
 	close();
 };
-
-
 
 /**
  * @author NScarpato 13/03/2008 add Domain for selected property
@@ -1617,8 +1794,9 @@ art_semanticturkey.insertDomain = function() {
 		try {
 			art_semanticturkey.STRequests.Property.addPropertyDomain(document
 							.getElementById("name").value, domainName);
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );				
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+					(new art_semanticturkey.genericEventClass()));
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1667,14 +1845,15 @@ art_semanticturkey.insertRange = function() {
 			}
 		}
 	}
-	//art_semanticturkey.refreshPanel();
-	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+	// art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			(new art_semanticturkey.genericEventClass()));
 };
 
-
-art_semanticturkey.removeDomainEvent = function(event){
+art_semanticturkey.removeDomainEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.removeDomain(containerObj.domainValue, containerObj.isList);
+	art_semanticturkey.removeDomain(containerObj.domainValue,
+			containerObj.isList);
 };
 
 /**
@@ -1691,8 +1870,9 @@ art_semanticturkey.removeDomain = function(domainValue, isList) {
 			try {
 				art_semanticturkey.STRequests.Property.removePropertyDomain(
 						document.getElementById("name").value, domainName);
-				//art_semanticturkey.refreshPanel();
-				art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+				// art_semanticturkey.refreshPanel();
+				art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+						(new art_semanticturkey.genericEventClass()));
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -1703,15 +1883,16 @@ art_semanticturkey.removeDomain = function(domainValue, isList) {
 		try {
 			art_semanticturkey.STRequests.Property.removePropertyDomain(
 					document.getElementById("name").value, domainValue);
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+					(new art_semanticturkey.genericEventClass()));
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
 };
 
-art_semanticturkey.removeRangeEvent = function(event){
+art_semanticturkey.removeRangeEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.removeRange(containerObj.value, containerObj.isList);
 };
@@ -1729,8 +1910,9 @@ art_semanticturkey.removeRange = function(value, isList) {
 			try {
 				art_semanticturkey.STRequests.Property.removePropertyRange(
 						document.getElementById("name").value, rangeName);
-				//art_semanticturkey.refreshPanel();
-				art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+				// art_semanticturkey.refreshPanel();
+				art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+						(new art_semanticturkey.genericEventClass()));
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -1741,15 +1923,16 @@ art_semanticturkey.removeRange = function(value, isList) {
 		try {
 			art_semanticturkey.STRequests.Property.removePropertyRange(document
 							.getElementById("name").value, value);
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+					(new art_semanticturkey.genericEventClass()));
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
 };
 
-art_semanticturkey.addTypeEvent = function(event){
+art_semanticturkey.addTypeEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.addType(containerObj.type);
 };
@@ -1780,20 +1963,21 @@ art_semanticturkey.addType = function(addtype) {
 								.getAttribute("actualValue"),
 						parameters2.selectedClass);
 			}
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
-			//document.getElementById("editorPanel").setAttribute("changed",
-			//		"true");
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+					(new art_semanticturkey.genericEventClass()));
+			// document.getElementById("editorPanel").setAttribute("changed",
+			// "true");
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
 };
 
-art_semanticturkey.removeTypeEvent = function(event){
+art_semanticturkey.removeTypeEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.removeType(containerObj.value, containerObj.sourceType, 
-		containerObj.isList);
+	art_semanticturkey.removeType(containerObj.value, containerObj.sourceType,
+			containerObj.isList);
 };
 
 /**
@@ -1811,20 +1995,19 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
 	if (explicit == "true") {
 		try {
 			if (sourceType == "individual") {
-				responseXML = art_semanticturkey.STRequests.Individual.removeType(
-						document.getElementById("name")
-								.getAttribute("actualValue"),
-						value);
+				responseXML = art_semanticturkey.STRequests.Individual
+						.removeType(document.getElementById("name")
+										.getAttribute("actualValue"), value);
 			} else {
 				responseXML = art_semanticturkey.STRequests.Cls.removeType(
 						document.getElementById("name")
-								.getAttribute("actualValue"),
-						value);
+								.getAttribute("actualValue"), value);
 			}
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
-			//document.getElementById("editorPanel").setAttribute("changed",
-			//		"true");
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+					(new art_semanticturkey.genericEventClass()));
+			// document.getElementById("editorPanel").setAttribute("changed",
+			// "true");
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1852,11 +2035,10 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 				"_blank", "modal=yes,resizable,centerscreen", parameters2);
 		try {
 			className = document.getElementById("name")
-						.getAttribute("actualValue")
+					.getAttribute("actualValue")
 			responseElement = art_semanticturkey.STRequests.Cls.addSuperCls(
-				className, parameters2.selectedClass);
-		}
-		catch (e) {
+					className, parameters2.selectedClass);
+		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	} else {
@@ -1874,31 +2056,31 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 			txbox.setAttribute("value", selectedClass);
 			try {
 				className = document.getElementById("name")
-							.getAttribute("actualValue");
-				responseElement = art_semanticturkey.STRequests.Cls.addSuperCls(
-					className,
-					parameters2.selectedClass);
-			}
-			catch (e) {
+						.getAttribute("actualValue");
+				responseElement = art_semanticturkey.STRequests.Cls
+						.addSuperCls(className, parameters2.selectedClass);
+			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
 		}
 	}
-	//art_semanticturkey.refreshPanel();
+	// art_semanticturkey.refreshPanel();
 	art_semanticturkey.addSuperClass_RESPONSE(className, responseElement);
 };
 
-
-art_semanticturkey.addSuperClass_RESPONSE = function(className, responseElement){
+art_semanticturkey.addSuperClass_RESPONSE = function(className, responseElement) {
 	var resourceNode = responseElement.getElementsByTagName('Type')[0];
 	var className = className;
 	var superClassName = resourceNode.getAttribute("qname");
-	art_semanticturkey.evtMgr.fireEvent("subClsOfAddedClass", (new art_semanticturkey.subClsOfAddedClass(className, superClassName)) );
+	art_semanticturkey.evtMgr.fireEvent("subClsOfAddedClass",
+			(new art_semanticturkey.subClsOfAddedClass(className,
+					superClassName)));
 };
 
-art_semanticturkey.removeSuperClassEvent = function(event){
+art_semanticturkey.removeSuperClassEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.removeSuperClass(containerObj.value, containerObj.isList);
+	art_semanticturkey
+			.removeSuperClass(containerObj.value, containerObj.isList);
 };
 
 /**
@@ -1917,11 +2099,13 @@ art_semanticturkey.removeSuperClass = function(value, isList) {
 	}
 	if (explicit == "true") {
 		try {
-			className = document.getElementById("name").getAttribute("actualValue");
+			className = document.getElementById("name")
+					.getAttribute("actualValue");
 			responseElement = art_semanticturkey.STRequests.Cls.removeSuperCls(
 					className, value);
-			//art_semanticturkey.refreshPanel();
-			art_semanticturkey.removeSuperClass_RESPONSE(className, responseElement);
+			// art_semanticturkey.refreshPanel();
+			art_semanticturkey.removeSuperClass_RESPONSE(className,
+					responseElement);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -1930,18 +2114,20 @@ art_semanticturkey.removeSuperClass = function(value, isList) {
 	}
 };
 
-art_semanticturkey.removeSuperClass_RESPONSE = function(className, responseElement){
+art_semanticturkey.removeSuperClass_RESPONSE = function(className,
+		responseElement) {
 	var resourceNode = responseElement.getElementsByTagName('Type')[0];
 	var className = className;
 	var superClassName = resourceNode.getAttribute("qname");
-	art_semanticturkey.evtMgr.fireEvent("subClsOfRemovedClass", (new art_semanticturkey.subClsOfRemovedClass(className, superClassName)) );
+	art_semanticturkey.evtMgr.fireEvent("subClsOfRemovedClass",
+			(new art_semanticturkey.subClsOfRemovedClass(className,
+					superClassName)));
 };
 
-
-art_semanticturkey.createAndAddPropValueEvent = function(event){
+art_semanticturkey.createAndAddPropValueEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.createAndAddPropValue(containerObj.propertyQName, 
-		containerObj.typeValue,containerObj.isLiteral);
+	art_semanticturkey.createAndAddPropValue(containerObj.propertyQName,
+			containerObj.typeValue, containerObj.isLiteral);
 };
 
 /**
@@ -1949,7 +2135,8 @@ art_semanticturkey.createAndAddPropValueEvent = function(event){
  * @param {String}
  *            property name
  */
-art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,isLiteral) {
+art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
+		isLiteral) {
 	var instanceQName = document.getElementById("name")
 			.getAttribute("actualValue");
 	var parameters = new Object();
@@ -1962,48 +2149,142 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,isL
 	parameters.typeValue = typeValue;
 	parameters.parentWindow = window.arguments[0].parentWindow;
 	parameters.oncancel = false;
-	if(typeValue.indexOf("rdf:Property") != -1){
-			if(isLiteral == "true"){
-				window
-				.openDialog(
-						"chrome://semantic-turkey/content/enrichProperty/enrichNoObjectProperty.xul",
-						"_blank", "modal=yes,resizable,centerscreen",
-						parameters);
-			}else{
-				window
+	
+	// NScarpato 20/11/2010
+	var responseXML = art_semanticturkey.STRequests.Property.getRange(
+			propertyQName, "false");
+	var ranges = responseXML.getElementsByTagName("ranges")[0];
+	if (ranges.getAttribute("rngType").indexOf("resource") != -1) {
+		window
 				.openDialog(
 						"chrome://semantic-turkey/content/enrichProperty/enrichProperty.xul",
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
+
+	} else if (ranges.getAttribute("rngType").indexOf("plainLiteral") != -1) {
+		window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichPlainLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+	} else if (ranges.getAttribute("rngType").indexOf("typedLiteral") != -1) {
+		var rangeList = ranges.childNodes;
+		for (var i = 0; i < rangeList.length; ++i) {
+			if (typeof(rangeList[i].tagName) != 'undefined') {
+
+				parameters.rangeType = rangeList[i].textContent;
 			}
-	}else if (typeValue.indexOf("owl:ObjectProperty") != -1) {
+		}
 		window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+	} else if (ranges.getAttribute("rngType").indexOf("literal") != -1) {
+		var literalsParameters = new Object();
+		literalsParameters.isLiteral = "literal";
+		window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						literalsParameters);
+		if(literalsParameters.isLiteral == "plainLiteral"){
+			window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichPlainLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+		}else if(literalsParameters.isLiteral == "typedLiteral"){
+			window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+		}
+	} else if (ranges.getAttribute("rngType").indexOf("dataRange") != -1) {
+		var rangeList = ranges.childNodes;
+		for (var i = 0; i < rangeList.length; ++i) {
+			if (typeof(rangeList[i].tagName) != 'undefined') {
+				var dataRangeBNodeID = rangeList[i].textContent;
+			}
+		}
+		var responseXML = art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,"bnode");
+		var dataElement = responseXML.getElementsByTagName("data")[0];
+		var dataRangesList = dataElement.childNodes;
+		var dataRangesValueList = new Array();
+		var k=0;
+		for (var i = 0; i < dataRangesList.length; ++i) {
+			if (typeof(dataRangesList[i].tagName) != 'undefined') {
+				var dataRangeValue = new Object(); 
+				dataRangeValue.type = dataRangesList[i].tagName;
+				dataRangeValue.rangeType = dataRangesList[i].getAttribute("type");
+				dataRangeValue.show= dataRangesList[i].getAttribute("show");
+				dataRangesValueList[k]=dataRangeValue;
+				k++;
+			}
+		}
+		parameters.rangeType = "dataRange";
+		parameters.dataRangesValueList=dataRangesValueList;
+		window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+	} else if (ranges.getAttribute("rngType").indexOf("undetermined") != -1) {
+		var literalsParameters = new Object();
+		literalsParameters.isLiteral = "undetermined";
+		window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						literalsParameters);
+		if(literalsParameters.isLiteral == "plainLiteral"){
+			window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichPlainLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+		}else if(literalsParameters.isLiteral == "typedLiteral"){
+			var rangeList = ranges.childNodes;
+			for (var i = 0; i < rangeList.length; ++i) {
+				if (typeof(rangeList[i].tagName) != 'undefined') {
+					parameters.rangeType = rangeList[i].textContent;
+				}
+			}
+			window
+				.openDialog(
+						"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
+						"_blank", "modal=yes,resizable,centerscreen",
+						parameters);
+		}else if(literalsParameters.isLiteral == "resource"){
+			window
 				.openDialog(
 						"chrome://semantic-turkey/content/enrichProperty/enrichProperty.xul",
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
-	} else {
-		window
-				.openDialog(
-						"chrome://semantic-turkey/content/enrichProperty/enrichNoObjectProperty.xul",
-						"_blank", "modal=yes,resizable,centerscreen",
-						parameters);
+		}				
+	} else if (ranges.getAttribute("rngType").indexOf("inconsistent") != -1) {
+		alert("Error range of "+propertyQName+" property is inconsistent");
 	}
+
 	if (parameters.oncancel == false) {
-		if (window.arguments[0].sourceType == "skosConcept"){
+		if (window.arguments[0].sourceType == "skosConcept") {
 			// Luca Mastrogiovanni: fire event propertyValueAdded
 			var obj = new Object();
 			art_semanticturkey.evtMgr.fireEvent("propertyValueAdded", obj);
 
-		}		
-		//art_semanticturkey.refreshPanel();
-		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+		}
+		// art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+				(new art_semanticturkey.genericEventClass()));
 	}
 };
 
 art_semanticturkey.removePropValueEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.removePropValue(containerObj.value, containerObj.nameValue, containerObj.typeValue, containerObj.valueType);
+	art_semanticturkey.removePropValue(containerObj.value,
+			containerObj.nameValue, containerObj.typeValue,
+			containerObj.valueType);
 };
 
 /**
@@ -2011,60 +2292,73 @@ art_semanticturkey.removePropValueEvent = function(event) {
  * @param {String}
  *            value: it's 'list' or value of textBox
  */
-art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,type) {
+art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
+		type) {
 	var instanceQName = document.getElementById("name")
 			.getAttribute("actualValue");
+	// NScarpato 25/11/2010
+	var responseXML = art_semanticturkey.STRequests.Property.getRange(
+			propertyQName, "false");
+	var ranges = responseXML.getElementsByTagName("ranges")[0];
+	var type = (ranges.getAttribute("rngType"));
+	//NScarpato 29/11/2010
+	if(type == "dataRange"){
+		var rangeList = ranges.childNodes;
+			for (var i = 0; i < rangeList.length; ++i) {
+				if (typeof(rangeList[i].tagName) != 'undefined') {
+					var dataRangeBNodeID = rangeList[i].textContent;
+				}
+			}
+			var responseXML = art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,"bnode");
+			var dataElement = responseXML.getElementsByTagName("data")[0];
+			var dataRangesList = dataElement.childNodes;
+			for (var i = 0; i < dataRangesList.length; ++i) {
+				if (typeof(dataRangesList[i].tagName) != 'undefined') {
+					if(value == dataRangesList[i].getAttribute("show")){
+						type = dataRangesList[i].tagName;
+						break;
+					}
+				}
+			}
+	}
 	try {
-				
 		if (value == "list") {
 			var list = document.getElementById(propertyQName);
 			var selItem = list.selectedItem;
 			var propValue = list.selectedItem.getAttribute("label");
 			var explicit = list.selectedItem.getAttribute("explicit");
-			var type = list.selectedItem.getAttribute("type"); 
 			if (explicit == "true") {
 				if (typeValue == "owl:AnnotationProperty") {
 					lang = list.selectedItem.getAttribute("language");
 					art_semanticturkey.STRequests.Property
-							.removePropValue(instanceQName,
-									propertyQName,
-									propValue,
-									type,
-									lang);
+							.removePropValue(instanceQName, propertyQName,
+									propValue, type, lang);
 				} else {
 					art_semanticturkey.STRequests.Property.removePropValue(
-							instanceQName,
-							propertyQName,
-							propValue,
-							type);
+							instanceQName, propertyQName, propValue, type);
 				}
 			} else {
 				alert("You cannot remove this property value, it's a system resource!");
 			}
 		} else {
+
 			if (typeValue == "owl:AnnotationProperty") {
 				var lang = document.getElementById(value)
 						.getAttribute("language");
 				art_semanticturkey.STRequests.Property.removePropValue(
-						instanceQName,
-						propertyQName,
-						value,
-						type,
-						lang);
+						instanceQName, propertyQName, value, type, lang);
 			} else {
 				art_semanticturkey.STRequests.Property.removePropValue(
-						instanceQName,
-						propertyQName,
-						value,
-						type);
+						instanceQName, propertyQName, value, type);
 			}
 		}
-		
+
 		// Luca Mastrogiovanni: fire event propertyRemoved
 		var obj = new Object();
-		//art_semanticturkey.evtMgr.fireEvent("propertyRemoved", obj);
-		//art_semanticturkey.refreshPanel();
-		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+		// art_semanticturkey.evtMgr.fireEvent("propertyRemoved", obj);
+		// art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+				(new art_semanticturkey.genericEventClass()));
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2119,13 +2413,16 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 	var newName = resourceNode.getAttribute("newname");
 	if (window.arguments[0].sourceType == "cls") {
 		var resourceElement = responseElement
-			.getElementsByTagName('UpdateResource')[0];
+				.getElementsByTagName('UpdateResource')[0];
 		var newClassName = resourceElement.getAttribute("newname");
 		var oldClassName = resourceElement.getAttribute("name");
-		document.getElementById("name").setAttribute("actualValue", newClassName);
-		art_semanticturkey.evtMgr.fireEvent("renamedClass", (new art_semanticturkey.classRenamedClass(newClassName, oldClassName)) );
+		document.getElementById("name").setAttribute("actualValue",
+				newClassName);
+		art_semanticturkey.evtMgr.fireEvent("renamedClass",
+				(new art_semanticturkey.classRenamedClass(newClassName,
+						oldClassName)));
 	} else if (window.arguments[0].sourceType == "individual") {
-		//TODO add event for rename of an instance
+		// TODO add event for rename of an instance
 		var list = window.arguments[0].list;
 		var listItemList = list.getElementsByTagName("listitem");
 		for (var i = 0; i < listItemList.length; i++) {
@@ -2138,7 +2435,7 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 			}
 		}
 	} else {
-		//TODO add event for rename of property (and other stuff)
+		// TODO add event for rename of property (and other stuff)
 		var tree = window.arguments[0].tree;
 		var treecellNodes = tree.getElementsByTagName("treecell");
 		for (var i = 0; i < treecellNodes.length; i++) {
@@ -2170,20 +2467,18 @@ art_semanticturkey.refreshPanel = function() {
 	try {
 		if (mytype == "cls") {
 			responseXML = art_semanticturkey.STRequests.Cls
-					.getClassDescription(sourceElementName,
-							"templateandvalued");
+					.getClassDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 		} else if (mytype == "individual") {
 			responseXML = art_semanticturkey.STRequests.Individual
-					.getIndividualDescription(
-							sourceElementName,
+					.getIndividualDescription(sourceElementName,
 							"templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else if (mytype == "Ontology"){
+		} else if (mytype == "Ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		}else { // Property
+		} else { // Property
 			responseXML = art_semanticturkey.STRequests.Property
 					.getPropertyDescription(sourceElementName);
 			art_semanticturkey.getPropertyDescription_RESPONSE(responseXML);
@@ -2211,7 +2506,8 @@ art_semanticturkey.addNewProperty = function() {
 					"_blank", "modal=yes,resizable,centerscreen", parameters);
 	var propType = parameters.selectedPropType;
 	if (parameters.oncancel == false) {
-		if(propType.indexOf("rdf:Property")!= -1){
+		//NScarpato 25/11/2010
+		/*if (propType.indexOf("rdf:Property") != -1) {
 			var literalsParameters = new Object();
 			literalsParameters.isLiteral = "none";
 			var type = "none";
@@ -2220,14 +2516,15 @@ art_semanticturkey.addNewProperty = function() {
 							"chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
 							"_blank", "modal=yes,resizable,centerscreen",
 							literalsParameters);
-			if(literalsParameters.isLiteral !="none"){				
-					art_semanticturkey.createAndAddPropValue(parameters.selectedProp,
-					propType, literalsParameters.isLiteral);
+			if (literalsParameters.isLiteral != "none") {
+				art_semanticturkey.createAndAddPropValue(
+						parameters.selectedProp, propType,
+						literalsParameters.isLiteral);
 			}
-		}else{
+		} else {*/
 			art_semanticturkey.createAndAddPropValue(parameters.selectedProp,
 					propType);
-		}
+		//}
 	}
 };
 /**
@@ -2237,18 +2534,24 @@ art_semanticturkey.changeFacets = function(event) {
 	var check = event.target.getAttribute("checked");
 	var sourceElementName = document.getElementById("name")
 			.getAttribute("actualValue");
+	// NScarpato 25/11/2010
+	var responseXML = art_semanticturkey.STRequests.Property.getRange(
+			"rdf:type", "false");
+	var ranges = responseXML.getElementsByTagName("ranges")[0];
+	var type = (ranges.getAttribute("rngType"));		
 	try {
 		if (check) {
 			art_semanticturkey.STRequests.Property.addExistingPropValue(
 					sourceElementName, "rdf:type", event.target
-							.getAttribute("propertyName"));
+							.getAttribute("propertyName"),type);
 		} else {
 			art_semanticturkey.STRequests.Property.removePropValue(
 					sourceElementName, "rdf:type", event.target
-							.getAttribute("propertyName"));
+							.getAttribute("propertyName"),type);
 		}
-		//art_semanticturkey.refreshPanel();
-		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+		// art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+				(new art_semanticturkey.genericEventClass()));
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2263,10 +2566,14 @@ art_semanticturkey.addInverseOf = function() {
 	var parameters = new Object();
 	var selectedProp = "";
 	var selectedPropType = "";
+	var responseXML = art_semanticturkey.STRequests.Property.getRange(
+			"owl:inverseOf", "false");
+	var ranges = responseXML.getElementsByTagName("ranges")[0];
+	var type = (ranges.getAttribute("rngType"));
 	parameters.selectedProp = selectedProp;
 	parameters.selectedPropType = selectedPropType;
 	parameters.oncancel = false;
-	parameters.type = mytype;
+	parameters.type = type;
 	window
 			.openDialog(
 					"chrome://semantic-turkey/content/editors/property/propertyTree.xul",
@@ -2275,16 +2582,17 @@ art_semanticturkey.addInverseOf = function() {
 		try {
 			art_semanticturkey.STRequests.Property
 					.addExistingPropValue(sourceElementName, "owl:inverseOf",
-							parameters.selectedProp);
+							parameters.selectedProp,type);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
-	//art_semanticturkey.refreshPanel();
-	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+	// art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			(new art_semanticturkey.genericEventClass()));
 };
 
-art_semanticturkey.removeInverseOfEvent = function(event){
+art_semanticturkey.removeInverseOfEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.removeInverseOf(containerObj.value, containerObj.isList);
 };
@@ -2299,11 +2607,16 @@ art_semanticturkey.removeInverseOf = function(value, isList) {
 	}
 	var sourceElementName = document.getElementById("name")
 			.getAttribute("actualValue");
+	var responseXML = art_semanticturkey.STRequests.Property.getRange(
+			"owl:inverseOf", "false");
+	var ranges = responseXML.getElementsByTagName("ranges")[0];
+	var type = (ranges.getAttribute("rngType"));
 	try {
 		art_semanticturkey.STRequests.Property.removePropValue(
-				sourceElementName, "owl:inverseOf", value);
-		//art_semanticturkey.refreshPanel();
-		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+				sourceElementName, "owl:inverseOf", value,type);
+		// art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+				(new art_semanticturkey.genericEventClass()));
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -2327,16 +2640,16 @@ art_semanticturkey.addSuperProperty = function() {
 			art_semanticturkey.STRequests.Property.addSuperProperty(document
 							.getElementById("name").value,
 					parameters.selectedProp);
-		}
-		catch (e) {
+		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
-	//art_semanticturkey.refreshPanel();
-	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+	// art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			(new art_semanticturkey.genericEventClass()));
 };
 
-art_semanticturkey.removeSuperPropertyEvent = function(event){
+art_semanticturkey.removeSuperPropertyEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.removeSuperProperty(containerObj.superPropValue);
 };
@@ -2355,33 +2668,34 @@ art_semanticturkey.removeSuperProperty = function(superPropValue) {
 			var explicit = list.selectedItem.getAttribute("explicit");
 			if (explicit == "true") {
 				art_semanticturkey.STRequests.Property.removeSuperProperty(
-						document.getElementById("name").value,
-						superPropQName);
+						document.getElementById("name").value, superPropQName);
 			} else {
 				alert("You cannot remove this superProperty");
 			}
 		} else {
-			art_semanticturkey.STRequests.Property.removeSuperProperty(
-					document.getElementById("name").value,
-					superPropValue);
+			art_semanticturkey.STRequests.Property.removeSuperProperty(document
+							.getElementById("name").value, superPropValue);
 		}
-		//art_semanticturkey.refreshPanel();
-		art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+		// art_semanticturkey.refreshPanel();
+		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+				(new art_semanticturkey.genericEventClass()));
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
 };
 
-art_semanticturkey.resourcedblClickEvent = function(event){
+art_semanticturkey.resourcedblClickEvent = function(event) {
 	var containerObj = event.target.containerObj;
-	art_semanticturkey.resourcedblClick(containerObj.explicit, 
-		containerObj.sourceElementName, containerObj.sourceType);
+	art_semanticturkey.resourcedblClick(containerObj.explicit,
+			containerObj.sourceElementName, containerObj.sourceType);
 };
 
 /** NScarpato 10/07/2008 */
 art_semanticturkey.resourcedblClick = function(explicit, sourceElementName,
 		sourceType) {
-	art_semanticturkey.Logger.debug("explicit = "+explicit+"\nsourceElementName= "+sourceElementName+"\nsourceType = "+sourceType); // da cancellare		
+	art_semanticturkey.Logger.debug("explicit = " + explicit
+			+ "\nsourceElementName= " + sourceElementName + "\nsourceType = "
+			+ sourceType); // da cancellare
 	var parameters = new Object();
 	parameters.sourceType = sourceType;
 	parameters.explicit = explicit;
@@ -2392,11 +2706,12 @@ art_semanticturkey.resourcedblClick = function(explicit, sourceElementName,
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
 			"_blank", "modal=yes,resizable,left=400,top=100", parameters);
-	//art_semanticturkey.refreshPanel();
-	art_semanticturkey.evtMgr.fireEvent("refreshEditor", (new art_semanticturkey.genericEventClass()) );
+	// art_semanticturkey.refreshPanel();
+	art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			(new art_semanticturkey.genericEventClass()));
 };
 
-art_semanticturkey.openUrlEvent = function(event){
+art_semanticturkey.openUrlEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.openUrl(containerObj.value);
 };
@@ -2409,6 +2724,6 @@ art_semanticturkey.setCursorDefaultEvent = function(event) {
 	setCursor('default');
 };
 
-art_semanticturkey.setTextBluEvent = function(event){
-	event.target.style.color='blue';
+art_semanticturkey.setTextBluEvent = function(event) {
+	event.target.style.color = 'blue';
 };

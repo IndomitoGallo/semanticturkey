@@ -153,9 +153,6 @@ function removePropValue(instanceQName, propertyQName, value, type, lang) {
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var value = "value=" + value;
-	if(typeof type == "undefined"){
-		return HttpMgr.GET(serviceName, service.removePropValueRequest, instanceQName, propertyQName, value);
-	}
 	var type = "type=" + type;
 	if (typeof lang != "undefined" && lang != "") {
 		var lang = "lang=" + lang;
@@ -186,20 +183,20 @@ function removePropValue(instanceQName, propertyQName, value, type, lang) {
  *            (optional) for annotation properties, tells the language of the entry which needs to be set up
  * @return
  */
-function createAndAddPropValue(instanceQName, propertyQName, value, rangeClsQName, type, lang) {
+function createAndAddPropValue(instanceQName, propertyQName, value, rangeQName, type, lang) {
 	Logger.debug('[SERVICE_Property.jsm] createAndAddPropValue');
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var value = "value=" + value;
-	var rangeClsQName = "rangeClsQName=" + rangeClsQName;
+	var rangeQName = "rangeQName=" + rangeQName;
 	var type = "type=" + type;
 	if (typeof lang != "undefined" && lang != "") {
 		var lang = "lang=" + lang;
 		return HttpMgr.GET(serviceName, service.createAndAddPropValueRequest, instanceQName, propertyQName,
-				value, rangeClsQName, type, lang);
+				value, rangeQName, type, lang);
 	} else {
 		return HttpMgr.GET(serviceName, service.createAndAddPropValueRequest, instanceQName, propertyQName,
-				value, rangeClsQName, type);
+				value, rangeQName, type);
 	}
 }
 
@@ -213,12 +210,13 @@ function createAndAddPropValue(instanceQName, propertyQName, value, rangeClsQNam
  * @param value
  * @return
  */
-function addExistingPropValue(instanceQName, propertyQName, value) {
+function addExistingPropValue(instanceQName, propertyQName, value,type) {
 	Logger.debug('[SERVICE_Property.jsm] addExistingPropValueRequest');
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var value = "value=" + value;
-	return HttpMgr.GET(serviceName, service.addExistingPropValueRequest, instanceQName, propertyQName, value);
+	var type = "type=" + type;
+	return HttpMgr.GET(serviceName, service.addExistingPropValueRequest, instanceQName, propertyQName, value,type);
 }
 
 /**
@@ -250,6 +248,34 @@ function removeSuperProperty(propertyQName, superPropertyQName) {
 	return HttpMgr.GET(serviceName, service.removeSuperPropertyRequest, propertyQName, superPropertyQName);
 }
 
+/**
+ * get info about Domain of a property
+ * 
+ * @member STRequests.Property
+ * @param propertyQName
+ * @return
+ */
+function  getDomain(propertyQName){
+	var propertyQName = "propertyQName=" + propertyQName;
+	return HttpMgr.GET(serviceName, service.getDomainRequest, propertyQName);
+}
+/**
+ * get info about Range of a property
+ * 
+ * @member STRequests.Property
+ * @param propertyQName
+ * @return
+ */
+function  getRange(propertyQName,visualize){
+	var propertyQName = "propertyQName=" + propertyQName;
+	var visualize = "visualize=" + visualize;
+	return HttpMgr.GET(serviceName, service.getRangeRequest, propertyQName,visualize);
+}
+function  parseDataRange(dataRange,nodeType){
+	var dataRange = "dataRange=" + dataRange;
+	var nodeType = "nodeType=" + nodeType;
+	return HttpMgr.GET(serviceName, service.parseDataRangeRequest, dataRange,nodeType);
+}
 /**
  * specifies the domain for property <em>propertyQName</em> (actually, it just adds a class to the list of
  * classes the intersection of which represents the true property domain)
@@ -326,3 +352,6 @@ service.addPropertyDomain = addPropertyDomain;
 service.removePropertyDomain = removePropertyDomain;
 service.addPropertyRange = addPropertyRange;
 service.removePropertyRange = removePropertyRange;
+service.getDomain = getDomain;
+service.getRange = getRange;
+service.parseDataRange=parseDataRange;

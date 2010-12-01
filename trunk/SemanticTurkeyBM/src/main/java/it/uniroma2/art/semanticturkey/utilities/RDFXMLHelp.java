@@ -28,7 +28,9 @@ import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 
 import org.w3c.dom.DOMException;
@@ -36,36 +38,75 @@ import org.w3c.dom.Element;
 
 public class RDFXMLHelp {
 
-	public static Element addRDFNodeXMLElement(Element parent, OWLModel model, ARTNode range,
+	/**
+	 * renders the description of a RDF node under an XML Element. First, the nature of the node is revealed,
+	 * among:
+	 * <ul>
+	 * <li>uri</li>
+	 * <li>bnode</li>
+	 * <li>plainLiteral</li>
+	 * <li>typedLiteral</li>
+	 * </ul>
+	 * with additional information depending on its nature<br/>
+	 * an optional <code>visualization</code> argument enables for a rendered visualization of the node
+	 * 
+	 * 
+	 * @param parent
+	 *            the XML parent element the newly created description is attached to
+	 * @param model
+	 *            the model to be queried for describing the RDFNode
+	 * @param node
+	 *            the node which is being described
+	 * @param role
+	 *            when <code>true</code>, if the node is a resource, it tells the role of the resource (cls,
+	 *            ontology, property...). see {@link RDFResourceRolesEnum}
+	 * @param visualization
+	 *            if a visual representation of the node is to be provided in its xml representation. If true,
+	 *            it provides
+	 *            <ul>
+	 *            <li>a <code>show</code> attribute representing the node</li>
+	 *            <li>if the value is a typed literal, a <code>typeQName</code> attribute providing a qname
+	 *            for the datatype</li>
+	 *            </ul>
+	 * @return
+	 * @throws DOMException
+	 * @throws ModelAccessException
+	 */
+	public static Element addRDFNodeXMLElement(Element parent, OWLModel model, ARTNode node, boolean role,
 			boolean visualization) throws DOMException, ModelAccessException {
 		Element nodeElement;
-		if (range.isURIResource()) {
-			nodeElement = XMLHelp.newElement(parent, VocabularyTypesEnum.uri.toString());
-			String uri = range.asURIResource().getURI();
-			nodeElement.setTextContent(uri);
-		} else if (range.isBlank()) {
-			nodeElement = XMLHelp.newElement(parent, VocabularyTypesEnum.bnode.toString());
-			nodeElement.setTextContent(range.asBNode().getID());
+		if (node.isResource()) {
+			if (node.isURIResource()) {
+				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.uri.toString());
+				String uri = node.asURIResource().getURI();
+				nodeElement.setTextContent(uri);
+			} else { // (node.isBlank())
+				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.bnode.toString());
+				nodeElement.setTextContent(node.asBNode().getID());
+			}
+			if (role)
+				nodeElement.setAttribute("role", ModelUtilities.getResourceRole(node.asResource(), model)
+						.toString());
 		} else {
 			// literal
-			ARTLiteral lit = range.asLiteral();
+			ARTLiteral lit = node.asLiteral();
 			ARTURIResource dt = lit.getDatatype();
-			if (dt!=null) {
-				nodeElement = XMLHelp.newElement(parent, VocabularyTypesEnum.typedLiteral.toString());
+			if (dt != null) {
+				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.typedLiteral.toString());
 				nodeElement.setAttribute("type", dt.getURI());
 				if (visualization)
 					nodeElement.setAttribute("typeQName", model.getQName(dt.getURI()));
 			} else {
-				nodeElement = XMLHelp.newElement(parent, VocabularyTypesEnum.plainLiteral.toString());
+				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.plainLiteral.toString());
 				String lang = lit.getLanguage();
-				if (lang!=null)
+				if (lang != null)
 					nodeElement.setAttribute("lang", lang);
 			}
 			nodeElement.setTextContent(lit.getLabel());
 		}
 
 		if (visualization) {
-			nodeElement.setAttribute("show", RDFUtilities.renderRDFNode(model, range));
+			nodeElement.setAttribute("show", RDFUtilities.renderRDFNode(model, node));
 		}
 
 		return nodeElement;

@@ -152,8 +152,10 @@ art_semanticturkey.onAccept = function() {
 	if (sindex == 0) {
 		AnnotFunctionList = annComponent.wrappedJSObject.getList();
 		if (AnnotFunctionList[defaultAnnotFun] != null) {
+			//AnnotFunctionList[defaultAnnotFun]["furtherAnnotation"]();
+			//close();
+			window.setTimeout(function() {window.close();}, 10); 
 			AnnotFunctionList[defaultAnnotFun]["furtherAnnotation"]();
-			close();
 		} else {
 			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
 					.getService(Components.interfaces.nsIPromptService);
@@ -174,8 +176,10 @@ art_semanticturkey.onAccept = function() {
 					tree.currentIndex);
 			AnnotFunctionList = annComponent.wrappedJSObject.getList();
 			if (AnnotFunctionList[defaultAnnotFun] != null) {
+				//AnnotFunctionList[defaultAnnotFun]["listDragDropEnrichProp"](parameters);
+				//close();
+				window.setTimeout(function() {window.close();}, 10); 
 				AnnotFunctionList[defaultAnnotFun]["listDragDropEnrichProp"](parameters);
-				close();
 			} else {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
 						.getService(Components.interfaces.nsIPromptService);

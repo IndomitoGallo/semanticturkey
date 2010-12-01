@@ -197,15 +197,16 @@ public class ProjectManager {
 	 */
 	public static <MODELTYPE extends RDFModel> Project<MODELTYPE> createProject(String projectName,
 			Class<MODELTYPE> modelType, File projectDir, String baseURI, String defaultNamespace,
-			String ontManagerFactoryID, String modelConfigurationClass, Properties modelConfiguration)
+			String ontManagerFactoryID, String modelConfigurationClassName, Properties modelConfiguration)
 			throws ProjectCreationException {
 
 		try {
+			logger.debug("creating project: " + projectName);
 			OntologyManagerFactory<ModelConfiguration> ontMgrFact = PluginManager
 					.getOntManagerImpl(ontManagerFactoryID);
-			Class<? extends ModelConfiguration> modelConClass = (Class<? extends ModelConfiguration>) Class
-					.forName(modelConfigurationClass);
-			ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(modelConClass);
+			logger.debug("loaded ontMgrFactory: " + ontMgrFact);
+
+			ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(modelConfigurationClassName);
 
 			ProjectType projType;
 
@@ -218,7 +219,7 @@ public class ProjectManager {
 
 			logger.debug("building project directory");
 			prepareProjectFiles(projectName, modelType, projectDir, baseURI, defaultNamespace,
-					ontManagerFactoryID, modelConfigurationClass, modelConfiguration, projType);
+					ontManagerFactoryID, modelConfigurationClassName, modelConfiguration, projType);
 
 			logger.debug("activating project");
 			return activateProject(projectName);
@@ -232,6 +233,7 @@ public class ProjectManager {
 		} catch (ClassNotFoundException e) {
 			throw new ProjectCreationException(e);
 		} catch (RuntimeException e) {
+			e.printStackTrace(System.err);
 			throw new ProjectCreationException("unforeseen runtime exception: " + e + ": " + e.getMessage());
 		} catch (ProjectInconsistentException e) {
 			throw new ProjectCreationException(e);
@@ -270,7 +272,7 @@ public class ProjectManager {
 			BufferedWriter out = new BufferedWriter(new FileWriter(info_stp));
 			out.write(Project.ONTOLOGY_MANAGER_ID_PROP + "=" + escape(ontManagerID) + "\n");
 			out.write(Project.MODELCONFIG_ID + "=" + escape(modelConfigurationClass) + "\n");
-			out.write(Project.BASEURI_PROP + "=" + escape(baseURI) + "\n");			
+			out.write(Project.BASEURI_PROP + "=" + escape(baseURI) + "\n");
 			out.write(Project.DEF_NS_PROP + "=" + escape(defaultNamespace) + "\n");
 			out.write(Project.PROJECT_TYPE + "=" + type + "\n");
 			out.write(Project.PROJECT_MODEL_TYPE + "=" + modelType.getName() + "\n");
@@ -279,7 +281,7 @@ public class ProjectManager {
 			out.close();
 
 			logger.debug("project creation: all project properties have been stored");
-			
+
 			// Prefix Mapping file creation
 			File prefixMappingFile = new File(projectDir, NSPrefixMappings.prefixMappingFileName);
 			prefixMappingFile.createNewFile();
@@ -290,6 +292,7 @@ public class ProjectManager {
 
 			FileWriter fw = new FileWriter(modelConfigurationFile);
 			modelConfiguration.store(fw, "model configuration, initialized from project initialization");
+			fw.close();
 
 			logger.debug("all project info have been built");
 
@@ -492,9 +495,15 @@ public class ProjectManager {
 	}
 
 	public static void deleteProject(String projectName) throws ProjectDeletionException {
-		File projectDir = new File(Resources.getProjectsDir(), projectName);
-		if (!projectDir.exists())
-			throw new IllegalAccessError("project: " + projectName + " does not exist; cannot delete it");
+		File projectDir;
+		try {
+			projectDir = getProjectDir(projectName);
+		} catch (InvalidProjectNameException e) {
+			throw new ProjectDeletionException("project name: " + projectName + " is not a valid name; cannot delete that project");
+		} catch (ProjectInexistentException e) {
+			throw new ProjectDeletionException("project: " + projectName + " does not exist; cannot delete it");
+		}
+			
 		if (_currentProject != null && _currentProject.getName().equals(projectName))
 			throw new ProjectDeletionException("cannot delete a project while it is loaded");
 		if (!Utilities.deleteDir(projectDir))
@@ -512,8 +521,8 @@ public class ProjectManager {
 		Utilities.copy(_currentProject.infoSTPFile, new File(tempDir, _currentProject.infoSTPFile.getName()));
 		Utilities.copy(_currentProject.nsPrefixMappingsPersistence.getFile(), new File(tempDir,
 				_currentProject.nsPrefixMappingsPersistence.getFile().getName()));
-		Utilities.copy(_currentProject.modelConfigFile, new File(tempDir,
-				_currentProject.modelConfigFile.getName()));
+		Utilities.copy(_currentProject.modelConfigFile, new File(tempDir, _currentProject.modelConfigFile
+				.getName()));
 		_currentProject.ontManager.writeRDFOnFile(new File(tempDir, triples_exchange_FileName),
 				RDFFormat.NTRIPLES);
 		Utilities
@@ -532,7 +541,9 @@ public class ProjectManager {
 		// change imported project name to newly created one
 		File infoSTPFile = new File(tempDir, Project.INFOFILENAME);
 		Properties stp_properties = new Properties();
-		stp_properties.load(new FileInputStream(infoSTPFile));
+		FileInputStream fis = new FileInputStream(infoSTPFile);
+		stp_properties.load(fis);
+		fis.close();
 		if (name == null)
 			name = stp_properties.getProperty(Project.PROJECT_NAME_PROP);
 
@@ -591,7 +602,7 @@ public class ProjectManager {
 		File projectDir = getProjectDir(projectName);
 
 		logger.debug("project dir: " + projectDir);
-		
+
 		Project<MODELTYPE> proj;
 
 		ProjectType type;
@@ -674,6 +685,29 @@ public class ProjectManager {
 	}
 
 	/**
+	 * as for {@link #getProjectProperty(String, String) but throws a {@link ProjectInconsistentException} if
+	 * the property has a null value}
+	 * 
+	 * @param projectName
+	 * @param property
+	 * @return
+	 * @throws ProjectInconsistentException
+	 * @throws IOException
+	 * @throws InvalidProjectNameException
+	 * @throws ProjectInexistentException
+	 */
+	public static String getRequiredProjectProperty(String projectName, String property)
+			throws ProjectInconsistentException, IOException, InvalidProjectNameException,
+			ProjectInexistentException {
+		String propValue = getProjectProperty(projectName, property);
+		if (propValue != null)
+			return propValue;
+		else
+			throw new ProjectInconsistentException("missing required " + property
+					+ " value from description of project: " + projectName);
+	}
+
+	/**
 	 * return the id of the project manager implementation adopted by project <code>projectName</code>
 	 * 
 	 * @param projectName
@@ -681,10 +715,11 @@ public class ProjectManager {
 	 * @throws IOException
 	 * @throws ProjectInexistentException
 	 * @throws InvalidProjectNameException
+	 * @throws ProjectInconsistentException
 	 */
 	public static String getProjectOntologyManagerID(String projectName) throws IOException,
-			InvalidProjectNameException, ProjectInexistentException {
-		return getProjectProperty(projectName, Project.ONTOLOGY_MANAGER_ID_PROP);
+			InvalidProjectNameException, ProjectInexistentException, ProjectInconsistentException {
+		return getRequiredProjectProperty(projectName, Project.ONTOLOGY_MANAGER_ID_PROP);
 	}
 
 	/**
@@ -696,16 +731,17 @@ public class ProjectManager {
 	 * @throws IOException
 	 * @throws ProjectInexistentException
 	 * @throws InvalidProjectNameException
+	 * @throws ProjectInconsistentException 
 	 * @throws FileNotFoundException
 	 */
 	public static ProjectType getProjectType(String projectName) throws IOException,
-			InvalidProjectNameException, ProjectInexistentException {
-		String propValue = getProjectProperty(projectName, Project.PROJECT_TYPE);
+			InvalidProjectNameException, ProjectInexistentException, ProjectInconsistentException {
+		String propValue = getRequiredProjectProperty(projectName, Project.PROJECT_TYPE);
 		return Enum.valueOf(ProjectType.class, propValue);
 	}
 
 	/**
-	 * gets the model type fo the project. It is not applicable for the main project, which is anyway assumed
+	 * gets the model type for the project. It is not applicable for the main project, which is anyway assumed
 	 * to be always a {@link OWLModel}
 	 * 
 	 * @param projectName
@@ -716,13 +752,14 @@ public class ProjectManager {
 	 * @throws ProjectInexistentException
 	 * @throws InvalidProjectNameException
 	 * @throws ProjectAccessException
+	 * @throws ProjectInconsistentException 
 	 * @throws FileNotFoundException
 	 */
 	// this warning is already checked through the "isAssignableFrom" "if test"
 	public static Class<? extends RDFModel> getProjectModelType(String projectName)
-			throws InvalidProjectNameException, ProjectInexistentException, ProjectAccessException {
+			throws InvalidProjectNameException, ProjectInexistentException, ProjectAccessException, ProjectInconsistentException {
 		try {
-			String propValue = getProjectProperty(projectName, Project.PROJECT_MODEL_TYPE);
+			String propValue = getRequiredProjectProperty(projectName, Project.PROJECT_MODEL_TYPE);
 			return deserializeModelType(propValue);
 		} catch (ClassNotFoundException e) {
 			throw new ProjectAccessException("class for model type defined in project: " + projectName

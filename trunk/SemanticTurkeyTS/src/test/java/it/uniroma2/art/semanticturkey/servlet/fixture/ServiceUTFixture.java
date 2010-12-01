@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2NonPersistentInMemoryModelConfiguration;
+import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2PersistentInMemoryModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
@@ -80,7 +80,7 @@ public class ServiceUTFixture extends ServiceTest {
 
 		Response resp = serviceTester.systemStartService.makeRequest(SystemStart.startRequest, par(
 				SystemStart.baseuriPar, "http://art.uniroma2.it/ontologies/myont"), par(
-				Projects.ontMgrConfigurationPar, Sesame2NonPersistentInMemoryModelConfiguration.class
+				Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
 						.getName()), par(Projects.ontologyTypePar, "OWL"));
 		System.out.println(resp);
 	}
