@@ -27,11 +27,15 @@ import it.uniroma2.art.owlart.agraphimpl.factory.ARTModelFactoryAllegroGraphImpl
 import it.uniroma2.art.owlart.agraphimpl.models.conf.AllegroGraph4ModelConfiguration;
 import it.uniroma2.art.owlart.models.ModelFactory;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
+import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
+import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2ModelConfiguration;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactoryImpl;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.project.Project;
 
-public class OntologyManagerFactoryAllegroGraphImpl extends OntologyManagerFactoryImpl<AllegroGraph4ModelConfiguration> {
+public class OntologyManagerFactoryAllegroGraphImpl extends
+		OntologyManagerFactoryImpl<AllegroGraph4ModelConfiguration> {
 
 	@Override
 	protected ModelFactory<AllegroGraph4ModelConfiguration> createModelFactory() {
@@ -42,6 +46,14 @@ public class OntologyManagerFactoryAllegroGraphImpl extends OntologyManagerFacto
 		return new STOntologyManagerAllegroGraphImpl<T>(proj);
 	}
 
+	public AllegroGraph4ModelConfiguration createModelConfigurationObject(String mcTypeString)
+			throws UnsupportedModelConfigurationException, UnloadableModelConfigurationException,
+			ClassNotFoundException {
 
+		Class<? extends AllegroGraph4ModelConfiguration> mcType = (Class<? extends AllegroGraph4ModelConfiguration>) Class
+				.forName(mcTypeString);
+
+		return createModelFactory().createModelConfigurationObject(mcType);
+	}
 
 }

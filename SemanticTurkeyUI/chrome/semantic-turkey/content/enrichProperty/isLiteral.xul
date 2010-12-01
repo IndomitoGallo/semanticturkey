@@ -21,23 +21,19 @@
 
 <window id="properties" title="rdf:Property Dialog"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="400" height="100">
+	width="500" height="100">
 
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/enrichProperty/isLiteral.js" />
 	<label id="question" value=""/>
 	<vbox id="buttonBox" flex="0">
 		<grid flex="1">
-			<columns>
+			<columns id="column">
 				<column flex="1" />
 				<column flex="1" />
 			</columns>
 			<rows>
-				<row>
-					<button id="isLiteral" label="Literal" flex="1">
-					</button>
-					<button id="individual" label="Individual" flex="1">
-					</button>
+				<row id ="choiseRow">
 				</row>
 			</rows>
 		</grid>

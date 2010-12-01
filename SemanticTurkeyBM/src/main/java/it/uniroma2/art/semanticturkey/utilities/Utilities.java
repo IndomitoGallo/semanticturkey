@@ -206,7 +206,7 @@ public class Utilities {
 	 * This function will copy files or directories from one location to another. note that the source and the
 	 * destination must be mutually exclusive. This function can not be used to copy a directory to a sub
 	 * directory of itself. The function will also have problems if the destination files already exist. Note:
-	 * this code has been grabbed from: http://www.dreamincode.net/code/snippet1443.htm
+	 * this code has been grabbed from: {@link http://www.dreamincode.net/code/snippet1443.htm}
 	 * 
 	 * @param src
 	 *            -- A File object that represents the source for the copy

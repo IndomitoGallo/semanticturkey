@@ -98,20 +98,18 @@ public class OntManager extends ServiceAdapter {
 		} catch (UnavailableResourceException e1) {
 			return servletUtilities.createExceptionResponse(request, e1.getMessage());
 		}
-		Collection<Class<? extends ModelConfiguration>> mConfClasses = ontMgrFact.getModelConfigurations();
-
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
 
 		try {
+			Collection<ModelConfiguration> mConfs = ontMgrFact.getModelConfigurations();
 
-			for (Class<? extends ModelConfiguration> confClass : mConfClasses) {
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
 
-				ModelConfiguration mConf = ontMgrFact.createModelConfigurationObject(confClass);
+			for (ModelConfiguration mConf : mConfs) {
 
 				Element newConfType = XMLHelp.newElement(dataElement, "configuration");
 
-				newConfType.setAttribute("type", confClass.getName());
+				newConfType.setAttribute("type", mConf.getClass().getName());
 
 				newConfType.setAttribute("shortName", mConf.getShortName());
 
@@ -134,6 +132,8 @@ public class OntManager extends ServiceAdapter {
 				}
 
 			}
+			
+			return response;
 
 		} catch (ConfParameterNotFoundException e) {
 			return servletUtilities
@@ -148,7 +148,6 @@ public class OntManager extends ServiceAdapter {
 			return servletUtilities.createExceptionResponse(request, e.getMessage());
 		}
 
-		return response;
 	}
 
 }

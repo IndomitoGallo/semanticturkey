@@ -78,33 +78,27 @@ public class SystemStart extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
 	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
 	public Response getResponse() {
 		String request = setHttpPar("request");
 
-		try {
+		if (request.equals(startRequest)) {
+			String baseuri = setHttpPar(baseuriPar);
+			String ontModelImpl = setHttpPar(ontmanagerPar);
+			String ontMgrConfigurationClass = setHttpPar(ontMgrConfigurationPar);
+			String cfgPars = setHttpPar(cfgParsPar);
 
-			if (request.equals(startRequest)) {
-				String baseuri = setHttpPar(baseuriPar);
-				String ontModelImpl = setHttpPar(ontmanagerPar);
-				String ontMgrConfigurationClass = setHttpPar(ontMgrConfigurationPar);
-				String cfgPars = setHttpPar(cfgParsPar);
-				checkRequestParametersAllNotNull(baseuriPar);
-
-				return startSystem(baseuri, ontModelImpl, ontMgrConfigurationClass, cfgPars);
-			}
-
-			if (request.equals(listTripleStoresRequest))
-				return listAvailableOntManagerImplementations();
-
-			else
-				return servletUtilities.createExceptionResponse(request, "no handler for such a request!");
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+			return startSystem(baseuri, ontModelImpl, ontMgrConfigurationClass, cfgPars);
 		}
+
+		if (request.equals(listTripleStoresRequest))
+			return listAvailableOntManagerImplementations();
+
+		else
+			return servletUtilities.createExceptionResponse(request, "no handler for such a request!");
+
 	}
 
 	/**
@@ -185,6 +179,8 @@ public class SystemStart extends ServiceAdapter {
 		} catch (ProjectAccessException e) {
 			logger.info("problems in project creation", e);
 			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
+		} catch (ProjectInconsistentException e) {
+			logAndSendException(request, e);
 		}
 
 		logger.info("system loaded with the following parameters:\nbaseuri=" + baseuri + "\nontModelImplID="

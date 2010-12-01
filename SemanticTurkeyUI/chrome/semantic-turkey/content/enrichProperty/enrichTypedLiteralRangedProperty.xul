@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="classTree.css" type="text/css"?>
 <!--  /*
   * The contents of this file are subject to the Mozilla Public License
   * Version 1.1 (the "License");  you may not use this file except in compliance
@@ -24,39 +23,47 @@
   *
   */ -->
 
-
-
-<window title="RANGE LIST"
-   id="rangeList"
-   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-   width="600" height="300"
->
-<script type="application/x-javascript" src="chrome://semantic-turkey/content/editors/property/rangeList.js"/>
+<window id="properties" title="Create Property Value Dialog"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="300" height="200">
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.js" />
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/editors/property/datarangeList.js"/>
-<listbox id="ranges">
-<!--<listitem label="http://www.w3.org/2001/XMLSchema#string"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#int"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#boolean"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#float"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#duration"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#date"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#dateTime"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#time"/>-->
-</listbox>	
-<vbox id="buttonBox" flex="0">
+
+<hbox id="title"></hbox>
+	<hbox id="addPropertyValuePanel" flex="1">
+		<vbox flex="1">
 			<grid flex="1">
 				<columns>
-					<column flex="1" />
-					<column flex="1" />
+				 	<column flex="1"/>
 				</columns>
-				<rows>
-					<row>
-						<button id="accept" label="Accept" flex="1">
-						</button>
-						<button id="cancel" label="Cancel" flex="1">
-						</button>
+				<rows id="boxrows">
+					<row id="valueLabel">
+						<label control="newValue" value="Insert property value:"/>
+					</row>
+					<row id="valueRow">
+						<textbox id="newValue" type="search" searchbutton="true"/>
 					</row>
 				</rows>
 			</grid>
-		</vbox>
+		</vbox>	
+	</hbox>
+	<vbox id="buttonBox" flex="0">
+		<grid flex="1">
+			<columns>
+				<column flex="1" />
+				<column flex="1" />
+			</columns>
+			<rows>
+				<row>
+					<button id="createProperty" label="Create Property Value"
+						flex="1">
+					</button>
+					<button id="cancel" label="Cancel" flex="1">
+					</button>
+				</row>
+			</rows>
+		</grid>
+	</vbox>
 </window>
+
+

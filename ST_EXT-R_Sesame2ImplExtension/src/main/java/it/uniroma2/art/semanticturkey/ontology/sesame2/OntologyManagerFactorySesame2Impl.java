@@ -23,8 +23,13 @@
 
 package it.uniroma2.art.semanticturkey.ontology.sesame2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.uniroma2.art.owlart.models.ModelFactory;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
+import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
 import it.uniroma2.art.owlart.sesame2impl.factory.ARTModelFactorySesame2Impl;
 import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2ModelConfiguration;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactoryImpl;
@@ -33,6 +38,8 @@ import it.uniroma2.art.semanticturkey.project.Project;
 
 public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactoryImpl<Sesame2ModelConfiguration> {
 
+	protected static Logger logger = LoggerFactory.getLogger(OntologyManagerFactorySesame2Impl.class);
+	
 	protected ModelFactory<Sesame2ModelConfiguration> createModelFactory() {
 		return new ARTModelFactorySesame2Impl();
 	}
@@ -40,6 +47,20 @@ public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactoryImp
 	public <MODELTYPE extends RDFModel> STOntologyManager<MODELTYPE> createOntologyManager(
 			Project<MODELTYPE> project) {
 		return new STOntologyManagerSesame2Impl<MODELTYPE>(project);
+	}
+
+	public Sesame2ModelConfiguration createModelConfigurationObject(String mcTypeString)
+			throws UnsupportedModelConfigurationException, UnloadableModelConfigurationException,
+			ClassNotFoundException {
+
+		Class<? extends Sesame2ModelConfiguration> mcType = (Class<? extends Sesame2ModelConfiguration>) Class.forName(mcTypeString);
+
+		logger.debug("class loader of static: " + ARTModelFactorySesame2Impl.class.getSimpleName() + " : " + ARTModelFactorySesame2Impl.class.getClassLoader());
+		logger.debug("class loader of static: " + OntologyManagerFactorySesame2Impl.class.getSimpleName() + " : " + OntologyManagerFactorySesame2Impl.class.getClassLoader());
+		logger.debug("class loader of: " + this.getClass().getSimpleName() + " instance: " + this.getClass().getClassLoader());
+		logger.debug("class loader of resolved model configuration class: " + mcType.getClass().getSimpleName() + "inside: " + this.getClass().getSimpleName() + " = " + mcType.getClassLoader());
+		
+		return createModelFactory().createModelConfigurationObject(mcType);
 	}
 
 }

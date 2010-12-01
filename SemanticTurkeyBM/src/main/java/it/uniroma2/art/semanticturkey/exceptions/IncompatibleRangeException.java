@@ -27,7 +27,7 @@
 package it.uniroma2.art.semanticturkey.exceptions;
 
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 
 
 public class IncompatibleRangeException extends IncompatibleResourceException {
@@ -38,7 +38,7 @@ public class IncompatibleRangeException extends IncompatibleResourceException {
 	 */
 	private static final long serialVersionUID = 6319220572009520790L;
 
-	public IncompatibleRangeException(ARTURIResource property, VocabularyTypesEnum type) {
+	public IncompatibleRangeException(ARTURIResource property, RDFTypesEnum type) {
 		super("property: " + property + " is not compatible with range type: " + type);
 	}
 

@@ -53,8 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Element;
 
-/**Classe che permette di dare dei sinonimi ai nomi delle classi legati alla lingua (inglese italiano)
- * !!!!ma non sembra che questi siano poi coniderati nella ricerca su classi i sinonimi dovrebbero essere considerati nell'ontologySearch!!!!*/
 /**
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */

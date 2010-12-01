@@ -35,7 +35,7 @@ import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.SemanticTurkeyOperations;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -158,7 +158,7 @@ public class Annotation extends ServiceAdapter {
 				String urlPage = setHttpPar(urlPageField);
 				String title = setHttpPar(titleField);
 				String valueTypeStr = setHttpPar(valueType);
-				VocabularyTypesEnum type = (valueTypeStr == null) ? null : VocabularyTypesEnum
+				RDFTypesEnum type = (valueTypeStr == null) ? null : RDFTypesEnum
 						.valueOf(valueTypeStr);
 				String op = setHttpPar("op");
 				checkRequestParametersAllNotNull(instanceQNameField, propertyQNameField, urlPageField,
@@ -449,7 +449,7 @@ public class Annotation extends ServiceAdapter {
 	 * @return
 	 */
 	public Response bindAnnotatedObjectToNewInstanceAndRelateToDroppedInstance(String subjectInstanceQName,
-			String predicatePropertyQName, String objectInstanceQName, VocabularyTypesEnum type,
+			String predicatePropertyQName, String objectInstanceQName, RDFTypesEnum type,
 			String rangeClsQName, String urlPage, String title, String lang) {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
@@ -460,7 +460,7 @@ public class Annotation extends ServiceAdapter {
 			ARTResource rangeClsRes = null;
 
 			if (ontModel.isDatatypeProperty(property) || ontModel.isAnnotationProperty(property)
-					|| type == VocabularyTypesEnum.literal) {
+					|| type == RDFTypesEnum.literal) {
 				logger.debug("adding value to a literal valued property ");
 				ARTURIResource subjectInstanceEncodedRes = ontModel.createURIResource(ontModel
 						.expandQName(subjectInstanceQName));

@@ -44,7 +44,7 @@ window.onload = function() {
 	if(projectIsNull == false){
 		art_semanticturkey.populateClassTree();
 	}else{
-		art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.populateClassTree, null);
+		//art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.populateClassTree, null);
 	
 	}
 	art_semanticturkey.associateEventsOnGraphicElementsClasses();
