@@ -315,7 +315,7 @@ public class Project_UT extends ServiceUTFixture {
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest, par(
 				Projects.projectNamePar, ProjectManager.mainProjectName), par(Projects.newProjectNamePar,
-				"pippo"));
+				"pippo"));		
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
@@ -323,13 +323,14 @@ public class Project_UT extends ServiceUTFixture {
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest, par(
 				Projects.projectNamePar, "pippo"));
+		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "pippo"));
+				Projects.projectNamePar, "pippo"));		
 		assertAffirmativeREPLY(resp);
 	}
 
