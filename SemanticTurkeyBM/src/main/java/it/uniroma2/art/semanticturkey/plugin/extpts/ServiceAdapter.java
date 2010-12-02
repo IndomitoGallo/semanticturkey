@@ -173,6 +173,17 @@ public abstract class ServiceAdapter implements ServiceInterface {
 
 	protected abstract Logger getLogger();
 
+	
+	protected Response logAndSendException(Exception e) {
+		return logAndSendException(httpParameters.get("request"), e);
+	}
+	
+	
+	protected Response logAndSendException(Exception e, String msg) {
+		return logAndSendException(httpParameters.get("request"), e, msg);
+	}
+	
+	
 	/**
 	 * this convenience method prepares an exception response initialized with the given arguments, logs
 	 * the occurred exception with level "error" and prints the stack trace

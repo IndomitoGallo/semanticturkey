@@ -604,71 +604,68 @@ public class ServletUtilities {
 		}
 	}
 
-
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseREPLY createReplyResponse(String request, RepliesStatus status,SerializationType ser_type) {
-		if(ser_type==SerializationType.xml){
+	// Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
+	public ResponseREPLY createReplyResponse(String request, RepliesStatus status, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
 			return new XMLResponseREPLY(xml, request, status);
-		}else{
-			JSONObject json_content=new JSONObject();
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
 				return new JSONResponseREPLY(json_content, request, status);
 			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
+				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
-	
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseREPLY createReplyResponse(String request, RepliesStatus status,String message,SerializationType ser_type) {
-		if(ser_type==SerializationType.xml){
+
+	// Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
+	public ResponseREPLY createReplyResponse(String request, RepliesStatus status, String message,
+			SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
 			return new XMLResponseREPLY(xml, request, status, message);
-		}else{
-			JSONObject json_content=new JSONObject();
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseREPLY(json_content, request,status,message);
+				return new JSONResponseREPLY(json_content, request, status, message);
 			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
+				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
 
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseREPLY createReplyFAIL(String request, String message,SerializationType ser_type) {		
-		if(ser_type==SerializationType.xml){
+	// Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
+	public ResponseREPLY createReplyFAIL(String request, String message, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
-			return new XMLResponseREPLY(xml, request, ServiceVocabulary.RepliesStatus.fail , message);
-		}else{
-			JSONObject json_content=new JSONObject();
+			return new XMLResponseREPLY(xml, request, ServiceVocabulary.RepliesStatus.fail, message);
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseREPLY(json_content, request,RepliesStatus.fail,message);
+				return new JSONResponseREPLY(json_content, request, RepliesStatus.fail, message);
 			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
+				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
-	
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status){
-		return (XMLResponseREPLY)createReplyResponse(request,status,SerializationType.xml);
-	}
-	
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status,String message)  {
-		return (XMLResponseREPLY)createReplyResponse(request,status,message,SerializationType.xml);
+
+	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status) {
+		return (XMLResponseREPLY) createReplyResponse(request, status, SerializationType.xml);
 	}
 
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseREPLY createReplyFAIL(String request, String message){
-		return (XMLResponseREPLY)createReplyFAIL(request,message,SerializationType.xml);
+	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status, String message) {
+		return (XMLResponseREPLY) createReplyResponse(request, status, message, SerializationType.xml);
+	}
+
+	public XMLResponseREPLY createReplyFAIL(String request, String message) {
+		return (XMLResponseREPLY) createReplyFAIL(request, message, SerializationType.xml);
 	}
 
 	/**
@@ -676,104 +673,99 @@ public class ServletUtilities {
 	 * 
 	 * @param value
 	 * @return
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
 	public XMLResponseEXCEPTION createExceptionResponse(String request, String msg) {
-		return (XMLResponseEXCEPTION)createExceptionResponse(request,msg,SerializationType.xml);
+		return (XMLResponseEXCEPTION) createExceptionResponse(request, msg, SerializationType.xml);
 	}
-	
+
 	/**
-	 * produces a response (xml,json)  telling the client that some exception has occurred 
+	 * produces a response (xml,json) telling the client that some exception has occurred
 	 * 
 	 * @param value
 	 * @return
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseProblem createExceptionResponse(String request, String msg,SerializationType ser_type){
-		if(ser_type==SerializationType.xml){
+	public ResponseProblem createExceptionResponse(String request, String msg, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
 			return new XMLResponseEXCEPTION(xml, request, msg);
-		}else{
-			JSONObject json_content=new JSONObject();
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseEXCEPTION(json_content, request,msg);
+				return new JSONResponseEXCEPTION(json_content, request, msg);
 			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
+				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * produces an xml document telling the client that some error has occurred
 	 * 
 	 * @param value
 	 * @return
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseProblem createErrorResponse(String request, String msg,SerializationType ser_type){
-		if(ser_type==SerializationType.xml){
+	public ResponseProblem createErrorResponse(String request, String msg, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
 			return new XMLResponseERROR(xml, request, msg);
-		}else{
-			JSONObject json_content=new JSONObject();
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseERROR(json_content, request,msg);
+				return new JSONResponseERROR(json_content, request, msg);
 			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
-				e.printStackTrace();
-			}
-		}return null;
-	}
-	
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseERROR createErrorResponse(String request, String msg) {
-		return (XMLResponseERROR)createErrorResponse(request, msg,SerializationType.xml);
-	}
-	
-	
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseProblem createNoSuchHandlerExceptionResponse(String request,SerializationType ser_type) {
-		if(ser_type==SerializationType.xml){
-			Document xml = XMLHelp.createNewDoc();
-			return new XMLResponseEXCEPTION(xml, request, "no handler for such a request!");
-		}else{
-			JSONObject json_content=new JSONObject();
-			try {
-				return new JSONResponseEXCEPTION(json_content, request, "no handler for such a request!");
-			} catch (JSONException e) {
-				logger.error("Error in Json response creation:"+e.getMessage());
+				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
-	
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseEXCEPTION createNoSuchHandlerExceptionResponse(String request) {
-		return (XMLResponseEXCEPTION)createNoSuchHandlerExceptionResponse(request,SerializationType.xml);
+
+	public XMLResponseERROR createErrorResponse(String request, String msg) {
+		return (XMLResponseERROR) createErrorResponse(request, msg, SerializationType.xml);
 	}
 
-//	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON (retro-compatibilità)
-	public XMLResponseEXCEPTION createUndefinedHttpParameterExceptionResponse(String request,HTTPParameterUnspecifiedException e) {	
-		return (XMLResponseEXCEPTION)createUndefinedHttpParameterExceptionResponse(request, e,SerializationType.xml);
+	public ResponseProblem createNoSuchHandlerExceptionResponse(String request, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
+			Document xml = XMLHelp.createNewDoc();
+			return new XMLResponseEXCEPTION(xml, request, "no handler for such a request!");
+		} else {
+			JSONObject json_content = new JSONObject();
+			try {
+				return new JSONResponseEXCEPTION(json_content, request, "no handler for such a request!");
+			} catch (JSONException e) {
+				logger.error("Error in Json response creation:" + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
-	
-// 	Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
-	public ResponseProblem createUndefinedHttpParameterExceptionResponse(String request,HTTPParameterUnspecifiedException e,SerializationType ser_type) {
-		if(ser_type==SerializationType.xml){
+
+	public XMLResponseEXCEPTION createNoSuchHandlerExceptionResponse(String request) {
+		return (XMLResponseEXCEPTION) createNoSuchHandlerExceptionResponse(request, SerializationType.xml);
+	}
+
+	public XMLResponseEXCEPTION createUndefinedHttpParameterExceptionResponse(String request,
+			HTTPParameterUnspecifiedException e) {
+		return (XMLResponseEXCEPTION) createUndefinedHttpParameterExceptionResponse(request, e,
+				SerializationType.xml);
+	}
+
+	public ResponseProblem createUndefinedHttpParameterExceptionResponse(String request,
+			HTTPParameterUnspecifiedException e, SerializationType ser_type) {
+		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
 			return new XMLResponseEXCEPTION(xml, request, e.getMessage());
-		}else{
-			JSONObject json_content=new JSONObject();
+		} else {
+			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseEXCEPTION(json_content, request,  e.getMessage());
+				return new JSONResponseEXCEPTION(json_content, request, e.getMessage());
 			} catch (JSONException e1) {
-				logger.error("Error in Json response creation:"+e1.getMessage());
+				logger.error("Error in Json response creation:" + e1.getMessage());
 				e1.printStackTrace();
 			}
 		}
@@ -784,37 +776,41 @@ public class ServletUtilities {
 
 	static final String ontUpdateProblem = "problems in updating the ontology";
 
-	public ResponseProblem createExceptionResponse(String request, ModelAccessException e,ARTResource subj, ARTURIResource pred, ARTNode obj) {
-		return createExceptionResponse(request, ontAccessProblem + " when retrieving triple: <" + subj + ", "+ pred + ", " + obj + ">\n" + "Content of exception: " + e.getMessage());
-	}
-	
-	public ResponseProblem createExceptionResponse(String request, ModelAccessException e,ARTResource subj, ARTURIResource pred, ARTNode obj,SerializationType ser_type){
-		return createExceptionResponse(request, ontAccessProblem + " when retrieving triple: <" + subj + ", "+ pred + ", " + obj + ">\n" + "Content of exception: " + e.getMessage(),ser_type);
+	public ResponseProblem createExceptionResponse(String request, ModelAccessException e, ARTResource subj,
+			ARTURIResource pred, ARTNode obj) {
+		return createExceptionResponse(request, ontAccessProblem + " when retrieving triple: <" + subj + ", "
+				+ pred + ", " + obj + ">\n" + "Content of exception: " + e.getMessage());
 	}
 
-	public ResponseProblem createExceptionResponse(String request, ModelUpdateException e)  {
+	public ResponseProblem createExceptionResponse(String request, ModelAccessException e, ARTResource subj,
+			ARTURIResource pred, ARTNode obj, SerializationType ser_type) {
+		return createExceptionResponse(request, ontAccessProblem + " when retrieving triple: <" + subj + ", "
+				+ pred + ", " + obj + ">\n" + "Content of exception: " + e.getMessage(), ser_type);
+	}
+
+	public ResponseProblem createExceptionResponse(String request, ModelUpdateException e) {
 		return createExceptionResponse(request, ontUpdateProblem + e.getMessage());
 	}
-	
-	public ResponseProblem createExceptionResponse(String request, ModelUpdateException e,SerializationType ser_type) {
-		return createExceptionResponse(request, ontUpdateProblem + e.getMessage(),ser_type);
+
+	public ResponseProblem createExceptionResponse(String request, ModelUpdateException e,
+			SerializationType ser_type) {
+		return createExceptionResponse(request, ontUpdateProblem + e.getMessage(), ser_type);
 	}
 
 	public ResponseProblem createExceptionResponse(String request, ModelAccessException e) {
 		return createExceptionResponse(request, ontAccessProblem + e.getMessage());
 	}
-	
-	public ResponseProblem createExceptionResponse(String request, ModelAccessException e,SerializationType ser_type) {
-		return createExceptionResponse(request, ontAccessProblem + e.getMessage(),ser_type);
+
+	public ResponseProblem createExceptionResponse(String request, ModelAccessException e,
+			SerializationType ser_type) {
+		return createExceptionResponse(request, ontAccessProblem + e.getMessage(), ser_type);
 	}
 
-
-	//TODO I should change this!!!
+	// TODO I should change this!!!
 	public boolean checkWriteOnly(ARTURIResource res) {
 		return (
-				//if other namespace than default one, then it is imported, thus write only
-				!(res.getNamespace().equals(ProjectManager.getCurrentProject().getDefaultNamespace()))
-		);
+		// if other namespace than default one, then it is imported, thus write only
+		!(res.getNamespace().equals(ProjectManager.getCurrentProject().getDefaultNamespace())));
 	}
-	
+
 }

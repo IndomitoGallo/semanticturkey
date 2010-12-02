@@ -343,14 +343,19 @@ public class Projects extends ServiceAdapter {
 		logger.info("requested to open project:  " + projectName);
 
 		try {
-			ProjectManager.openProject(projectName);
+			Project<?> proj = ProjectManager.openProject(projectName);
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			XMLHelp.newElement(dataElement, "type", proj.getType());
+			return response;
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace(System.err);
 			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		
 	}
 
 	/**
@@ -578,8 +583,14 @@ public class Projects extends ServiceAdapter {
 
 			Properties modelConfiguration = resolveConfigParameters(configPars);
 
-			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+			Project<?> proj = ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
 					modelConfigurationClass, modelConfiguration);
+			
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			XMLHelp.newElement(dataElement, "type", proj.getType());			
+			return response;
+			
 		} catch (InvalidProjectNameException e) {
 			logger.error(e.getMessage());
 			return servletUtilities.createExceptionResponse(request, e.toString());
@@ -597,8 +608,6 @@ public class Projects extends ServiceAdapter {
 			e.printStackTrace(System.err);
 			return recoverFromFailedProjectCreation(request, projectName, e.getMessage());
 		}
-
-		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
@@ -627,14 +636,19 @@ public class Projects extends ServiceAdapter {
 
 			Properties modelConfiguration = resolveConfigParameters(configPars);
 
-			ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+			Project<?> proj = ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
 					modelConfigurationClass, modelConfiguration);
 
 			logger.info("project: " + projectName + " created, importing rdf data from file: " + file);
-			ProjectManager.getCurrentProject().getOntModel().addRDF(ontFileToImport, baseuri,
+			proj.getOntModel().addRDF(ontFileToImport, baseuri,
 					RDFFormat.guessRDFFormatFromFile(ontFileToImport), NodeFilters.MAINGRAPH);
 			// RDFFormat.RDFXML, NodeFilters.MAINGRAPH);
 			logger.info("rdf data imported from file: " + file);
+			
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			XMLHelp.newElement(dataElement, "type", proj.getType());
+			return response;
 
 		} catch (RuntimeException e) {
 			logger.error(Utilities.printFullStackTrace(e));
@@ -649,8 +663,6 @@ public class Projects extends ServiceAdapter {
 					+ "\nexception type: " + e.getClass());
 			return recoverFromFailedProjectCreation(request, projectName, e.getMessage());
 		}
-
-		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**

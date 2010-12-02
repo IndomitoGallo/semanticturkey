@@ -28,7 +28,7 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
+import it.uniroma2.art.owlart.models.TransactionBasedModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Element;
 
-
 /**
  * This service provides the sole functionality for renaming resources in the ontology
  * 
@@ -58,11 +57,11 @@ public class ModifyName extends ServiceAdapter {
 		public static String oldName = "oldName";
 		public static String newName = "newName";
 	}
-	
+
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	public static String renameRequest = "rename";
 
 	public ModifyName(String id) {
@@ -74,42 +73,76 @@ public class ModifyName extends ServiceAdapter {
 		ServletUtilities servletUtilities = ServletUtilities.getService();
 		String qname = setHttpPar(Pars.oldName);
 		String newQname = setHttpPar(Pars.newName);
-		
+
 		try {
 			checkRequestParametersAllNotNull(Pars.oldName, Pars.newName);
-			changeResourceName(qname, newQname);
+			return changeResourceName(qname, newQname);
 		} catch (HTTPParameterUnspecifiedException e) {
 			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
-		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, e);
-		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
-		} catch (DuplicatedResourceException e) {
-			return servletUtilities.createExceptionResponse(request, e.getMessage());
 		}
-
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
-		Element element = XMLHelp.newElement(dataElement, "UpdateResource");
-		element.setAttribute("name", qname);
-		element.setAttribute("newname", newQname);
-		this.fireServletEvent();
-		return response;
 	}
 
-	public void changeResourceName(String qName, String newQName) throws DuplicatedResourceException,
-			ModelUpdateException, ModelAccessException {
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+	/*
+	 * catch (ModelUpdateException e) { return servletUtilities.createExceptionResponse(request, e); } catch
+	 * (ModelAccessException e) { return servletUtilities.createExceptionResponse(request, e); } catch
+	 * (DuplicatedResourceException e) { return servletUtilities.createExceptionResponse(request,
+	 * e.getMessage()); } finally {
+	 * 
+	 * }
+	 */
 
-		ARTURIResource res = ontModel.createURIResource(ontModel.expandQName(qName));
-		if (!ModelUtilities.checkExistingResource(ontModel, res))
-			ServletUtilities.getService().createExceptionResponse(renameRequest,
-					"inconsistency error: resource " + res + " is not present in the ontModel");
-		if (ModelUtilities.checkExistingResource(ontModel, ontModel.createURIResource(ontModel
-				.expandQName(newQName))))
-			throw new DuplicatedResourceException("could not rename resource: " + res + " to: " + newQName
-					+ " because a resource with this name already exists in the ontology");
-		ontModel.renameIndividual(res, ontModel.expandQName(newQName));
+	public Response changeResourceName(String qName, String newQName) {
+		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		ARTURIResource res = null;
+		try {
+			res = ontModel.createURIResource(ontModel.expandQName(qName));
+			if (!ModelUtilities.checkExistingResource(ontModel, res))
+				return ServletUtilities.getService().createExceptionResponse(renameRequest,
+						"inconsistency error: resource " + res + " is not present in the ontModel");
+			if (ModelUtilities.checkExistingResource(ontModel, ontModel.createURIResource(ontModel
+					.expandQName(newQName))))
+				return ServletUtilities.getService().createExceptionResponse(
+						renameRequest,
+						"could not rename resource: " + res + " to: " + newQName
+								+ " because a resource with this name already exists in the ontology");
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		}
+
+		if (ontModel instanceof TransactionBasedModel)
+			try {
+				((TransactionBasedModel) ontModel).setAutoCommit(false);
+			} catch (ModelUpdateException e1) {
+				return logAndSendException(e1, "sorry, unable to commit changes to the data, try to close the project and open it again");
+			}
+
+		try {
+			ontModel.renameIndividual(res, ontModel.expandQName(newQName));
+		} catch (ModelUpdateException e1) {
+			return logAndSendException(e1);
+		} catch (ModelAccessException e1) {
+			return logAndSendException(e1);
+		}
+
+		if (ontModel instanceof TransactionBasedModel) {
+			try {
+				((TransactionBasedModel) ontModel).setAutoCommit(true);
+			} catch (ModelUpdateException e) {
+				return ServletUtilities
+						.getService()
+						.createExceptionResponse(renameRequest,
+								"sorry, unable to commit changes to the data, try to close the project and open it again");
+			}
+		}
+
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(renameRequest,
+				RepliesStatus.ok);
+		Element dataElement = response.getDataElement();
+		Element element = XMLHelp.newElement(dataElement, "UpdateResource");
+		element.setAttribute("name", qName);
+		element.setAttribute("newname", newQName);
+		this.fireServletEvent();
+		return response;
 	}
 
 }
