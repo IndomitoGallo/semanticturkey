@@ -312,7 +312,7 @@ public class SKOS extends Resource {
 			ARTURIResource scheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
 
 			// add new concept...
-			skosModel.setDefaultSchema(scheme);
+			skosModel.setDefaultScheme(scheme);
 
 			// scorro i concetti broader di relatedConcept ed elimino la relazione <relatedConcept
 			// skos:broader ?x>,
@@ -374,7 +374,7 @@ public class SKOS extends Resource {
 			ARTURIResource scheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
 
 			// add new concept...
-			skosModel.setDefaultSchema(scheme);
+			skosModel.setDefaultScheme(scheme);
 			skosModel.addConcept(newConcept.getURI(), relatedConcept, NodeFilters.MAINGRAPH);
 
 			// TODO: rimuovere questa riga deve funzionare il reasoning...
