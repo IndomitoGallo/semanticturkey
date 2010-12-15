@@ -832,7 +832,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
 				containerObj.typeValue = typeValue;
-				// TODO getRange per vedere se è literal o no
+				// TODO getRange per vedere se Ã¨ literal o no
 				containerObj.isLiteral = "true";
 				typeToolbarButtonLiteral.containerObj = containerObj;
 
@@ -865,7 +865,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 			row.setAttribute("flex", "0");
 			row.appendChild(box3);
 			rowsBox.appendChild(row);
-			var valueList = propertyList[i].getElementsByTagName('Value');
+			var valueList = propertyList[i].childNodes;
 			if (valueList.length > 10) {
 				var typeToolbarButton2 = document
 						.createElement("toolbarbutton");
@@ -927,40 +927,28 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				}
 				propList.setAttribute("flex", "1");
 				for (var j = 0; j < valueList.length; j++) {
-					var type = valueList[j].getAttribute("type");
+					if (typeof(valueList[j].tagName) != 'undefined') {
+					var lbl = document.createElement("label");
+					//var value = valueList[j].getAttribute("value");
+					var value = valueList[j].getAttribute("show");
+					var type = valueList[j].tagName;
 					var lsti = document.createElement("listitem");
 					var lci = document.createElement("listitem-iconic");
-					if (type == "individual") {
-						var img = document.createElement("image");
-						img
-								.setAttribute("src",
-										"chrome://semantic-turkey/content/images/individual.png");
-						lci.appendChild(img);
-					} else if (type == "cls") {
-						var img = document.createElement("image");
-						img
-								.setAttribute("src",
-										"chrome://semantic-turkey/content/images/class.png");
-						lci.appendChild(img);
-					}
-					var lbl = document.createElement("label");
-					var value = valueList[j].getAttribute("value");
-					// NScarpato 25/03/2008
-					if (typeValue.indexOf("owl:AnnotationProperty") != -1) {
-						var lang = valueList[j].getAttribute("lang");
-						lbl.setAttribute("value", value + " (language: " + lang
-										+ ")");
-						lsti.setAttribute("language", lang);
-						lsti.setAttribute("typeValue", typeValue);
-						lsti.setAttribute("type", type);
-					} else {
-						lbl.setAttribute("value", value);
-						lsti.setAttribute("type", type);
-					}
-					lci.appendChild(lbl);
-					lsti.setAttribute("label", value);
-					var explicit = valueList[j].getAttribute("explicit");
-					if (type != "literal") {
+					if(type.indexOf("resource") !=-1 || type.indexOf("bnode") !=-1 || type.indexOf("uri") !=-1){
+						var role = valueList[j].getAttribute("role");
+						if (role == "individual") {
+							var img = document.createElement("image");
+							img
+									.setAttribute("src",
+											"chrome://semantic-turkey/content/images/individual.png");
+							lci.appendChild(img);
+						} else if (role == "cls") {
+							var img = document.createElement("image");
+							img
+									.setAttribute("src",
+											"chrome://semantic-turkey/content/images/class.png");
+							lci.appendChild(img);
+						}
 						lsti.addEventListener("dblclick",
 								art_semanticturkey.resourcedblClickEvent, true);
 						lsti.addEventListener("mouseover",
@@ -979,7 +967,20 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							// property
 							containerObjTx.sourceType = "property";
 						lsti.containerObj = containerObjTx;
+					}else if(type.indexOf("plainLiteral")!=-1){
+						var lang = valueList[j].getAttribute("lang");
+						lbl.setAttribute("value", value + " (language: " + lang
+										+ ")");
+						lsti.setAttribute("language", lang);
+						lsti.setAttribute("typeValue", role);
+						lsti.setAttribute("type", type);
+					} else if(type.indexOf("typedLiteral")!=-1){
+						lbl.setAttribute("value", value);
+						lsti.setAttribute("type", type);
 					}
+					lci.appendChild(lbl);
+					lsti.setAttribute("label", value);
+					var explicit = valueList[j].getAttribute("explicit");
 					lsti.setAttribute("explicit", explicit);
 					lsti.appendChild(lci);
 					propList.appendChild(lsti);
@@ -987,30 +988,27 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				var row2 = document.createElement("row");
 				row2.appendChild(propList);
 				rowsBox.appendChild(row2);
+			}
 			} else { // valueList.length <= 10
 				for (var j = 0; j < valueList.length; j++) {
-					if (valueList[j].nodeType == 1) {
-						var value = valueList[j].getAttribute("value");
+					if (typeof(valueList[j].tagName) != 'undefined') {
+						var value = valueList[j].getAttribute("show");
 						var explicit = valueList[j].getAttribute("explicit");
-						var valueType = valueList[j].getAttribute("type");
+						//var valueType = valueList[j].getAttribute("type");
+						var valueType = valueList[j].tagName;
+						
 						row2 = document.createElement("row");
 						var txbox = document.createElement("textbox");
 						txbox.setAttribute("id", value);
 						txbox.setAttribute("typeValue", typeValue);
-						if (typeValue == "owl:AnnotationProperty") {
-							var lang = valueList[j].getAttribute("lang");
-							txbox.setAttribute("value", value + " (language: "
-											+ lang + ")");
-							txbox.setAttribute("language", lang);
-
-						} else {
-							txbox.setAttribute("value", value);
-						}
+						txbox.setAttribute("value", value);
 						txbox.setAttribute("readonly", "true");
 						propButton = document.createElement("button");
 						propButton.setAttribute("flex", "0");
 						var resImg = document.createElement("image");
-						if (valueType == "individual") {
+						if(valueType.indexOf("resource") !=-1 || valueType.indexOf("bnode")!=-1 || valueType.indexOf("uri")!=-1){
+						var role = valueList[j].getAttribute("role");
+						if (role == "individual") {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/content/images/individual_remove.png");
@@ -1040,7 +1038,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
+							containerObj.sourceType = role;
 							txbox.containerObj = containerObj;
 							// txbox.addEventListener("mouseover",
 							// art_semanticturkey.setCursorPointerEvent, true);
@@ -1048,7 +1046,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							// art_semanticturkey.setCursorPointerEvent, true);
 							// txbox.addEventListener("mouseout",
 							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType == "cls") {
+						} else if (role == "cls") {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/content/images/class_delete.png");
@@ -1076,7 +1074,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
+							containerObj.sourceType = role;
 							txbox.containerObj = containerObj;
 							// txbox.addEventListener("mouseover",
 							// art_semanticturkey.setCursorPointerEvent, true);
@@ -1084,151 +1082,9 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							// art_semanticturkey.setCursorPointerEvent, true);
 							// txbox.addEventListener("mouseout",
 							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType.indexOf("DatatypeProperty") != -1) {
-							propButton
-									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
-							if (explicit == "false") {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propDatatype_imported.png");
-							} else {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propDatatype20x20.png");
-							}
-							txbox.setAttribute("tooltiptext",
-									"Editable Resource");
-							txbox.addEventListener("dblclick",
-									art_semanticturkey.resourcedblClickEvent,
-									true);
-							txbox.addEventListener("mouseover",
-									art_semanticturkey.setCursorPointerEvent,
-									true);
-							txbox.addEventListener("mouseout",
-									art_semanticturkey.setCursorDefaultEvent,
-									true);
-
-							var containerObj = new Object();
-							containerObj.explicit = explicit;
-							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
-							txbox.containerObj = containerObj;
-							// txbox.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// resImg.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// txbox.addEventListener("mouseout",
-							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType.indexOf("ObjectProperty") != -1) {
-							propButton
-									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
-							if (explicit == "false") {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propObject_imported.png");
-							} else {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propObject20x20.png");
-							}
-							txbox.setAttribute("tooltiptext",
-									"Editable Resource");
-							txbox.addEventListener("dblclick",
-									art_semanticturkey.resourcedblClickEvent,
-									true);
-							txbox.addEventListener("mouseover",
-									art_semanticturkey.setCursorPointerEvent,
-									true);
-							txbox.addEventListener("mouseout",
-									art_semanticturkey.setCursorDefaultEvent,
-									true);
-
-							var containerObj = new Object();
-							containerObj.explicit = explicit;
-							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
-							txbox.containerObj = containerObj;
-							// txbox.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// resImg.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// txbox.addEventListener("mouseout",
-							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType.indexOf("AnnotationProperty") != -1) {
-							propButton
-									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
-							if (explicit == "false") {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
-							} else {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
-							}
-							txbox.setAttribute("tooltiptext",
-									"Editable Resource");
-							txbox.addEventListener("dblclick",
-									art_semanticturkey.resourcedblClickEvent,
-									true);
-							txbox.addEventListener("mouseover",
-									art_semanticturkey.setCursorPointerEvent,
-									true);
-							txbox.addEventListener("mouseout",
-									art_semanticturkey.setCursorDefaultEvent,
-									true);
-
-							var containerObj = new Object();
-							containerObj.explicit = explicit;
-							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
-							txbox.containerObj = containerObj;
-							// txbox.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// resImg.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// txbox.addEventListener("mouseout",
-							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType.indexOf("Property") != -1) {
-							propButton
-									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
-							if (explicit == "false") {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/prop_imported.png");
-							} else {
-								resImg
-										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/prop.png");
-							}
-							txbox.setAttribute("tooltiptext",
-									"Editable Resource");
-							txbox.addEventListener("dblclick",
-									art_semanticturkey.resourcedblClickEvent,
-									true);
-							txbox.addEventListener("mouseover",
-									art_semanticturkey.setCursorPointerEvent,
-									true);
-							txbox.addEventListener("mouseout",
-									art_semanticturkey.setCursorDefaultEvent,
-									true);
-
-							var containerObj = new Object();
-							containerObj.explicit = explicit;
-							containerObj.sourceElementName = value;
-							containerObj.sourceType = valueType;
-							txbox.containerObj = containerObj;
-							// txbox.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// resImg.addEventListener("mouseover",
-							// art_semanticturkey.setCursorPointerEvent, true);
-							// txbox.addEventListener("mouseout",
-							// art_semanticturkey.setCursorDefaultEvent, true);
-						} else if (valueType.indexOf("literal") != -1) {
+						}
+						}else if(valueType.indexOf("plainLiteral")!=-1){
+						//else if (valueType.indexOf("DatatypeProperty") != -1) {
 							if (art_semanticturkey.isUrl(value)) {
 								txbox.setAttribute("class", "text-link");
 								txbox.addEventListener("click",
@@ -1247,6 +1103,93 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 												art_semanticturkey.setCursorDefaultEvent,
 												true);
 							}
+							var lang = valueList[j].getAttribute("lang");
+							if(lang !=null){
+								txbox.setAttribute("value", value + " (language: "+ lang + ")");
+								txbox.setAttribute("language", lang);
+							}
+
+						}else if(valueType.indexOf("typedLiteral")!= -1){
+							var typeQName = valueList[j].getAttribute("typeQName");
+							if(typeQName!=null){
+								txbox.setAttribute("typeQName", typeQName);
+							}
+							if (art_semanticturkey.isUrl(value)) {
+								txbox.setAttribute("class", "text-link");
+								txbox.addEventListener("click",
+										art_semanticturkey.openUrlEvent, true);
+								var containerObj = new Object();
+								containerObj.value = value;
+								txbox.containerObj = containerObj;
+								txbox
+										.addEventListener(
+												"mouseover",
+												art_semanticturkey.setCursorPointerEvent,
+												true);
+								txbox
+										.addEventListener(
+												"mouseout",
+												art_semanticturkey.setCursorDefaultEvent,
+												true);
+							}
+						}
+						
+						if (valueType.indexOf("DatatypeProperty") != -1) {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/content/images/prop_delete.png");
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propDatatype_imported.png");
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propDatatype20x20.png");
+							}
+							
+						} else if (valueType.indexOf("ObjectProperty") != -1) {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/content/images/prop_delete.png");
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propObject_imported.png");
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propObject20x20.png");
+							}
+							
+						} else if (valueType.indexOf("AnnotationProperty") != -1) {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/content/images/prop_delete.png");
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+							}
+							
+						} else if (valueType.indexOf("Property") != -1) {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/content/images/prop_delete.png");
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/prop_imported.png");
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/content/images/prop.png");
+							}
+							
 						} else if (valueType.indexOf("bnodes") != -1) {
 							// vedere se mettere img o no
 						}
@@ -1261,8 +1204,15 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						containerObj.value = value;
 						containerObj.nameValue = nameValue;
 						containerObj.typeValue = typeValue;
-						containerObj.valueType = valueType;
-						propButton.containerObj = containerObj;;
+						if(valueType.indexOf("resource") !=-1 || valueType.indexOf("bnode")!=-1 || valueType.indexOf("uri")!=-1){
+							var role = valueList[j].getAttribute("role");
+							containerObj.valueType = role;
+						}else{
+							containerObj.valueType = valueType;
+							var typeQName = valueList[j].getAttribute("typeQName");
+							containerObj.typeQName=typeQName;
+						}
+						propButton.containerObj = containerObj;
 						propButton.addEventListener("command",
 								art_semanticturkey.removePropValueEvent, true);
 						if (explicit == "false") {
@@ -1272,7 +1222,8 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						txbox.appendChild(resImg);
 						row2.insertBefore(txbox, propButton);
 						rowsBox.appendChild(row2);
-					}
+					
+				}
 				}
 			}
 
@@ -1416,7 +1367,10 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 };
 art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		parentBox) {
-	var rangeList = responseElement.getElementsByTagName('range');
+	//var rangeList = responseElement.getElementsByTagName('range');
+	var ranges = responseElement.getElementsByTagName("ranges")[0];
+	var rangeList = ranges.childNodes;
+		
 	if (sourceType.indexOf("AnnotationProperty") != -1) {
 		return;
 	} else if (rangeList.length > 3) {
@@ -1460,7 +1414,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		list.appendChild(listhead);
 		parentBox.appendChild(list);
 		for (var k = 0; k < rangeList.length; k++) {
-			if (rangeList[k].nodeType == 1) {
+			if (typeof(rangeList[k].tagName) != 'undefined') {
 				lsti = document.createElement("listitem");
 				lci = document.createElement("listitem-iconic");
 				img = document.createElement("image");
@@ -1469,7 +1423,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 								"chrome://semantic-turkey/content/images/class20x20.png");
 				lci.appendChild(img);
 				lbl = document.createElement("label");
-				var value = rangeList[k].getAttribute("name");
+				var value = rangeList[k].getAttribute("show");
 				lsti.setAttribute("label", value);
 				var explicit = rangeList[k].getAttribute("explicit");
 				lsti.setAttribute("explicit", explicit);
@@ -1518,8 +1472,8 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		row3.appendChild(box2);
 		parentBox.appendChild(row3);
 		for (var h = 0; h < rangeList.length; h++) {
-			if (rangeList[h].nodeType == 1) {
-				var value2 = rangeList[h].getAttribute("name");
+			if (typeof(rangeList[h].tagName) != 'undefined') {
+				var value2 = rangeList[h].getAttribute("show");
 				var txbox2 = document.createElement("textbox");
 				txbox2.setAttribute("value", value2);
 				txbox2.setAttribute("readonly", "true");
@@ -1788,7 +1742,8 @@ art_semanticturkey.insertDomain = function() {
 	parameters.parentWindow = window.arguments[0].parentWindow;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/class/classTree.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
 	var domainName = parameters.domainName;
 	if (domainName != "none domain selected") {
 		try {
@@ -1816,7 +1771,8 @@ art_semanticturkey.insertRange = function() {
 		parameters.rangeName = rangeName;
 		window.openDialog(
 				"chrome://semantic-turkey/content/editors/class/classTree.xul",
-				"_blank", "modal=yes,resizable,centerscreen", parameters);
+				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters);
 		if (parameters.rangeName != "") {
 			try {
 				art_semanticturkey.STRequests.Property.addPropertyRange(
@@ -1948,7 +1904,8 @@ art_semanticturkey.addType = function(addtype) {
 	parameters2.parentWindow = window.arguments[0].parentWindow;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/class/classTree.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters2);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters2);
 	var responseXML;
 	if (parameters2.selectedClass != "") {
 		try {
@@ -2032,7 +1989,8 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 		parameters2.parentWindow = window.arguments[0].parentWindow;
 		window.openDialog(
 				"chrome://semantic-turkey/content/editors/class/classTree.xul",
-				"_blank", "modal=yes,resizable,centerscreen", parameters2);
+				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters2);
 		try {
 			className = document.getElementById("name")
 					.getAttribute("actualValue")
@@ -2051,7 +2009,8 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 		parameters2.parentWindow = window.arguments[0].parentWindow;
 		window.openDialog(
 				"chrome://semantic-turkey/content/editors/class/classTree.xul",
-				"_blank", "modal=yes,resizable,centerscreen", parameters2);
+				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters2);
 		if (parameters2.selectedClass != "") {
 			txbox.setAttribute("value", selectedClass);
 			try {
@@ -2181,6 +2140,43 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
 	} else if (ranges.getAttribute("rngType").indexOf("literal") != -1) {
+		var rangeList = ranges.childNodes;
+		var role=null;
+		if(rangeList.length > 0){
+			for (var i = 0; i < rangeList.length; ++i) {
+				if (typeof(rangeList[i].tagName) != 'undefined') {
+					var dataRangeBNodeID = rangeList[i].textContent;
+					var role=rangeList[i].getAttribute("role");
+					var nodeType=rangeList[i].tagName;
+				}
+			}
+			if(role.indexOf("dataRange")!= -1){
+				alert("role "+role.indexOf("dataRange"));
+				var responseXML = art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,nodeType);
+				
+				var dataElement = responseXML.getElementsByTagName("data")[0];
+				var dataRangesList = dataElement.childNodes;
+				var dataRangesValueList = new Array();
+				var k=0;
+				for (var i = 0; i < dataRangesList.length; ++i) {
+					if (typeof(dataRangesList[i].tagName) != 'undefined') {
+						var dataRangeValue = new Object(); 
+						dataRangeValue.type = dataRangesList[i].tagName;
+						dataRangeValue.rangeType = dataRangesList[i].getAttribute("type");
+						dataRangeValue.show= dataRangesList[i].getAttribute("show");
+						dataRangesValueList[k]=dataRangeValue;
+						k++;
+					}
+				}
+				parameters.rangeType = "dataRange";
+				parameters.dataRangesValueList=dataRangesValueList;
+				window
+						.openDialog(
+								"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
+								"_blank", "modal=yes,resizable,centerscreen",
+								parameters);
+			}
+	} else{
 		var literalsParameters = new Object();
 		literalsParameters.isLiteral = "literal";
 		window
@@ -2201,36 +2197,8 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
 		}
-	} else if (ranges.getAttribute("rngType").indexOf("dataRange") != -1) {
-		var rangeList = ranges.childNodes;
-		for (var i = 0; i < rangeList.length; ++i) {
-			if (typeof(rangeList[i].tagName) != 'undefined') {
-				var dataRangeBNodeID = rangeList[i].textContent;
-			}
-		}
-		var responseXML = art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,"bnode");
-		var dataElement = responseXML.getElementsByTagName("data")[0];
-		var dataRangesList = dataElement.childNodes;
-		var dataRangesValueList = new Array();
-		var k=0;
-		for (var i = 0; i < dataRangesList.length; ++i) {
-			if (typeof(dataRangesList[i].tagName) != 'undefined') {
-				var dataRangeValue = new Object(); 
-				dataRangeValue.type = dataRangesList[i].tagName;
-				dataRangeValue.rangeType = dataRangesList[i].getAttribute("type");
-				dataRangeValue.show= dataRangesList[i].getAttribute("show");
-				dataRangesValueList[k]=dataRangeValue;
-				k++;
-			}
-		}
-		parameters.rangeType = "dataRange";
-		parameters.dataRangesValueList=dataRangesValueList;
-		window
-				.openDialog(
-						"chrome://semantic-turkey/content/enrichProperty/enrichTypedLiteralRangedProperty.xul",
-						"_blank", "modal=yes,resizable,centerscreen",
-						parameters);
-	} else if (ranges.getAttribute("rngType").indexOf("undetermined") != -1) {
+	}
+	} else  if (ranges.getAttribute("rngType").indexOf("undetermined") != -1) {
 		var literalsParameters = new Object();
 		literalsParameters.isLiteral = "undetermined";
 		window
@@ -2300,10 +2268,11 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 	var responseXML = art_semanticturkey.STRequests.Property.getRange(
 			propertyQName, "false");
 	var ranges = responseXML.getElementsByTagName("ranges")[0];
-	var type = (ranges.getAttribute("rngType"));
+	var rangeList = ranges.childNodes;
+	var type = ranges.getAttribute("rngType"); 
 	//NScarpato 29/11/2010
+
 	if(type == "dataRange"){
-		var rangeList = ranges.childNodes;
 			for (var i = 0; i < rangeList.length; ++i) {
 				if (typeof(rangeList[i].tagName) != 'undefined') {
 					var dataRangeBNodeID = rangeList[i].textContent;
@@ -2320,6 +2289,14 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 					}
 				}
 			}
+	}else{
+		for (var i = 0; i < rangeList.length; ++i) {
+				if (typeof(rangeList[i].tagName) != 'undefined') {
+	
+					//var type =  rangeList[i].textContent;
+					type =  rangeList[i].tagName;
+				}
+		}
 	}
 	try {
 		if (value == "list") {
@@ -2705,7 +2682,8 @@ art_semanticturkey.resourcedblClick = function(explicit, sourceElementName,
 	parameters.isFirstEditor = false;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
-			"_blank", "modal=yes,resizable,left=400,top=100", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,left=400,top=100", 
+			parameters);
 	// art_semanticturkey.refreshPanel();
 	art_semanticturkey.evtMgr.fireEvent("refreshEditor",
 			(new art_semanticturkey.genericEventClass()));

@@ -54,9 +54,6 @@ if (typeof art_semanticturkey == 'undefined')
 		choiseRow.appendChild(resourceButton);		
 		
 	}else{
-			alert("literal ");
-		alert(document.getElementById("question").getAttribute("value"));
-	 		
 		if(typeof window.arguments[0].objName == 'undefined'){
 	 		window.arguments[0].objName  = " new value";
 	 	}

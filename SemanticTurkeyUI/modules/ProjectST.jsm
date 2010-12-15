@@ -7,15 +7,12 @@ EXPORTED_SYMBOLS = ["CurrentProject"];
 CurrentProject = new function(){
 	var id = "no project currently active";
 	var isNull = true; // boolean value
-	var isMain = false; // boolean value
 	var isContinuosEditing = true; // boolean value
 	var type;
 	
-	this.setCurrentProjet = function(projectName, isNullProject, isMainProject, projectType){
+	this.setCurrentProjet = function(projectName, isNullProject, projectType){
 		id = projectName;
 		isNull = isNullProject;
-		isMain = isMainProject;
-		Preferences.set("extensions.semturkey.isLastProjMain", isMain);
 		type = projectType;
 		if(type == "continuosEditing")
 			isContinuosEditing = true;
@@ -36,10 +33,6 @@ CurrentProject = new function(){
 	
 	this.isNull = function(){
 		return isNull;
-	};
-	
-	this.isMainProject = function(){
-		return isMain;
 	};
 	
 	this.isContinuosEditing = function(){

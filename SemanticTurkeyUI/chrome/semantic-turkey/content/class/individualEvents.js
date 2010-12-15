@@ -54,7 +54,8 @@ art_semanticturkey.getWebLinks = function() {
 	var parameters = new Object();
 	parameters.instanceName = instanceName;
 	window.openDialog("chrome://semantic-turkey/content/class/webLinks.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
 };
 /**
  * @author NScarpato ATurbati 09-10-2009
@@ -133,7 +134,8 @@ art_semanticturkey.listdblclick = function(event) {
 	parameters.tree = document.getElementById('classesTree');
 	parameters.isFirstEditor = true;
 	window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
 };
 // vedere se in enrich crea problemi il fatto che è stata spostata in
 // browser-overlay.js

@@ -464,7 +464,8 @@ art_semanticturkey.renameClass = function() {
 		parameters.resourceName = name;
 		parameters.parentWindow = window;
 		window.openDialog("chrome://semantic-turkey/content/modifyName.xul",
-				"_blank", "modal=yes,resizable,centerscreen", parameters);
+				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters);
 	} else {
 		alert("You cannot modify this class, it's a system resource!");
 	}
@@ -632,7 +633,8 @@ art_semanticturkey.addSynonym = function() {
 	parameters.name = cllabel;
 	parameters.parentWindow = window;
 	window.openDialog("chrome://semantic-turkey/content/synonym/synonym.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
 };
 
 /**
@@ -903,7 +905,8 @@ art_semanticturkey.classesTreedoubleClick = function(event) {
 	parameters.isFirstEditor = true;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
-			"_blank", "modal=yes,resizable,centerscreen", parameters);
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
 };
 
 /**

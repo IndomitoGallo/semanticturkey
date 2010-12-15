@@ -30,6 +30,7 @@ Components.utils
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ResponseContentType.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 
 window.onload = function() {
 	document.getElementById("rdfPrefix").addEventListener("click",
@@ -62,13 +63,33 @@ window.onload = function() {
 			art_semanticturkey.getNamedGraphs, true);
 //	document.getElementById("SPARQLTree").addEventListener("dblclick",
 //			art_semanticturkey.SPARQLResourcedblClick, true);
-	var stIsStarted = art_semanticturkey.ST_started.getStatus();
+	
+			
+	var isNull = art_semanticturkey.CurrentProject.isNull();
+	if(isNull == false)
+		art_semanticturkey.enableSPARQLSubmitQuery();
+		
+	art_semanticturkey.eventListenerSPARQLArrayObject = new art_semanticturkey.eventListenerArrayClass();
+	art_semanticturkey.eventListenerSPARQLArrayObject.addEventListenerToArrayAndRegister(
+					"projectOpened", art_semanticturkey.enableSPARQLSubmitQuery, null);
+	art_semanticturkey.eventListenerSPARQLArrayObject.addEventListenerToArrayAndRegister(
+					"projectClosed", art_semanticturkey.disableSPARQLSubmitQuery, null);
+	
+	/*var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if (stIsStarted == "false") {
-		var eventSparqlSTStartedObject = new art_semanticturkey.eventListener("st_started", art_semanticturkey.enableSPARQLSubmitQuery, deregisterFunction);
+		var eventSparqlSTStartedObject = new art_semanticturkey.eventListener("st_started", art_semanticturkey.enableSPARQLSubmitQuery, null);
 		document.getElementById("submitQuery").disabled = true;
-	}
+	}*/
 };
 
+
+art_semanticturkey.enableSPARQLSubmitQuery = function(){
+	document.getElementById("submitQuery").disabled = false;
+};
+
+art_semanticturkey.disableSPARQLSubmitQuery = function(){
+	document.getElementById("submitQuery").disabled = true;
+};
 
 art_semanticturkey.getNamedGraphs = function() {
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
@@ -392,6 +413,11 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 			rootTreechildren.removeChild(rootTreechildren.lastChild);
 		}
 		
+		if(typeof response.stresponse.data == 'undefined'){
+			var msg = JSON.stringify(response.stresponse.msg);
+			alert(msg);
+			return;
+		}
 		var resultType = JSON.stringify(response.stresponse.data.resulttype).replace(/\"/g, "");
 
 		if (resultType == "tuple") {
@@ -518,6 +544,3 @@ art_semanticturkey.SPARQLResourcedblClick = function(event) {
 };
 
 
-art_semanticturkey.enableSPARQLSubmitQuery = function(){
-	document.getElementById("submitQuery").disabled = false;
-};

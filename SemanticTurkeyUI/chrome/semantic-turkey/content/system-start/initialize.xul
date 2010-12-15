@@ -36,7 +36,9 @@
 		src="chrome://semantic-turkey/content/utilities/utilities.js" />
 	<script type="application/x-javascript" 
  		src="chrome://semantic-turkey/content/projects/manageProjectsUtilities.js"/>
-
+	<script type="application/x-javascript" 
+ 		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+	
 	<groupbox id="createClassBox" flex="1">
 		<caption class="header" label=" - Initialize - " image="../images/st_favicon.png" />
 		<vbox id="myPanel" align="center" flex="1">

@@ -74,6 +74,9 @@
 			<toolbarbutton id="prjManagementToolBarButton"
 				image="chrome://semantic-turkey/content/images/folder-open.png"
 				tooltiptext="Open Projects Management" hidden="true" />
+			<toolbarbutton id="SKOSToolBarButton"
+				image="chrome://semantic-turkey/content/images/skosPanel.png"
+				tooltiptext="Open SKOS Editor" hidden="true" />
 			<toolbarbutton id="ontPanelToolBarButton"
 				image="chrome://semantic-turkey/content/images/ontpanel.png"
 				tooltiptext="Open Ontology Panel" hidden="true" />
@@ -83,9 +86,6 @@
 			<toolbarbutton id="SPARQLToolBarButton"
 				image="chrome://semantic-turkey/content/images/sparql.png"
 				tooltiptext="Open SPARQL" hidden="true" />
-			<toolbarbutton id="SKOSToolBarButton"
-				image="chrome://semantic-turkey/content/images/skos.png"
-				tooltiptext="Open SKOS Editor" hidden="true" />
 		</toolbar>
 	</toolbox>
 
@@ -138,9 +138,9 @@
 							id="save_as_project" label="Save as" /> <menuitem
 							id="export_project" label="Export" /> </menupopup> </menu>
 						-->
-						<menuitem id="save_project" label="Save" />
-						<menuitem id="save_as_project" label="Save as" />
-						<menuitem id="export_project" label="Export" />
+						<menuitem id="save_project" label="Save" disabled="true"/>
+						<menuitem id="save_as_project" label="Save as" disabled="true"/>
+						<menuitem id="export_project" label="Export" disabled="true"/>
 						<menuitem id="manage_all_projects" label="Projects Management" />
 					</menupopup>
 				</menu>
