@@ -18,46 +18,18 @@
 		* */
 	-->
 
-<window id="importProjectWindow" title="Import Project"
+<window id="repairProjectWindow" title="Repair a Project"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="430" height="200">
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	width="500" height="260">
 
 	<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/projects/importProject.js" />
-	<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/scripts/fileChooser.js" />
-	
-	<hbox id="repBox" flex="0">
-		<label id="dir" value="Select Project File:" control="dirBtn" />
-		<spacer flex="1"/>
-		<button id="dirBtn" label="Select Project File"/>
-		<!--<grid flex="1">
-			<columns>
-				<column flex="1" />
-				<column flex="1" />
-			</columns>
-			<rows flex="1">
-				<row>
-					<label id="dir" value="Select Project File:" control="dirBtn" />
-					<button id="dirBtn" label="Select Project File"/>
-				</row>
-			</rows>
-		</grid>-->
-	</hbox>
-	<vbox flex = "2">
-		<textbox id="srcLocalFile" />
-		<label value="Project Name:" />
-		<textbox id="projectName" />
-		<!--		<row>
-					<textbox id="srcLocalFile" flex="1"/>
-					
-				</row>
-				<row>
-					<label value="Project Name:" />
-				</row>
-				<row>
-					<textbox id="projectName" />
-				</row>-->
+		src="chrome://semantic-turkey/content/projects/repairProject.js" />
+
+
+	<vbox id="repBox" flex="1">
+		<html:textarea style="font-size:15px;" id="textAreaIssue" class="message"  rows="9"  cols="85" disabled="true"/> 
+		<!--<label id="labelRepair" value=""/>-->
 	</vbox>
 	<vbox id="buttonBox" flex="0">
 		<grid flex="1">
@@ -67,8 +39,8 @@
 			</columns>
 			<rows flex="1">
 				<row>
-					<button id="importProject" label="import Project" flex="1"/>
-					<button id="cancel" label="Cancel" flex="1"/>
+					<button id="repairProject" label="Repair Project" flex="1" />
+					<button id="cancel" label="Cancel" flex="1" />
 				</row>
 			</rows>
 		</grid>

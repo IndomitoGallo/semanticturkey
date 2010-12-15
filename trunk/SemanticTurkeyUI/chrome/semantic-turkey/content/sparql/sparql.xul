@@ -96,7 +96,8 @@
 					</columns>
 					<rows>
 						<row>
-							<button id="submitQuery" label="Submit Query" flex="0" >
+							<button id="submitQuery" label="Submit Query" 
+									flex="0" disabled="true">
 							</button>
 						</row>
 					</rows>

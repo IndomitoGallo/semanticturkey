@@ -18,46 +18,30 @@
 		* */
 	-->
 
-<window id="importProjectWindow" title="Import Project"
+<window id="configurationOntMgrWindow" title="New Project"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="430" height="200">
+	width="400" height="250">
 
 	<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/projects/importProject.js" />
-	<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/scripts/fileChooser.js" />
-	
-	<hbox id="repBox" flex="0">
-		<label id="dir" value="Select Project File:" control="dirBtn" />
-		<spacer flex="1"/>
-		<button id="dirBtn" label="Select Project File"/>
-		<!--<grid flex="1">
-			<columns>
-				<column flex="1" />
-				<column flex="1" />
-			</columns>
-			<rows flex="1">
-				<row>
-					<label id="dir" value="Select Project File:" control="dirBtn" />
-					<button id="dirBtn" label="Select Project File"/>
-				</row>
-			</rows>
-		</grid>-->
-	</hbox>
-	<vbox flex = "2">
-		<textbox id="srcLocalFile" />
-		<label value="Project Name:" />
-		<textbox id="projectName" />
-		<!--		<row>
-					<textbox id="srcLocalFile" flex="1"/>
-					
-				</row>
-				<row>
-					<label value="Project Name:" />
-				</row>
-				<row>
-					<textbox id="projectName" />
-				</row>-->
+		src="chrome://semantic-turkey/content/projects/configurationOntMgr.js" />
+
+
+	<vbox id="repBox" flex="1">
+		<label id="confLabel"/>
+		<scrollbox style="overflow:auto" collapsed="false" flex="1">
+			<grid flex="1">
+				<columns>
+					<column flex="1" />
+					<column flex="1" />
+				</columns>
+				<rows id="confRows" flex="1">
+					<!-- <row>
+						<label value="Project Name: " />
+						<textbox id="projectName" value="" />
+					</row> -->
+				</rows>
+			</grid>
+		</scrollbox>
 	</vbox>
 	<vbox id="buttonBox" flex="0">
 		<grid flex="1">
@@ -67,8 +51,8 @@
 			</columns>
 			<rows flex="1">
 				<row>
-					<button id="importProject" label="import Project" flex="1"/>
-					<button id="cancel" label="Cancel" flex="1"/>
+					<button id="saveConf" label="Ok" flex="1" />
+					<button id="cancel" label="Cancel" flex="1" />
 				</row>
 			</rows>
 		</grid>

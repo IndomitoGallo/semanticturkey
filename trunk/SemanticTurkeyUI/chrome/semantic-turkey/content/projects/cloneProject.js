@@ -47,7 +47,7 @@ art_semanticturkey.onAccept = function() {
 		art_semanticturkey.DisabledAllButton(false);
 		if(projectName == currentProject){
 			art_semanticturkey.STRequests.Projects.openProject(projectName);
-			art_semanticturkey.CurrentProject.setCurrentProjet(currentProject, false, false, currentProjectType);
+			art_semanticturkey.CurrentProject.setCurrentProjet(currentProject, false, currentProjectType);
 		}
 	}
 };
@@ -56,7 +56,7 @@ art_semanticturkey.cloneProject_RESPONSE = function(responseElement, projectName
 	window.arguments[0].clonedProject = true;
 	if(projectName == currentProject){
 		art_semanticturkey.STRequests.Projects.openProject(projectName);
-		art_semanticturkey.CurrentProject.setCurrentProjet(currentProject, false, false, currentProjectType);
+		art_semanticturkey.CurrentProject.setCurrentProjet(currentProject, false, currentProjectType);
 	}
 	close();
 };

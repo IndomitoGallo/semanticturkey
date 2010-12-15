@@ -42,6 +42,8 @@ art_semanticturkey.importProject_RESPONSE = function(responseElement, projectNam
 	try{
 		var responseXML = art_semanticturkey.STRequests.Projects.listProjects();
 		window.arguments[0].newProjectType = art_semanticturkey.getProjectType(projectName, responseXML);
+		window.arguments[0].newProjectOntoType = art_semanticturkey.getProjectOntType(projectName, responseXML);
+		
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);
@@ -56,6 +58,18 @@ art_semanticturkey.getProjectType = function(projectId, responseElement){
 		var projectName = projects[i].textContent;
 		if(projectId == projectName){
 			return projects[i].getAttribute("type");
+		}
+	}
+	return null;
+};
+
+art_semanticturkey.getProjectOntType = function(projectId, responseElement){
+	var projects = responseElement.getElementsByTagName("project");
+	
+	for (var i = 0; i < projects.length; i++) {
+		var projectName = projects[i].textContent;
+		if(projectId == projectName){
+			return projects[i].getAttribute("ontoType");
 		}
 	}
 	return null;

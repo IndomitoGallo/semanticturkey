@@ -1,6 +1,5 @@
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
-Components.utils
-		.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	try {
 		/*
@@ -73,9 +72,11 @@ art_semanticturkey.furtherAnnotFunction = function() {
 	var parentWindow = window.arguments[0].parentWindow;
 	try {
 		parentWindow.art_semanticturkey.STRequests.Annotation
-				.createFurtherAnnotation(subjectInstanceName,
-						objectInstanceName, window.arguments[0].urlPage,
-						window.arguments[0].title);
+			.createFurtherAnnotation(
+				subjectInstanceName,
+				objectInstanceName,
+				window.arguments[0].urlPage,
+				window.arguments[0].title);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}

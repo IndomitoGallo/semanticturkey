@@ -110,7 +110,7 @@ art_semanticturkey.onAccept = function() {
 	if (repositoryImplementation != "unavailable" && art_semanticturkey.isUrl(baseuri)) {	
 		try{
 			art_semanticturkey.STRequests.SystemStart.start(baseuri,repositoryImplementation);
-			art_semanticturkey.CurrentProject.setCurrentProjet("Main Project", false, true, "continuosEditing");
+			art_semanticturkey.CurrentProject.setCurrentProjet("Main Project", false, "continuosEditing");
 			art_semanticturkey.projectOpened("Main Project");
 		}
 		catch (e) {

@@ -6,10 +6,9 @@
  * @param {} superClassName
  * @param {} parameters
  */
-art_semanticturkey.classAddedClass = function(className, superClassName){ //,parameters){
+art_semanticturkey.classAddedClass = function(className, superClassName){
 	var className = className;
 	var superClassName = superClassName;
-	var parameters = parameters;
 	
 	this.getClassName = function(){
 		return className;
@@ -323,6 +322,27 @@ art_semanticturkey.tripleDeletedClass = function(subj, predicate, obj){
 	this.getObject = function(){
 		return obj;
 	};
+};
+
+art_semanticturkey.projectOpenedClass = function(projName, type){
+	var projName = projName;
+	var type = type;
+	
+	this.getProjectName = function(){
+		return projName;
+	}
+	
+	this.getType = function(){
+		return type;
+	}
+};
+
+art_semanticturkey.projectClosedClass = function(projName){
+	var projName = projName;
+	
+	this.getProjectName = function(){
+		return projName;
+	}
 };
 
 

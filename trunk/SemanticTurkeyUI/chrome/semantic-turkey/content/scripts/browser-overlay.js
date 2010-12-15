@@ -29,7 +29,10 @@ Components.utils.import("resource://stservices/SERVICE_Annotation.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Projects.jsm",
 		art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", 
+		art_semanticturkey);
 
+		
 art_semanticturkey.JavaFirefoxSTBridge = new Object();
 
 art_semanticturkey.JavaFirefoxSTBridge._getExtensionPath = function(extensionName) {
@@ -316,13 +319,15 @@ art_semanticturkey.chkST_started = function() {
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	if(stIsStarted=="true"){
 		document.getElementById("startSt").disabled = true;
-		document.getElementById("key_openSTOntologySidebar").disabled = false;
-		document.getElementById("key_openSTImportsSidebar").disabled = false;
-		document.getElementById("key_openSTSKOSSidebar").disabled = false;
-		document.getElementById("SPARQL").disabled = false;
-		document.getElementById("visualization").disabled = false;
-		document.getElementById("visualization2").disabled = false;
+		//document.getElementById("key_openSTOntologySidebar").disabled = false;
+		//document.getElementById("key_openSTImportsSidebar").disabled = false;
+		//document.getElementById("key_openSTSKOSSidebar").disabled = false;
+		//document.getElementById("SPARQL").disabled = false;
+		//document.getElementById("visualization").disabled = false;
+		//document.getElementById("visualization2").disabled = false;
 		document.getElementById("projects_ST_Menu").disabled = false;
+		document.getElementById("manage_all_projects").disabled = false;
+		
 	}
 };
 art_semanticturkey.SPARQL = function() {
@@ -368,40 +373,48 @@ art_semanticturkey.export_project = function() {
 art_semanticturkey.manage_all_projects = function() {
 	var parameters = new Object();
 	parameters.parentWindow = window;
-	parameters.properClose = false;
+	window.openDialog(
+		"chrome://semantic-turkey/content/projects/manageProjects.xul",
+		"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", parameters);
+	/*parameters.properClose = false;
 	while(parameters.properClose == false) {
 		window.openDialog(
 			"chrome://semantic-turkey/content/projects/manageProjects.xul",
-			"_blank", "modal=yes,resizable,centerscreen, close=no", parameters);
-	}
+			"_blank", "modal=yes,resizable,centerscreen", parameters);
+	}*/
 };
 
 art_semanticturkey.enableSTToolbarButtons = function(){
 	document.getElementById("startSTToolBarButton").hidden = true;
 	document.getElementById("prjManagementToolBarButton").hidden = false;
-	document.getElementById("ontPanelToolBarButton").hidden = false;	
+	/*document.getElementById("ontPanelToolBarButton").hidden = false;	
 	document.getElementById("importsToolBarButton").hidden = false;
 	document.getElementById("SPARQLToolBarButton").hidden = false;
-	document.getElementById("SKOSToolBarButton").hidden = false;
-	
+	var isDefaultSet = art_semanticturkey.Preferences.get("extensions.semturkey.isDefaultSet", false);
+	var defaultProjectOntType = art_semanticturkey.Preferences.get("extensions.semturkey.defaultProjectOntType", "null");
+	if(isDefaultSet == true && defaultProjectOntType.indexOf("SKOS") != -1)	
+		document.getElementById("SKOSToolBarButton").hidden = false;
+	else
+		document.getElementById("SKOSToolBarButton").hidden = true;
+	*/
 };
 
-art_semanticturkey.startSTOpenProjectMng = function(){
+art_semanticturkey.startSTServer = function(){
 	art_semanticturkey.JavaFirefoxSTBridge.initialize();
 	art_semanticturkey.startST();
 };
 
-
+/*
 art_semanticturkey.restartFirefox = function(){
 	var nsIAppStartup = Components.interfaces.nsIAppStartup;
 	Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(nsIAppStartup).quit(
 			nsIAppStartup.eForceQuit | nsIAppStartup.eRestart);
-};
+};*/
 
 art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("menu_ToolsPopup").addEventListener("popupshowing",art_semanticturkey.chkST_started,true);
 	//document.getElementById("startSt").addEventListener("command",art_semanticturkey.JavaFirefoxSTBridge.initialize,true);
-	document.getElementById("startSt").addEventListener("command",art_semanticturkey.startSTOpenProjectMng,true);
+	document.getElementById("startSt").addEventListener("command",art_semanticturkey.startSTServer,true);
 	document.getElementById("key_openSTOntologySidebar").addEventListener("command",art_semanticturkey.toggleSidebar1,true);
 	document.getElementById("key_openSTImportsSidebar").addEventListener("command",art_semanticturkey.toggleSidebar2,true);
 	document.getElementById("key_openSTSKOSSidebar").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
@@ -426,7 +439,7 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("projects_menu_ToolsPopup").addEventListener("popupshowing",art_semanticturkey.chk_SaveCurrentProjectMenuitem,true);
 	
 	//sd-toolbar
-	document.getElementById("startSTToolBarButton").addEventListener("command",art_semanticturkey.startSTOpenProjectMng,true);
+	document.getElementById("startSTToolBarButton").addEventListener("command",art_semanticturkey.startSTServer,true);
 	document.getElementById("prjManagementToolBarButton").addEventListener("command",art_semanticturkey.manage_all_projects,true);
 	document.getElementById("ontPanelToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar1,true);
 	document.getElementById("importsToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar2,true);	
@@ -441,7 +454,6 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	}else{
 		art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("st_started", art_semanticturkey.enableSTToolbarButtons, null);
 	}
-	
 	
 	//Adding an three ojbects waiting for the events projectOpened , projectClosed and projectChangedName
 	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.changeProjectObj, null);
@@ -473,7 +485,8 @@ art_semanticturkey.myObserverFirefoxClosed = function(){
 				toggleSidebar();
 		}
 		var isContinuosEditing = art_semanticturkey.CurrentProject.isContinuosEditing();
-		if(isContinuosEditing == false){
+		var isNull = art_semanticturkey.CurrentProject.isNull();
+		if(isNull == false && isContinuosEditing == false){
 			var currentProectName = art_semanticturkey.CurrentProject.getProjectName();
 			var risp = confirm("Save project "+currentProectName+ "?");
 			if(risp)
@@ -484,7 +497,7 @@ art_semanticturkey.myObserverFirefoxClosed = function(){
 
 art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 	if(eventId == "projectOpened"){
-		var projectName = projectInfo.projectName;
+		var projectName = projectInfo.getProjectName();
 		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
 		for(var i=0; i<broadcasterList.length; ++i){
 			if(broadcasterList[i].getAttribute("semanticTurkeyBroadcaster") == "true"){
@@ -492,6 +505,9 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 				broadcasterList[i].setAttribute("sidebartitle", label + " ( " + projectName+" )");
 			}
 		}
+		document.getElementById("ontPanelToolBarButton").hidden = false;	
+		document.getElementById("importsToolBarButton").hidden = false;
+		document.getElementById("SPARQLToolBarButton").hidden = false;
 		document.getElementById("save_project").setAttribute("label", "Save "+projectName);
 		if(art_semanticturkey.CurrentProject.isContinuosEditing() == false)
 			document.getElementById("save_project").disabled = false;
@@ -499,7 +515,25 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("save_as_project").disabled = false;
 		document.getElementById("export_project").setAttribute("label", "Export "+projectName);
 		document.getElementById("export_project").disabled = false;
+		document.getElementById("key_openSTOntologySidebar").disabled = false;
+		document.getElementById("key_openSTImportsSidebar").disabled = false;
+		document.getElementById("SPARQL").disabled = false;
+		document.getElementById("key_openSTSKOSSidebar").disabled = false;
+		document.getElementById("visualization").disabled = false;
+		document.getElementById("visualization2").disabled = false;
+		document.getElementById("projects_ST_Menu").disabled = false;
+		document.getElementById("save_project").disabled = false;
+		document.getElementById("save_as_project").disabled = false;
+		document.getElementById("export_project").disabled = false;
 		document.getElementById("manage_all_projects").disabled = false;
+		document.getElementById("ontPanelToolBarButton").disabled = false;
+		document.getElementById("importsToolBarButton").disabled = false;
+		document.getElementById("SPARQLToolBarButton").disabled = false;
+		document.getElementById("SKOSToolBarButton").disabled = false;
+		if(projectInfo.getType().indexOf("SKOS") != -1)
+			document.getElementById("SKOSToolBarButton").hidden = false;
+		else
+			document.getElementById("SKOSToolBarButton").hidden = true;
 	}
 	else if(eventId == "projectClosed"){
 		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
@@ -514,7 +548,23 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("save_as_project").setAttribute("label", "Save ??? as ...");
 		document.getElementById("export_project").disabled = true;
 		document.getElementById("export_project").setAttribute("label", "Export");
-		document.getElementById("manage_all_projects").disabled = true;
+		document.getElementById("key_openSTOntologySidebar").disabled = true;
+		document.getElementById("key_openSTImportsSidebar").disabled = true;
+		document.getElementById("SPARQL").disabled = true;
+		document.getElementById("key_openSTSKOSSidebar").disabled = true;
+		document.getElementById("visualization").disabled = true;
+		document.getElementById("visualization2").disabled = true;
+		document.getElementById("save_project").disabled = true;
+		document.getElementById("projects_ST_Menu").disabled = false;
+		document.getElementById("save_project").disabled = true;
+		document.getElementById("save_as_project").disabled = true;
+		document.getElementById("export_project").disabled = true;
+		document.getElementById("manage_all_projects").disabled = false;
+		document.getElementById("ontPanelToolBarButton").disabled = true;
+		document.getElementById("importsToolBarButton").disabled = true;
+		document.getElementById("SPARQLToolBarButton").disabled = true;
+		document.getElementById("SKOSToolBarButton").disabled = true;
+		
 	}
 	else if(eventId == "projectChangedName"){
 		var projectName = projectInfo.projectName;

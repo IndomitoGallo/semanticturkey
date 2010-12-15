@@ -62,6 +62,7 @@ evtMgr = new function() {
 			lastPos = 0;
 		} catch (err) {
 			//remove the istance that caused the exception from the array
+			Logger.debug("[stEvtMgr.jsm] Exception for event "+eventId);
 			arrayEvent[eventId] = arrayListener.slice(0, cont).concat(
 					arrayListener.slice(cont + 1));
 			lastPos = cont; // now lastPos point to the element after the one that coused the exception

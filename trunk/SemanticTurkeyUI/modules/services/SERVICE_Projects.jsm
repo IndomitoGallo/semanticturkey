@@ -25,9 +25,15 @@ function openProject(name) {
  * @member STRequests.Projects
  * @return
  */
-function openMainProject() {
+/*function openMainProject() {
 	Logger.debug('[SERVICE_Projects.jsm] openMainProject');
 	return HttpMgr.GET(serviceName, service.openMainProjectRequest);
+}*/
+
+function repairProject(name){
+	Logger.debug('[SERVICE_Projects.jsm] repairProject');
+	var name = "name=" + name;
+	return HttpMgr.GET(serviceName, service.repairProjectRequest, name);
 }
 
 /**
@@ -45,14 +51,22 @@ function openMainProject() {
  *            or if it needs to be explicitly saved (<em>saveToStore</em>)
  * @return
  */
-function newProject(name,ontologyType, baseuri, ontmanager, type) {
+function newProject(name, ontologyType, baseuri, ontmanager, ontMgrConfiguration, cfgParsArray) {
 	Logger.debug('[SERVICE_Projects.jsm] newProject');
 	var name = "name=" + name;
 	var ontologyType = "ontologyType=" + ontologyType;
 	var baseuri = "baseuri=" + baseuri;
 	var ontmanager = "ontmanager=" + ontmanager;
-	var type = "type=" + type;
-	return HttpMgr.GET(serviceName, service.newProjectRequest, name, ontologyType,baseuri, ontmanager, type);
+	var ontMgrConfiguration = "ontMgrConfiguration=" + ontMgrConfiguration;
+	var cfgPars = "cfgPars=";
+	for ( var i=0; i < cfgParsArray.length; ++i){
+		var namePar = cfgParsArray[i].name;
+		var valuePar = cfgParsArray[i].value;
+		if(i!=0)
+			cfgPars +="|_|";
+		cfgPars += namePar+":::"+valuePar;
+	}
+	return HttpMgr.GET(serviceName, service.newProjectRequest, name, ontologyType,baseuri, ontmanager, ontMgrConfiguration, cfgPars);
 }
 
 /**
@@ -72,14 +86,23 @@ function newProject(name,ontologyType, baseuri, ontmanager, type) {
  *            the path to the RDF file the data of which is automatically loaded inside the new project
  * @return
  */
-function newProjectFromFile(name, baseuri, ontmanager, type, file) {
+function newProjectFromFile(name, ontologyType, baseuri, ontmanager, ontMgrConfiguration, cfgParsArray, file) {
 	Logger.debug('[SERVICE_Projects.jsm] newProjectFromFile');
 	var name = "name=" + name;
+	var ontologyType = "ontologyType=" + ontologyType;
 	var baseuri = "baseuri=" + baseuri;
 	var ontmanager = "ontmanager=" + ontmanager;
-	var type = "type=" + type;
+	var ontMgrConfiguration = "ontMgrConfiguration=" + ontMgrConfiguration;
 	var file = "file=" + file;
-	return HttpMgr.GET(serviceName, service.newProjectFromFileRequest, name, baseuri, ontmanager, type, file);
+	var cfgPars = "cfgPars=";
+	for ( var i=0; i < cfgParsArray.length; ++i){
+		var namePar = cfgParsArray[i].name;
+		var valuePar = cfgParsArray[i].value;
+		if(i!=0)
+			cfgPars +="|_|";
+		cfgPars += namePar+":::"+valuePar;
+	}
+	return HttpMgr.GET(serviceName, service.newProjectFromFileRequest, name, ontologyType, baseuri, ontmanager, ontMgrConfiguration, file, cfgPars);
 }
 
 /**
@@ -201,7 +224,8 @@ function getCurrentProject() {
 
 // Projects SERVICE INITIALIZATION
 service.openProject = openProject;
-service.openMainProject = openMainProject;
+service.repairProject = repairProject;
+//service.openMainProject = openMainProject;
 service.newProject = newProject;
 service.newProjectFromFile = newProjectFromFile;
 service.closeProject = closeProject;

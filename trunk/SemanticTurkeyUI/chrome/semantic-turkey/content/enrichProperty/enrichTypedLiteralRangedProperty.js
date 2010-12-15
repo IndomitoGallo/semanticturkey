@@ -42,7 +42,7 @@ Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
  
 art_semanticturkey.setPanel= function() {
 		var defaultRangeType=window.arguments[0].rangeType;
-		if(defaultRangeType == "undefined"){
+		if (typeof defaultRangeType == 'undefined'){
 			var rangeLbl = document.createElement("label");
 			rangeLbl.setAttribute("id", "lblvalue");
 			rangeLbl.setAttribute("value", "Insert Range Type:");
@@ -63,8 +63,8 @@ art_semanticturkey.setPanel= function() {
 			}
 			rangeMenuList.appendChild(rangeMenupopup);
 			row2.appendChild(rangeMenuList);
-			rangeMenuList.selectedItem=document.getElementById(defaultRangeType);
-			rangeMenupopup.selectedItem=document.getElementById(defaultRangeType);
+			//rangeMenuList.selectedItem=document.getElementById(defaultRangeType);
+			//rangeMenupopup.selectedItem=document.getElementById(defaultRangeType);
 		}else if(defaultRangeType == "dataRange"){
 			document.getElementById("valueLabel").setAttribute("hidden",true);
 			document.getElementById("valueRow").setAttribute("hidden",true);
@@ -116,10 +116,10 @@ art_semanticturkey.onAccept= function() {
 		range = rangeMenuitem.getAttribute('rangeType');
 		type =rangeMenuitem.getAttribute('type');
 		var propValue = rangeMenuitem.getAttribute('id');
-	}else if(range == "undefined"){
+	}else if (typeof range == 'undefined'){
 		var rangeMenuList=document.getElementById("rangeMenu");
 		var rangeMenuitem =rangeMenuList.selectedItem;
-		range = rangeMenuitem.getAttribute('rangeType');
+		range = rangeMenuitem.getAttribute('id');
 		var propValue = document.getElementById("newValue").value;
 	}else{
 		var propValue = document.getElementById("newValue").value;

@@ -12,12 +12,21 @@ art_semanticturkey.closeProject = function(){
 		var currentProectName = art_semanticturkey.CurrentProject.getProjectName();
 		art_semanticturkey.projectClosed(currentProectName); 
 		if((isNull == false) && (isContinuosEditing == false)){
-			var risp = confirm("Save project "+currentProectName+ "?");
+			
+			var parameters = new Object();
+			parameters.parentWindow = window;
+			parameters.projectName = currentProectName;
+			parameters.save = false;
+			
+			window.openDialog("chrome://semantic-turkey/content/projects/saveProject.xul", "_blank",
+				"chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters);
+			
 			var parentWindow = window.arguments[0].parentWindow;
-			if(risp)
+			if(parameters.save)
 				parentWindow.art_semanticturkey.save_project();
 		}
-		art_semanticturkey.CurrentProject.setCurrentProjet("no project currently active", true, false, "nullProject");
+		art_semanticturkey.CurrentProject.setCurrentProjet("no project currently active", true, "nullProject");
 		var responseXML = art_semanticturkey.STRequests.Projects.closeProject();
 		art_semanticturkey.closeProject_RESPONSE(responseXML, currentProectName);
 	}
@@ -55,16 +64,14 @@ art_semanticturkey.getCurrentProject_RESPONSE = function(responseElement){
 };
 
 //These two function send the events of project
-art_semanticturkey.projectOpened = function(newProject){
-	var projectInfo = new Object();
-	projectInfo.projectName = newProject;
+art_semanticturkey.projectOpened = function(newProjectName, type){
+	var projectInfo = new art_semanticturkey.projectOpenedClass(newProjectName, type);
 	art_semanticturkey.evtMgr.fireEvent("projectOpened", projectInfo);
 };
 
 //These two function sends the events of project
-art_semanticturkey.projectClosed = function(oldProject){
-	var projectInfo = new Object();
-	projectInfo.projectName = oldProject;
+art_semanticturkey.projectClosed = function(oldProjectName){
+	var projectInfo = art_semanticturkey.projectClosedClass(oldProjectName);
 	art_semanticturkey.evtMgr.fireEvent("projectClosed", projectInfo);
 };
 

@@ -20,7 +20,7 @@
 
 <window id="newProjectWindow" title="New Project"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="400" height="200">
+	width="430" height="250">
 
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/projects/newProject.js" />
@@ -65,15 +65,18 @@
 						</menupopup>
 					</menulist>
 				</row>
-				<row>
-					<label value="mode: " />
-					<menulist id="modeMenulist">
-						<menupopup id="modeMenupopup">
-							<menuitem label="Continuous Editing" id="continuosEditing" selected="true" />
-							<menuitem label="Save2Store" id="saveToStore"/>
-						</menupopup>
-					</menulist>
-				</row>
+				<groupbox>
+					<row>
+						<label value="mode: " flex="2"/>
+						<menulist id="modeMenulist" disabled="true" flex="3">
+							<menupopup id="modeMenupopup">
+								<!--<menuitem label="Continuous Editing" id="" selected="true" />
+								<menuitem label="Save2Store" id="saveToStore"/> -->
+							</menupopup>
+						</menulist>
+						<button id="openConf" label="Configuration" flex="1" disabled="true"/>
+					</row>
+				</groupbox>
 				<row id="fromFileRow">
 					<button id="dirBtn" label="Select rdf/owl file"/>
 					<textbox id="srcLocalFile" value="" />
@@ -89,7 +92,7 @@
 			</columns>
 			<rows flex="1">
 				<row>
-					<button id="newProject" label="New Project" flex="1" />
+					<button id="newProject" label="Ok" flex="1" />
 					<button id="cancel" label="Cancel" flex="1" />
 				</row>
 			</rows>

@@ -83,6 +83,11 @@ STRequests.SystemStart = new Object();
  * @class
  */
 STRequests.Projects = new Object();
+/**
+ * @class
+ */
+STRequests.OntManager = new Object();
+
 
 //systemStart service requests
 STRequests.SystemStart.serviceName = "systemStart";
@@ -228,7 +233,7 @@ STRequests.SKOS.removeConceptRequest = "removeConcept";
 //projects service request
 STRequests.Projects.serviceName = "projects";
 STRequests.Projects.openProjectRequest = "openProject";
-STRequests.Projects.openMainProjectRequest = "openMainProject";
+STRequests.Projects.repairProjectRequest = "repairProject";
 STRequests.Projects.newProjectRequest = "newProject";
 STRequests.Projects.newProjectFromFileRequest = "newProjectFromFile";
 STRequests.Projects.closeProjectRequest = "closeProject";
@@ -240,6 +245,10 @@ STRequests.Projects.saveProjectAsRequest = "saveProjectAs";
 STRequests.Projects.saveProjectRequest = "saveProject";
 STRequests.Projects.listProjectsRequest = "listProjects";
 STRequests.Projects.getCurrentProjectRequest = "getCurrentProject";
+
+//ontManager service request
+STRequests.OntManager.serviceName = "ontManager";
+STRequests.OntManager.getOntManagerParametersRequest = "getOntManagerParameters";
 
 //OntoSearch service request
 STRequests.OntoSearch.serviceName = "ontologySearch";
