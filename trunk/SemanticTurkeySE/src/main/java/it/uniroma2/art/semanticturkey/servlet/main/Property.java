@@ -104,7 +104,7 @@ public class Property extends Resource {
 
 	public static class Par {
 		final static public String nodeTypePar = "nodeType";
-		final static public String dataRangePar = "	";
+		final static public String dataRangePar = "dataRange";
 		final static public String instanceQNamePar = "instanceQName";
 		final static public String propertyQNamePar = "propertyQName";
 		final static public String rangeQNamePar = "rangeQName";
