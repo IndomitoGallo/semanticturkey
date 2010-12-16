@@ -932,6 +932,10 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 					//var value = valueList[j].getAttribute("value");
 					var value = valueList[j].getAttribute("show");
 					var type = valueList[j].tagName;
+					var rangeQName =null;
+					if(valueList[j].getAttribute("type") != 'undefined'){
+						rangeQName =valueList[j].getAttribute("type");
+						}
 					var lsti = document.createElement("listitem");
 					var lci = document.createElement("listitem-iconic");
 					if(type.indexOf("resource") !=-1 || type.indexOf("bnode") !=-1 || type.indexOf("uri") !=-1){
@@ -959,6 +963,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						var containerObjTx = new Object();
 						containerObjTx.explicit = explicit;
 						containerObjTx.sourceElementName = value;
+						containerObjTx.rangeQName=rangeQName;
 						if (type == "cls")
 							containerObjTx.sourceType = "cls";
 						else if (type == "individual")
@@ -997,12 +1002,17 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						//var valueType = valueList[j].getAttribute("type");
 						var valueType = valueList[j].tagName;
 						
+					if(valueList[j].getAttribute("type") != 'undefined'){
+						rangeQName =valueList[j].getAttribute("type");
+						
+					}
 						row2 = document.createElement("row");
 						var txbox = document.createElement("textbox");
 						txbox.setAttribute("id", value);
 						txbox.setAttribute("typeValue", typeValue);
 						txbox.setAttribute("value", value);
 						txbox.setAttribute("readonly", "true");
+						txbox.setAttribute("rangeQName",rangeQName);
 						propButton = document.createElement("button");
 						propButton.setAttribute("flex", "0");
 						var resImg = document.createElement("image");
@@ -1039,6 +1049,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
 							containerObj.sourceType = role;
+							containerObj.rangeQName = rangeQName;
 							txbox.containerObj = containerObj;
 							// txbox.addEventListener("mouseover",
 							// art_semanticturkey.setCursorPointerEvent, true);
@@ -1074,6 +1085,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							var containerObj = new Object();
 							containerObj.explicit = explicit;
 							containerObj.sourceElementName = value;
+							containerObj.rangeQName = rangeQName;
 							containerObj.sourceType = role;
 							txbox.containerObj = containerObj;
 							// txbox.addEventListener("mouseover",
@@ -1091,7 +1103,9 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 										art_semanticturkey.openUrlEvent, true);
 								var containerObj = new Object();
 								containerObj.value = value;
+								containerObj.rangeQName = rangeQName;
 								txbox.containerObj = containerObj;
+								
 								txbox
 										.addEventListener(
 												"mouseover",
@@ -1120,6 +1134,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 										art_semanticturkey.openUrlEvent, true);
 								var containerObj = new Object();
 								containerObj.value = value;
+								containerObj.rangeQName=rangeQName;
 								txbox.containerObj = containerObj;
 								txbox
 										.addEventListener(
@@ -1204,11 +1219,9 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						containerObj.value = value;
 						containerObj.nameValue = nameValue;
 						containerObj.typeValue = typeValue;
-						if(valueType.indexOf("resource") !=-1 || valueType.indexOf("bnode")!=-1 || valueType.indexOf("uri")!=-1){
-							var role = valueList[j].getAttribute("role");
-							containerObj.valueType = role;
-						}else{
-							containerObj.valueType = valueType;
+						containerObj.rangeQName = rangeQName;
+						containerObj.valueType = valueType;
+						if(valueType.indexOf("literal") !=-1){
 							var typeQName = valueList[j].getAttribute("typeQName");
 							containerObj.typeQName=typeQName;
 						}
@@ -2252,7 +2265,7 @@ art_semanticturkey.removePropValueEvent = function(event) {
 	var containerObj = event.target.containerObj;
 	art_semanticturkey.removePropValue(containerObj.value,
 			containerObj.nameValue, containerObj.typeValue,
-			containerObj.valueType);
+			containerObj.valueType,containerObj.rangeQName);
 };
 
 /**
@@ -2261,7 +2274,7 @@ art_semanticturkey.removePropValueEvent = function(event) {
  *            value: it's 'list' or value of textBox
  */
 art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
-		type) {
+		type,rangeQName) {
 	var instanceQName = document.getElementById("name")
 			.getAttribute("actualValue");
 	// NScarpato 25/11/2010
@@ -2269,10 +2282,9 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 			propertyQName, "false");
 	var ranges = responseXML.getElementsByTagName("ranges")[0];
 	var rangeList = ranges.childNodes;
-	var type = ranges.getAttribute("rngType"); 
 	//NScarpato 29/11/2010
 
-	if(type == "dataRange"){
+	/*if(type == "dataRange"){
 			for (var i = 0; i < rangeList.length; ++i) {
 				if (typeof(rangeList[i].tagName) != 'undefined') {
 					var dataRangeBNodeID = rangeList[i].textContent;
@@ -2297,7 +2309,7 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 					type =  rangeList[i].tagName;
 				}
 		}
-	}
+	}*/
 	try {
 		if (value == "list") {
 			var list = document.getElementById(propertyQName);
@@ -2309,10 +2321,10 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 					lang = list.selectedItem.getAttribute("language");
 					art_semanticturkey.STRequests.Property
 							.removePropValue(instanceQName, propertyQName,
-									propValue, type, lang);
+									propValue,rangeQName, type, lang);
 				} else {
 					art_semanticturkey.STRequests.Property.removePropValue(
-							instanceQName, propertyQName, propValue, type);
+							instanceQName, propertyQName, propValue,rangeQName, type);
 				}
 			} else {
 				alert("You cannot remove this property value, it's a system resource!");
@@ -2323,10 +2335,10 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 				var lang = document.getElementById(value)
 						.getAttribute("language");
 				art_semanticturkey.STRequests.Property.removePropValue(
-						instanceQName, propertyQName, value, type, lang);
+						instanceQName, propertyQName, value,rangeQName, type, lang);
 			} else {
 				art_semanticturkey.STRequests.Property.removePropValue(
-						instanceQName, propertyQName, value, type);
+						instanceQName, propertyQName, value,rangeQName, type);
 			}
 		}
 
@@ -2524,7 +2536,7 @@ art_semanticturkey.changeFacets = function(event) {
 		} else {
 			art_semanticturkey.STRequests.Property.removePropValue(
 					sourceElementName, "rdf:type", event.target
-							.getAttribute("propertyName"),type);
+							.getAttribute("propertyName"),null,type);
 		}
 		// art_semanticturkey.refreshPanel();
 		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
@@ -2590,7 +2602,7 @@ art_semanticturkey.removeInverseOf = function(value, isList) {
 	var type = (ranges.getAttribute("rngType"));
 	try {
 		art_semanticturkey.STRequests.Property.removePropValue(
-				sourceElementName, "owl:inverseOf", value,type);
+				sourceElementName, "owl:inverseOf", value,null,type);
 		// art_semanticturkey.refreshPanel();
 		art_semanticturkey.evtMgr.fireEvent("refreshEditor",
 				(new art_semanticturkey.genericEventClass()));

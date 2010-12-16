@@ -704,7 +704,7 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 					selectedObjClsName,
 					type
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(win.arguments[0].urlPage,win.arguments[0].subjectInstanceName,
+			return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(win.arguments[0].urlPage,win.arguments[0].subjectInstanceName,
 			win.arguments[0].objectInstanceName,win.arguments[0].title);
 				/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
