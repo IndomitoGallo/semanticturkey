@@ -92,11 +92,13 @@ public class RDFXMLHelp {
 			ARTLiteral lit = node.asLiteral();
 			ARTURIResource dt = lit.getDatatype();
 			if (dt != null) {
+				// typed literal
 				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.typedLiteral.toString());
 				nodeElement.setAttribute("type", dt.getURI());
 				if (visualization)
 					nodeElement.setAttribute("typeQName", model.getQName(dt.getURI()));
 			} else {
+				// plain literal
 				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.plainLiteral.toString());
 				String lang = lit.getLanguage();
 				if (lang != null)

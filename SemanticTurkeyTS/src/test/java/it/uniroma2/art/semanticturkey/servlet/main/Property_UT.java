@@ -37,7 +37,6 @@ import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
@@ -56,20 +55,8 @@ import org.w3c.dom.NodeList;
  */
 public class Property_UT extends ServiceUTFixture {
 
-	/**
-	 * accesses the dataElement in a Response and retrieves the first element of name <code>elemName</code>
-	 * 
-	 * @param resp
-	 * @param elemName
-	 * @return
-	 */
-	public static Element getFirstElement(Response resp, String elemName) {
-		return (Element) ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName(elemName)
-		.item(0);
-	}
-	
 	public static Element getRangesElement(Response resp) {
-		return getFirstElement(resp, "ranges");
+		return ServiceUTFixture.getFirstElement(resp, "ranges");
 	}
 
 	
@@ -97,7 +84,7 @@ public class Property_UT extends ServiceUTFixture {
 		String rngType = ranges.getAttribute("rngType");
 		assertEquals(RDFTypesEnum.literal.toString(), rngType);
 
-		Element bnode = getFirstElement(resp, "bnode");
+		Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
 		String role = bnode.getAttribute("role");
 		assertEquals(RDFResourceRolesEnum.dataRange.toString(), role);
 	}
@@ -177,7 +164,7 @@ public class Property_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 
-		Element bnode = getFirstElement(resp, "bnode");
+		Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
 		// accesses the sole node that should be present, assuming the text is written correctly
 		String dataRangeBNodeID = bnode.getTextContent();
 

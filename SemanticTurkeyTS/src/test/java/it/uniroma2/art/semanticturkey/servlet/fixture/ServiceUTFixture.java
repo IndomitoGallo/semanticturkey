@@ -30,9 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.w3c.dom.Element;
+
 import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2PersistentInMemoryModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
 import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
@@ -109,6 +112,18 @@ public class ServiceUTFixture extends ServiceTest {
 	 */
 	public static void importSTExample() {
 		importTestOntologyFromLocalFile("http://art.uniroma2.it/ontologies/st_example", "st_example.owl");
+	}
+
+	/**
+	 * accesses the dataElement in a Response and retrieves the first element of name <code>elemName</code>
+	 * 
+	 * @param resp
+	 * @param elemName
+	 * @return
+	 */
+	public static Element getFirstElement(Response resp, String elemName) {
+		return (Element) ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName(elemName)
+		.item(0);
 	}
 
 }
