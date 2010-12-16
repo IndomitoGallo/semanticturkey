@@ -148,19 +148,22 @@ function getPropertyDescription(propertyQName) {
  *            (it is necessary if the value to be removed had its language set up)
  * @return
  */
-function removePropValue(instanceQName, propertyQName, value, type, lang) {
+function removePropValue(instanceQName, propertyQName, value,rangeQName,type, lang) {
 	Logger.debug('[SERVICE_Property.jsm] removePropValue');
 	var instanceQName = "instanceQName=" + instanceQName;
 	var propertyQName = "propertyQName=" + propertyQName;
 	var value = "value=" + value;
+	var rangeQName = "rangeQName=" + rangeQName;
 	var type = "type=" + type;
 	if (typeof lang != "undefined" && lang != "") {
 		var lang = "lang=" + lang;
+		
 		return HttpMgr.GET(serviceName, service.removePropValueRequest, instanceQName, propertyQName, value,
-				type, lang);
+				rangeQName,type, lang);
+		
 	} else {
 		return HttpMgr.GET(serviceName, service.removePropValueRequest, instanceQName, propertyQName, value,
-				type);
+				rangeQName,type);
 	}
 }
 
