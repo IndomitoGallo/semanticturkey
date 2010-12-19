@@ -46,8 +46,9 @@
 					<menulist id="ontologyTypeMenulist">
 						<menupopup id="ontologyTypeMenupopup">
 							<menuitem label="OWL" value="OWL"/>			
-							<menuitem label="SKOS" value="SKOS"/>
-							<menuitem label="SKOS-XL" value="SKOS-XL"/>
+<!-- SKOS /XL PROJECTS ARE ADDED DYNAMICALLY, see newProject.js change it to static here once skos is fully supported-->
+<!-- 					    <menuitem label="SKOS" value="SKOS"/> -->
+<!-- 					    <menuitem label="SKOS-XL" value="SKOS-XL"/> -->
 <!-- 					    <menuitem label="RDF" value="RDF"/>  -->
 <!--					    <menuitem label="RDFS" value="RDFS"/>   -->		      						
 						</menupopup>
