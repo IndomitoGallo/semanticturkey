@@ -330,6 +330,9 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 								                                       + ")";
 							}
 							//	type = "literal";
+						} else if (bindings[h].getElementsByTagName("typed-literal").length > 0) {
+							lblValue = bindings[h].getElementsByTagName("typed-literal")[0].textContent;
+							//	type = "typed-literal";
 						} else if (bindings[h].getElementsByTagName("bnode").length > 0) {
 							lblValue = bindings[h].getElementsByTagName("bnode")[0].textContent;
 							//	type = "bnode";
@@ -401,7 +404,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 		}
 	}
 
-//	Ramon Orr� (2010) : popolamento tabella risultati con dati serializzati JSON
+//	Ramon Orrù (2010) : JSON SPARQL RESULT Parser
 	else if( response.respType == art_semanticturkey.RespContType.json){
 		var treecols = document.getElementById("SPARQLTreeCols");
 		while (treecols.hasChildNodes()) {
@@ -444,7 +447,9 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 							if (element["xml:lang"] != null) {
 								lblValue = lblValue + "("+ JSON.stringify(element["xml:lang"]).replace(/\"/g, "") + ")";
 							}
-						} else if (JSON.stringify(element.type).replace(/\"/g, "")=="bnode") {
+						} else if (JSON.stringify(element.type).replace(/\"/g, "")=="typed-literal") {
+							lblValue = JSON.stringify(element.value).replace(/\"/g, "");
+						}  else if (JSON.stringify(element.type).replace(/\"/g, "")=="bnode") {
 							lblValue = JSON.stringify(element.value).replace(/\"/g, "");
 						}						
 					}
