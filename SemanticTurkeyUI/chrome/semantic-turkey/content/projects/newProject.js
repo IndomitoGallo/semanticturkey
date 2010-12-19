@@ -1,11 +1,10 @@
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_Projects.jsm",
-		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_SystemStart.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_OntManager.jsm",
-		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_OntManager.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);		
 
 window.onload = function(){
 	
@@ -19,9 +18,36 @@ window.onload = function(){
 	else{
 		document.getElementById("dirBtn").addEventListener("click", art_semanticturkey.chooseFile, true);
 	}
+
+	// this call will be erased once we provide full support for SKOS
+	// see comments on the function definition
+	art_semanticturkey.populate_projectType();
+
 	var responseXML = art_semanticturkey.STRequests.SystemStart.listOntManagers();
 	art_semanticturkey.populateTripleStoreMenulist_RESPONSE(responseXML);
 };
+
+// this function will be erased once we provide full support for SKOS
+// now this allows user to enable the hidden SKOS support (still unstable) through the preference:
+// extensions.semturkey.skos.enabled
+art_semanticturkey.populate_projectType = function() {
+	
+	var skos_enabled = art_semanticturkey.Preferences.get("extensions.semturkey.skos.enabled", false);
+	if (skos_enabled == true) {
+	
+			var ontologyTypeMenupopup = document.getElementById("ontologyTypeMenupopup");
+			
+			var menuitem = document.createElement("menuitem");
+			menuitem.setAttribute("value","SKOS");
+			menuitem.setAttribute("label","SKOS");
+			ontologyTypeMenupopup.appendChild(menuitem);
+			
+			var menuitem2 = document.createElement("menuitem");
+			menuitem2.setAttribute("value","SKOS-XL");
+			menuitem2.setAttribute("label","SKOS-XL");
+			ontologyTypeMenupopup.appendChild(menuitem2);
+	 }
+}
 
 art_semanticturkey.populateTripleStoreMenulist_RESPONSE = function(responseElement){
 	var repList = responseElement.getElementsByTagName('Repository');
