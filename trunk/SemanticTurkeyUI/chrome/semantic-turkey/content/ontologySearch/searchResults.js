@@ -89,7 +89,7 @@ art_semanticturkey.initList = function(foundList) {
 		var img = document.createElement("image");
 		var lbl = document.createElement("label");
 		if (type == "owl:Individual") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/individual.png");
+			img.setAttribute("src", "chrome://semantic-turkey/content/images/individual20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
 			lbl.setAttribute("value", name);
@@ -98,7 +98,7 @@ art_semanticturkey.initList = function(foundList) {
 			lsti.appendChild(lci);
 			myList.appendChild(lsti);
 		} else if (type == "Class") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/class.png");
+			img.setAttribute("src", "chrome://semantic-turkey/content/images/class20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
 			lbl.setAttribute("value", name);
@@ -115,7 +115,7 @@ art_semanticturkey.initList = function(foundList) {
 		} else if (type == "owl:AnnotationProperty") {
 			img.setAttribute("src", "chrome://semantic-turkey/content/images/propAnnotation20x20.png");
 		} else {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/prop.png");
+			img.setAttribute("src", "chrome://semantic-turkey/content/images/prop20x20.png");
 		}
 		var name = foundList[i].getAttribute("name");
 		lsti.setAttribute("label", foundList[i].getAttribute("name"));

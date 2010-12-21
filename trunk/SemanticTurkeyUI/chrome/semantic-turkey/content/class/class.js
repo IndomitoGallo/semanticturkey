@@ -59,7 +59,7 @@ window.onload = function() {
 
 window.onunload = function(){
 	art_semanticturkey.eventListenerArrayObject.deregisterAllListener();
-}
+};
 
 
 

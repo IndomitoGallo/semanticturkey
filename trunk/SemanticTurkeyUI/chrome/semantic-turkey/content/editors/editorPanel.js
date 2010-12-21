@@ -127,7 +127,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 
 		} else {
 			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/class.png");
+					"chrome://semantic-turkey/content/images/class20x20.png");
 		}
 	} else if (type == "individual") {
 		if (isFirstEditor == false) {
@@ -832,7 +832,6 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				var containerObj = new Object();
 				containerObj.propertyQName = nameValue;
 				containerObj.typeValue = typeValue;
-				// TODO getRange per vedere se è literal o no
 				containerObj.isLiteral = "true";
 				typeToolbarButtonLiteral.containerObj = containerObj;
 
@@ -866,7 +865,13 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 			row.appendChild(box3);
 			rowsBox.appendChild(row);
 			var valueList = propertyList[i].childNodes;
-			if (valueList.length > 10) {
+			var valuesCounter = 0; 
+			for (var j = 0; j < valueList.length; j++) {
+					if (typeof(valueList[j].tagName) != 'undefined') {
+						valuesCounter++;
+					}
+			}
+			if (valuesCounter > 10) {
 				var typeToolbarButton2 = document
 						.createElement("toolbarbutton");
 				typeToolbarButton2
@@ -939,6 +944,8 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 					var lsti = document.createElement("listitem");
 					var lci = document.createElement("listitem-iconic");
 					if(type.indexOf("resource") !=-1 || type.indexOf("bnode") !=-1 || type.indexOf("uri") !=-1){
+						lbl.setAttribute("value", value);
+						lsti.setAttribute("type", type);
 						var role = valueList[j].getAttribute("role");
 						if (role == "individual") {
 							var img = document.createElement("image");
@@ -950,7 +957,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							var img = document.createElement("image");
 							img
 									.setAttribute("src",
-											"chrome://semantic-turkey/content/images/class.png");
+											"chrome://semantic-turkey/content/images/class20x20.png");
 							lci.appendChild(img);
 						}
 						lsti.addEventListener("dblclick",
@@ -980,7 +987,9 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						lsti.setAttribute("typeValue", role);
 						lsti.setAttribute("type", type);
 					} else if(type.indexOf("typedLiteral")!=-1){
-						lbl.setAttribute("value", value);
+						var roleLbl = role.substring(type.indexOf('#') + 1);
+						lbl.setAttribute("value", value + " (datatype: " + roleLbl
+										+ ")");
 						lsti.setAttribute("type", type);
 					}
 					lci.appendChild(lbl);
@@ -1068,7 +1077,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/class.png");
+												"chrome://semantic-turkey/content/images/class20x20.png");
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
@@ -1124,6 +1133,8 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 
 						}else if(valueType.indexOf("typedLiteral")!= -1){
+							var rangeQNameLbl = rangeQName.substring(rangeQName.indexOf('#') + 1);
+							txbox.setAttribute("value", value + " (datatype: "+ rangeQNameLbl + ")");
 							var typeQName = valueList[j].getAttribute("typeQName");
 							if(typeQName!=null){
 								txbox.setAttribute("typeQName", typeQName);
@@ -1231,9 +1242,16 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						if (explicit == "false") {
 							propButton.setAttribute("disabled", "true");
 						}
-						row2.appendChild(propButton);
+						var vbox = document.createElement("vbox");
+						var spacer = document.createElement("spacer");
+						spacer.setAttribute("flex","1");
+						vbox.appendChild(propButton);
+						vbox.appendChild(spacer);
+						//row2.appendChild(propButton);
+						row2.appendChild(vbox);
 						txbox.appendChild(resImg);
-						row2.insertBefore(txbox, propButton);
+						//row2.insertBefore(txbox, propButton);
+						row2.insertBefore(txbox, vbox);
 						rowsBox.appendChild(row2);
 					
 				}
@@ -1320,7 +1338,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		lbl.setAttribute("value", "Domains:");
 		var row = document.createElement("row");
 		var box = document.createElement("box");
-		row.setAttribute("flex", "4");
+		//row.setAttribute("flex", "4");
 		var domainButton = document.createElement("toolbarbutton");
 		domainButton.addEventListener("click", art_semanticturkey.insertDomain,
 				true);
@@ -1383,10 +1401,15 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 	//var rangeList = responseElement.getElementsByTagName('range');
 	var ranges = responseElement.getElementsByTagName("ranges")[0];
 	var rangeList = ranges.childNodes;
-		
+	var rangeCounter = 0;
+	for (var k = 0; k < rangeList.length; k++) {
+			if (typeof(rangeList[k].tagName) != 'undefined') {
+				rangeCounter++;
+			}	
+	}
 	if (sourceType.indexOf("AnnotationProperty") != -1) {
 		return;
-	} else if (rangeList.length > 3) {
+	} else if (rangeCounter > 3) {
 		var separator = document.createElement("separator");
 		separator.setAttribute("class", "groove");
 		separator.setAttribute("orient", "orizontal");
@@ -2314,10 +2337,12 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 		if (value == "list") {
 			var list = document.getElementById(propertyQName);
 			var selItem = list.selectedItem;
+			var type = selItem.getAttribute("type");
 			var propValue = list.selectedItem.getAttribute("label");
 			var explicit = list.selectedItem.getAttribute("explicit");
 			if (explicit == "true") {
-				if (typeValue == "owl:AnnotationProperty") {
+				
+				if (type.indexOf("plainLiteral") != -1) {
 					lang = list.selectedItem.getAttribute("language");
 					art_semanticturkey.STRequests.Property
 							.removePropValue(instanceQName, propertyQName,
@@ -2330,10 +2355,9 @@ art_semanticturkey.removePropValue = function(value, propertyQName, typeValue,
 				alert("You cannot remove this property value, it's a system resource!");
 			}
 		} else {
-
-			if (typeValue == "owl:AnnotationProperty") {
-				var lang = document.getElementById(value)
-						.getAttribute("language");
+			
+			if (type.indexOf("plainLiteral") != -1) {
+				var lang = document.getElementById(value).getAttribute("language");
 				art_semanticturkey.STRequests.Property.removePropValue(
 						instanceQName, propertyQName, value,rangeQName, type, lang);
 			} else {

@@ -39,6 +39,9 @@ treechildren::-moz-tree-image(DatatypeProperty) {
 treechildren::-moz-tree-image(AnnotationProperty) { 
 	list-style-image: url("../../images/propAnnotation.png");
 }
+treechildren::-moz-tree-image(OntologyProperty) { 
+	list-style-image: url("chrome://semantic-turkey/content/images/propOntology.png"); 
+	}
 treechildren::-moz-tree-image(Property_noexpl) { 
 	list-style-image: url("../../images/prop_imported.png"); 
 	} 
@@ -51,6 +54,9 @@ treechildren::-moz-tree-image(DatatypeProperty_noexpl) {
 treechildren::-moz-tree-image(AnnotationProperty_noexpl) { 
 	list-style-image: url("../../images/propAnnotation_imported.png");
 }
+treechildren::-moz-tree-image(OntologyProperty_noexpl) { 
+	list-style-image: url("chrome://semantic-turkey/content/images/propOntology_imported.png"); 
+	} 
 
 
 treechildren::-moz-tree-column {
