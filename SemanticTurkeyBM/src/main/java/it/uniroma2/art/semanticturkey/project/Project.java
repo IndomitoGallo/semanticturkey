@@ -34,6 +34,7 @@ import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
 import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
+import it.uniroma2.art.owlart.models.conf.BadConfigurationException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 
@@ -136,13 +137,15 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 						"there is no OSGi bundle loaded in Semantic Turkey for the required OntologyManager: "
 								+ getOntologyManagerImplID());
 
-			// modelConfigClass = (Class<? extends ModelConfiguration>)
-			// Class.forName(getModelConfigurationID());
-
 			try {
 				modelConfiguration = ontMgrFact
 						.createModelConfigurationObject(getModelConfigurationID());
+				modelConfiguration.loadParameters(modelConfigFile);
 			} catch (ClassNotFoundException e) {
+				throw new ProjectAccessException(e);
+			} catch (BadConfigurationException e) {
+				throw new ProjectAccessException(e);
+			} catch (IOException e) {
 				throw new ProjectAccessException(e);
 			}
 
