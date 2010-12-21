@@ -532,6 +532,8 @@ public class Property extends Resource {
 					ontModel.addDatatypeProperty(propertyURI, superProperty);
 				else if (propertyType.equals("owl:AnnotationProperty"))
 					ontModel.addAnnotationProperty(propertyURI, superProperty);
+				else if (propertyType.equals("owl:OntologyProperty"))
+					ontModel.addOntologyProperty(propertyURI, superProperty);				
 				else
 					return servletUtilities.createExceptionResponse(request, propertyType
 							+ " is not a recognized property type!");
