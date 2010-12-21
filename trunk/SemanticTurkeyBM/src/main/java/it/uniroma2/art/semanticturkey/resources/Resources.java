@@ -50,6 +50,9 @@ public class Resources {
 
 	private static String _extensionPath;
 
+	private static String _OSGiDirName = "OSGi";
+	private static File OSGiPath;
+	
 	private static final String _ontLibraryDirLocalName = "ontlibrary";
 	private static final String _ontTempDirLocalName = "ont-temp";
 	private static final String _ontMirrorDirDefaultLocationLocalName = "ontologiesMirror";
@@ -73,6 +76,10 @@ public class Resources {
 
 		logger.info("initializing resources");
 		logger.info("extension path: " + getExtensionPath());
+		
+		OSGiPath = new File(getExtensionPath(), _OSGiDirName);
+		
+		logger.info("OSGi path: " + getExtensionPath());
 
 		_sourceUserDirectoryPath = getExtensionPath() + _sourceUserDirectoryRelPath;
 		logger.info("user directory template: " + _sourceUserDirectoryPath);
@@ -223,6 +230,10 @@ public class Resources {
 			return tempDir;
 		else
 			throw new IOException("unable to create tempdir for building the exported project");
+	}
+
+	public static File getOSGiPath() {
+		return OSGiPath;
 	}
 
 }
