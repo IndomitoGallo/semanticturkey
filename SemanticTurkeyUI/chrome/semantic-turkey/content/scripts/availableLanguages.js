@@ -51,6 +51,7 @@ art_semanticturkey.populatePanel = function() {
 };
 
 art_semanticturkey.onAccept = function() {
+	close();
 	window.arguments[0].onAccept(window);
 }
 

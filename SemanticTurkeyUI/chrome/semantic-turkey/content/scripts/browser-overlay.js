@@ -32,7 +32,6 @@ Components.utils.import("resource://stservices/SERVICE_Projects.jsm",
 Components.utils.import("resource://stmodules/Preferences.jsm", 
 		art_semanticturkey);
 
-		
 art_semanticturkey.JavaFirefoxSTBridge = new Object();
 
 art_semanticturkey.JavaFirefoxSTBridge._getExtensionPath = function(extensionName) {

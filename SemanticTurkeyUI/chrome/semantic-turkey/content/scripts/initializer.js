@@ -740,7 +740,7 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, myList) {
 					win.arguments[0].predicatePropertyName, "false");
 			var ranges = responseXML.getElementsByTagName("ranges")[0];
 			var type = (ranges.getAttribute("rngType"));
-
+			
 			win.close();
 			if(type =="undetermined"){
 				return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property

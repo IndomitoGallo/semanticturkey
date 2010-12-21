@@ -87,6 +87,9 @@ window.onload = function() {
 		// populate schema list
 		art_semanticturkey.loadSchemeList(document.getElementById('skosSchemeMenupopup'));
 		
+		//register the handler for the event projeClosed to close the sidebar
+		var createSTClosedProjectObj = new art_semanticturkey.createSTClosedProjectFunct();
+		art_semanticturkey.eventsOntologyPanel.registerEvent("projectClosed", createSTClosedProjectObj);
 		
 		// init the human-readable mode...
 		document.getElementById('toggleConceptLanguage').checked = art_semanticturkey.getHumanReadableMode();
@@ -98,6 +101,29 @@ window.onload = function() {
 
 window.onunload = function(){
 	art_semanticturkey.eventsOntologyPanel.deregisterAllEvent();
+};
+
+art_semanticturkey.createSTClosedProjectFunct = function(){
+	this.eventHappened = function(eventId, obj) {	
+		try {
+			art_semanticturkey.Logger.debug("event projectClosed fired!");
+			var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIWebNavigation)
+                   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                   .rootTreeItem
+                   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                   .getInterface(Components.interfaces.nsIDOMWindow); 
+    		mainWindow.toggleSidebar();
+			
+		}catch (e){
+			art_semanticturkey.Logger.debug(e);	
+		}		
+	};
+
+	this.unregister = function() {
+		art_semanticturkey.evtMgr.deregisterForEvent("projectClosed", this);
+	};
+	
 };
 
 art_semanticturkey.createSTPropertyRemovedObj = function(){
