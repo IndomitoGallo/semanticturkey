@@ -309,12 +309,11 @@ public class PluginManager {
 
 			// Explicitly specify the directory to use for caching bundles.
 			System.out
-					.println("felix dir: " + (new File(Resources.getSemTurkeyDataDir(), "felix")).getPath());
+					.println("felix dir: " + Resources.getOSGiPath());
 			// TODO check if this change is correct
 			// configMap.put(BundleCache.CACHE_PROFILE_DIR_PROP, (new File(Resources.getOntologyDir(),
 			// "felix")).getPath() );
-			configMap.put("org.osgi.framework.storage", (new File(Resources.getSemTurkeyDataDir(), "felix"))
-					.getPath());
+			configMap.put("org.osgi.framework.storage", Resources.getOSGiPath().getPath());
 
 			try {
 
