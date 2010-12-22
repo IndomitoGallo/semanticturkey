@@ -28,11 +28,13 @@ Components.utils.import("resource://stservices/SERVICE_Annotation.jsm",
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
 
 
 art_semanticturkey.chkAnnotationEvent = function(event) {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
-	if(projectIsNull == false){
+	var chkAnn = art_semanticturkey.Preferences.get("extensions.semturkey.annotation.checkAnnotation", true);
+	if(projectIsNull == false && chkAnn == true){
 		art_semanticturkey.chkAnnotation(event);
 	} 
 };
