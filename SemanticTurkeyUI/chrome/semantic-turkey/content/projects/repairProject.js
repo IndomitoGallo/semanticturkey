@@ -20,7 +20,7 @@ art_semanticturkey.onAccept = function() {
 	art_semanticturkey.DisabledAllButton(true);
 	try{
 		var projectName = window.arguments[0].projectName;
-		window.arguments[0].parentWindow.art_semanticturkey.closeProject();
+		//window.arguments[0].parentWindow.art_semanticturkey.closeProject();
 		var responseXML = art_semanticturkey.STRequests.Projects.repairProject(
 				projectName);
 		art_semanticturkey.repairProject_RESPONSE(responseXML, projectName);
