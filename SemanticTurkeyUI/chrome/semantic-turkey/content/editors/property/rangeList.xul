@@ -35,7 +35,7 @@
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/editors/property/datarangeList.js"/>
 <listbox id="ranges">
 <!--<listitem label="http://www.w3.org/2001/XMLSchema#string"/>
-<listitem label="http://www.w3.org/2001/XMLSchema#int"/>
+<listitem label="http://www.w3.org/2001/XMLSchema#integer"/>
 <listitem label="http://www.w3.org/2001/XMLSchema#boolean"/>
 <listitem label="http://www.w3.org/2001/XMLSchema#float"/>
 <listitem label="http://www.w3.org/2001/XMLSchema#duration"/>

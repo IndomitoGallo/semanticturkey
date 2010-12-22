@@ -230,7 +230,7 @@ public class Projects extends ServiceAdapter {
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 	}
 
-	private Response repairProject(String projectName) {
+	public Response repairProject(String projectName) {
 		String request = Req.repairProjectRequest;
 		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		try {

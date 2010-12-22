@@ -23,7 +23,7 @@ art_semanticturkey.dataRangeList = function(){
 
 	var dataRangelist = new Array();
 	dataRangelist[0] = "http://www.w3.org/2001/XMLSchema#string";
-	dataRangelist[1] = "http://www.w3.org/2001/XMLSchema#int";
+	dataRangelist[1] = "http://www.w3.org/2001/XMLSchema#integer";
 	dataRangelist[2] = "http://www.w3.org/2001/XMLSchema#boolean";
 	dataRangelist[3] = "http://www.w3.org/2001/XMLSchema#float";
 	dataRangelist[4] = "http://www.w3.org/2001/XMLSchema#duration";
