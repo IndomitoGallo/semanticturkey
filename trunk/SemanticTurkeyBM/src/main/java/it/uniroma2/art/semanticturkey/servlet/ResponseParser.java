@@ -8,7 +8,7 @@ import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 
 public class ResponseParser {
 
-	public static Response getResponseFromXML(Document doc) {
+	public static XMLResponse getResponseFromXML(Document doc) {
 		ServletUtilities su = ServletUtilities.getService();
 		Element stResponse = (Element) doc.getElementsByTagName(ServiceVocabulary.responseRoot).item(0);
 		String request = stResponse.getAttributes().getNamedItem(ServiceVocabulary.request).getNodeValue();
@@ -17,7 +17,7 @@ public class ResponseParser {
 		if (type.equals(ServiceVocabulary.type_reply)) {
 			String status = getStatus(stResponse);
 			String msg = getMessageFromReply(stResponse);
-			ResponseREPLY actionResp = su.createReplyResponse(request, ServiceVocabulary.RepliesStatus
+			XMLResponseREPLY actionResp = su.createReplyResponse(request, ServiceVocabulary.RepliesStatus
 					.valueOf(status), msg);
 			Element importedData = (Element)((XMLResponseREPLY)actionResp).getResponseObject().importNode(getDataElement(stResponse), true);
 			((XMLResponseREPLY)actionResp).getResponseElement().replaceChild(importedData,((XMLResponseREPLY)actionResp).getDataElement());

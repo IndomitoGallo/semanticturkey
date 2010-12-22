@@ -61,6 +61,10 @@ Compiler options:
 	<!-- === Build Library Dir from Maven Dependencies ============================================= -->
 
 	<target name="buildlib" depends="prepare">
+		<delete>
+			<fileset dir="${lib}" includes="*.jar"/>
+		</delete>
+		
 		<artifact:pom id="stpom" file="pom.xml" />
 		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" />
 		<copy todir="${lib}">
