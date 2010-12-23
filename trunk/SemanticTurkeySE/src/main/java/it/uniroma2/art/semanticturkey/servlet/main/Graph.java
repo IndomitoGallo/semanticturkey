@@ -29,6 +29,7 @@ import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -79,7 +80,7 @@ public class Graph extends ServiceAdapter {
 	
 	/**Metodo che si occupa della creazione dell'elemento xml relativo al grafico rappresentante l'ontologia
 	 *@return Document  graphDocument*/
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();	
 		XMLResponseREPLY response = servletUtilities.createReplyResponse("graph", RepliesStatus.ok);

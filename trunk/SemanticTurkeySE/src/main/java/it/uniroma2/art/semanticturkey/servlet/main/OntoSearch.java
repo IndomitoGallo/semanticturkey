@@ -73,28 +73,23 @@ public class OntoSearch extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	/**
 	 * Metodo che effettua la ricerca di una parola all'interno dell'ontologia e restituisce l'elemento xml
 	 * contenente la lista dei risultati
 	 * 
 	 * @return Document xml
 	 */
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		String request = setHttpPar("request");
 		this.fireServletEvent();
-		try {
-			if (request.equals(searchOntologyRequest)) {
-				String inputString = setHttpPar("inputString");
-				String types = setHttpPar("types");
-				checkRequestParametersAllNotNull("inputString", "types");
-				return searchOntology(inputString, types); // types
-			} else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+		if (request.equals(searchOntologyRequest)) {
+			String inputString = setHttpPar("inputString");
+			String types = setHttpPar("types");
+			checkRequestParametersAllNotNull("inputString", "types");
+			return searchOntology(inputString, types); // types
+		} else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 	}
 
@@ -266,7 +261,8 @@ public class OntoSearch extends ServiceAdapter {
 
 	private Response xmlizeResults(RDFModel rep, ArrayList<Struct> results) {
 		String request = searchOntologyRequest;
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
 			for (Struct result : results) {

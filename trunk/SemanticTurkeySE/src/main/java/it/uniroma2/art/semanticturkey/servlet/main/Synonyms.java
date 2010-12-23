@@ -34,6 +34,7 @@ import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
@@ -69,8 +70,8 @@ public class Synonyms extends ServiceAdapter {
 		super(id);
 	}
 
-	public Response getResponse() {
-		String request = setHttpPar("request");
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+
 		fireServletEvent();
 		if (request.equals(getSynonymsRequest))
 			return getSynonyms();

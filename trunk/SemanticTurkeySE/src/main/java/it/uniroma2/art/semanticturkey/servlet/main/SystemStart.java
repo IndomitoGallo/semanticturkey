@@ -81,9 +81,7 @@ public class SystemStart extends ServiceAdapter {
 
 	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
 	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
-	public Response getResponse() {
-		String request = setHttpPar("request");
-
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(startRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String ontModelImpl = setHttpPar(ontmanagerPar);

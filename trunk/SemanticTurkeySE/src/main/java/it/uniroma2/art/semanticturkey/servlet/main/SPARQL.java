@@ -67,29 +67,25 @@ public class SPARQL extends ServiceAdapter {
 	 * 
 	 * @return
 	 */
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		SerializationType ser_type = _oReq.getAcceptContent();
 
-		String request = setHttpPar("request");
-		try {
-			if (request.equals(resolveQueryRequest)) {
-				String query = setHttpPar(queryPar);
-				String lang = setHttpPar(languagePar);
-				String infer = setHttpPar(inferPar);
-				checkRequestParametersAllNotNull(queryPar);
-				return resolveQuery(query, lang, infer, ser_type);
-			} else {
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-			}
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		if (request.equals(resolveQueryRequest)) {
+			String query = setHttpPar(queryPar);
+			String lang = setHttpPar(languagePar);
+			String infer = setHttpPar(inferPar);
+			checkRequestParametersAllNotNull(queryPar);
+			return resolveQuery(query, lang, infer, ser_type);
+		} else {
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 		}
+
 	}
 
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	public Response resolveQuery(String queryString, String lang, String inferString,
 			SerializationType ser_type) {
 

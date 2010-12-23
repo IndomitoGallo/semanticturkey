@@ -63,7 +63,7 @@ public class Individual extends Resource {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	// TODO raccogliere opportunamente le eccezioni!
 	public int fromWebToMirror = 0;
 	public int fromWeb = 1;
@@ -85,33 +85,28 @@ public class Individual extends Resource {
 		super(id);
 	}
 
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		ServletUtilities servletUtilities = ServletUtilities.getService();
-		String request = setHttpPar("request");
 
 		this.fireServletEvent();
-		try {
-			if (request.equals(individualDescriptionRequest)) {
-				String instanceQNameEncoded = setHttpPar(instanceQNameField);
-				String method = setHttpPar("method");
-				checkRequestParametersAllNotNull(instanceQNameField, "method");
-				return getIndividualDescription(instanceQNameEncoded, method);
-			}
-
-			if (request.equals(getDirectNamedTypesRequest)) {
-				String indQName = setHttpPar(indqnameField);
-				return getDirectNamedTypes(indQName);
-			}
-			if (request.equals(addTypeRequest))
-				return addType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
-			if (request.equals(removeTypeRequest))
-				return removeType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
-
-			else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		if (request.equals(individualDescriptionRequest)) {
+			String instanceQNameEncoded = setHttpPar(instanceQNameField);
+			String method = setHttpPar("method");
+			checkRequestParametersAllNotNull(instanceQNameField, "method");
+			return getIndividualDescription(instanceQNameEncoded, method);
 		}
+
+		if (request.equals(getDirectNamedTypesRequest)) {
+			String indQName = setHttpPar(indqnameField);
+			return getDirectNamedTypes(indQName);
+		}
+		if (request.equals(addTypeRequest))
+			return addType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
+		if (request.equals(removeTypeRequest))
+			return removeType(setHttpPar(indqnameField), setHttpPar(typeqnameField));
+
+		else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 	}
 
 	/**
@@ -268,7 +263,7 @@ public class Individual extends Resource {
 
 			model.removeType(individual, typeCls);
 
-			if (types.size() == 1) 
+			if (types.size() == 1)
 				keepCareOfOrphaneResource(model, individual);
 
 		} catch (ModelAccessException e) {

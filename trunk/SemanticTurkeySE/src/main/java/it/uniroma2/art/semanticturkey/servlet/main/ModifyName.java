@@ -68,18 +68,12 @@ public class ModifyName extends ServiceAdapter {
 		super(id);
 	}
 
-	public Response getResponse() {
-		String request = renameRequest;
-		ServletUtilities servletUtilities = ServletUtilities.getService();
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		String qname = setHttpPar(Pars.oldName);
 		String newQname = setHttpPar(Pars.newName);
 
-		try {
-			checkRequestParametersAllNotNull(Pars.oldName, Pars.newName);
-			return changeResourceName(qname, newQname);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+		checkRequestParametersAllNotNull(Pars.oldName, Pars.newName);
+		return changeResourceName(qname, newQname);
 	}
 
 	/*
@@ -113,7 +107,8 @@ public class ModifyName extends ServiceAdapter {
 			try {
 				((TransactionBasedModel) ontModel).setAutoCommit(false);
 			} catch (ModelUpdateException e1) {
-				return logAndSendException(e1, "sorry, unable to commit changes to the data, try to close the project and open it again");
+				return logAndSendException(e1,
+						"sorry, unable to commit changes to the data, try to close the project and open it again");
 			}
 
 		try {

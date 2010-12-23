@@ -45,14 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-
 /**
  * This class retrieves all web pages associated to an instance
  * 
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
 public class Page extends ServiceAdapter {
-	
+
 	protected static Logger logger = LoggerFactory.getLogger(Page.class);
 
 	public static String instanceNameString = "instanceName";
@@ -65,18 +64,15 @@ public class Page extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()
 	 */
-	public Response getResponse() {
-		String request = getBookmarksRequest;
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		String instanceQName = setHttpPar(instanceNameString);
-		try {
-			checkRequestParametersAllNotNull(instanceNameString);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return ServletUtilities.getService().createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+		checkRequestParametersAllNotNull(instanceNameString);
 		this.fireServletEvent();
 		return getAnnotatedPagesForInstance(instanceQName);
 	}
@@ -92,7 +88,8 @@ public class Page extends ServiceAdapter {
 		try {
 			instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceQName));
 			logger.debug("instanceRes: " + instanceRes);
-			ARTNodeIterator semanticAnnotationInstancesIterator = ontModel.listValuesOfSubjPredPair(instanceRes, SemAnnotVocab.Res.annotation, true);
+			ARTNodeIterator semanticAnnotationInstancesIterator = ontModel.listValuesOfSubjPredPair(
+					instanceRes, SemAnnotVocab.Res.annotation, true);
 			Set<String> set = new HashSet<String>();
 			while (semanticAnnotationInstancesIterator.hasNext()) {
 				ARTResource semanticAnnotationRes = semanticAnnotationInstancesIterator.next().asResource();
@@ -101,8 +98,8 @@ public class Page extends ServiceAdapter {
 				while (webPageInstancesIterator.hasNext()) {
 					ARTResource webPageInstance = webPageInstancesIterator.next().asResource();
 
-					ARTNodeIterator urlPageIterator = ontModel.listValuesOfSubjPredPair(
-							webPageInstance, SemAnnotVocab.Res.url, true);
+					ARTNodeIterator urlPageIterator = ontModel.listValuesOfSubjPredPair(webPageInstance,
+							SemAnnotVocab.Res.url, true);
 
 					ARTNode urlPageValue = null;
 					while (urlPageIterator.streamOpen()) {
@@ -113,8 +110,8 @@ public class Page extends ServiceAdapter {
 					if (!set.add(urlPage))
 						continue;
 
-					ARTNodeIterator titleIterator = ontModel.listValuesOfSubjPredPair(
-							webPageInstance, SemAnnotVocab.Res.title, true);
+					ARTNodeIterator titleIterator = ontModel.listValuesOfSubjPredPair(webPageInstance,
+							SemAnnotVocab.Res.title, true);
 					ARTNode titleValue = null;
 					while (titleIterator.hasNext()) {
 						titleValue = titleIterator.next();
@@ -136,6 +133,5 @@ public class Page extends ServiceAdapter {
 
 		return response;
 	}
-
 
 }
