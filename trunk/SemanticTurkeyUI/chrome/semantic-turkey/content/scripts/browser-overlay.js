@@ -333,6 +333,10 @@ art_semanticturkey.SPARQL = function() {
 	art_semanticturkey.openUrl("chrome://semantic-turkey/content/sparql/sparql.xul");
 };
 
+art_semanticturkey.semnavigation = function() {
+	art_semanticturkey.openUrl("http://127.0.0.1:1979/semantic_turkey/resources/graph.html");
+};
+
 art_semanticturkey.chk_SaveCurrentProjectMenuitem = function(){
 	var isContinuosEditing = art_semanticturkey.CurrentProject.isContinuosEditing();
 	if (isContinuosEditing == true)
@@ -444,6 +448,7 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("importsToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar2,true);	
 	document.getElementById("SPARQLToolBarButton").addEventListener("command",art_semanticturkey.SPARQL,true);
 	document.getElementById("SKOSToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
+	document.getElementById("graphBarButton").addEventListener("command",art_semanticturkey.semnavigation,true);
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	
 	art_semanticturkey.eventListenerBrowserOverlayArrayObject = new art_semanticturkey.eventListenerArrayClass();
@@ -507,6 +512,7 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("ontPanelToolBarButton").hidden = false;	
 		document.getElementById("importsToolBarButton").hidden = false;
 		document.getElementById("SPARQLToolBarButton").hidden = false;
+		document.getElementById("graphBarButton").hidden = false;
 		document.getElementById("save_project").setAttribute("label", "Save "+projectName);
 		if(art_semanticturkey.CurrentProject.isContinuosEditing() == false)
 			document.getElementById("save_project").disabled = false;
@@ -528,6 +534,7 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("ontPanelToolBarButton").disabled = false;
 		document.getElementById("importsToolBarButton").disabled = false;
 		document.getElementById("SPARQLToolBarButton").disabled = false;
+		document.getElementById("graphBarButton").disabled = false;		
 		document.getElementById("SKOSToolBarButton").disabled = false;
 		if(projectInfo.getType().indexOf("SKOS") != -1)
 			document.getElementById("SKOSToolBarButton").hidden = false;
@@ -562,7 +569,9 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("ontPanelToolBarButton").disabled = true;
 		document.getElementById("importsToolBarButton").disabled = true;
 		document.getElementById("SPARQLToolBarButton").disabled = true;
+		document.getElementById("graphBarButton").disabled = true;
 		document.getElementById("SKOSToolBarButton").disabled = true;
+		
 		
 	}
 	else if(eventId == "projectChangedName"){
