@@ -71,12 +71,12 @@ public class Statement extends ServiceAdapter {
 	}
 
 	public final static String resultTag = "result";
-	
+
 	public final static String statementTag = "stm";
 	public final static String subjTag = "subj";
 	public final static String predTag = "pred";
 	public final static String objTag = "obj";
-	
+
 	public final static String typeAttr = "type";
 	public final static String mainGraphValue = "main";
 	public final static String anyNodeValue = "any";
@@ -84,7 +84,6 @@ public class Statement extends ServiceAdapter {
 	public final static String literalXMLValue = "lit";
 	public final static String bnodeXMLValue = "bn";
 
-	
 	public Statement(String id) {
 		super(id);
 	}
@@ -92,33 +91,27 @@ public class Statement extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	@Override
-	public Response getResponse() {
-		String request = setHttpPar("request");
-		try {
-			if (request.equals(Req.getStatementsRequest) || request.equals(Req.hasStatementRequest)) {
-				String subject = setHttpPar(Par.subjectPar);
-				String predicate = setHttpPar(Par.predicatePar);
-				String object = setHttpPar(Par.objectPar);
-				String graphs = setHttpPar(Par.graphsPar);
-				String inference = setHttpPar(Par.inferencePar);
-				checkRequestParametersAllNotNull(Par.subjectPar, Par.predicatePar, Par.objectPar);
-				return get_has_Statements(request, subject, predicate, object, graphs, inference);
-			} else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			logger.error(request + ":" + e);
-			return servletUtilities.createExceptionResponse(request, e.toString());
-		}
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+		if (request.equals(Req.getStatementsRequest) || request.equals(Req.hasStatementRequest)) {
+			String subject = setHttpPar(Par.subjectPar);
+			String predicate = setHttpPar(Par.predicatePar);
+			String object = setHttpPar(Par.objectPar);
+			String graphs = setHttpPar(Par.graphsPar);
+			String inference = setHttpPar(Par.inferencePar);
+			checkRequestParametersAllNotNull(Par.subjectPar, Par.predicatePar, Par.objectPar);
+			return get_has_Statements(request, subject, predicate, object, graphs, inference);
+		} else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 	}
 
-	public Response get_has_Statements(String request, String subjectField, String predicateField, String objectField,
-			String ngsField, String inferenceString) {
+	public Response get_has_Statements(String request, String subjectField, String predicateField,
+			String objectField, String ngsField, String inferenceString) {
 
 		logger.debug("processing request: " + request);
-		
+
 		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource subject;
 		ARTURIResource predicate;
@@ -166,17 +159,17 @@ public class Statement extends ServiceAdapter {
 			} else {
 				ngs = new ARTResource[0];
 			}
-			
+
 			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
-			Element dataElement = response.getDataElement();	
-			
+			Element dataElement = response.getDataElement();
+
 			if (request.equals(Req.getStatementsRequest)) {
-				ARTStatementIterator statIt = ontModel.listStatements(subject, predicate, object, inference, ngs);					
-				createStatementsList(ontModel, statIt, dataElement);				
-			} 
-			else {
+				ARTStatementIterator statIt = ontModel.listStatements(subject, predicate, object, inference,
+						ngs);
+				createStatementsList(ontModel, statIt, dataElement);
+			} else {
 				boolean result = ontModel.hasTriple(subject, predicate, object, inference, ngs);
-				XMLHelp.newElement(dataElement, resultTag, Boolean.toString(result));				
+				XMLHelp.newElement(dataElement, resultTag, Boolean.toString(result));
 			}
 			return response;
 		} catch (ModelAccessException e) {
@@ -196,67 +189,71 @@ public class Statement extends ServiceAdapter {
 	}
 
 	private String getNodeValue(String nodePar) {
-		logger.trace(nodePar.substring(nodePar.indexOf('$')+1, nodePar.length()));
-		return nodePar.substring(nodePar.indexOf('$')+1, nodePar.length());
+		logger.trace(nodePar.substring(nodePar.indexOf('$') + 1, nodePar.length()));
+		return nodePar.substring(nodePar.indexOf('$') + 1, nodePar.length());
 	}
 
-	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt, Element dataElement) throws DOMException, ModelAccessException {
+	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt,
+			Element dataElement) throws DOMException, ModelAccessException {
 		while (statIt.streamOpen()) {
 			ARTStatement stat = statIt.getNext();
 			Element statElement = XMLHelp.newElement(dataElement, statementTag);
 			ARTResource subj = stat.getSubject();
 			if (subj.isURIResource())
-				XMLHelp.newElement(statElement, subjTag,
-						owlModel.getQName(subj.asURIResource().getURI())).setAttribute(typeAttr,
-						uriXMLValue);
+				XMLHelp.newElement(statElement, subjTag, owlModel.getQName(subj.asURIResource().getURI()))
+						.setAttribute(typeAttr, uriXMLValue);
 			else
-				XMLHelp.newElement(statElement, subjTag, subj.toString())
-						.setAttribute(typeAttr, bnodeXMLValue);
+				XMLHelp.newElement(statElement, subjTag, subj.toString()).setAttribute(typeAttr,
+						bnodeXMLValue);
 
-			XMLHelp.newElement(statElement, predTag, owlModel.getQName(stat.getPredicate().getURI())).setAttribute(
+			XMLHelp.newElement(statElement, predTag, owlModel.getQName(stat.getPredicate().getURI()))
+					.setAttribute(typeAttr, uriXMLValue);
+
+			ARTNode obj = stat.getObject();
+			if (obj.isResource()) {
+				if (obj.isURIResource())
+					XMLHelp.newElement(statElement, objTag, owlModel.getQName(obj.asURIResource().getURI()))
+							.setAttribute(typeAttr, uriXMLValue);
+				else
+					XMLHelp.newElement(statElement, objTag, obj.toString()).setAttribute(typeAttr,
+							bnodeXMLValue);
+			} else
+				XMLHelp.newElement(statElement, objTag, obj.asLiteral().toString()).setAttribute(typeAttr,
+						literalXMLValue);
+		}
+		statIt.close();
+	}
+
+	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt, JSONObject data)
+			throws ModelAccessException, JSONException {
+		JSONArray stats = new JSONArray();
+		while (statIt.streamOpen()) {
+			ARTStatement stat = statIt.getNext();
+			JSONObject statObject = new JSONObject();
+			ARTResource subj = stat.getSubject();
+			if (subj.isURIResource()) {
+				logger.debug(owlModel.getQName("vediamo questa stringa:  " + subj.asURIResource().getURI()));
+				JSONHelp.newObject(statObject, subjTag, owlModel.getQName(subj.asURIResource().getURI()))
+						.put(typeAttr, uriXMLValue);
+			} else
+				JSONHelp.newObject(statObject, subjTag, subj.toString()).put(typeAttr, bnodeXMLValue);
+
+			JSONHelp.newObject(statObject, predTag, owlModel.getQName(stat.getPredicate().getURI())).put(
 					typeAttr, uriXMLValue);
 
 			ARTNode obj = stat.getObject();
 			if (obj.isResource()) {
 				if (obj.isURIResource())
-					XMLHelp.newElement(statElement, objTag,
-							owlModel.getQName(obj.asURIResource().getURI())).setAttribute(typeAttr,
-							uriXMLValue);
+					JSONHelp.newObject(statObject, objTag, owlModel.getQName(obj.asURIResource().getURI()))
+							.put(typeAttr, uriXMLValue);
 				else
-					XMLHelp.newElement(statElement, objTag, obj.toString()).setAttribute(typeAttr,
-							bnodeXMLValue);
+					JSONHelp.newObject(statObject, objTag, obj.toString()).put(typeAttr, bnodeXMLValue);
 			} else
-				XMLHelp.newElement(statElement, objTag, obj.asLiteral().toString()).setAttribute(
-						typeAttr, literalXMLValue);
-		}
-		statIt.close();
-	}
-	
-	public static void createStatementsList(RDFModel owlModel, ARTStatementIterator statIt, JSONObject data) throws ModelAccessException, JSONException {
-		JSONArray stats=new JSONArray();
-		while (statIt.streamOpen()) {
-			ARTStatement stat = statIt.getNext();
-			JSONObject  statObject = new JSONObject();			
-			ARTResource subj = stat.getSubject();
-			if (subj.isURIResource()){
-				logger.debug(owlModel.getQName("vediamo questa stringa:  "+subj.asURIResource().getURI()));
-				JSONHelp.newObject(statObject, subjTag,owlModel.getQName(subj.asURIResource().getURI())).put(typeAttr,uriXMLValue);
-			}else
-				JSONHelp.newObject(statObject, subjTag, subj.toString()).put(typeAttr, bnodeXMLValue);
-
-			JSONHelp.newObject(statObject, predTag, owlModel.getQName(stat.getPredicate().getURI())).put(typeAttr, uriXMLValue);
-
-			ARTNode obj = stat.getObject();
-			if (obj.isResource()) {
-				if (obj.isURIResource())
-					JSONHelp.newObject(statObject, objTag,owlModel.getQName(obj.asURIResource().getURI())).put(typeAttr,	uriXMLValue);
-				else
-					JSONHelp.newObject(statObject, objTag, obj.toString()).put(typeAttr,bnodeXMLValue);
-			} else
-				JSONHelp.newObject(statObject, objTag, obj.asLiteral().toString()).put(typeAttr, literalXMLValue);
+				JSONHelp.newObject(statObject, objTag, obj.asLiteral().toString()).put(typeAttr,
+						literalXMLValue);
 			stats.put(statObject);
 		}
-		data.put(statementTag ,stats);
+		data.put(statementTag, stats);
 		statIt.close();
 	}
 

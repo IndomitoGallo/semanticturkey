@@ -67,26 +67,20 @@ public class OntManager extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
-	public Response getResponse() {
-		String request = setHttpPar("request");
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		fireServletEvent();
-		try {
 
-			if (request.equals(getOntManagerParametersRequest)) {
-				String ontMgrID = setHttpPar(ontMgrIDField);
+		if (request.equals(getOntManagerParametersRequest)) {
+			String ontMgrID = setHttpPar(ontMgrIDField);
 
-				checkRequestParametersAllNotNull(ontMgrIDField);
+			checkRequestParametersAllNotNull(ontMgrIDField);
 
-				return getOntologyManagerParameters(ontMgrID);
+			return getOntologyManagerParameters(ontMgrID);
 
-			} else
-				return ServletUtilities.getService().createExceptionResponse(request,
-						"no handler for such a request!");
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+		} else
+			return ServletUtilities.getService().createExceptionResponse(request,
+					"no handler for such a request!");
 
 	}
 
@@ -132,7 +126,7 @@ public class OntManager extends ServiceAdapter {
 				}
 
 			}
-			
+
 			return response;
 
 		} catch (ConfParameterNotFoundException e) {

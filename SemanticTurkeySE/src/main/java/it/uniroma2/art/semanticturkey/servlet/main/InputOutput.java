@@ -57,7 +57,7 @@ public class InputOutput extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	public static String saveRDFRequest = "saveRDF";
 	public static String loadRDFRequest = "loadRDF";
 	public static String clearDataRequest = "clearData";
@@ -71,34 +71,29 @@ public class InputOutput extends ServiceAdapter {
 		super(id);
 	}
 
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		String request = setHttpPar("request");
 		this.fireServletEvent();
-		try {
-			if (request.equals(saveRDFRequest)) {
-				String outPutFile = setHttpPar(filePar);
-				String allNGs = setHttpPar(allNGsPar);
-				checkRequestParametersAllNotNull(filePar);
-				return saveRDF(new File(outPutFile), allNGs);
-			}
-			if (request.equals(loadRDFRequest)) {
-				String inputFile = setHttpPar(filePar);
-				String baseUri = setHttpPar(baseUriPar);
-				String format = setHttpPar(formatPar);
-				checkRequestParametersAllNotNull(filePar, baseUriPar);
-				return loadRDF(new File(inputFile), baseUri, format);
-			}
-			if (request.equals(clearDataRequest)) {
-				return clearData();
-			}
-
-			else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		if (request.equals(saveRDFRequest)) {
+			String outPutFile = setHttpPar(filePar);
+			String allNGs = setHttpPar(allNGsPar);
+			checkRequestParametersAllNotNull(filePar);
+			return saveRDF(new File(outPutFile), allNGs);
 		}
+		if (request.equals(loadRDFRequest)) {
+			String inputFile = setHttpPar(filePar);
+			String baseUri = setHttpPar(baseUriPar);
+			String format = setHttpPar(formatPar);
+			checkRequestParametersAllNotNull(filePar, baseUriPar);
+			return loadRDF(new File(inputFile), baseUri, format);
+		}
+		if (request.equals(clearDataRequest)) {
+			return clearData();
+		}
+
+		else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+
 	}
 
 	/**
@@ -134,7 +129,8 @@ public class InputOutput extends ServiceAdapter {
 					+ e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "result");
 		element.setAttribute("level", "ok");
@@ -195,7 +191,8 @@ public class InputOutput extends ServiceAdapter {
 			return servletUtilities.createExceptionResponse(request, e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "result");
 		element.setAttribute("level", "ok");
@@ -232,7 +229,8 @@ public class InputOutput extends ServiceAdapter {
 					"problems in restarting a new empty ontModel: \n" + e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "result");
 		element.setAttribute("level", "ok");

@@ -74,8 +74,7 @@ public class Administration extends ServiceAdapter {
 		return logger;
 	}
 	
-	public Response getPreCheckedResponse() {
-		String request = setHttpPar("request");
+	public Response getPreCheckedResponse(String request) {
 		fireServletEvent();
 		if (request.equals(setAdminLevel))
 			return setAdminLevel(setHttpPar("adminLevel"));

@@ -106,7 +106,7 @@ public class Annotation extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	protected void initializeDeletePropertyPropagationTreeForAnnotations() {
 		deletePropertyPropagationTreeForAnnotations = new DeletePropagationPropertyTree();
 		deletePropertyPropagationTreeForAnnotations.addChild(SemAnnotVocab.Res.location);
@@ -117,76 +117,67 @@ public class Annotation extends ServiceAdapter {
 	 * 
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()
 	 */
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		Response response = null;
-		String request = setHttpPar("request");
-		try {
 
-			if (request.equals(getPageAnnotationsRequest)) {
-				String urlPage = setHttpPar(urlPageString);
-				response = getPageAnnotations(urlPage);
-			} else if (request.equals(chkAnnotationsRequest)) {
-				String urlPage = setHttpPar(urlPageString);
-				checkRequestParametersAllNotNull(urlPageString);
-				response = chkPageForAnnotations(urlPage);
-			} else if (request.equals(removeAnnotationRequest)) {
-				String annotQName = setHttpPar(annotQNameString);
-				response = removeAnnotation(annotQName);
-			} else if (request.equals(createAndAnnotateRequest)) {
+		if (request.equals(getPageAnnotationsRequest)) {
+			String urlPage = setHttpPar(urlPageString);
+			response = getPageAnnotations(urlPage);
+		} else if (request.equals(chkAnnotationsRequest)) {
+			String urlPage = setHttpPar(urlPageString);
+			checkRequestParametersAllNotNull(urlPageString);
+			response = chkPageForAnnotations(urlPage);
+		} else if (request.equals(removeAnnotationRequest)) {
+			String annotQName = setHttpPar(annotQNameString);
+			response = removeAnnotation(annotQName);
+		} else if (request.equals(createAndAnnotateRequest)) {
 
-				String clsQName = setHttpPar(clsQNameField);
-				String instanceNameEncoded = servletUtilities.encodeLabel(setHttpPar(instanceQNameField));
+			String clsQName = setHttpPar(clsQNameField);
+			String instanceNameEncoded = servletUtilities.encodeLabel(setHttpPar(instanceQNameField));
 
-				String urlPage = setHttpPar(urlPageString);
-				String title = setHttpPar(titleString);
+			String urlPage = setHttpPar(urlPageString);
+			String title = setHttpPar(titleString);
 
-				response = dragDropSelectionOverClass(instanceNameEncoded, clsQName, urlPage, title);
+			response = dragDropSelectionOverClass(instanceNameEncoded, clsQName, urlPage, title);
 
-			} else if (request.equals(addAnnotationRequest)) {
-				String urlPage = setHttpPar(urlPageString);
-				String instanceQName = setHttpPar(instanceQNameField);
-				String text = setHttpPar(textString);
-				String textEncoded = servletUtilities.encodeLabel(text);
-				String title = setHttpPar(titleString);
+		} else if (request.equals(addAnnotationRequest)) {
+			String urlPage = setHttpPar(urlPageString);
+			String instanceQName = setHttpPar(instanceQNameField);
+			String text = setHttpPar(textString);
+			String textEncoded = servletUtilities.encodeLabel(text);
+			String title = setHttpPar(titleString);
 
-				response = annotateInstanceWithDragAndDrop(instanceQName, textEncoded, urlPage, title);
-			} else if (request.equals(relateAndAnnotateRequest)) {
-				String subjectInstanceQName = setHttpPar(instanceQNameField);
-				String predicatePropertyName = setHttpPar(propertyQNameField);
-				String objectInstanceName = setHttpPar(objectQNameField);
-				String objectInstanceNameEncoded = servletUtilities.encodeLabel(objectInstanceName);
-				String urlPage = setHttpPar(urlPageField);
-				String title = setHttpPar(titleField);
-				String valueTypeStr = setHttpPar(valueType);
-				RDFTypesEnum type = (valueTypeStr == null) ? null : RDFTypesEnum
-						.valueOf(valueTypeStr);
-				String op = setHttpPar("op");
-				checkRequestParametersAllNotNull(instanceQNameField, propertyQNameField, urlPageField,
-						titleField);
+			response = annotateInstanceWithDragAndDrop(instanceQName, textEncoded, urlPage, title);
+		} else if (request.equals(relateAndAnnotateRequest)) {
+			String subjectInstanceQName = setHttpPar(instanceQNameField);
+			String predicatePropertyName = setHttpPar(propertyQNameField);
+			String objectInstanceName = setHttpPar(objectQNameField);
+			String objectInstanceNameEncoded = servletUtilities.encodeLabel(objectInstanceName);
+			String urlPage = setHttpPar(urlPageField);
+			String title = setHttpPar(titleField);
+			String valueTypeStr = setHttpPar(valueType);
+			RDFTypesEnum type = (valueTypeStr == null) ? null : RDFTypesEnum.valueOf(valueTypeStr);
+			String op = setHttpPar("op");
+			checkRequestParametersAllNotNull(instanceQNameField, propertyQNameField, urlPageField, titleField);
 
-				if (op.equals("bindCreate")) {
-					String rangeClsName = setHttpPar(objectClsNameField);
-					String lang = setHttpPar(langField);
-					return bindAnnotatedObjectToNewInstanceAndRelateToDroppedInstance(subjectInstanceQName,
-							predicatePropertyName, objectInstanceNameEncoded, type, rangeClsName, urlPage,
-							title, lang);
-				}
+			if (op.equals("bindCreate")) {
+				String rangeClsName = setHttpPar(objectClsNameField);
+				String lang = setHttpPar(langField);
+				return bindAnnotatedObjectToNewInstanceAndRelateToDroppedInstance(subjectInstanceQName,
+						predicatePropertyName, objectInstanceNameEncoded, type, rangeClsName, urlPage, title,
+						lang);
+			}
 
-				if (op.equals("bindAnnot")) {
-					String annotation = setHttpPar("lexicalization");
-					return addNewAnnotationForSelectedInstanceAndRelateToDroppedInstance(
-							subjectInstanceQName, predicatePropertyName, objectInstanceNameEncoded,
-							annotation, urlPage, title);
-				}
+			if (op.equals("bindAnnot")) {
+				String annotation = setHttpPar("lexicalization");
+				return addNewAnnotationForSelectedInstanceAndRelateToDroppedInstance(subjectInstanceQName,
+						predicatePropertyName, objectInstanceNameEncoded, annotation, urlPage, title);
+			}
 
-				//  
+			//  
 
-			} else
-				return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return ServletUtilities.getService().createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+		} else
+			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
 		return response;
@@ -351,7 +342,7 @@ public class Annotation extends ServiceAdapter {
 				return servletUtilities.createExceptionResponse(createAndAnnotateRequest,
 						"there is another resource with the same name!");
 
-			ARTURIResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));			
+			ARTURIResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
 			ontModel.addInstance(instanceURI, cls);
 			logger.debug("created new instance: " + instanceURI + " for class: " + cls);
 			SemanticTurkeyOperations.createLexicalization(ontModel, instanceQName, instanceQName, urlPage,

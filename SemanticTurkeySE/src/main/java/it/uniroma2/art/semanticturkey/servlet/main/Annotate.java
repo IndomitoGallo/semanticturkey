@@ -59,8 +59,8 @@ public class Annotate extends ServiceAdapter {
 	}
 	
 	public String XSLpath = Resources.getXSLDirectoryPath() + "annotation.xsl";
-
-	public Response getResponse() {
+	
+	public Response getPreCheckedResponse(String request) {
 		OWLModel ontModel = (OWLModel)ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResourceIterator it;
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse("", RepliesStatus.ok);

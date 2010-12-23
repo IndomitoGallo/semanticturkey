@@ -28,6 +28,7 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
+
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.PrefixMapping;
 import it.uniroma2.art.owlart.models.RDFModel;
@@ -74,7 +75,7 @@ public class Metadata extends Resource {
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	// TODO raccogliere opportunamente le eccezioni!
 	public int fromWebToMirror = 0;
 	public int fromWeb = 1;
@@ -124,158 +125,149 @@ public class Metadata extends Resource {
 		super(id);
 	}
 
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		String request = setHttpPar("request");
 
 		this.fireServletEvent();
 
-		try {
-
-			if (request.equals(ontologyDescriptionRequest)) {
-				return getOntologyDescription();
-			}
-
-			if (request.equals(setDefaultNamespaceRequest)) {
-				String namespace = setHttpPar(namespacePar);
-				checkRequestParametersAllNotNull(namespacePar);
-				return setDefaultNamespace(namespace);
-			}
-			if (request.equals(getDefaultNamespaceRequest))
-				return getDefaultNamespace();
-			if (request.equals(setBaseuriRequest)) {
-				String baseuri = setHttpPar(baseuriPar);
-				checkRequestParametersAllNotNull(baseuriPar);
-				return setBaseURI(baseuri);
-			}
-			if (request.equals(getBaseuriRequest))
-				return getBaseURI();
-			if (request.equals(setBaseuriDefNamespaceRequest)) {
-				String baseURI = setHttpPar(baseuriPar);
-				String defaultNamespace = setHttpPar(namespacePar);
-				checkRequestParametersAllNotNull(baseuriPar, namespacePar);
-				return setBaseURIAndDefaultNamespace(baseURI, defaultNamespace);
-			}
-
-			if (request.equals(getNSPrefixMappingsRequest))
-				return getNamespaceMappings();
-			if (request.equals(setNSPrefixMappingRequest)) {
-				String namespace = setHttpPar(namespacePar);
-				String prefix = setHttpPar(prefixPar);
-				checkRequestParametersAllNotNull(prefixPar, namespacePar);
-				return setNamespaceMapping(prefix, namespace);
-			}
-			if (request.equals(changeNSPrefixMappingRequest)) {
-				String namespace = setHttpPar(namespacePar);
-				String prefix = setHttpPar(prefixPar);
-				checkRequestParametersAllNotNull(prefixPar, namespacePar);
-				return changeNamespaceMapping(prefix, namespace);
-			}
-			if (request.equals(removeNSPrefixMappingRequest)) {
-				String namespace = setHttpPar(namespacePar);
-				checkRequestParametersAllNotNull(namespacePar);
-				return removeNamespaceMapping(namespace);
-			}
-			if (request.equals(getImportsRequest))
-				return getOntologyImports();
-
-			// imports an ontology which is already present in the ontology mirror location
-			if (request.equals(removeImportRequest)) {
-				String uri = setHttpPar(baseuriPar);
-				checkRequestParametersAllNotNull(baseuriPar);
-				return removeOntImport(uri);
-			}
-
-			// the next four invocations deal with ontologies directly imported into the main model
-
-			// downloads and imports an ontology from the web, caching it into a local file in the ontology
-			// mirror
-			// location
-			if (request.equals(addFromWebToMirrorRequest)) {
-				String toImport = setHttpPar(baseuriPar);
-				String destLocalFile = setHttpPar(mirrorFilePar);
-				String altURL = setHttpPar(alturlPar);
-				checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-				return addOntImport(fromWebToMirror, toImport, altURL, destLocalFile,
-						addFromWebToMirrorRequest);
-			}
-			// downloads and imports an ontology from the web; next time the turkey is started, the ontology
-			// will
-			// be imported again
-			if (request.equals(addFromWebRequest)) {
-				String baseuri = setHttpPar(baseuriPar);
-				String altURL = setHttpPar(alturlPar);
-				checkRequestParametersAllNotNull(baseuriPar);
-				return addOntImport(fromWeb, baseuri, altURL, null, addFromWebRequest);
-			}
-			// downloads and imports an ontology from a local file; caching it into a local file in the
-			// ontology
-			// mirror location
-			if (request.equals(addFromLocalFileRequest)) {
-				String baseuri = setHttpPar(baseuriPar);
-				String localFilePath = setHttpPar(localFilePathPar);
-				String mirrorFile = setHttpPar(mirrorFilePar);
-				checkRequestParametersAllNotNull(baseuriPar, localFilePathPar, mirrorFilePar);
-				return addOntImport(fromLocalFile, baseuri, localFilePath, mirrorFile,
-						addFromLocalFileRequest);
-			}
-			// imports an ontology which is already present in the ontology mirror location
-			if (request.equals(addFromOntologyMirrorRequest)) {
-				String baseuri = setHttpPar(baseuriPar);
-				String mirrorFile = setHttpPar(mirrorFilePar);
-				checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-				return addOntImport(fromOntologyMirror, baseuri, null, mirrorFile,
-						addFromOntologyMirrorRequest);
-			}
-
-			// the next four invocations deal with inherited imported ontologies (they are declared imports of
-			// imported ontologies) downloaded and loaded into the main model
-
-			// downloads an imported ontology from the web, caching it into a local file in the ontology
-			// mirror
-			// location
-			if (request.equals(downloadFromWebToMirrorRequest)) {
-				String baseURI = setHttpPar(baseuriPar);
-				String altURL = setHttpPar(alturlPar);
-				String toLocalFile = setHttpPar(mirrorFilePar);
-				checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-				return getImportedOntology(fromWebToMirror, baseURI, altURL, null, toLocalFile);
-			}
-			if (request.equals(downloadFromWebRequest)) {
-				String baseURI = setHttpPar(baseuriPar);
-				String altURL = setHttpPar(alturlPar);
-				checkRequestParametersAllNotNull(baseuriPar);
-				return getImportedOntology(fromWeb, baseURI, altURL, null, null);
-			}
-			// downloads an imported ontology from a local file; caching it into a local file in the ontology
-			// mirror location
-			if (request.equals(getFromLocalFileRequest)) {
-				String baseURI = setHttpPar(baseuriPar);
-				String altURL = setHttpPar(alturlPar);
-				String localFilePath = setHttpPar(localFilePathPar);
-				String mirrorFile = setHttpPar(mirrorFilePar);
-				checkRequestParametersAllNotNull(baseuriPar, localFilePathPar);
-				return getImportedOntology(fromLocalFile, baseURI, altURL, localFilePath, mirrorFile);
-			}
-			// mirrors an ontology
-			if (request.equals(mirrorOntologyRequest)) {
-				String baseURI = setHttpPar(baseuriPar);
-				String mirrorFile = setHttpPar(mirrorFilePar);
-				checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-				return getImportedOntology(toOntologyMirror, baseURI, null, null, mirrorFile);
-			}
-
-			// NAMED GRAPHS
-			if (request.equals(getNamedGraphsRequest)) {
-				return getNamedGraphs();
-			}
-
-			else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+		if (request.equals(ontologyDescriptionRequest)) {
+			return getOntologyDescription();
 		}
+
+		if (request.equals(setDefaultNamespaceRequest)) {
+			String namespace = setHttpPar(namespacePar);
+			checkRequestParametersAllNotNull(namespacePar);
+			return setDefaultNamespace(namespace);
+		}
+		if (request.equals(getDefaultNamespaceRequest))
+			return getDefaultNamespace();
+		if (request.equals(setBaseuriRequest)) {
+			String baseuri = setHttpPar(baseuriPar);
+			checkRequestParametersAllNotNull(baseuriPar);
+			return setBaseURI(baseuri);
+		}
+		if (request.equals(getBaseuriRequest))
+			return getBaseURI();
+		if (request.equals(setBaseuriDefNamespaceRequest)) {
+			String baseURI = setHttpPar(baseuriPar);
+			String defaultNamespace = setHttpPar(namespacePar);
+			checkRequestParametersAllNotNull(baseuriPar, namespacePar);
+			return setBaseURIAndDefaultNamespace(baseURI, defaultNamespace);
+		}
+
+		if (request.equals(getNSPrefixMappingsRequest))
+			return getNamespaceMappings();
+		if (request.equals(setNSPrefixMappingRequest)) {
+			String namespace = setHttpPar(namespacePar);
+			String prefix = setHttpPar(prefixPar);
+			checkRequestParametersAllNotNull(prefixPar, namespacePar);
+			return setNamespaceMapping(prefix, namespace);
+		}
+		if (request.equals(changeNSPrefixMappingRequest)) {
+			String namespace = setHttpPar(namespacePar);
+			String prefix = setHttpPar(prefixPar);
+			checkRequestParametersAllNotNull(prefixPar, namespacePar);
+			return changeNamespaceMapping(prefix, namespace);
+		}
+		if (request.equals(removeNSPrefixMappingRequest)) {
+			String namespace = setHttpPar(namespacePar);
+			checkRequestParametersAllNotNull(namespacePar);
+			return removeNamespaceMapping(namespace);
+		}
+		if (request.equals(getImportsRequest))
+			return getOntologyImports();
+
+		// imports an ontology which is already present in the ontology mirror location
+		if (request.equals(removeImportRequest)) {
+			String uri = setHttpPar(baseuriPar);
+			checkRequestParametersAllNotNull(baseuriPar);
+			return removeOntImport(uri);
+		}
+
+		// the next four invocations deal with ontologies directly imported into the main model
+
+		// downloads and imports an ontology from the web, caching it into a local file in the ontology
+		// mirror
+		// location
+		if (request.equals(addFromWebToMirrorRequest)) {
+			String toImport = setHttpPar(baseuriPar);
+			String destLocalFile = setHttpPar(mirrorFilePar);
+			String altURL = setHttpPar(alturlPar);
+			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
+			return addOntImport(fromWebToMirror, toImport, altURL, destLocalFile, addFromWebToMirrorRequest);
+		}
+		// downloads and imports an ontology from the web; next time the turkey is started, the ontology
+		// will
+		// be imported again
+		if (request.equals(addFromWebRequest)) {
+			String baseuri = setHttpPar(baseuriPar);
+			String altURL = setHttpPar(alturlPar);
+			checkRequestParametersAllNotNull(baseuriPar);
+			return addOntImport(fromWeb, baseuri, altURL, null, addFromWebRequest);
+		}
+		// downloads and imports an ontology from a local file; caching it into a local file in the
+		// ontology
+		// mirror location
+		if (request.equals(addFromLocalFileRequest)) {
+			String baseuri = setHttpPar(baseuriPar);
+			String localFilePath = setHttpPar(localFilePathPar);
+			String mirrorFile = setHttpPar(mirrorFilePar);
+			checkRequestParametersAllNotNull(baseuriPar, localFilePathPar, mirrorFilePar);
+			return addOntImport(fromLocalFile, baseuri, localFilePath, mirrorFile, addFromLocalFileRequest);
+		}
+		// imports an ontology which is already present in the ontology mirror location
+		if (request.equals(addFromOntologyMirrorRequest)) {
+			String baseuri = setHttpPar(baseuriPar);
+			String mirrorFile = setHttpPar(mirrorFilePar);
+			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
+			return addOntImport(fromOntologyMirror, baseuri, null, mirrorFile, addFromOntologyMirrorRequest);
+		}
+
+		// the next four invocations deal with inherited imported ontologies (they are declared imports of
+		// imported ontologies) downloaded and loaded into the main model
+
+		// downloads an imported ontology from the web, caching it into a local file in the ontology
+		// mirror
+		// location
+		if (request.equals(downloadFromWebToMirrorRequest)) {
+			String baseURI = setHttpPar(baseuriPar);
+			String altURL = setHttpPar(alturlPar);
+			String toLocalFile = setHttpPar(mirrorFilePar);
+			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
+			return getImportedOntology(fromWebToMirror, baseURI, altURL, null, toLocalFile);
+		}
+		if (request.equals(downloadFromWebRequest)) {
+			String baseURI = setHttpPar(baseuriPar);
+			String altURL = setHttpPar(alturlPar);
+			checkRequestParametersAllNotNull(baseuriPar);
+			return getImportedOntology(fromWeb, baseURI, altURL, null, null);
+		}
+		// downloads an imported ontology from a local file; caching it into a local file in the ontology
+		// mirror location
+		if (request.equals(getFromLocalFileRequest)) {
+			String baseURI = setHttpPar(baseuriPar);
+			String altURL = setHttpPar(alturlPar);
+			String localFilePath = setHttpPar(localFilePathPar);
+			String mirrorFile = setHttpPar(mirrorFilePar);
+			checkRequestParametersAllNotNull(baseuriPar, localFilePathPar);
+			return getImportedOntology(fromLocalFile, baseURI, altURL, localFilePath, mirrorFile);
+		}
+		// mirrors an ontology
+		if (request.equals(mirrorOntologyRequest)) {
+			String baseURI = setHttpPar(baseuriPar);
+			String mirrorFile = setHttpPar(mirrorFilePar);
+			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
+			return getImportedOntology(toOntologyMirror, baseURI, null, null, mirrorFile);
+		}
+
+		// NAMED GRAPHS
+		if (request.equals(getNamedGraphsRequest)) {
+			return getNamedGraphs();
+		}
+
+		else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+
 	}
 
 	public Response getOntologyDescription() {
@@ -480,7 +472,8 @@ public class Metadata extends Resource {
 
 		String request = getNSPrefixMappingsRequest;
 
-		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 
 		Map<String, String> innerPrefixMap;
 		try {
@@ -513,7 +506,8 @@ public class Metadata extends Resource {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 
-		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 
 		try {
 			ontManager.setNSPrefixMapping(prefix, namespace);
@@ -550,10 +544,12 @@ public class Metadata extends Resource {
 	public Response removeNamespaceMapping(String namespace) {
 		String request = removeNSPrefixMappingRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> ontManager = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 
 		try {
 			ontManager.removeNSPrefixMapping(namespace);
@@ -580,13 +576,15 @@ public class Metadata extends Resource {
 	 */
 	public Response getOntologyImports() {
 		String request = getImportsRequest;
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		HashSet<String> importsBranch = new HashSet<String>();
 
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
-		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 
 		try {
 			logger.debug("listing ontology imports");
@@ -599,8 +597,8 @@ public class Metadata extends Resource {
 		return response;
 	}
 
-	private void buildImportXMLTree(OWLModel ontModel, STOntologyManager<? extends RDFModel> repMgr, Element xmlElem, String uri,
-			HashSet<String> importsBranch) throws ModelAccessException {
+	private void buildImportXMLTree(OWLModel ontModel, STOntologyManager<? extends RDFModel> repMgr,
+			Element xmlElem, String uri, HashSet<String> importsBranch) throws ModelAccessException {
 		ARTURIResource ont = ontModel.createURIResource(uri);
 		ARTURIResourceIterator imports = ontModel.listOntologyImports(ont);
 		while (imports.streamOpen()) {
@@ -647,7 +645,8 @@ public class Metadata extends Resource {
 	public Response removeOntImport(String uri) {
 		String request = removeImportRequest;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 		try {
 			repMgr.removeOntologyImport(uri);
 		} catch (IOException e) {
@@ -685,15 +684,16 @@ public class Metadata extends Resource {
 	public Response addOntImport(int method, String baseUriToBeImported, String sourceForImport,
 			String destLocalFile, String requestString) {
 
-		logger.debug("Import Request; method: " + method + ", baseuritobeimported: " + baseUriToBeImported +
-				"\nsourceForImport: " + sourceForImport + ", destLocalFile: " + destLocalFile + ", req: " + requestString 				
-		);
-		
+		logger.debug("Import Request; method: " + method + ", baseuritobeimported: " + baseUriToBeImported
+				+ "\nsourceForImport: " + sourceForImport + ", destLocalFile: " + destLocalFile + ", req: "
+				+ requestString);
+
 		// NECESSARY INITIALIZATION
 		ServletUtilities servletUtilities = new ServletUtilities();
 		String msg = null;
 		String oldCache;
-		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 
 		// CHECKS THAT THE ONTOLOGY IS NOT ALREADY IMPORTED
 		// previously used ImportMem, now deprecated
@@ -773,7 +773,8 @@ public class Metadata extends Resource {
 		}
 
 		// FORMATTING OF XML RESPONSE
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		dataElement.setAttribute("type", request);
 		if (msg == null)
@@ -805,7 +806,8 @@ public class Metadata extends Resource {
 	public Response getImportedOntology(int method, String baseURI, String altURL, String fromLocalFilePath,
 			String toLocalFile) {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject().getOntologyManager();
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+				.getOntologyManager();
 		String request = null;
 		try {
 			if (method == fromWebToMirror) {

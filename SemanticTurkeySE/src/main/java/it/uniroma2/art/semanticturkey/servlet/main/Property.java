@@ -130,123 +130,117 @@ public class Property extends Resource {
 	 * 
 	 * @return Document
 	 */
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		ServletUtilities servletUtilities = new ServletUtilities();
 
-		String request = setHttpPar("request");
 		this.fireServletEvent();
 		// all new fashoned requests are put inside these grace brackets
 		if (request != null) {
 
-			try {
-
-				// PROPERTIES TREE METHODS
-				if (request.equals(Req.getPropertiesTreeRequest)) {
-					return getPropertyTree(true, true, true, true, true);
-				} else if (request.equals(Req.getObjPropertiesTreeRequest)) {
-					return getPropertyTree(true, true, false, false, false);
-				} else if (request.equals(Req.getDatatypePropertiesTreeRequest)) {
-					return getPropertyTree(false, false, true, false, false);
-				} else if (request.equals(Req.getAnnotationPropertiesTreeRequest)) {
-					return getPropertyTree(false, false, false, true, false);
-				} else if (request.equals(Req.getOntologyPropertiesTreeRequest)) {
-					return getPropertyTree(false, false, false, false, true);
-				}
-
-				// PROPERTY DESCRIPTION METHOD
-				else if (request.equals(propertyDescriptionRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getPropertyInfo(propertyQName);
-				} else if (request.equals(Req.getSuperPropertiesRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getSuperProperties(propertyQName);
-				} else if (request.equals(Req.getDomainRequest)) {
-					String propQName = setHttpPar(Par.propertyQNamePar);
-					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getDomain(propQName);
-				} else if (request.equals(Req.getRangeRequest)) {
-					String propQName = setHttpPar(Par.propertyQNamePar);
-					String visualize = setHttpPar(Par.visualize);
-					checkRequestParametersAllNotNull(Par.propertyQNamePar);
-					return getRange(propQName, visualize);
-				}
-
-				else if (request.equals(Req.parseDataRangeRequest)) {
-					String dataRange = setHttpPar(Par.dataRangePar);
-					String nodeType = setHttpPar(Par.nodeTypePar);
-					checkRequestParametersAllNotNull(Par.dataRangePar, Par.nodeTypePar);
-					return parseDataRange(dataRange, nodeType);
-				}
-
-				// EDIT_PROPERTY METHODS
-				else if (request.equals(Req.addPropertyRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String superPropertyQName = setHttpPar("superPropertyQName"); // this one can be null
-					// (that is, not instanciated at all on the http paramters) if the user just want to
-					// create
-					// the property without specifying a superproperty
-					String propertyType = setHttpPar("propertyType");
-					return editProperty(propertyQName, request, addProperty, propertyType, superPropertyQName);
-				} else if (request.equals(Req.addPropertyDomainRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String domainPropertyQName = setHttpPar(Par.domainPropertyQNamePar);
-					checkRequestParametersAllNotNull(Par.propertyQNamePar, Par.domainPropertyQNamePar);
-					return editProperty(propertyQName, request, addPropertyDomain, domainPropertyQName);
-				} else if (request.equals(Req.removePropertyDomainRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String domainPropertyQName = setHttpPar("domainPropertyQName");
-					return editProperty(propertyQName, request, removePropertyDomain, domainPropertyQName);
-				} else if (request.equals(Req.addPropertyRangeRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String rangePropertyQName = setHttpPar("rangePropertyQName");
-					return editProperty(propertyQName, request, addPropertyRange, rangePropertyQName);
-				} else if (request.equals(Req.removePropertyRangeRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String rangePropertyQName = setHttpPar("rangePropertyQName");
-					return editProperty(propertyQName, request, removePropertyRange, rangePropertyQName);
-				} else if (request.equals(Req.addSuperPropertyRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String superPropertyQName = setHttpPar("superPropertyQName");
-					return editProperty(propertyQName, request, addSuperProperty, superPropertyQName);
-				} else if (request.equals(Req.removeSuperPropertyRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String superPropertyQName = setHttpPar("superPropertyQName");
-					return editProperty(propertyQName, request, removeSuperProperty, superPropertyQName);
-				} else if (request.equals(Req.createAndAddPropValueRequest)
-						|| request.equals(Req.addExistingPropValueRequest)
-						|| request.equals(Req.removePropValueRequest)) {
-					// the parameter rangeClsQName is only passed in the createAndAddPropValue request, the
-					// editPropertyValue method accepts the null (i.e. no parameter passed via http) in the
-					// two
-					// other requests
-					String instanceQName = setHttpPar(Par.instanceQNamePar);
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					String value = setHttpPar(Par.valueField);
-					String rangeQName = setHttpPar(Par.rangeQNamePar);
-					String lang = setHttpPar(Par.langField);
-					String typeArg = setHttpPar(Par.type);
-					checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar,
-							Par.valueField, Par.type);
-					RDFTypesEnum valueType = null;
-					if (typeArg != null)
-						valueType = RDFTypesEnum.valueOf(typeArg);
-
-					return editPropertyValue(request, instanceQName, propertyQName, value, valueType,
-							rangeQName, lang);
-				} else if (request.equals(Req.getRangeClassesTreeRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					return getRangeClassesTreeXML(propertyQName);
-				} else if (request.equals(Req.getDomainClassesTreeRequest)) {
-					String propertyQName = setHttpPar(Par.propertyQNamePar);
-					return getDomainClassesTreeXML(propertyQName);
-				} else
-					return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-
-			} catch (HTTPParameterUnspecifiedException e) {
-				return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+			// PROPERTIES TREE METHODS
+			if (request.equals(Req.getPropertiesTreeRequest)) {
+				return getPropertyTree(true, true, true, true, true);
+			} else if (request.equals(Req.getObjPropertiesTreeRequest)) {
+				return getPropertyTree(true, true, false, false, false);
+			} else if (request.equals(Req.getDatatypePropertiesTreeRequest)) {
+				return getPropertyTree(false, false, true, false, false);
+			} else if (request.equals(Req.getAnnotationPropertiesTreeRequest)) {
+				return getPropertyTree(false, false, false, true, false);
+			} else if (request.equals(Req.getOntologyPropertiesTreeRequest)) {
+				return getPropertyTree(false, false, false, false, true);
 			}
+
+			// PROPERTY DESCRIPTION METHOD
+			else if (request.equals(propertyDescriptionRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				checkRequestParametersAllNotNull(Par.propertyQNamePar);
+				return getPropertyInfo(propertyQName);
+			} else if (request.equals(Req.getSuperPropertiesRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				checkRequestParametersAllNotNull(Par.propertyQNamePar);
+				return getSuperProperties(propertyQName);
+			} else if (request.equals(Req.getDomainRequest)) {
+				String propQName = setHttpPar(Par.propertyQNamePar);
+				checkRequestParametersAllNotNull(Par.propertyQNamePar);
+				return getDomain(propQName);
+			} else if (request.equals(Req.getRangeRequest)) {
+				String propQName = setHttpPar(Par.propertyQNamePar);
+				String visualize = setHttpPar(Par.visualize);
+				checkRequestParametersAllNotNull(Par.propertyQNamePar);
+				return getRange(propQName, visualize);
+			}
+
+			else if (request.equals(Req.parseDataRangeRequest)) {
+				String dataRange = setHttpPar(Par.dataRangePar);
+				String nodeType = setHttpPar(Par.nodeTypePar);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.nodeTypePar);
+				return parseDataRange(dataRange, nodeType);
+			}
+
+			// EDIT_PROPERTY METHODS
+			else if (request.equals(Req.addPropertyRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String superPropertyQName = setHttpPar("superPropertyQName"); // this one can be null
+				// (that is, not instanciated at all on the http paramters) if the user just want to
+				// create
+				// the property without specifying a superproperty
+				String propertyType = setHttpPar("propertyType");
+				return editProperty(propertyQName, request, addProperty, propertyType, superPropertyQName);
+			} else if (request.equals(Req.addPropertyDomainRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String domainPropertyQName = setHttpPar(Par.domainPropertyQNamePar);
+				checkRequestParametersAllNotNull(Par.propertyQNamePar, Par.domainPropertyQNamePar);
+				return editProperty(propertyQName, request, addPropertyDomain, domainPropertyQName);
+			} else if (request.equals(Req.removePropertyDomainRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String domainPropertyQName = setHttpPar("domainPropertyQName");
+				return editProperty(propertyQName, request, removePropertyDomain, domainPropertyQName);
+			} else if (request.equals(Req.addPropertyRangeRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String rangePropertyQName = setHttpPar("rangePropertyQName");
+				return editProperty(propertyQName, request, addPropertyRange, rangePropertyQName);
+			} else if (request.equals(Req.removePropertyRangeRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String rangePropertyQName = setHttpPar("rangePropertyQName");
+				return editProperty(propertyQName, request, removePropertyRange, rangePropertyQName);
+			} else if (request.equals(Req.addSuperPropertyRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String superPropertyQName = setHttpPar("superPropertyQName");
+				return editProperty(propertyQName, request, addSuperProperty, superPropertyQName);
+			} else if (request.equals(Req.removeSuperPropertyRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String superPropertyQName = setHttpPar("superPropertyQName");
+				return editProperty(propertyQName, request, removeSuperProperty, superPropertyQName);
+			} else if (request.equals(Req.createAndAddPropValueRequest)
+					|| request.equals(Req.addExistingPropValueRequest)
+					|| request.equals(Req.removePropValueRequest)) {
+				// the parameter rangeClsQName is only passed in the createAndAddPropValue request, the
+				// editPropertyValue method accepts the null (i.e. no parameter passed via http) in the
+				// two
+				// other requests
+				String instanceQName = setHttpPar(Par.instanceQNamePar);
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				String value = setHttpPar(Par.valueField);
+				String rangeQName = setHttpPar(Par.rangeQNamePar);
+				String lang = setHttpPar(Par.langField);
+				String typeArg = setHttpPar(Par.type);
+				checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar, Par.valueField,
+						Par.type);
+				RDFTypesEnum valueType = null;
+				if (typeArg != null)
+					valueType = RDFTypesEnum.valueOf(typeArg);
+
+				return editPropertyValue(request, instanceQName, propertyQName, value, valueType, rangeQName,
+						lang);
+			} else if (request.equals(Req.getRangeClassesTreeRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				return getRangeClassesTreeXML(propertyQName);
+			} else if (request.equals(Req.getDomainClassesTreeRequest)) {
+				String propertyQName = setHttpPar(Par.propertyQNamePar);
+				return getDomainClassesTreeXML(propertyQName);
+			} else
+				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+
 		}
 
 		else
@@ -533,7 +527,7 @@ public class Property extends Resource {
 				else if (propertyType.equals("owl:AnnotationProperty"))
 					ontModel.addAnnotationProperty(propertyURI, superProperty);
 				else if (propertyType.equals("owl:OntologyProperty"))
-					ontModel.addOntologyProperty(propertyURI, superProperty);				
+					ontModel.addOntologyProperty(propertyURI, superProperty);
 				else
 					return servletUtilities.createExceptionResponse(request, propertyType
 							+ " is not a recognized property type!");

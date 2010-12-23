@@ -32,6 +32,7 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -80,9 +81,8 @@ public class Delete extends ServiceAdapter {
 	 * 
 	 * @return Response xml
 	 */
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		String name = setHttpPar("name");
-		String request = setHttpPar("request");
 		this.fireServletEvent();
 		return deleteResource(name, request);
 	}

@@ -167,10 +167,8 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return resp;
 	}
 
-	protected Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
-		return getResponse();
-	};
-
+	protected abstract Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException;
+	
 	protected abstract Logger getLogger();
 
 	

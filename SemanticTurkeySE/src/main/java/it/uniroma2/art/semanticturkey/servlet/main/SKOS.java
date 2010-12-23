@@ -100,112 +100,109 @@ public class SKOS extends Resource {
 	public SKOS(String id) {
 		super(id);
 	}
-	
+
 	public Logger getLogger() {
 		return logger;
 	}
 
 	@Override
-	public Response getResponse() {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to skos");
 
 		Response response = null;
 		ServletUtilities servletUtilities = new ServletUtilities();
-		String request = setHttpPar("request");
 		// all new fashoned requests are put inside these grace brackets
 		if (request == null)
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
-		try {
-			// GET SKOS METHODS
-			if (request.equals(Req.getAllSchemesListRequest)) {
-				String defaultLanguage = setHttpPar(Par.langTag);
-				checkRequestParametersAllNotNull(Par.langTag);
-				response = getAllSchemesList(defaultLanguage);
-				logger.debug("SKOS.getAllSchemesListRequest:" + response);
-			} else if (request.equals(Req.getConceptsTreeRequest)) {
-				String schemaURI = setHttpPar(Par.schemeName);
-				String defaultLanguage = setHttpPar(Par.langTag);
-				checkRequestParametersAllNotNull(Par.schemeName);
-				logger.debug("SKOS.getAllSchemesListRequest:" + response);
-				response = getConceptsTreeRequest(schemaURI, defaultLanguage);
-			} else if (request.equals(Req.getNarrowerConceptsRequest)) {
-				String conceptName = setHttpPar(Par.conceptName);
-				String defaultLanguage = setHttpPar(Par.langTag);
-				checkRequestParametersAllNotNull(Par.conceptName);
-				logger.debug("SKOS.getNarrowerConceptsRequest:" + response);
-				response = getNarrowerConceptsRequest(conceptName, defaultLanguage);
 
-				// REMOVE SKOS METHODS
-			} else if (request.equals(Req.removeConceptRequest)) {
-				String concept = setHttpPar(Par.concept);
-				checkRequestParametersAllNotNull(Par.concept);
-				logger.debug("SKOS.removeConceptRequest:" + response);
-				response = removeConcept(concept);
+		// GET SKOS METHODS
+		if (request.equals(Req.getAllSchemesListRequest)) {
+			String defaultLanguage = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.langTag);
+			response = getAllSchemesList(defaultLanguage);
+			logger.debug("SKOS.getAllSchemesListRequest:" + response);
+		} else if (request.equals(Req.getConceptsTreeRequest)) {
+			String schemaURI = setHttpPar(Par.schemeName);
+			String defaultLanguage = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.schemeName);
+			logger.debug("SKOS.getAllSchemesListRequest:" + response);
+			response = getConceptsTreeRequest(schemaURI, defaultLanguage);
+		} else if (request.equals(Req.getNarrowerConceptsRequest)) {
+			String conceptName = setHttpPar(Par.conceptName);
+			String defaultLanguage = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.conceptName);
+			logger.debug("SKOS.getNarrowerConceptsRequest:" + response);
+			response = getNarrowerConceptsRequest(conceptName, defaultLanguage);
 
-				// ADD SKOS METHODS
-			} else if (request.equals(Req.addConceptRequest)) {
-				String conceptName = setHttpPar(Par.conceptName);
-				String schemeName = setHttpPar(Par.schemeName);
-				String rdfsLabel = setHttpPar(Par.rdfsLabel);
-				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
-				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
-				checkRequestParametersAllNotNull(Par.conceptName, Par.schemeName);
-				logger.debug("SKOS.addConceptRequest:" + response);
-				response = addConcept(conceptName, schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
-						preferredLabelLanguage);
-			} else if (request.equals(Req.addSemanticRelationRequest)) {
-				String conceptFrom = setHttpPar(Par.conceptFrom);
-				String conceptTo = setHttpPar(Par.conceptTo);
-				String semanticRelation = setHttpPar(Par.semanticRelation);
-				checkRequestParametersAllNotNull(Par.conceptFrom, Par.conceptTo, Par.semanticRelation);
-				logger.debug("SKOS.addSemanticRelationRequest:" + response);
-				response = addSemanticRelation(conceptFrom, semanticRelation, conceptTo);
+			// REMOVE SKOS METHODS
+		} else if (request.equals(Req.removeConceptRequest)) {
+			String concept = setHttpPar(Par.concept);
+			checkRequestParametersAllNotNull(Par.concept);
+			logger.debug("SKOS.removeConceptRequest:" + response);
+			response = removeConcept(concept);
 
-				// CREATE SKOS METHODS
-			} else if (request.equals(Req.createNarrowerConceptRequest)) {
-				// newConcept, relatedConcept,rdfsLabel,
-				// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
-				String newConcept = setHttpPar(Par.newConcept);
-				String relatedConcept = setHttpPar(Par.relatedConcept);
-				String schemeName = setHttpPar(Par.schemeName);
-				String rdfsLabel = setHttpPar(Par.rdfsLabel);
-				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
-				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
-				checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
-				logger.debug("SKOS.createNarrowerConceptRequest:" + response);
-				response = addNarrowerConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
-						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
-			} else if (request.equals(Req.createBroaderConceptRequest)) {
-				// newConcept, relatedConcept,rdfsLabel,
-				// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
-				String newConcept = setHttpPar(Par.newConcept);
-				String relatedConcept = setHttpPar(Par.relatedConcept);
-				String schemeName = setHttpPar(Par.schemeName);
-				String rdfsLabel = setHttpPar(Par.rdfsLabel);
-				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
-				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
-				checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
-				logger.debug("SKOS.createBroaderConceptRequest:" + response);
-				response = addBroaderConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
-						rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
-			} else if (request.equals(Req.createSchemeRequest)) {
-				String schemeName = setHttpPar(Par.schemeName);
-				String rdfsLabel = setHttpPar(Par.rdfsLabel);
-				String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
-				String preferredLabel = setHttpPar(Par.preferredLabel);
-				String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
-				checkRequestParametersAllNotNull(Par.schemeName);
-				logger.debug("SKOS.createSchemeRequest:" + response);
-				response = addConceptScheme(schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
-						preferredLabelLanguage);
-			} else
-				return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
-		}
+			// ADD SKOS METHODS
+		} else if (request.equals(Req.addConceptRequest)) {
+			String conceptName = setHttpPar(Par.conceptName);
+			String schemeName = setHttpPar(Par.schemeName);
+			String rdfsLabel = setHttpPar(Par.rdfsLabel);
+			String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
+			String preferredLabel = setHttpPar(Par.preferredLabel);
+			String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+			checkRequestParametersAllNotNull(Par.conceptName, Par.schemeName);
+			logger.debug("SKOS.addConceptRequest:" + response);
+			response = addConcept(conceptName, schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
+					preferredLabelLanguage);
+		} else if (request.equals(Req.addSemanticRelationRequest)) {
+			String conceptFrom = setHttpPar(Par.conceptFrom);
+			String conceptTo = setHttpPar(Par.conceptTo);
+			String semanticRelation = setHttpPar(Par.semanticRelation);
+			checkRequestParametersAllNotNull(Par.conceptFrom, Par.conceptTo, Par.semanticRelation);
+			logger.debug("SKOS.addSemanticRelationRequest:" + response);
+			response = addSemanticRelation(conceptFrom, semanticRelation, conceptTo);
+
+			// CREATE SKOS METHODS
+		} else if (request.equals(Req.createNarrowerConceptRequest)) {
+			// newConcept, relatedConcept,rdfsLabel,
+			// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
+			String newConcept = setHttpPar(Par.newConcept);
+			String relatedConcept = setHttpPar(Par.relatedConcept);
+			String schemeName = setHttpPar(Par.schemeName);
+			String rdfsLabel = setHttpPar(Par.rdfsLabel);
+			String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
+			String preferredLabel = setHttpPar(Par.preferredLabel);
+			String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+			checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
+			logger.debug("SKOS.createNarrowerConceptRequest:" + response);
+			response = addNarrowerConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
+					rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
+		} else if (request.equals(Req.createBroaderConceptRequest)) {
+			// newConcept, relatedConcept,rdfsLabel,
+			// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
+			String newConcept = setHttpPar(Par.newConcept);
+			String relatedConcept = setHttpPar(Par.relatedConcept);
+			String schemeName = setHttpPar(Par.schemeName);
+			String rdfsLabel = setHttpPar(Par.rdfsLabel);
+			String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
+			String preferredLabel = setHttpPar(Par.preferredLabel);
+			String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+			checkRequestParametersAllNotNull(Par.newConcept, Par.relatedConcept, Par.schemeName);
+			logger.debug("SKOS.createBroaderConceptRequest:" + response);
+			response = addBroaderConcept(newConcept, schemeName, relatedConcept, rdfsLabel,
+					rdfsLabelLanguage, preferredLabel, preferredLabelLanguage);
+		} else if (request.equals(Req.createSchemeRequest)) {
+			String schemeName = setHttpPar(Par.schemeName);
+			String rdfsLabel = setHttpPar(Par.rdfsLabel);
+			String rdfsLabelLanguage = setHttpPar(Par.rdfsLabelLanguage);
+			String preferredLabel = setHttpPar(Par.preferredLabel);
+			String preferredLabelLanguage = setHttpPar(Par.preferredLabelLanguage);
+			checkRequestParametersAllNotNull(Par.schemeName);
+			logger.debug("SKOS.createSchemeRequest:" + response);
+			response = addConceptScheme(schemeName, rdfsLabel, rdfsLabelLanguage, preferredLabel,
+					preferredLabelLanguage);
+		} else
+			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
+
 		this.fireServletEvent();
 		return response;
 	}

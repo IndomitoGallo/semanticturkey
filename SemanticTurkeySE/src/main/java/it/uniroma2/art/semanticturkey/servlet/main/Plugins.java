@@ -70,30 +70,25 @@ public class Plugins extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-	
-	public Response getResponse() {
-		String request = setHttpPar("request");
-		try {
-			if (request.equals(Req.getPluginListRequest)) {
 
-				// remove this once it is being used by at least one request
-				// it is here only for not removing the HTTPPar... exception
-				checkRequestParametersAllNotNull();
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+		if (request.equals(Req.getPluginListRequest)) {
 
-				return getPluginsList();
-			} else if (request.equals(Req.getPluginsForProjectRequest)) {
-				String projectName = setHttpPar(projectNamePar);
-				if (projectName == null)
-					return getPluginsForCurrentProject();
-				else
-					return getPluginsForProject(projectName);
-			}
+			// remove this once it is being used by at least one request
+			// it is here only for not removing the HTTPPar... exception
+			checkRequestParametersAllNotNull();
 
+			return getPluginsList();
+		} else if (request.equals(Req.getPluginsForProjectRequest)) {
+			String projectName = setHttpPar(projectNamePar);
+			if (projectName == null)
+				return getPluginsForCurrentProject();
 			else
-				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
-		} catch (HTTPParameterUnspecifiedException e) {
-			return servletUtilities.createUndefinedHttpParameterExceptionResponse(request, e);
+				return getPluginsForProject(projectName);
 		}
+
+		else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 	}
 
 	/**
@@ -123,9 +118,9 @@ public class Plugins extends ServiceAdapter {
 	 * @return
 	 */
 	public Response getPluginsForCurrentProject() {
-		return getPluginsForProject(ProjectManager.getCurrentProject());	
+		return getPluginsForProject(ProjectManager.getCurrentProject());
 	}
-	
+
 	/**
 	 * gets the list of plugins associated to the current project of Semantic Turkey
 	 * 
@@ -134,7 +129,7 @@ public class Plugins extends ServiceAdapter {
 	public Response getPluginsForProject(String projectName) {
 		if (projectName.equals(ProjectManager.getCurrentProject().getName()))
 			return getPluginsForCurrentProject();
-		
+
 		try {
 			Project<? extends RDFModel> proj = ProjectManager.getProjectDescription(projectName);
 			return getPluginsForProject(proj);
@@ -142,16 +137,17 @@ public class Plugins extends ServiceAdapter {
 			logger.error("", e);
 			return servletUtilities.createExceptionResponse(Req.getPluginsForProjectRequest, e.toString());
 		}
-	}	
-	
+	}
+
 	private Response getPluginsForProject(Project<? extends RDFModel> proj) {
 		List<String> pluginIDs = proj.getRegisteredPlugins();
-		XMLResponseREPLY resp = ServletUtilities.getService().createReplyResponse(Req.getPluginsForProjectRequest, RepliesStatus.ok);
+		XMLResponseREPLY resp = ServletUtilities.getService().createReplyResponse(
+				Req.getPluginsForProjectRequest, RepliesStatus.ok);
 		Element dataElement = resp.getDataElement();
 		for (String pluginID : pluginIDs) {
 			XMLHelp.newElement(dataElement, pluginTag, pluginID);
 		}
-		return resp;	
+		return resp;
 	}
-	
+
 }
