@@ -127,7 +127,7 @@ public class SimpleViewer extends JApplet
         g = og;
 
         layout = new FRLayout<Vertex, Edge>(g); //, new ConstantTransformer<Integer>(EDGE_LENGTH));
-        layout.setSize(new Dimension(1000, 1000));
+        layout.setSize(new Dimension(this.getWidth(), this.getHeight()));
 		
 		Relaxer relaxer = new VisRunner((IterativeContext)layout);
 		relaxer.stop();
