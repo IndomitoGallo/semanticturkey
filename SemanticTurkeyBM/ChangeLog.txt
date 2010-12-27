@@ -8,6 +8,7 @@ date: ??-12-2010
   * added support for SKOS / SKOS-XL
   * removed constraint on "at least a type (not owl:Thing) for each resource", now owl:Thing is always visible
   * added support for OWLART API ModelConfiguration (only in services, still to be implemented in client)
+  * new support for graph view of the ontology through a new applet based on Jung graph java library 
   
   FOR REVIEW:
   * improved Mac compatibility (still considered unstable)
