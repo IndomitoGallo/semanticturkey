@@ -157,7 +157,7 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 		    				javaPath + "javax.servlet-5.1.12.jar",
 		    				javaPath + "jetty-5.1.10.jar",
 		    				javaPath + "log4j-1.2.14.jar",
-		    				javaPath + "owlart-api-2.0.2-SNAPSHOT.jar",
+		    				javaPath + "owlart-api-2.0.2.jar",
 		    				javaPath + "secondstring-2006.06.15.jar",
 		    				javaPath + "servlet-api-2.4.jar",
 		    				javaPath + "slf4j-api-1.5.6.jar",
