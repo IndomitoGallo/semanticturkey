@@ -144,13 +144,13 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>it.uniroma2.art.owlart.sesame2impl</groupId>
+			<groupId>it.uniroma2.art.owlart</groupId>
 			<artifactId>owlart-sesame2impl</artifactId>
 			<version>1.0.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>it.uniroma2.art.owlart.agraphimpl</groupId>
+			<groupId>it.uniroma2.art.owlart</groupId>
 			<artifactId>owlart-agraphimpl</artifactId>
 			<version>1.0.2</version>
 			<scope>compile</scope>
