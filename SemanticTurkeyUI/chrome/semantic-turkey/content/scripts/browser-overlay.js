@@ -541,10 +541,15 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("SPARQLToolBarButton").disabled = false;
 		document.getElementById("graphBarButton").disabled = false;		
 		document.getElementById("SKOSToolBarButton").disabled = false;
-		if(projectInfo.getType().indexOf("SKOS") != -1)
+		if(projectInfo.getType().indexOf("SKOS") != -1){
 			document.getElementById("SKOSToolBarButton").hidden = false;
-		else
+			document.getElementById("key_openSTSKOSSidebar").hidden = false;
+			document.getElementById("key_openSTSKOSSidebar").disabled = false;
+		}
+		else{
 			document.getElementById("SKOSToolBarButton").hidden = true;
+			document.getElementById("key_openSTSKOSSidebar").hidden = true;
+		}
 	}
 	else if(eventId == "projectClosed"){
 		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");

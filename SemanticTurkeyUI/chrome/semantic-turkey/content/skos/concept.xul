@@ -34,6 +34,7 @@
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/concept.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/conceptEvents.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/SKOSUtils.js" />
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 		
 	<menulist id="skosSchemeMenuList" context="clipmenu" seltype="single">
 		  <menupopup id="skosSchemeMenupopup">
