@@ -36,22 +36,22 @@
 
     <tabbox  id="tabs" flex="1" >
       <tabs>
-         <tab label="Properties" />
          <tab label="Concepts" />
+         <tab label="Properties" />
          <tab label="Schemes" />
       </tabs>
       <!-- NScarpato 10/05/2007 risolto problema di visualizzazione del grafico
       sostituito in iframe  type="content-primary" con content-->
       <tabpanels flex="1" >
          <tabpanel flex="1" align="stretch">
-         	<iframe id="propertyTab" type="content" src="chrome://semantic-turkey/content/property/property.xul" flex="1"/>
-          </tabpanel>
-         <tabpanel flex="1" align="stretch">
          	<iframe id="skosTab" type="content" src="chrome://semantic-turkey/content/skos/concept.xul" flex="1"/>
-          </tabpanel>
+         </tabpanel>
+         <tabpanel flex="1" align="stretch">
+         	<iframe id="propertyTab" type="content" src="chrome://semantic-turkey/content/property/property.xul" flex="1"/>
+         </tabpanel>
          <tabpanel flex="1" align="stretch">
          	<iframe id="schemeTab" type="content" src="chrome://semantic-turkey/content/skos/scheme.xul" flex="1"/>
-          </tabpanel>                       
+         </tabpanel>                       
       </tabpanels>
     </tabbox>
 
