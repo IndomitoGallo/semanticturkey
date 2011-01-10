@@ -143,7 +143,7 @@ art_semanticturkey.classRemovedClass = function(className){
 	this.getClassName = function(){
 		return className;
 	};
-}
+};
 
 art_semanticturkey.classRenamedClass = function(newClassName, oldClassName){
 	var newClassName = newClassName;
@@ -156,8 +156,24 @@ art_semanticturkey.classRenamedClass = function(newClassName, oldClassName){
 	this.getOldClassName = function(){
 		return oldClassName;
 	};
-}
+};
 
+/**
+ * Rename an instance in the ontology
+ * @param {} newIndividualName
+ * @param {} oldIndividualName
+ */
+art_semanticturkey.individualRenamedIndividual = function(newIndividualName, oldIndividualName){
+	var oldIndividualName = oldIndividualName;
+	var newIndividualName = newIndividualName;
+	
+	this.getNewIndividualName = function(){
+		return newIndividualName;
+	};
+	this.getOldIndividualName = function(){
+		return oldIndividualName;
+	};
+};
 /**
  * Created a new instance in the ontology
  * @param {} instanceName

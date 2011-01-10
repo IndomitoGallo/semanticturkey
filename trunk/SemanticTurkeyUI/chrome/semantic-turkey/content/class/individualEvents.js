@@ -31,7 +31,8 @@ art_semanticturkey.associateEventsOnIndividualGraphicElements = function() {
 
 	document.getElementById("menuItemWebLinks").addEventListener("command",
 			art_semanticturkey.getWebLinks, true);
-
+	document.getElementById("menuItemRenameIndividual").addEventListener("command",
+			art_semanticturkey.renameIndividual, true);
 	document.getElementById("menuItemRemoveIndividual").addEventListener(
 			"command", art_semanticturkey.removeIndividual, true);
 
@@ -108,7 +109,26 @@ art_semanticturkey.removeInstance_RESPONSE = function(responseElement) {
 	}
 
 };
-
+/**
+ * @author Noemi invoke rename individual request
+ */
+art_semanticturkey.renameIndividual = function() {
+	var list = document.getElementById("IndividualsList");
+	var currentelement = list.selectedItem;
+	var parameters = new Object();
+	var explicit = currentelement.getAttribute("explicit");
+	if (explicit == "true") {
+		var name = list.selectedItem.label;
+		parameters.resourceName = name;
+		parameters.parentWindow = window;
+		parameters.resourceType = "individual";
+		window.openDialog("chrome://semantic-turkey/content/modifyName.xul",
+				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				parameters);
+	} else {
+		alert("You cannot modify this resource, it's a system resource!");
+	}
+};
 /*
  * // NScarpato 22/05/2007 Select a list item whit specified name. function
  * selectItem(list, valName) { // Get the appropriate listitem element var
