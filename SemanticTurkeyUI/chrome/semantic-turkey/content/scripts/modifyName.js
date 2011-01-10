@@ -37,11 +37,12 @@ art_semanticturkey.onAccept = function() {
 	var parentWindow = window.arguments[0].parentWindow;
 	var oldResourceName = window.arguments[0].resourceName;
 	var newResourceName = document.getElementById("name").value;
+	var resourceType =  window.arguments[0].resourceType;
 	try{
 		var responseXML = parentWindow.art_semanticturkey.STRequests.ModifyName.renameResource(
 				newResourceName,
 				oldResourceName);
-		parentWindow.art_semanticturkey.renameResource_RESPONSE(responseXML);
+		parentWindow.art_semanticturkey.renameResource_RESPONSE(responseXML,resourceType);
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);

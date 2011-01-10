@@ -59,6 +59,8 @@ art_semanticturkey.associateEventsFiredByServer = function(){
 	
 	//renamed class event
 	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("renamedClass", art_semanticturkey.renamedClassFunct, null);
+	//renamed individual event
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("renamedIndividual", art_semanticturkey.renamedIndividualFunct, null);
 	
 };
 
@@ -70,6 +72,22 @@ art_semanticturkey.removeClassFunct = function(eventId, classRemovedObj){
 	for (var i = 0; i < childList.length; i++) {
 		art_semanticturkey.checkAndRemove(removedClassName, childList[i]);
 	}
+};
+
+art_semanticturkey.renamedIndividualFunct = function(eventId, individualRemovedObj){
+	var newIndividualName = individualRemovedObj.getNewIndividualName();
+	var oldIndividualName = individualRemovedObj.getOldIndividualName();
+	var list = document.getElementById("IndividualsList");
+		var listItemList = list.getElementsByTagName("listitem");
+		for (var i = 0; i < listItemList.length; i++) {
+			if (listItemList[i].getAttribute("label") == oldIndividualName) {
+				listItemList[i].setAttribute("label", newIndividualName);
+				var listItIc = listItemList[i]
+						.getElementsByTagName("listitem-iconic");
+				listItIc[0].getElementsByTagName("label")[0].setAttribute(
+						"value", newIndividualName);
+			}
+		}
 };
 
 art_semanticturkey.subClsOfRemovedFunct = function(eventId, subClsOfRemovedObj){

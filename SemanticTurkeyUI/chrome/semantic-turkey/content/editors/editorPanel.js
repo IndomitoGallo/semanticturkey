@@ -2435,8 +2435,9 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 				(new art_semanticturkey.classRenamedClass(newClassName,
 						oldClassName)));
 	} else if (window.arguments[0].sourceType == "individual") {
-		// TODO add event for rename of an instance
-		var list = window.arguments[0].list;
+		var oldIndividualName = iconicName;
+		var newIndividualName = newName;
+		/*var list = window.arguments[0].list;
 		var listItemList = list.getElementsByTagName("listitem");
 		for (var i = 0; i < listItemList.length; i++) {
 			if (listItemList[i].getAttribute("label") == iconicName) {
@@ -2446,7 +2447,10 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 				listItIc[0].getElementsByTagName("label")[0].setAttribute(
 						"value", newName);
 			}
-		}
+		}*/
+		art_semanticturkey.evtMgr.fireEvent("renamedIndividual",
+				(new art_semanticturkey.individualRenamedIndividual(newIndividualName,
+						oldIndividualName)));
 	} else {
 		// TODO add event for rename of property (and other stuff)
 		var tree = window.arguments[0].tree;

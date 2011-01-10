@@ -463,6 +463,7 @@ art_semanticturkey.renameClass = function() {
 		}
 		parameters.resourceName = name;
 		parameters.parentWindow = window;
+		parameters.resourceType = "class";
 		window.openDialog("chrome://semantic-turkey/content/modifyName.xul",
 				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
 				parameters);
@@ -471,13 +472,16 @@ art_semanticturkey.renameClass = function() {
 	}
 };
 
-art_semanticturkey.renameResource_RESPONSE = function(responseElement) {
+art_semanticturkey.renameResource_RESPONSE = function(responseElement,resourceType){
 	var resourceElement = responseElement
 			.getElementsByTagName('UpdateResource')[0];
-	var newClassName = resourceElement.getAttribute("newname");
-	var oldClassName = resourceElement.getAttribute("name");
-	
-	art_semanticturkey.evtMgr.fireEvent("renamedClass", (new art_semanticturkey.classRenamedClass(newClassName, oldClassName)) );
+	var newResourceName = resourceElement.getAttribute("newname");
+	var oldResourceName = resourceElement.getAttribute("name");
+	if(resourceType=="class"){
+		art_semanticturkey.evtMgr.fireEvent("renamedClass", (new art_semanticturkey.classRenamedClass(newResourceName, oldResourceName)) );
+	}else if(resourceType=="individual"){
+		art_semanticturkey.evtMgr.fireEvent("renamedIndividual", (new art_semanticturkey.individualRenamedIndividual(newResourceName, oldResourceName)) );
+	}
 };
 
 /**

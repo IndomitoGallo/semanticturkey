@@ -82,7 +82,7 @@
 			<menuitem  id="menuItemRenameClass"  flex="1">
 				<menuitem-iconic>
 					<image src="../images/empty20x20.png" flex="0"/> 
-					<label value="Modify name"/> 						
+					<label value="Rename"/> 						
 				</menuitem-iconic>
 			</menuitem>
 			<menuitem   id="menuItemAddSynonym"  flex="1">
@@ -137,12 +137,12 @@
 					<label value="WebLinks" /> 						
 				</menuitem-iconic>
 			</menuitem>
-			<!--<menuitem id="menuItemIndividualGraph" >
+			<menuitem id="menuItemRenameIndividual" >
 				<menuitem-iconic>
-					<image src="../images/ontology20.png"/>
-					<label value="SemanticNavigation"/> 						
+					<image src=""/>
+					<label value="Rename"/> 						
 				</menuitem-iconic>		 
-			</menuitem>-->
+			</menuitem>
 			<menuitem id="menuItemRemoveIndividual">
 				<menuitem-iconic >
 					<image src="../images/individual_delete.png"/>
