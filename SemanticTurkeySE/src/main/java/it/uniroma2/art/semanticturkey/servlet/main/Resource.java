@@ -32,7 +32,6 @@ import it.uniroma2.art.owlart.filter.NoSubclassPredicate;
 import it.uniroma2.art.owlart.filter.NoSubpropertyPredicate;
 import it.uniroma2.art.owlart.filter.NoTypePredicate;
 import it.uniroma2.art.owlart.filter.URIResourcePredicate;
-import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
@@ -47,7 +46,6 @@ import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
-import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
@@ -216,15 +214,22 @@ public abstract class Resource extends ServiceAdapter {
 		bannedPredicatesForResourceDescription.add(RDFS.Res.SUBCLASSOF);
 		bannedPredicatesForResourceDescription.add(OWL.Res.IMPORTS);
 
+		boolean bnodeFilter = setHttpBooleanPar("bnodeFilter"); 
+		
 		while (stit.hasNext()) {
 			ARTStatement st = stit.next();
 			ARTURIResource valuedProperty = st.getPredicate();
 
 			if (!bannedPredicatesForResourceDescription.contains(valuedProperty)
 					&& !STVocabUtilities.isHiddenResource(valuedProperty)) {
-				logger.debug("adding " + st.getObject() + " to " + valuedProperty + " bucket");
-				properties.add(valuedProperty);
-				propertyValuesMap.put(valuedProperty, st.getObject());
+				
+				ARTNode value = st.getObject();
+				
+				if (!bnodeFilter || !value.isBlank()) {
+					logger.debug("adding " + st.getObject() + " to " + valuedProperty + " bucket");
+					properties.add(valuedProperty);
+					propertyValuesMap.put(valuedProperty, value);	
+				}				
 			}
 		}
 	}
@@ -292,6 +297,15 @@ public abstract class Resource extends ServiceAdapter {
 			} catch (ModelAccessException e) {
 				return ServletUtilities.getService().createExceptionResponse(request, e);
 			}
+			
+		if (restype == VocabularyTypesInts.ontology) {
+			Element importsElem = XMLHelp.newElement(dataElement, "Imports");
+			try {
+				getImports(ontModel, resource.asURIResource(), importsElem);
+			} catch (ModelAccessException e) {
+				return ServletUtilities.getService().createExceptionResponse(request, e);
+			}
+		}
 
 		// OTHER PROPERTIES
 
@@ -377,7 +391,7 @@ public abstract class Resource extends ServiceAdapter {
 		while (ranges.hasNext()) {
 			ARTResource nextRange = ranges.next();
 			rangesSet.add(nextRange);
-			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange, true, 
+			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange, true,
 					visualization);
 			if (explicitRanges.contains(nextRange))
 				rangeElement.setAttribute("explicit", "true");
@@ -385,7 +399,7 @@ public abstract class Resource extends ServiceAdapter {
 				rangeElement.setAttribute("explicit", "false");
 		}
 		ranges.close();
-		
+
 		try {
 			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, rangesSet)
 					.toString());
@@ -511,6 +525,18 @@ public abstract class Resource extends ServiceAdapter {
 					explicit = "false";
 				superTypeElem.setAttribute("explicit", explicit);
 			}
+		}
+	}
+
+	protected void getImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem)
+			throws ModelAccessException {
+
+		Collection<ARTURIResource> imports;
+
+		imports = RDFIterators.getCollectionFromIterator(ontModel.listOntologyImports(ontology));
+
+		for (ARTURIResource importedOntology : imports) {
+			RDFXMLHelp.addRDFNodeXMLElement(importsElem, ontModel, importedOntology, false, false);
 		}
 	}
 

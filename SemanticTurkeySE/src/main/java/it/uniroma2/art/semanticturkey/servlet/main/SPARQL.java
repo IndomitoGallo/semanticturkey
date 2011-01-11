@@ -109,11 +109,16 @@ public class SPARQL extends ServiceAdapter {
 
 		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 
+		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok, ser_type);
+		
 		try {
-			ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-					RepliesStatus.ok, ser_type);
 
+			
 			if (response instanceof XMLResponseREPLY) {
+				
+				// XML REQUEST
+				
 				Element dataElement = ((XMLResponseREPLY) response).getDataElement();
 				Query query = owlModel.createQuery(ql, queryString);
 				if (query instanceof TupleQuery) {
@@ -138,7 +143,9 @@ public class SPARQL extends ServiceAdapter {
 					XMLHelp.newElement(dataElement, "result", Boolean.toString(result));
 				}
 			} else {
-
+				
+				// JSON REQUEST
+					
 				if (response instanceof JSONResponseREPLY) {
 					JSONObject data = null;
 					data = ((JSONResponseREPLY) response).getDataElement();
@@ -175,9 +182,8 @@ public class SPARQL extends ServiceAdapter {
 			logger.error(Utilities.printFullStackTrace(e));
 			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
 		} catch (MalformedQueryException e) {
-			System.out.println("malformed query exception");
-			logger.error(Utilities.printFullStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);
+			response.setReplyStatusFAIL("malformed query: " + e.getMessage());
+			return response;
 		} catch (QueryEvaluationException e) {
 			logger.error(Utilities.printFullStackTrace(e));
 			return servletUtilities.createExceptionResponse(request, e.toString(), ser_type);

@@ -8,11 +8,6 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 
 import java.util.Vector;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,7 +21,7 @@ import org.w3c.dom.NodeList;
 public class OWLServiceClient extends HttpServiceClient implements RepositoryServiceClient {
 	private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&method=templateandvalued";
 	private static final String CMD_GET_INSTANCESOF = "service=cls&request=getClassAndInstancesInfo&clsName=%s";
-	private static final String CMD_GET_CLASSDESCRIPTION = "service=cls&request=getClsDescription&clsName=%s&method=templateandvalued";
+	private static final String CMD_GET_CLASSDESCRIPTION = "service=cls&request=getClsDescription&clsName=%s&method=templateandvalued&bnodeFilter=true";
 	private static final String SUBCLASS_LABEL = "subclass-of";
 	private static final String INSTANCE_LABEL = "instance-of";
 	// private static final String NODE_TYPE_LITERAL = "literal";
