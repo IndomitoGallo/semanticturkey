@@ -27,15 +27,10 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertAffirmativeREPLY;
-import static org.junit.Assert.*;
-import it.uniroma2.art.owlart.exceptions.ModelAccessException;
-import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
-import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import static org.junit.Assert.assertEquals;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
@@ -45,7 +40,6 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 
 

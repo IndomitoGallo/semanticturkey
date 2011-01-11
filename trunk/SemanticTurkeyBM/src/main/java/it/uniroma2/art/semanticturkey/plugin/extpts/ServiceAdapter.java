@@ -40,6 +40,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 /**
+ * @author Armando Stellato
  * @author Andrea Turbati
  * 
  */
@@ -76,6 +77,21 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return value;
 	}
 
+	/**
+	 * as for {@link ServiceAdapter#setHttpPar(String) but invokes {@link Boolean#parseBoolean(String)} on the string value of the parameter}
+	 * 
+	 * @param parameterName
+	 * @return
+	 */
+	public boolean setHttpBooleanPar(String parameterName) {
+		String strvalue = setHttpPar(parameterName);
+		boolean value = false;
+		if (strvalue!=null)
+			value = Boolean.parseBoolean(strvalue);
+		return value;
+	}
+	
+	
 	/**
 	 * checks that the http parameters identified by <code>pars</code> have been properly initialized
 	 * 
@@ -167,24 +183,32 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return resp;
 	}
 
-	protected abstract Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException;
-	
+	/**
+	 * this is a method invoked by this class' implementation of {@link ServiceInterface#getResponse()},
+	 * throwing specific exceptions for wrongly specific http parameters. Current implementation just throws
+	 * an {@link HTTPParameterUnspecifiedException} whenever a mandatory parameter has not been specified in
+	 * the request
+	 * 
+	 * @param request
+	 * @return
+	 * @throws HTTPParameterUnspecifiedException
+	 */
+	protected abstract Response getPreCheckedResponse(String request)
+			throws HTTPParameterUnspecifiedException;
+
 	protected abstract Logger getLogger();
 
-	
 	protected Response logAndSendException(Exception e) {
 		return logAndSendException(httpParameters.get("request"), e);
 	}
-	
-	
+
 	protected Response logAndSendException(Exception e, String msg) {
 		return logAndSendException(httpParameters.get("request"), e, msg);
 	}
-	
-	
+
 	/**
-	 * this convenience method prepares an exception response initialized with the given arguments, logs
-	 * the occurred exception with level "error" and prints the stack trace
+	 * this convenience method prepares an exception response initialized with the given arguments, logs the
+	 * occurred exception with level "error" and prints the stack trace
 	 * 
 	 * @param request
 	 * @param e
@@ -197,8 +221,8 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	}
 
 	/**
-	 * this convenience method prepares an exception response initialized with the given arguments, logs
-	 * the occurred exception with level "error" and prints the stack trace
+	 * this convenience method prepares an exception response initialized with the given arguments, logs the
+	 * occurred exception with level "error" and prints the stack trace
 	 * 
 	 * @param request
 	 * @param e
