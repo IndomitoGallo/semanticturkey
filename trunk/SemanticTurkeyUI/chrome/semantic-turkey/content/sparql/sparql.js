@@ -415,9 +415,9 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 		while (rootTreechildren.hasChildNodes()) {
 			rootTreechildren.removeChild(rootTreechildren.lastChild);
 		}
-		
-		if(typeof response.stresponse.data == 'undefined'){
-			var msg = JSON.stringify(response.stresponse.msg);
+		if(response.stresponse.reply.status == 'fail'){
+			//var msg = JSON.stringify(response.stresponse.reply.msg);
+			var msg = response.stresponse.reply.msg;
 			alert(msg);
 			return;
 		}
