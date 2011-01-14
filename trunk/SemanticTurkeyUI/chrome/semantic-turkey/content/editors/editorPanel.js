@@ -75,6 +75,9 @@ window.onload = function() {
 	art_semanticturkey.eventListenerArrayObject
 			.addEventListenerToArrayAndRegister("renamedClass",
 					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("removedType",
+					art_semanticturkey.refreshPanel, null);
 	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
 	// null);
 
@@ -1997,8 +2000,11 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
 								.getAttribute("actualValue"), value);
 			}
 			// art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
-					(new art_semanticturkey.genericEventClass()));
+			//art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			//		(new art_semanticturkey.genericEventClass()));
+			var instancaId = document.getElementById("name").getAttribute("actualValue");
+			art_semanticturkey.evtMgr.fireEvent("removedType",
+					(new art_semanticturkey.typeRemovedClass(instancaId, value)));
 			// document.getElementById("editorPanel").setAttribute("changed",
 			// "true");
 		} catch (e) {

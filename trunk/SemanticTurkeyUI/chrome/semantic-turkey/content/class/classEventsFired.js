@@ -62,6 +62,9 @@ art_semanticturkey.associateEventsFiredByServer = function(){
 	//renamed individual event
 	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("renamedIndividual", art_semanticturkey.renamedIndividualFunct, null);
 	
+	//removed a type of an individual
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedType", art_semanticturkey.removedTypeFunct, null);
+	
 };
 
 
@@ -74,20 +77,35 @@ art_semanticturkey.removeClassFunct = function(eventId, classRemovedObj){
 	}
 };
 
-art_semanticturkey.renamedIndividualFunct = function(eventId, individualRemovedObj){
-	var newIndividualName = individualRemovedObj.getNewIndividualName();
-	var oldIndividualName = individualRemovedObj.getOldIndividualName();
+art_semanticturkey.renamedIndividualFunct = function(eventId, individualRenamedObj){
+	var newIndividualName = individualRenamedObj.getNewIndividualName();
+	var oldIndividualName = individualRenamedObj.getOldIndividualName();
 	var list = document.getElementById("IndividualsList");
-		var listItemList = list.getElementsByTagName("listitem");
-		for (var i = 0; i < listItemList.length; i++) {
-			if (listItemList[i].getAttribute("label") == oldIndividualName) {
-				listItemList[i].setAttribute("label", newIndividualName);
-				var listItIc = listItemList[i]
-						.getElementsByTagName("listitem-iconic");
-				listItIc[0].getElementsByTagName("label")[0].setAttribute(
-						"value", newIndividualName);
-			}
+	var listItemList = list.getElementsByTagName("listitem");
+	for (var i = 0; i < listItemList.length; i++) {
+		if (listItemList[i].getAttribute("label") == oldIndividualName) {
+			listItemList[i].setAttribute("label", newIndividualName);
+			var listItIc = listItemList[i]
+					.getElementsByTagName("listitem-iconic");
+			listItIc[0].getElementsByTagName("label")[0].setAttribute(
+					"value", newIndividualName);
 		}
+	}
+};
+
+art_semanticturkey.removedTypeFunct = function(eventId, removedTypeObj){
+	var type = removedTypeObj.getType();
+	var resource = removedTypeObj.getResource();
+	var list = document.getElementById("IndividualsList");
+	var className = list.getElementsByTagName("listheader")[0].getAttribute("parentCls");
+	var listItemList = list.getElementsByTagName("listitem");
+	if(className != type)
+		return;
+	for (var i = 0; i < listItemList.length; i++) {
+		if (listItemList[i].getAttribute("label") == resource) {
+			listItemList[i].parentNode.removeChild(listItemList[i]);
+		}
+	}
 };
 
 art_semanticturkey.subClsOfRemovedFunct = function(eventId, subClsOfRemovedObj){
