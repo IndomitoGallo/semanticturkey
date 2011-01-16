@@ -296,6 +296,33 @@ art_semanticturkey.typeRemovedClass = function(instanceName, className){
 
 
 /**
+ * The type was added for an instance
+ * @param {} instanceName
+ * @param {} className
+ * @param {} explicit
+ * @param {} instanceType
+ */
+art_semanticturkey.typeAddedClass = function(instanceName, className, explicit, instanceType){
+	var instanceName = instanceName;
+	var className = className;
+	var instanceType = instanceType;
+	var explicit = explicit;
+	
+	this.getResource = function(){
+		return instanceName;
+	};
+	this.getType = function(){
+		return className;
+	};
+	this.getExplicit = function(){
+		return explicit;
+	};
+	this.getIstanceType = function(){
+		return instanceType;
+	};
+};
+
+/**
  * A generic triple was added
  * @param {} subj
  * @param {} predicate
@@ -438,6 +465,8 @@ List of all the eventid used at the moment in Semantic Turkey
 * subClsOfAddedClass
 * subClsOfRemovedClass
 * renamedClass
+* addedType
+* removedType
 * 
 * 
 * refreshEditor  just a placeholder for all other events inside the editor panel

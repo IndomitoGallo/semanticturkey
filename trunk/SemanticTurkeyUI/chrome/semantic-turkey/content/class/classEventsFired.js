@@ -65,6 +65,8 @@ art_semanticturkey.associateEventsFiredByServer = function(){
 	//removed a type of an individual
 	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("removedType", art_semanticturkey.removedTypeFunct, null);
 	
+	//added a type of an individual
+	art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("addedType", art_semanticturkey.addedTypeFunct, null);
 };
 
 
@@ -105,6 +107,43 @@ art_semanticturkey.removedTypeFunct = function(eventId, removedTypeObj){
 		if (listItemList[i].getAttribute("label") == resource) {
 			listItemList[i].parentNode.removeChild(listItemList[i]);
 		}
+	}
+};
+
+art_semanticturkey.addedTypeFunct = function(eventId, addedTypeObj){
+	var type = addedTypeObj.getType();
+	var instName = addedTypeObj.getResource();
+	var list = document.getElementById("IndividualsList");
+	var className = list.getElementsByTagName("listheader")[0].getAttribute("parentCls");
+	var listItemList = list.getElementsByTagName("listitem");
+	if(className != type)
+		return;
+	var foundInstance = false;
+	for (var i = 0; i < listItemList.length; i++) {
+		if (listItemList[i].getAttribute("label") == instName) {
+			foundInstance = true;
+		}
+	}
+	if(foundInstance == false){
+		var lsti = document.createElement("listitem");
+		lsti.setAttribute("label", instName);
+		var explicit = addedTypeObj.getExplicit();
+		lsti.setAttribute("explicit", explicit); 
+		lsti.setAttribute("parentCls", type);
+		var lci = document.createElement("listitem-iconic");
+		var img = document.createElement("image");
+		var instanceType = addedTypeObj.getIstanceType();
+		lsti.setAttribute("type",instanceType);
+		img.setAttribute("src", art_semanticturkey.getImgFromType(instanceType, explicit));
+		
+		lci.appendChild(img);
+		var lbl = document.createElement("label");
+		lbl.setAttribute("value", instName);
+		lbl.setAttribute("id", instName);
+		lbl.setAttribute("class", "base");
+		lci.appendChild(lbl);
+		lsti.appendChild(lci);
+		list.appendChild(lsti);
 	}
 };
 

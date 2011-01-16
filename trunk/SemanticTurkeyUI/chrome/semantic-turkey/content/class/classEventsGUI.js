@@ -790,71 +790,8 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 		var img = document.createElement("image");
 		var type = instancesList[i].getAttribute("type");
 		lsti.setAttribute("type",type);
-		if (type == "individual") {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/individual_noexpl.png");
-
-		} else {
-			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/individual.png");
-			}
-		} else if (type == "cls") {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/class_imported.png");
-
-			} else {
-				img.setAttribute("src",
-						"chrome://semantic-turkey/content/images/class.png");
-			}
-		} else if (type.indexOf("ObjectProperty") != -1) {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propObject_imported.png");
-			} else {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propObject20x20.png");
-			}
-		}else if (type.indexOf("DatatypeProperty") != -1) {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propDatatype_imported.png");
-			} else {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propDatatype20x20.png");
-			}
-		}else if (type.indexOf("AnnotationProperty") != -1) {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
-			} else {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
-			}
-		}else if (type.indexOf("Property") != -1) {
-			if (explicit == "false") {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/prop_imported.png");
-			} else {
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/prop.png");
-			}
-		}else if (type.indexOf("literal") != -1) {
-		//vedere se mettere img o no
-		}else if (type.indexOf("bnodes") != -1) {
-		//vedere se mettere img o no
-		}
+		img.setAttribute("src", art_semanticturkey.getImgFromType(type, explicit));
+		
 		lci.appendChild(img);
 		var lbl = document.createElement("label");
 		lbl.setAttribute("value", instName);
@@ -865,6 +802,48 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 		list.appendChild(lsti);
 	}
 
+};
+
+art_semanticturkey.getImgFromType = function(type, explicit){
+	var imgType;
+	if (type == "individual") {
+		if (explicit == "false")
+			imgType = "chrome://semantic-turkey/content/images/individual_noexpl.png";
+		else 
+			imgType = "chrome://semantic-turkey/content/images/individual.png";
+	} else if (type == "cls") {
+		if (explicit == "false") 
+			imgType = "chrome://semantic-turkey/content/images/class_imported.png";
+		else 
+			imgType = "chrome://semantic-turkey/content/images/class.png";
+	} else if (type.indexOf("ObjectProperty") != -1) {
+		if (explicit == "false")
+			imgType = "chrome://semantic-turkey/content/images/propObject_imported.png";
+		else
+			imgType = "chrome://semantic-turkey/content/images/propObject20x20.png";
+	}else if (type.indexOf("DatatypeProperty") != -1) {
+		if (explicit == "false") 
+			imgType = "chrome://semantic-turkey/content/images/propDatatype_imported.png";
+		else
+			imgType = "chrome://semantic-turkey/content/images/propDatatype20x20.png";
+	}else if (type.indexOf("AnnotationProperty") != -1) {
+		if (explicit == "false") 
+			imgType = "chrome://semantic-turkey/content/images/propAnnotation_imported.png";
+		else
+			imgType = "chrome://semantic-turkey/content/images/propAnnotation20x20.png";
+	}else if (type.indexOf("Property") != -1) {
+		if (explicit == "false")
+			imgType = "chrome://semantic-turkey/content/images/prop_imported.png";
+		else
+			imgType = "chrome://semantic-turkey/content/images/prop.png";
+	}else if (type.indexOf("literal") != -1) {
+		//vedere se mettere img o no
+		imgType="";
+	}else if (type.indexOf("bnodes") != -1) {
+		//vedere se mettere img o no
+		imgType="";
+	}
+	return imgType;
 };
 
 /**
