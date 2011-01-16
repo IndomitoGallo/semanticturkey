@@ -78,6 +78,9 @@ window.onload = function() {
 	art_semanticturkey.eventListenerArrayObject
 			.addEventListenerToArrayAndRegister("removedType",
 					art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+			.addEventListenerToArrayAndRegister("addedType",
+					art_semanticturkey.refreshPanel, null);
 	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
 	// null);
 
@@ -1960,8 +1963,13 @@ art_semanticturkey.addType = function(addtype) {
 						parameters2.selectedClass);
 			}
 			// art_semanticturkey.refreshPanel();
-			art_semanticturkey.evtMgr.fireEvent("refreshEditor",
-					(new art_semanticturkey.genericEventClass()));
+			//art_semanticturkey.evtMgr.fireEvent("refreshEditor",
+			//		(new art_semanticturkey.genericEventClass()));
+			var instancaId = document.getElementById("name").getAttribute("actualValue");
+			var explicit = true;
+			var instanceType = window.arguments[0].sourceType;
+			art_semanticturkey.evtMgr.fireEvent("addedType", 
+					(new art_semanticturkey.typeAddedClass(instancaId, parameters2.selectedClass, explicit, instanceType)));
 			// document.getElementById("editorPanel").setAttribute("changed",
 			// "true");
 		} catch (e) {
