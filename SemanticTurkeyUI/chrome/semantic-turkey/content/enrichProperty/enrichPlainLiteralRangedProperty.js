@@ -58,7 +58,7 @@ art_semanticturkey.setPanel = function() {
 	langList.sort();
 	var langMenuitem = document.createElement("menuitem");
 	langMenuitem.setAttribute('label', "no language");
-	langMenuitem.setAttribute('id', "no language");
+	langMenuitem.setAttribute('id', "");
 	langMenupopup.appendChild(langMenuitem);
 	langMenuitem = document.createElement("menuitem");
 	for (var i = 0; i < langList.length; i++) {
@@ -91,7 +91,7 @@ art_semanticturkey.onAccept = function() {
 	var propValue = document.getElementById("newValue").value;
 	try {
 		var menu = document.getElementById("langMenu");
-		var lang = menu.selectedItem.label;
+		var lang = menu.selectedItem.id;
 		window.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(window.arguments[0].sourceElementName,
 						window.arguments[0].predicatePropertyName, propValue,
 						range, type, lang);
