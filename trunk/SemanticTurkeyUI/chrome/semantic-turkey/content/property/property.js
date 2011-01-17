@@ -82,7 +82,7 @@ art_semanticturkey.addProperty_RESPONSE = function(responseElement) {
 			tc.setAttribute("deleteForbidden", "false");
 			tr.setAttribute("properties", propType.substring(4));
 			tc.setAttribute("properties", propType.substring(4));
-			tc.setAttribute("type", propType);
+			tc.setAttribute("propType", propType);
 			tc.setAttribute("isRootNode", true);
 			//tr.setAttribute("properties", "base" + propType.substring(4));
 			//tc.setAttribute("properties", "base" + propType.substring(4));
@@ -103,9 +103,8 @@ art_semanticturkey.addProperty_RESPONSE = function(responseElement) {
 			tc.setAttribute("numInst", "0");
 			tc.setAttribute("isRootNode", false);
 			tc.setAttribute("properties", propType.substring(4));
-			tc.setAttribute("type", propType);
+			tc.setAttribute("propType", propType);
 			tr.setAttribute("properties", propType.substring(4));
-
 			tr.appendChild(tc);
 			ti.setAttribute('container', 'false');
 			ti.setAttribute('open', 'false');
