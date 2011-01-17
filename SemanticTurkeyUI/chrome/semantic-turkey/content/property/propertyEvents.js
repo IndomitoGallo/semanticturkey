@@ -71,7 +71,6 @@ art_semanticturkey.createSubProperty = function() {
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var selPropName = treecell.getAttribute("label");
 	var selPropType = treecell.getAttribute("propType");
-
 	var parameters = new Object();
 	/*
 	if (selPropType.indexOf("ObjectProperty") != -1) {
