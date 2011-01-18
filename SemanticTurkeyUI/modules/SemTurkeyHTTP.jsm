@@ -51,7 +51,7 @@ HttpMgr = new function() {
 	var requestHandler = new Object();
 	var that = this;
 
-	// Ramon Orr� (2010): introduzione campo per memorizzare la serializzazione
+	// Ramon Orru (2010): introduzione campo per memorizzare la serializzazione
 	// this.serializationType="null";
 
 	// TODO should put a listener for hot changing to these preferences
