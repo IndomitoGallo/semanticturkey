@@ -137,7 +137,6 @@ public class Cls extends Resource {
 		logger.debug("request to cls");
 
 		Response response = null;
-		ServletUtilities servletUtilities = new ServletUtilities();
 		Individual individual = new Individual("individual");
 
 		// all new fashoned requests are put inside these grace brackets
@@ -149,17 +148,17 @@ public class Cls extends Resource {
 		if (request.equals(getClassTreeRequest)) {
 			response = createClassXMLTree();
 		} else if (request.equals(getClassAndInstancesInfoRequest)) {
-			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String clsQName = setHttpPar(clsQNameField);
 			String listMod = setHttpPar(directInstPar);
 			String hasSubClassesMod = setHttpPar(hasSubClassesPar);
 			checkRequestParametersAllNotNull(clsQNameField);
 			response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesMod);
 		} else if (request.equals(getSuperClassesRequest)) {
-			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String clsQName = setHttpPar(clsQNameField);
 			checkRequestParametersAllNotNull(clsQNameField);
 			response = getSuperClasses(clsQName);
 		} else if (request.equals(getSubClassesRequest)) {
-			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String clsQName = setHttpPar(clsQNameField);
 			String tree = setHttpPar(treePar);
 			String instNum = setHttpPar(instNumPar);
 			checkRequestParametersAllNotNull(clsQNameField);
@@ -168,7 +167,7 @@ public class Cls extends Resource {
 			String labelQuery = setHttpPar(labelQueryPar);
 			response = getSubClasses(clsQName, treeBool, instNumBool, labelQuery);
 		} else if (request.equals(getClassesInfoAsRootsForTreeRequest)) {
-			String clsesQNames = servletUtilities.removeInstNumberParentheses(setHttpPar(clsesQNamesPar));
+			String clsesQNames = setHttpPar(clsesQNamesPar);
 			String instNum = setHttpPar(instNumPar);
 			boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
 			checkRequestParametersAllNotNull(clsesQNamesPar);
@@ -182,7 +181,7 @@ public class Cls extends Resource {
 			checkRequestParametersAllNotNull(clsQNameField, "method");
 			response = getClassDescription(classQNameEncoded, method);
 		} else if (request.equals(createInstanceRequest)) {
-			String clsQName = servletUtilities.removeInstNumberParentheses(setHttpPar(clsQNameField));
+			String clsQName = setHttpPar(clsQNameField);
 			String instanceQName = setHttpPar(instanceNamePar);
 			checkRequestParametersAllNotNull(instanceNamePar, clsQNameField);
 			response = createInstanceOption(instanceQName, clsQName);
