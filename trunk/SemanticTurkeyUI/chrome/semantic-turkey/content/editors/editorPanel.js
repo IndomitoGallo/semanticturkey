@@ -931,11 +931,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				box3.insertBefore(typeToolbarButton, typeToolbarButton2);
 				// propertyToolbar.appendChild(typeToolbarButton2);
 				var propList = document.createElement("listbox");
-				propList.setAttribute("id", nameValue);
-				if (typeValue == "owl:ObjectProperty") {
-					// propList.setAttribute("ondblclick",
-					// "listdblclick(event);");
-				}
+				propList.setAttribute("id", nameValue);				
 				propList.setAttribute("flex", "1");
 				for (var j = 0; j < valueList.length; j++) {
 					if (typeof(valueList[j].tagName) != 'undefined') {
@@ -966,25 +962,26 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 											"chrome://semantic-turkey/content/images/class20x20.png");
 							lci.appendChild(img);
 						}
+						
+
+						var containerObjTx = new Object();
+						containerObjTx.explicit = explicit;
+						containerObjTx.sourceElementName = value;
+						containerObjTx.rangeQName=rangeQName;
+						if (role == "cls")
+							containerObjTx.sourceType = "cls";
+						else if (role == "individual")
+							containerObjTx.sourceType = "individual";
+						else
+							// property
+							containerObjTx.sourceType = "property";
+						lsti.containerObj = containerObjTx;
 						lsti.addEventListener("dblclick",
 								art_semanticturkey.resourcedblClickEvent, true);
 						lsti.addEventListener("mouseover",
 								art_semanticturkey.setCursorPointerEvent, true);
 						lsti.addEventListener("mouseout",
 								art_semanticturkey.setCursorDefaultEvent, true);
-
-						var containerObjTx = new Object();
-						containerObjTx.explicit = explicit;
-						containerObjTx.sourceElementName = value;
-						containerObjTx.rangeQName=rangeQName;
-						if (type == "cls")
-							containerObjTx.sourceType = "cls";
-						else if (type == "individual")
-							containerObjTx.sourceType = "individual";
-						else
-							// property
-							containerObjTx.sourceType = "property";
-						lsti.containerObj = containerObjTx;
 					}else if(type.indexOf("plainLiteral")!=-1){
 						var lang = valueList[j].getAttribute("lang");
 						lbl.setAttribute("value", value + " (language: " + lang
