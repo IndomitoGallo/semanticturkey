@@ -46,10 +46,10 @@ window.onload = function() {
 	var sourceType = window.arguments[0].sourceType;
 	var sourceElementName = window.arguments[0].sourceElementName;
 	var sourceParentElementName = window.arguments[0].sourceParentElementName;
-	if (sourceElementName.indexOf('(') > -1) {
+	/*if (sourceElementName.indexOf('(') > -1) {
 		sourceElementName = sourceElementName.substring(0, sourceElementName
 						.indexOf('('));
-	}
+	}*/
 
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);

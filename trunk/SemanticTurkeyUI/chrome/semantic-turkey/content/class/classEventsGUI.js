@@ -353,7 +353,7 @@ art_semanticturkey.loadInstanceList = function(event,tree,list) {
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var numInst = treecell.getAttribute("numInst");
-	var className = treecell.getAttribute("label");
+	var className = currentelement.getAttribute("className");
 	var list = list;
 	if (typeof list == 'undefined')
 		var list = document.getElementById("IndividualsList");
@@ -862,7 +862,7 @@ art_semanticturkey.classesTreedoubleClick = function(event) {
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var numInst = treecell.getAttribute("numInst");
-	var className = treecell.getAttribute("label");
+	var className = currentelement.getAttribute("className");
 	var parameters = new Object();
 	parameters.sourceType = "cls";
 	parameters.sourceElement = currentelement;

@@ -36,7 +36,7 @@ window.onload = function() {
 			.getObjPropertyTree();
 		} else if (window.arguments[0].type.indexOf("DatatypeProperty")!=-1) {
 			responseXML = art_semanticturkey.STRequests.Property
-			.getDatatypePropertyTree();
+			.getDatatypePropertiesTree();
 		} else if (window.arguments[0].type.indexOf("AnnotationProperty")!=-1) {
 			responseXML = art_semanticturkey.STRequests.Property
 			.getAnnotationPropertyTree();
