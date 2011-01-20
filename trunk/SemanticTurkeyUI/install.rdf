@@ -85,7 +85,6 @@
 				<em:skin>skin/classic/</em:skin>
 			</rdf:Description>
 		</em:file>
-		<em:hidden />
 		<em:developer>Armando Stellato</em:developer>
 		<em:developer>Noemi Scarpato</em:developer>
 		<em:developer>Andrea Turbati</em:developer>
