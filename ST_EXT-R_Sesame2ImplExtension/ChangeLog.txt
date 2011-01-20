@@ -1,5 +1,5 @@
-version 1.0.3-SNAPSHOT
-date: 2010-11-16
+version 1.0.3
+date: 2011-01-20
 comments:
   - followed changes in sesame2impl library, according to those in OWL ART
   - changed repository for sesame onejar to the one provided by franz (in Sesame2 library)

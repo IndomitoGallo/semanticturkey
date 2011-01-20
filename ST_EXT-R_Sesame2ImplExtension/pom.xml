@@ -106,7 +106,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>semanticturkey</artifactId>
-			<version>0.7.2-SNAPSHOT</version>
+			<version>0.7.2</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
