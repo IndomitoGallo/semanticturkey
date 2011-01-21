@@ -15,7 +15,31 @@ var deleteServiceName = deleteService.serviceName;
  * @member STRequests.Property
  * @return
  */
-function getPropertyTree(instanceQName, method) {
+function /**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+/**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+/**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+/**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+/**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+/**
+ * @author Armando Stellato <stellato@info.uniroma2.it>
+ *
+ */
+getPropertyTree(instanceQName, method) {
 	Logger.debug('[SERVICE_Property.jsm] getPropertyTree');
 	if (typeof instanceQName != "undefined") {
 		var instanceQName = "instanceQName=" + instanceQName;
@@ -269,16 +293,26 @@ function  getDomain(propertyQName){
  * @param propertyQName
  * @return
  */
-function  getRange(propertyQName,visualize){
+function  getRange(propertyQName,visualize) {
 	var propertyQName = "propertyQName=" + propertyQName;
 	var visualize = "visualize=" + visualize;
 	return HttpMgr.GET(serviceName, service.getRangeRequest, propertyQName,visualize);
 }
-function  parseDataRange(dataRange,nodeType){
+
+/**
+ * parses a list of literals representing values in a dataRange
+ * 
+ * @member STRequests.Property
+ * @param dataRange
+ * @param nodeType
+ * @return
+ */
+function  parseDataRange(dataRange,nodeType) {
 	var dataRange = "dataRange=" + dataRange;
 	var nodeType = "nodeType=" + nodeType;
 	return HttpMgr.GET(serviceName, service.parseDataRangeRequest, dataRange,nodeType);
 }
+
 /**
  * specifies the domain for property <em>propertyQName</em> (actually, it just adds a class to the list of
  * classes the intersection of which represents the true property domain)
