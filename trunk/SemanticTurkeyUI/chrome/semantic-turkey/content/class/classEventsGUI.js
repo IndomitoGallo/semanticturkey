@@ -907,7 +907,7 @@ art_semanticturkey.createIndividual = function() {
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var parameters = new Object();
-	parameters.name = treecell.getAttribute("label");
+	parameters.name = currentelement.getAttribute("className");
 	parameters.parentWindow = window;
 	window
 			.openDialog(
