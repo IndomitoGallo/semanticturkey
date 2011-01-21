@@ -257,6 +257,14 @@ function getPageAnnotations(urlPage) {
 	return HttpMgr.GET(serviceName, service.getPageAnnotationsRequest,urlPage);
 }
 
+/**
+ * @member STRequests.Annotation
+ * @param urlPage
+ * @param instanceQName
+ * @param text
+ * @param title
+ * @return
+ */
 function addAnnotation(urlPage,instanceQName,text,title){
 	var urlPage="urlPage="+urlPage;
 	var instanceQName="instanceQName="+instanceQName;
