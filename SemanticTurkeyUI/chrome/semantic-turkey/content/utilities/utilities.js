@@ -35,6 +35,10 @@ art_semanticturkey.manageInput = function(type, txbox) {
 };
 
 art_semanticturkey.isUrl = function(s) {
+	if(s.indexOf(" ") != -1)
+		return false;
+	if((s.indexOf("ftp://") != 0) && (s.indexOf("http://") != 0) && (s.indexOf("https://") != 0))
+		return false;
 	var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 	return regexp.test(s);
 };

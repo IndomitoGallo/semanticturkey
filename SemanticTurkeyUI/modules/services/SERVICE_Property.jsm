@@ -15,31 +15,7 @@ var deleteServiceName = deleteService.serviceName;
  * @member STRequests.Property
  * @return
  */
-function /**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-/**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-/**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-/**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-/**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-/**
- * @author Armando Stellato <stellato@info.uniroma2.it>
- *
- */
-getPropertyTree(instanceQName, method) {
+function getPropertyTree(instanceQName, method) {
 	Logger.debug('[SERVICE_Property.jsm] getPropertyTree');
 	if (typeof instanceQName != "undefined") {
 		var instanceQName = "instanceQName=" + instanceQName;
@@ -293,7 +269,7 @@ function  getDomain(propertyQName){
  * @param propertyQName
  * @return
  */
-function  getRange(propertyQName,visualize) {
+function getRange(propertyQName,visualize) {
 	var propertyQName = "propertyQName=" + propertyQName;
 	var visualize = "visualize=" + visualize;
 	return HttpMgr.GET(serviceName, service.getRangeRequest, propertyQName,visualize);
