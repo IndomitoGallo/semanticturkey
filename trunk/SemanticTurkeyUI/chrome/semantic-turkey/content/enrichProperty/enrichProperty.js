@@ -77,25 +77,15 @@ art_semanticturkey.setPanel = function() {
 // NScarpato 24/05/2007 add new annotation AND new instance bind function ("bind
 // to new individual for selected class")
 art_semanticturkey.bind = function() {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefBranch);
-		var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		if( AnnotFunctionList[defaultAnnotFun] != null){
+			
 			var tree = document.getElementById("ep_classesTree");
-			var responseXML = AnnotFunctionList[defaultAnnotFun]["listDragDropBind"](window,tree);
+			var responseXML = art_semanticturkey.listDragDropBind(window,tree);
 			if(responseXML != null){
 				var mainTree = window.arguments[0].parentWindow.document.getElementById("classesTree");
 				close();
 				window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
 			}	
-		}else{
-			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
-			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
-		}
+		
 		close();
 };
 // NScarpato 28/05/2007 add sole annotate function ("add new annotation for
@@ -103,19 +93,9 @@ art_semanticturkey.bind = function() {
 // NScarpato 10/03/2008 add annotate function "addExistingPropValue"
 art_semanticturkey.annotateInst = function(){
 	var myList = document.getElementById("ep_IndividualsList");
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefBranch);
-		var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		if( AnnotFunctionList[defaultAnnotFun] != null){
-			AnnotFunctionList[defaultAnnotFun]["listDragDropAnnotateInst"](window,myList);
-		}else{
-			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
-			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
-		}
+			
+			art_semanticturkey.listDragDropAnnotateInstance(window,myList);
+		
 		close();
 };
 
@@ -157,3 +137,105 @@ art_semanticturkey.onCancel = function() {
 	window.arguments[0].oncancel = true;
 	window.close();
 };
+
+art_semanticturkey.listDragDropBind = function(win, tree) {
+	var range = tree.view.selection.getRangeCount();
+	if (range <= 0) {
+		alert("No range class selected");
+		return;
+	} else {
+		try {
+			var currentelement = tree.treeBoxObject.view
+					.getItemAtIndex(tree.currentIndex);
+			var selectedObjClsName = currentelement.getAttribute("className");
+			var type = "resource";
+			if (typeof win.arguments[0].action != 'undefined') {
+				var parameters = new Object();
+				parameters.parentBox = win.arguments[0].parentBox;
+				parameters.rowBox = win.arguments[0].rowBox;
+				parameters.sourceElementName = win.arguments[0].sourceElementName;
+				propValue = null;
+				propValue = prompt("Insert new property value:", "",
+						"Create and add property value");
+				if (propValue != null) {
+					parameters.propValue = propValue;
+					return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+							.createAndAddPropValue(
+									win.arguments[0].sourceElementName,
+									win.arguments[0].predicatePropertyName,
+									propValue, selectedObjClsName, type);
+				}
+			} else {
+				close();
+			/*NScarpato 29/11/2010*/
+			 win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					win.arguments[0].subjectInstanceName,
+					win.arguments[0].predicatePropertyName,
+					win.arguments[0].objectInstanceName,
+					selectedObjClsName,
+					type
+			);
+			return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(win.arguments[0].urlPage,win.arguments[0].subjectInstanceName,
+			win.arguments[0].objectInstanceName,win.arguments[0].title);
+				/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
+						.relateAndAnnotateBindCreate(
+								win.arguments[0].subjectInstanceName,
+								win.arguments[0].predicatePropertyName,
+								win.arguments[0].objectInstanceName,
+								win.arguments[0].urlPage,
+								win.arguments[0].title, selectedObjClsName,
+								null, type);*/
+			}
+		} catch (e) {
+			alert(e.name + ": " + e.message);
+		}
+	}
+};
+
+//NScarpato 28/05/2007 add sole annotate function ("add new annotation for
+//selected instance")
+//NScarpato 10/03/2008 add annotate function "addExistingPropValue"
+art_semanticturkey.listDragDropAnnotateInstance = function(win, myList) {
+	var selItem = myList.selectedItem;
+	var instanceName = selItem.label;
+	try {
+		if (win.arguments[0].action != null) {
+			/*
+			 * parameters = new Object(); parameters.parentBox =
+			 * win.arguments[0].parentBox; parameters.rowBox =
+			 * win.arguments[0].rowBox; parameters.propValue =
+			 * win.arguments[0].instanceName; parameters.sourceElementName =
+			 * win.arguments[0].sourceElementName;
+			 */
+			var responseXML = art_semanticturkey.STRequests.Property.getRange(
+					win.arguments[0].predicatePropertyName, "false");
+			var ranges = responseXML.getElementsByTagName("ranges")[0];
+			var type = (ranges.getAttribute("rngType"));
+			
+			win.close();
+			if(type =="undetermined"){
+				return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+					.addExistingPropValue(win.arguments[0].sourceElementName,
+							win.arguments[0].predicatePropertyName,
+							instanceName, win.arguments[0].rangeType);
+			}else{
+				return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+					.addExistingPropValue(win.arguments[0].sourceElementName,
+							win.arguments[0].predicatePropertyName,
+							instanceName, type);
+			}
+		} else {
+			win.close();
+			return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
+					.relateAndAnnotateBindAnnot(
+							win.arguments[0].subjectInstanceName,
+							win.arguments[0].predicatePropertyName,
+							instanceName, win.arguments[0].urlPage,
+							win.arguments[0].title,
+							win.arguments[0].objectInstanceName);
+		}
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
+};
+

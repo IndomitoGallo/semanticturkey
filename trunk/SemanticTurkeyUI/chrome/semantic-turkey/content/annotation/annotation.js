@@ -80,9 +80,38 @@ art_semanticturkey.viewAnnotationOnPage = function() {
 		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		if( AnnotFunctionList[defaultAnnotFun] != null){
-			AnnotFunctionList[defaultAnnotFun]["highlightAnnotation"]();
-		}else{
+		
+		if (AnnotFunctionList[defaultAnnotFun] != null) {
+			//get the function of the selected family for the event highlight function
+			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("highlightAnnotation");
+			var count=0;
+			var index;
+			
+			//check how much function are present and enabled
+			for(var j=0; j<FunctionOI.length;j++)
+				if(FunctionOI[j].isEnabled()){
+					count++;
+					index=j;
+				}
+			
+			//if no functions alert the user
+			if(count == 0)
+				alert("Non ci sono funzioni registrate o abilitate per questo evento");
+			//if 1 function is present and enabled execute
+			else if (count == 1) {
+				var fun = FunctionOI[index].getfunct();
+				fun();
+			}
+			//open the choice menu
+			else {
+				
+				window.openDialog(
+						"chrome://semantic-turkey/content/DragDrop/highlightFunction.xul",
+						"_blank", "modal=yes,resizable,centerscreen");
+			}
+				
+		}
+		else {
 			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
 			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
@@ -96,7 +125,10 @@ gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnota
 //adding an event for loading of the loading of the page in a tab of the browser
 gBrowser.addEventListener("load", art_semanticturkey.chkAnnotationEvent, true);
 
-//adding an event for the loading of a project
-art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
+//TODO check this error
+//adding an event for the loading of a project // FF 4.0 says: Error: art_semanticturkey.eventListener is not a constructor Sourcefile: chrome://semantic-turkey/content/annotation/annotation.js Row: 100
+//art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
+//just guessing based on: http://www.quirksmode.org/js/events_advanced.html
 
+//art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
 

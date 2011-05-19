@@ -150,21 +150,9 @@ art_semanticturkey.onAccept = function() {
 	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 	if (sindex == 0) {
-		AnnotFunctionList = annComponent.wrappedJSObject.getList();
-		if (AnnotFunctionList[defaultAnnotFun] != null) {
-			//AnnotFunctionList[defaultAnnotFun]["furtherAnnotation"]();
-			//close();
-			window.setTimeout(function() {window.close();}, 10); 
-			AnnotFunctionList[defaultAnnotFun]["furtherAnnotation"]();
-		} else {
-			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-					.getService(Components.interfaces.nsIPromptService);
-			prompts.alert(null, defaultAnnotFun
-					+ " annotation type not registered ", defaultAnnotFun
-					+ " not registered annotation type reset to bookmarking");
-			prefs.setCharPref("extensions.semturkey.extpt.annotate",
-					"bookmarking");
-		}
+		window.setTimeout(function() {window.close();}, 10);
+		art_semanticturkey.furtherAnnotFunction();
+
 	} else if (sindex == 1) {
 		var tree = document.getElementById("annotatorTree");
 		var start = new Object();
@@ -174,25 +162,10 @@ art_semanticturkey.onAccept = function() {
 		if (numRanges == 1) {
 			parameters = art_semanticturkey.getParameters(tree,
 					tree.currentIndex);
-			AnnotFunctionList = annComponent.wrappedJSObject.getList();
-			if (AnnotFunctionList[defaultAnnotFun] != null) {
-				//AnnotFunctionList[defaultAnnotFun]["listDragDropEnrichProp"](parameters);
-				//close();
+							
 				window.setTimeout(function() {window.close();}, 10); 
-				AnnotFunctionList[defaultAnnotFun]["listDragDropEnrichProp"](parameters);
-			} else {
-				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-						.getService(Components.interfaces.nsIPromptService);
-				prompts
-						.alert(
-								null,
-								defaultAnnotFun
-										+ " annotation type not registered ",
-								defaultAnnotFun
-										+ " not registered annotation type reset to bookmarking");
-				prefs.setCharPref("extensions.semturkey.extpt.annotate",
-						"bookmarking");
-			}
+				art_semanticturkey.listDragDropEnrichProp(parameters);
+			
 		} else {
 			alert("Please select a property");
 		}
@@ -234,4 +207,278 @@ art_semanticturkey.updateState = function() {
 	} else {
 		tree.setAttribute("disabled", "false");
 	}
+};
+
+//Annotation function that add further lexicalization of an instance (0)
+art_semanticturkey.furtherAnnotFunction = function() {
+	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+			.getService(Components.interfaces.nsIWindowWatcher);
+	var window = ww.activeWindow;
+	var objectInstanceName = window.arguments[0].objectInstanceName;
+	var subjectInstanceName = window.arguments[0].subjectInstanceName;
+	var parentWindow = window.arguments[0].parentWindow;
+	try {
+		parentWindow.art_semanticturkey.STRequests.Annotation
+			.createFurtherAnnotation(
+				subjectInstanceName,
+				objectInstanceName,
+				window.arguments[0].urlPage,
+				window.arguments[0].title);
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
+
+};
+
+art_semanticturkey.listDragDropEnrichProp = function(parameters) {
+	try {
+		// NScarpato 26/11/2010
+		var responseXML = art_semanticturkey.STRequests.Property.getRange(
+				parameters.predicatePropertyName, "false");
+		var ranges = responseXML.getElementsByTagName("ranges")[0];
+		if (ranges.getAttribute("rngType").indexOf("resource") != -1) {
+			window
+					.openDialog(
+							"chrome://semantic-turkey/content/enrichProperty/enrichProperty.xul",
+							"_blank", "modal=yes,resizable,centerscreen",
+							parameters);
+			// NScarpato 15/04/2008
+			if (parameters.oncancel == false) {
+				close();
+			}
+
+		} else if (ranges.getAttribute("rngType").indexOf("plainLiteral") != -1) {
+			var parametersLang = new Object();
+			var lang = "";
+			parametersLang.lang = lang;
+			parametersLang.onAccept = art_semanticturkey.onLangAccept;
+			window.openDialog(
+					"chrome://semantic-turkey/content/availableLanguages.xul",
+					"_blank", "modal=yes,resizable,centerscreen",
+					parametersLang);
+			close();
+			
+			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					null,
+					"plainLiteral",
+					parametersLang.lang
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+			/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+					.relateAndAnnotateBindCreate(
+							parameters.subjectInstanceName,
+							parameters.predicatePropertyName,
+							parameters.objectInstanceName, parameters.urlPage,
+							parameters.title, parameters.objectClsName,
+							parametersLang.lang);*/
+
+		} else if (ranges.getAttribute("rngType").indexOf("typedLiteral") != -1) {
+			var rangeList = ranges.childNodes;
+			for (var i = 0; i < rangeList.length; ++i) {
+				if (typeof(rangeList[i].tagName) != 'undefined') {
+
+					parameters.rangeType = rangeList[i].textContent;
+				}
+			}
+			close();
+			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					parameters.rangeType,
+					"typedLiteral"
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+			/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+					.relateAndAnnotateBindCreate(
+							parameters.subjectInstanceName,
+							parameters.predicatePropertyName,
+							parameters.objectInstanceName, parameters.urlPage,
+							parameters.title, parameters.objectClsName);*/
+		} else if (ranges.getAttribute("rngType").indexOf("literal") != -1) {
+			var literalsParameters = new Object();
+			literalsParameters.isLiteral = "literal";
+			window
+					.openDialog(
+							"chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
+							"_blank", "modal=yes,resizable,centerscreen",
+							literalsParameters);
+			if (literalsParameters.isLiteral == "plainLiteral") {
+				var parametersLang = new Object();
+				var lang = "";
+				parametersLang.lang = lang;
+				parametersLang.onAccept = art_semanticturkey.onLangAccept;
+				window
+						.openDialog(
+								"chrome://semantic-turkey/content/availableLanguages.xul",
+								"_blank", "modal=yes,resizable,centerscreen",
+								parametersLang);
+				close();
+				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					null,
+					"plainLiteral",
+					parametersLang.lang
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+						.relateAndAnnotateBindCreate(
+								parameters.subjectInstanceName,
+								parameters.predicatePropertyName,
+								parameters.objectInstanceName,
+								parameters.urlPage, 
+								parameters.title,
+								parameters.objectClsName, 
+								parametersLang.lang);*/
+			} else if (literalsParameters.isLiteral == "typedLiteral") {
+				var rangeList = ranges.childNodes;
+				for (var i = 0; i < rangeList.length; ++i) {
+					if (typeof(rangeList[i].tagName) != 'undefined') {
+
+						parameters.rangeType = rangeList[i].textContent;
+					}
+				}
+				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					parameters.rangeType,
+					"typedLiteral"
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+						.relateAndAnnotateBindCreate(
+								parameters.subjectInstanceName,
+								parameters.predicatePropertyName,
+								parameters.objectInstanceName,
+								parameters.urlPage,
+								parameters.title,
+								parameters.objectClsName);*/
+			}
+
+			
+				// NScarpato 15/04/2008
+				if (parameters.oncancel == false) {
+					close();
+				}
+
+		}else if (ranges.getAttribute("rngType").indexOf("dataRange") != -1) { 
+			var rangeList = ranges.childNodes; 
+			for (var i = 0; i <	rangeList.length; ++i) { 
+				if (typeof(rangeList[i].tagName) != 'undefined') { 
+					var dataRangeBNodeID = rangeList[i].textContent; 
+				} 
+			}
+			var responseXML =
+			art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,"bnode");
+			var dataElement = responseXML.getElementsByTagName("data")[0];
+			var dataRangesList = dataElement.childNodes; 
+			var	dataRangesValueList = new Array(); 
+			var k=0;
+			var type=null;
+			var rangeQName = null;
+			for (var i = 0; i < dataRangesList.length; ++i) {
+				if (typeof(dataRangesList[i].tagName) != 'undefined') {
+					if(parameters.objectInstanceName == dataRangesList[i].getAttribute("show")){
+						type = dataRangesList[i].tagName;
+						rangeQName = dataRangesList[i].getAttribute("type");
+						break;
+					}
+				}
+			}
+			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					rangeQName,
+					type
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+			 
+		}else if (ranges.getAttribute("rngType").indexOf("undetermined") != -1) {
+			var literalsParameters = new Object();
+			literalsParameters.isLiteral = "undetermined"; 
+			window.openDialog("chrome://semantic-turkey/content/enrichProperty/isLiteral.xul",
+			 "_blank", "modal=yes,resizable,centerscreen",literalsParameters); 
+			if(literalsParameters.isLiteral ==  "plainLiteral"){ 
+				var parametersLang = new Object();
+				var lang = "";
+				parametersLang.lang = lang;
+				parametersLang.onAccept = art_semanticturkey.onLangAccept;
+				window.openDialog(
+					"chrome://semantic-turkey/content/availableLanguages.xul",
+					"_blank", "modal=yes,resizable,centerscreen",
+					parametersLang);
+				close();
+				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					null,
+					"plainLiteral",
+					parametersLang.lang
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+						.relateAndAnnotateBindCreate(
+							parameters.subjectInstanceName,
+							parameters.predicatePropertyName,
+							parameters.objectInstanceName, parameters.urlPage,
+							parameters.title, parameters.objectClsName,
+							parametersLang.lang);*/
+			 }else if(literalsParameters.isLiteral == "typedLiteral"){ 
+			 	//TODO aggiungere finestra per scegliere il tipo
+			 	var rangeList = ranges.childNodes;
+				for (var i = 0; i < rangeList.length; ++i) {
+					if (typeof(rangeList[i].tagName) != 'undefined') {
+						parameters.rangeType = rangeList[i].textContent;
+					}
+				}
+				close();
+				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subjectInstanceName,
+					parameters.predicatePropertyName,
+					parameters.objectInstanceName,
+					parameters.rangeType,
+					"typedLiteral"
+			);
+			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
+			parameters.objectInstanceName,parameters.title);
+				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
+						.relateAndAnnotateBindCreate(
+							parameters.subjectInstanceName,
+							parameters.predicatePropertyName,
+							parameters.objectInstanceName, parameters.urlPage,
+							parameters.title, parameters.objectClsName);*/
+			 }else if(literalsParameters.isLiteral == "resource"){ 
+			  	parameters.rangeType="resource";
+			  	window
+					.openDialog(
+							"chrome://semantic-turkey/content/enrichProperty/enrichProperty.xul",
+							"_blank", "modal=yes,resizable,centerscreen",
+							parameters);
+				// NScarpato 15/04/2008
+				if (parameters.oncancel == false) {
+					close();
+				}
+			  } 
+			}else if (ranges.getAttribute("rngType").indexOf("inconsistent") != -1) { 
+				alert("Error range of "+propertyQName+" property is  inconsistent"); 
+			}
+			
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
+
 };

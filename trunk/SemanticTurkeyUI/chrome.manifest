@@ -18,3 +18,14 @@ skin       semantic-turkey  classic/1.0  chrome/semantic-turkey/skin/classic/
 # style    chrome://global/content/customizeToolbar.xul  chrome://semantic-turkey/skin/browser.css
 
 locale     semantic-turkey  en-US  chrome/semantic-turkey/locale/en-US/
+
+#in  FF4.0 we need to declare interfaces
+interfaces components/nsISemanticTurkey.xpt
+interfaces components/nsISemanticTurkeyAnnotation.xpt
+
+#also we need to declare the components that we have
+component {bd38239a-2ccb-4d06-ac61-fb3aa82cadea} components/BridgeComponent.js
+contract @art.uniroma2.it/semanticturkey;1 {bd38239a-2ccb-4d06-ac61-fb3aa82cadea}
+
+component {a4bd5780-fe6f-11dd-87af-0800200c9a66} components/AnnotationComponent.js
+contract @art.uniroma2.it/semanticturkeyannotation;1 {a4bd5780-fe6f-11dd-87af-0800200c9a66}
