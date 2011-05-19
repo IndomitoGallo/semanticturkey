@@ -26,6 +26,7 @@ const defaultAnnPrefsEntry = "extensions.semturkey.extpt.annotate";
 
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
+
 /**
  * @author Scarpato Noemi 05/12/2008 Init preferences panel
  */
@@ -42,8 +43,11 @@ function populatePreferecesPanel() {
 	var annListItem = document.createElement("listitem");
 	for (var annFunName in annList) {  
 		annListItem.setAttribute("label", annFunName);
+		//for each family, add the eventlistener for open the options2 window
+		annListItem.addEventListener("dblclick",art_semanticturkey.familyClick, true);
 		annlistbox.appendChild(annListItem);
 		annListItem = document.createElement("listitem");
+		
 	}
 	// Default Annotation option
 	var defAnn = prefs.getCharPref(defaultAnnPrefsEntry);
@@ -180,4 +184,22 @@ function removeLanguage() {
 				langListItem = document.createElement("listitem");
 			}
 		}
+
 }
+
+//function that is called when double click the name of a family
+//it opens options2 and pass the name of the selected family
+art_semanticturkey.familyClick = function() {
+
+	var selectedItem = document.getElementById("annotationOptions").selectedItem;
+	if(selectedItem!=null){
+		var newDefAnn = selectedItem.getAttribute("label");
+		var parameters=new Object();
+		parameters.label = newDefAnn;
+		window.openDialog(
+				"chrome://semantic-turkey/content/options2.xul",
+				"_blank", "modal=yes,resizable,centerscreen", parameters);
+
+	}else
+		close();
+};

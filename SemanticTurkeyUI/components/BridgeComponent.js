@@ -10,91 +10,130 @@
  *----------------------------------------------------------------------
  */
 
-var BridgeModule = {
-	/*
-	 * VERY IMPORTANT: Modify these first 3 fields to make them unique to your
-	 * components. Note that these fields have nothing to do with the extension
-	 * ID, nor the IDL interface IDs that the component implements. A component
-	 * can implement several interfaces.
-	 */
-	_myComponentID : Components.ID("{964308f5-dcf2-44fa-8bb1-af4c0555757f}"),
-	_myName : "The component for bridging to Java",
-	_myContractID : "@art.uniroma2.it/semanticturkey;1",
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+const Cr = Components.results;
+const ctor = Components.Constructor;
+const Exception = Components.Exception;
+const module = Components.utils.import;
+const error = Components.utils.reportError;
 
-	/*
-	 * This flag specifies whether this factory will create only a single
-	 * instance of the component.
-	 */
-	_singleton : true,
-	_myFactory : {
-		createInstance : function(outer, iid) {
-			if (outer != null) {
-				throw Components.results.NS_ERROR_NO_AGGREGATION;
-			}
 
-			var instance = null;
+//Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const NS_ERROR_NO_INTERFACE = Cr.NS_ERROR_NO_INTERFACE;
+const NS_ERROR_FAILURE = Cr.NS_ERROR_FAILURE;
+const NS_ERROR_NO_AGGREGATION = Cr.NS_ERROR_NO_AGGREGATION;
+const NS_ERROR_INVALID_ARG = Cr.NS_ERROR_INVALID_ARG;
 
-			if (this._singleton) {
-				instance = this.theInstance;
-			}
+//We are using this to xpcom registration
+module("resource://gre/modules/XPCOMUtils.jsm");
 
-			if (!(instance)) {
-				instance = new BridgeComponent(); // BridgeComponent is
-													// declared below
-			}
+//  to be removed in FF4.0 port we are using XPCOMUtils.jsm to  get registered (FF3.6 and FF4.0)
+//var BridgeModule = {
+//
+//     
+//	/*
+//	 * VERY IMPORTANT: Modify these first 3 fields to make them unique to your
+//	 * components. Note that these fields have nothing to do with the extension
+//	 * ID, nor the IDL interface IDs that the component implements. A component
+//	 * can implement several interfaces.
+//	 */
+//	_myComponentID : Components.ID("{964308f5-dcf2-44fa-8bb1-af4c0555757f}"),
+//	_myName : "The component for bridging to Java",
+//	_myContractID : "@art.uniroma2.it/semanticturkey;1",
+//
+//	/*
+//	 * This flag specifies whether this factory will create only a single
+//	 * instance of the component.
+//	 */
+//	_singleton : true,
+//	_myFactory : {
+//		createInstance : function(outer, iid) {
+//			if (outer != null) {
+//				throw Components.results.NS_ERROR_NO_AGGREGATION;
+//			}
+//
+//			var instance = null;
+//
+//			if (this._singleton) {
+//				instance = this.theInstance;
+//			}
+//
+//			if (!(instance)) {
+//				instance = new BridgeComponent(); // BridgeComponent is
+//													// declared below
+//			}
+//
+//			if (this._singleton) {
+//				this.theInstance = instance;
+//			}
+//
+//			return instance.QueryInterface(iid);
+//		}
+//	},
+//
+//	registerSelf : function(compMgr, fileSpec, location, type) {
+//		compMgr = compMgr
+//				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+//		compMgr.registerFactoryLocation(this._myComponentID, this._myName,
+//				this._myContractID, fileSpec, location, type);
+//	},
+//
+//	unregisterSelf : function(compMgr, fileSpec, location) {
+//		compMgr = compMgr
+//				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+//		compMgr.unregisterFactoryLocation(this._myComponentID, fileSpec);
+//	},
+//
+//	getClassObject : function(compMgr, cid, iid) {
+//		if (cid.equals(this._myComponentID)) {
+//			return this._myFactory;
+//		} else if (!iid.equals(Components.interfaces.nsIFactory)) {
+//			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+//		}
+//
+//		throw Components.results.NS_ERROR_NO_INTERFACE;
+//	},
+//
+//	canUnload : function(compMgr) {
+//		/*
+//		 * Do any unloading task you want here
+//		 */
+//		return true;
+//	}
+//};
 
-			if (this._singleton) {
-				this.theInstance = instance;
-			}
+//To be changed in FF4.0 port
+///*
+// * This function NSGetModule will be called by Firefox to retrieve the module
+// * object. This function has to have that name and it has to be specified for
+// * every single .JS file in the components directory of your extension.
+// */
+//function NSGetModule(compMgr, fileSpec) {
+//	return BridgeModule;
+//}
 
-			return instance.QueryInterface(iid);
-		}
-	},
 
-	registerSelf : function(compMgr, fileSpec, location, type) {
-		compMgr = compMgr
-				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-		compMgr.registerFactoryLocation(this._myComponentID, this._myName,
-				this._myContractID, fileSpec, location, type);
-	},
 
-	unregisterSelf : function(compMgr, fileSpec, location) {
-		compMgr = compMgr
-				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-		compMgr.unregisterFactoryLocation(this._myComponentID, fileSpec);
-	},
+ 
 
-	getClassObject : function(compMgr, cid, iid) {
-		if (cid.equals(this._myComponentID)) {
-			return this._myFactory;
-		} else if (!iid.equals(Components.interfaces.nsIFactory)) {
-			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-		}
 
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	},
 
-	canUnload : function(compMgr) {
-		/*
-		 * Do any unloading task you want here
-		 */
-		return true;
-	}
-};
-
-/*
- * This function NSGetModule will be called by Firefox to retrieve the module
- * object. This function has to have that name and it has to be specified for
- * every single .JS file in the components directory of your extension.
- */
-function NSGetModule(compMgr, fileSpec) {
-	return BridgeModule;
-}
-
-/*----------------------------------------------------------------------
- * The Foo Component, implemented as a Javascript function.
- *----------------------------------------------------------------------
- */
+// XPCOMUtils will generate a QueryInterface for us
+///*
+// * nsISupports.QueryInterface
+// */
+//BridgeComponent.prototype.QueryInterface = function(iid) {	 
+//	/*
+//	 * This code specifies that the component supports 2 interfaces:
+//	 * nsISemanticTurkey and nsISupports.
+//	 */
+//	if (!iid.equals(Components.interfaces.nsISemanticTurkey)
+//			&& !iid.equals(Components.interfaces.nsISupports)) {
+//		throw Components.results.NS_ERROR_NO_INTERFACE;
+//	}
+//	return this;
+//};
 
 function BridgeComponent() {
 	/*
@@ -111,22 +150,18 @@ function BridgeComponent() {
 	this._initialized = false;
 	this._packages = null;
 }
-
-/*
- * nsISupports.QueryInterface
- */
-BridgeComponent.prototype.QueryInterface = function(iid) {	 
-	/*
-	 * This code specifies that the component supports 2 interfaces:
-	 * nsISemanticTurkey and nsISupports.
-	 */
-	if (!iid.equals(Components.interfaces.nsISemanticTurkey)
-			&& !iid.equals(Components.interfaces.nsISupports)) {
-		throw Components.results.NS_ERROR_NO_INTERFACE;
-	}
-	return this;
-};
-
+BridgeComponent.prototype={
+    //XPCOMUtils.jsm needs these 
+    classDescription:"BridgeComponent for SemanticTurkey",
+    contractID:"@art.uniroma2.it/semanticturkey;1",
+    classID: Components.ID("{bd38239a-2ccb-4d06-ac61-fb3aa82cadea}"),    
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISupport,Components.interfaces.nsISemanticTurkey]),
+    _xpcom_categories: [{
+        category: 'profile-after-change'
+    }]
+    
+    
+}
 /*
  * Initializes this component, including loading JARs.
  */
@@ -280,3 +315,12 @@ BridgeComponent.prototype._getProfilePath = function() {
 
 	return path;
 };
+
+
+if (XPCOMUtils.generateNSGetFactory) {  //we have 2 entry points from FF depending on FF version
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([BridgeComponent]); 
+}//we are in FF4.0
+else {
+function NSGetModule() XPCOMUtils.generateModule([BridgeComponent]);
+//
+} //we are in FF3.6
