@@ -38,7 +38,7 @@
     
  
   #status-bar-annotation {
-     list-style-image: url("chrome://semantic-turkey/content/images/highlighter.png");
+     list-style-image: url("chrome://semantic-turkey/skin/images/highlighter.png");
      cursor: pointer;	
 }
   

@@ -50,13 +50,13 @@ window.onload = function() {
 art_semanticturkey.initializePanel = function(propType) {
 	var img = document.createElement("image");
 	if (propType.indexOf("ObjectProperty") != -1) {
-		img.setAttribute("src", "../images/propObject20x20.png");
+		img.setAttribute("src", "chrome://semantic-turkey/skin/images/propObject20x20.png");
 	} else if (propType.indexOf("DatatypeProperty") != -1) {
-		img.setAttribute("src", "../images/propDatatype20x20.png");
+		img.setAttribute("src", "chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 	} else if (propType.indexOf("AnnotationProperty") != -1) {
-		img.setAttribute("src", "../images/propAnnotation20x20.png");
+		img.setAttribute("src", "chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 	} else if (propType.indexOf("Property") != -1) {
-		img.setAttribute("src", "../images/prop20x20.png");
+		img.setAttribute("src", "chrome://semantic-turkey/skin/images/prop20x20.png");
 	}
 	var lbl = document.createElement("label");
 	lbl.setAttribute("value", "Create " + propType + " Form");

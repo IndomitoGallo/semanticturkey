@@ -69,25 +69,25 @@
 			inherits="collapsed,hidden" mode="full" persist="collapsed,hidden"
 			toolbarname="SemanticTurkey Toolbar" defaultset="buttonbar">
 			<toolbarbutton id="startSTToolBarButton"
-				image="chrome://semantic-turkey/content/images/st_favicon.png"
+				image="chrome://semantic-turkey/skin/images/st_favicon20x20.png"
 				tooltiptext="Start Semantic Turkey" />
 			<toolbarbutton id="prjManagementToolBarButton"
-				image="chrome://semantic-turkey/content/images/folder-open.png"
+				image="chrome://semantic-turkey/skin/images/folder-open.png"
 				tooltiptext="Open Projects Management" hidden="true" />
 			<toolbarbutton id="SKOSToolBarButton"
-				image="chrome://semantic-turkey/content/images/skosPanel.png"
+				image="chrome://semantic-turkey/skin/images/skosPanel.png"
 				tooltiptext="Open SKOS Editor" hidden="true" />
 			<toolbarbutton id="ontPanelToolBarButton"
-				image="chrome://semantic-turkey/content/images/ontpanel.png"
+				image="chrome://semantic-turkey/skin/images/ontpanel.png"
 				tooltiptext="Open Ontology Panel" hidden="true" />
 			<toolbarbutton id="importsToolBarButton"
-				image="chrome://semantic-turkey/content/images/ontology20.png"
+				image="chrome://semantic-turkey/skin/images/ontology20.png"
 				tooltiptext="Open Imports and Metadata Manager" hidden="true" />
 			<toolbarbutton id="SPARQLToolBarButton"
-				image="chrome://semantic-turkey/content/images/sparql.png"
+				image="chrome://semantic-turkey/skin/images/sparql.png"
 				tooltiptext="Open SPARQL" hidden="true" />
 			<toolbarbutton id="graphBarButton"
-				image="chrome://semantic-turkey/content/images/graph_20x20.png"
+				image="chrome://semantic-turkey/skin/images/graph_20x20.png"
 				tooltiptext="Open Graph View of the Ontology" hidden="true" />
 		</toolbar>
 	</toolbox>
@@ -158,7 +158,7 @@
 	<statusbar id="status-bar">
 		<statusbarpanel id="status-bar-annotation" collapsed="true"
 			class="statusbarpanel-iconic" tooltiptext="Annotated Page"
-			src="chrome://semantic-turkey/content/images/highlighter.png" />
+			src="chrome://semantic-turkey/skin/images/highlighter.png" />
 	</statusbar>
 </overlay>	
 	

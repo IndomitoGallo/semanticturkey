@@ -128,12 +128,12 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			// buttonModify.setAttribute("disabled", "true");
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/class_imported.png");
+							"chrome://semantic-turkey/skin/images/class_imported.png");
 			// txbox.setAttribute("disabled","true");
 
 		} else {
 			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/class20x20.png");
+					"chrome://semantic-turkey/skin/images/class20x20.png");
 		}
 	} else if (type == "individual") {
 		if (isFirstEditor == false) {
@@ -149,10 +149,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			buttonModify.setAttribute("disabled", "true");
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/individual_noexpl.png");
+							"chrome://semantic-turkey/skin/images/individual_noexpl.png");
 		} else {
 			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/individual.png");
+					"chrome://semantic-turkey/skin/images/individual.png");
 		}
 	} else if (type == "Ontology") {
 		document.getElementById("buttonModify").disabled = true;
@@ -168,7 +168,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		if (deleteForbidden == "true") {
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propObject_imported.png");
+							"chrome://semantic-turkey/skin/images/propObject_imported.png");
 			buttonModify.setAttribute("disabled", "true");
 			edPnl.setAttribute("title", "ObjectProperty Editor");
 			mytype = "ObjectProperty";
@@ -176,7 +176,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		} else {
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propObject20x20.png");
+							"chrome://semantic-turkey/skin/images/propObject20x20.png");
 		}
 	} else if (type.indexOf("DatatypeProperty") != -1) {
 		if (isFirstEditor == false) {
@@ -191,14 +191,14 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			buttonModify.setAttribute("disabled", "true");
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propDatatype_imported.png");
+							"chrome://semantic-turkey/skin/images/propDatatype_imported.png");
 			edPnl.setAttribute("title", "DatatypeProperty Editor");
 			mytype = "DatatypeProperty";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propDatatype20x20.png");
+							"chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 		}
 	} else if (type.indexOf("AnnotationProperty") != -1) {
 		if (isFirstEditor == false) {
@@ -213,14 +213,14 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			buttonModify.setAttribute("disabled", "true");
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
+							"chrome://semantic-turkey/skin/images/propAnnotation_imported.png");
 			edPnl.setAttribute("title", "AnnotationProperty Editor");
 			mytype = "AnnotationProperty";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+							"chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 		}
 
 	} else if (type.indexOf("Property") != -1) {
@@ -236,13 +236,13 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			buttonModify.setAttribute("disabled", "true");
 			img
 					.setAttribute("src",
-							"chrome://semantic-turkey/content/images/prop_imported.png");
+							"chrome://semantic-turkey/skin/images/prop_imported.png");
 			edPnl.setAttribute("title", "Property Editor");
 			mytype = "Property";
 			lbl.setAttribute("value", mytype + " Form");
 		} else {
 			img.setAttribute("src",
-					"chrome://semantic-turkey/content/images/prop.png");
+					"chrome://semantic-turkey/skin/images/prop.png");
 		}
 
 	}
@@ -381,12 +381,12 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			separator.setAttribute("orient", "orizontal");
 			parentBox.appendChild(separator);
 			typeToolbarButton.setAttribute("image",
-					"chrome://semantic-turkey/content/images/class_create.png");
+					"chrome://semantic-turkey/skin/images/class_create.png");
 			typeToolbarButton.addEventListener("click",
 					art_semanticturkey.addSuperClass, true);
 			typeToolbarButton.setAttribute("tooltiptext", "Add Super Class");
 			typeToolbarButton2.setAttribute("image",
-					"chrome://semantic-turkey/content/images/class_delete.png");
+					"chrome://semantic-turkey/skin/images/class_delete.png");
 			typeToolbarButton2.addEventListener("click",
 					art_semanticturkey.removeSuperClassEvent, true);
 			var containerObj = new Object();
@@ -397,13 +397,13 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 					.setAttribute("tooltiptext", "Remove Super Class");
 		} else { // Property
 			typeToolbarButton.setAttribute("image",
-					"chrome://semantic-turkey/content/images/prop_create.png");
+					"chrome://semantic-turkey/skin/images/prop_create.png");
 			typeToolbarButton.addEventListener("click",
 					art_semanticturkey.addSuperProperty, true);
 			typeToolbarButton.setAttribute("tooltiptext", "Add SuperProperty");
 			typeToolbarButton2 = document.createElement("toolbarbutton");
 			typeToolbarButton2.setAttribute("image",
-					"chrome://semantic-turkey/content/images/prop_delete.png");
+					"chrome://semantic-turkey/skin/images/prop_delete.png");
 			typeToolbarButton2.addEventListener("click",
 					art_semanticturkey.removeSuperPropertyEvent, true);
 			var containerObj = new Object();
@@ -441,11 +441,11 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				if (request == "getClsDescription") {
 					img
 							.setAttribute("src",
-									"chrome://semantic-turkey/content/images/class20x20.png");
+									"chrome://semantic-turkey/skin/images/class20x20.png");
 				} else {
 					img
 							.setAttribute("src",
-									"chrome://semantic-turkey/content/images/prop20x20.png");
+									"chrome://semantic-turkey/skin/images/prop20x20.png");
 				}
 				lci.appendChild(img);
 				var lbl = document.createElement("label");
@@ -486,21 +486,21 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 
 		if (request == "getClsDescription") {
 			img2.setAttribute("src",
-					"chrome://semantic-turkey/content/images/class20x20.png");
+					"chrome://semantic-turkey/skin/images/class20x20.png");
 			img2.setAttribute("flex", "0");
 			lbl2.setAttribute("value", "Super Classes:");
 			typeButton2.setAttribute("image",
-					"chrome://semantic-turkey/content/images/class_create.png");
+					"chrome://semantic-turkey/skin/images/class_create.png");
 			typeButton2.addEventListener("click",
 					art_semanticturkey.addSuperClass, true);
 			typeButton2.setAttribute("tooltiptext", "Add Super Class");
 		} else {
 			img2.setAttribute("src",
-					"chrome://semantic-turkey/content/images/prop20x20.png");
+					"chrome://semantic-turkey/skin/images/prop20x20.png");
 			img2.setAttribute("flex", "0");
 			lbl2.setAttribute("value", "SuperProperty:");
 			typeButton2.setAttribute("image",
-					"chrome://semantic-turkey/content/images/prop_create.png");
+					"chrome://semantic-turkey/skin/images/prop_create.png");
 			typeButton2.addEventListener("click",
 					art_semanticturkey.addSuperProperty, true);;
 			typeButton2.setAttribute("tooltiptext", "Add SuperProperty");
@@ -547,7 +547,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 					typeButton3.setAttribute("label", "Remove Super Class");
 					typeButton3
 							.setAttribute("image",
-									"chrome://semantic-turkey/content/images/class_delete.png");
+									"chrome://semantic-turkey/skin/images/class_delete.png");
 				} else {
 					typeButton3.addEventListener("command",
 							art_semanticturkey.removeSuperPropertyEvent, true);
@@ -557,7 +557,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 					typeButton3.setAttribute("label", "Remove SuperProperty");
 					typeButton3
 							.setAttribute("image",
-									"chrome://semantic-turkey/content/images/prop_delete.png");
+									"chrome://semantic-turkey/skin/images/prop_delete.png");
 				}
 				if (explicit == "false") {
 					typeButton3.setAttribute("disabled", "true");
@@ -587,7 +587,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		typeToolbox.appendChild(typeToolbar);
 		var typeToolbarButton = document.createElement("toolbarbutton");
 		typeToolbarButton.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		if (request == "getClsDescription") {
 			typeToolbarButton.addEventListener("click",
 					art_semanticturkey.addTypeEvent, true);
@@ -605,7 +605,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		typeToolbar.appendChild(typeToolbarButton);
 		var typeToolbarButton2 = document.createElement("toolbarbutton");
 		typeToolbarButton2.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_delete.png");
+				"chrome://semantic-turkey/skin/images/class_delete.png");
 		typeToolbarButton2.addEventListener("click",
 				art_semanticturkey.removeTypeEvent, true);
 		var containerObj = new Object();
@@ -637,7 +637,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 				img = document.createElement("image");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/class20x20.png");
+								"chrome://semantic-turkey/skin/images/class20x20.png");
 				lci.appendChild(img);
 				lbl = document.createElement("label");
 				var value = typeList[i].getAttribute("class");
@@ -666,7 +666,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		var lbl = document.createElement("label");
 		var img = document.createElement("image");
 		img.setAttribute("src",
-				"chrome://semantic-turkey/content/images/class20x20.png");
+				"chrome://semantic-turkey/skin/images/class20x20.png");
 		img.setAttribute("flex", "0");
 		lbl.setAttribute("value", "Types:");
 		var row = document.createElement("row");
@@ -687,7 +687,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 			typeButton.containerObj = containerObj;
 		}
 		typeButton.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		typeButton.setAttribute("tooltiptext", "Add Type");
 		box.appendChild(typeButton);
 		box.insertBefore(lbl, typeButton);
@@ -731,7 +731,7 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 				typeButton.setAttribute("label", "Remove Type");
 				typeButton
 						.setAttribute("image",
-								"chrome://semantic-turkey/content/images/class_delete.png");
+								"chrome://semantic-turkey/skin/images/class_delete.png");
 				var row2 = document.createElement("row");
 				row2.setAttribute("id", value);
 				row2.appendChild(typeButton);
@@ -755,7 +755,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 	var titleBox = document.createElement("box");
 	var typeTitleToolbarButton = document.createElement("toolbarbutton");
 	typeTitleToolbarButton.setAttribute("image",
-			"chrome://semantic-turkey/content/images/prop_create.png");
+			"chrome://semantic-turkey/skin/images/prop_create.png");
 	typeTitleToolbarButton.addEventListener("click",
 			art_semanticturkey.addNewProperty, true);
 	typeTitleToolbarButton.setAttribute("tooltiptext", "Add New Property");
@@ -776,7 +776,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 			if (typeValue.indexOf("owl:ObjectProperty") != -1) {
 				// typeToolbarButton
 				// .setAttribute("image",
-				// "chrome://semantic-turkey/content/images/propObject_create.png");
+				// "chrome://semantic-turkey/skin/images/propObject_create.png");
 				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
@@ -787,12 +787,12 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						"Add and Create Value");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propObject20x20.png");
+								"chrome://semantic-turkey/skin/images/propObject20x20.png");
 				img.setAttribute("flex", "0");
 			} else if (typeValue.indexOf("owl:DatatypeProperty") != -1) {
 				// typeToolbarButton
 				// .setAttribute("image",
-				// "chrome://semantic-turkey/content/images/propDatatype_create.png");
+				// "chrome://semantic-turkey/skin/images/propDatatype_create.png");
 				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
@@ -802,12 +802,12 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				typeToolbarButton.setAttribute("tooltiptext", "Add Value");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propDatatype20x20.png");
+								"chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 				img.setAttribute("flex", "0");
 			} else if (typeValue.indexOf("owl:AnnotationProperty") != -1) {
 				// typeToolbarButton
 				// .setAttribute("image",
-				// "chrome://semantic-turkey/content/images/propAnnotation_create.png");
+				// "chrome://semantic-turkey/skin/images/propAnnotation_create.png");
 				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
 				var containerObj = new Object();
@@ -817,12 +817,12 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				typeToolbarButton.setAttribute("tooltiptext", "Add Value");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+								"chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 				img.setAttribute("flex", "0");
 			} else if (typeValue.indexOf("rdf:Property") != -1) {
 				/*
 				 * typeToolbarButton .setAttribute("image",
-				 * "chrome://semantic-turkey/content/images/prop_create.png");
+				 * "chrome://semantic-turkey/skin/images/prop_create.png");
 				 */
 				typeToolbarButton.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
@@ -843,12 +843,12 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 
 				typeToolbarButtonLiteral
 						.setAttribute("image",
-								"chrome://semantic-turkey/content/images/Blocnote-32.png");
+								"chrome://semantic-turkey/skin/images/Blocnote-32.png");
 				typeToolbarButtonLiteral.setAttribute("tooltiptext",
 						"Add Literal Value");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/prop20x20.png");
+								"chrome://semantic-turkey/skin/images/prop20x20.png");
 				img.setAttribute("flex", "0");
 				box3.appendChild(typeToolbarButtonLiteral);
 			}
@@ -858,7 +858,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 
 			typeToolbarButton
 					.setAttribute("image",
-							"chrome://semantic-turkey/content/images/individual_add.png");
+							"chrome://semantic-turkey/skin/images/individual_add.png");
 			if (typeValue.indexOf("rdf:Property") != -1) {
 				box3.insertBefore(typeToolbarButton, typeToolbarButtonLiteral);
 			} else {
@@ -882,7 +882,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						.createElement("toolbarbutton");
 				typeToolbarButton2
 						.setAttribute("image",
-								"chrome://semantic-turkey/content/images/individual_remove.png");
+								"chrome://semantic-turkey/skin/images/individual_remove.png");
 				if (typeValue == "owl:ObjectProperty") {
 					typeToolbarButton2.setAttribute("tooltiptext",
 							"Remove Value");
@@ -953,13 +953,13 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							var img = document.createElement("image");
 							img
 									.setAttribute("src",
-											"chrome://semantic-turkey/content/images/individual.png");
+											"chrome://semantic-turkey/skin/images/individual.png");
 							lci.appendChild(img);
 						} else if (role == "cls") {
 							var img = document.createElement("image");
 							img
 									.setAttribute("src",
-											"chrome://semantic-turkey/content/images/class20x20.png");
+											"chrome://semantic-turkey/skin/images/class20x20.png");
 							lci.appendChild(img);
 						}
 						
@@ -1033,17 +1033,17 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						if (role == "individual") {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/individual_remove.png");
+											"chrome://semantic-turkey/skin/images/individual_remove.png");
 
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/individual_noexpl.png");
+												"chrome://semantic-turkey/skin/images/individual_noexpl.png");
 
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/individual20x20.png");
+												"chrome://semantic-turkey/skin/images/individual20x20.png");
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
@@ -1072,15 +1072,15 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						} else if (role == "cls") {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/class_delete.png");
+											"chrome://semantic-turkey/skin/images/class_delete.png");
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/class_imported.png");
+												"chrome://semantic-turkey/skin/images/class_imported.png");
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/class20x20.png");
+												"chrome://semantic-turkey/skin/images/class20x20.png");
 							}
 							txbox.setAttribute("tooltiptext",
 									"Editable Resource");
@@ -1166,57 +1166,57 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						if (valueType.indexOf("DatatypeProperty") != -1) {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
+											"chrome://semantic-turkey/skin/images/prop_delete.png");
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propDatatype_imported.png");
+												"chrome://semantic-turkey/skin/images/propDatatype_imported.png");
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propDatatype20x20.png");
+												"chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 							}
 							
 						} else if (valueType.indexOf("ObjectProperty") != -1) {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
+											"chrome://semantic-turkey/skin/images/prop_delete.png");
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propObject_imported.png");
+												"chrome://semantic-turkey/skin/images/propObject_imported.png");
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propObject20x20.png");
+												"chrome://semantic-turkey/skin/images/propObject20x20.png");
 							}
 							
 						} else if (valueType.indexOf("AnnotationProperty") != -1) {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
+											"chrome://semantic-turkey/skin/images/prop_delete.png");
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propAnnotation_imported.png");
+												"chrome://semantic-turkey/skin/images/propAnnotation_imported.png");
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+												"chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 							}
 							
 						} else if (valueType.indexOf("Property") != -1) {
 							propButton
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
+											"chrome://semantic-turkey/skin/images/prop_delete.png");
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/prop_imported.png");
+												"chrome://semantic-turkey/skin/images/prop_imported.png");
 							} else {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/content/images/prop.png");
+												"chrome://semantic-turkey/skin/images/prop.png");
 							}
 							
 						} else if (valueType.indexOf("bnodes") != -1) {
@@ -1271,14 +1271,14 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		domainToolbox.appendChild(domainToolbar);
 		var domainToolbarButton = document.createElement("toolbarbutton");
 		domainToolbarButton.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		domainToolbarButton.addEventListener("click",
 				art_semanticturkey.insertDomain, true);
 		domainToolbarButton.setAttribute("tooltiptext", "Add Domain");
 		domainToolbar.appendChild(domainToolbarButton);
 		var domainToolbarButton2 = document.createElement("toolbarbutton");
 		domainToolbarButton2.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_delete.png");
+				"chrome://semantic-turkey/skin/images/class_delete.png");
 		domainToolbarButton2.addEventListener("click",
 				art_semanticturkey.removeDomainEvent, true);
 		var containerObj = new Object();
@@ -1308,7 +1308,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				img = document.createElement("image");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/class20x20.png");
+								"chrome://semantic-turkey/skin/images/class20x20.png");
 				lci.appendChild(img);
 				lbl = document.createElement("label");
 				var value = domainNodeList[i].getAttribute("name");
@@ -1337,7 +1337,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		var lbl = document.createElement("label");
 		var img = document.createElement("image");
 		img.setAttribute("src",
-				"chrome://semantic-turkey/content/images/class20x20.png");
+				"chrome://semantic-turkey/skin/images/class20x20.png");
 		lbl.setAttribute("value", "Domains:");
 		var row = document.createElement("row");
 		var box = document.createElement("box");
@@ -1346,7 +1346,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		domainButton.addEventListener("click", art_semanticturkey.insertDomain,
 				true);
 		domainButton.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		domainButton.setAttribute("tooltiptext", "Add domain");
 		box.appendChild(domainButton);
 		box.insertBefore(lbl, domainButton);
@@ -1385,7 +1385,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				domainButton.setAttribute("label", "Remove Domain");
 				domainButton
 						.setAttribute("image",
-								"chrome://semantic-turkey/content/images/class_delete.png");
+								"chrome://semantic-turkey/skin/images/class_delete.png");
 				var explicit = domainNodeList[j].getAttribute("explicit");
 				if (explicit == "false") {
 					domainButton.setAttribute("disabled", "true");
@@ -1422,14 +1422,14 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		typeToolbox.appendChild(typeToolbar);
 		var typeToolbarButton = document.createElement("toolbarbutton");
 		typeToolbarButton.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		typeToolbarButton.addEventListener("click",
 				art_semanticturkey.insertRange, true);
 		typeToolbarButton.setAttribute("tooltiptext", "Add Range");
 		typeToolbar.appendChild(typeToolbarButton);
 		var typeToolbarButton2 = document.createElement("toolbarbutton");
 		typeToolbarButton2.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_delete.png");
+				"chrome://semantic-turkey/skin/images/class_delete.png");
 		typeToolbarButton2.addEventListener("click",
 				art_semanticturkey.removeRangeEvent, true);
 		var containerObj = new Object();
@@ -1459,7 +1459,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 				img = document.createElement("image");
 				img
 						.setAttribute("src",
-								"chrome://semantic-turkey/content/images/class20x20.png");
+								"chrome://semantic-turkey/skin/images/class20x20.png");
 				lci.appendChild(img);
 				lbl = document.createElement("label");
 				var value = rangeList[k].getAttribute("show");
@@ -1490,14 +1490,14 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		var lbl2 = document.createElement("label");
 		var img2 = document.createElement("image");
 		img2.setAttribute("src",
-				"chrome://semantic-turkey/content/images/class20x20.png");
+				"chrome://semantic-turkey/skin/images/class20x20.png");
 		lbl2.setAttribute("value", "Ranges:");
 		var row3 = document.createElement("row");
 		var box2 = document.createElement("box");
 		row3.setAttribute("flex", "0");
 		var typeButton2 = document.createElement("toolbarbutton");
 		typeButton2.setAttribute("image",
-				"chrome://semantic-turkey/content/images/class_create.png");
+				"chrome://semantic-turkey/skin/images/class_create.png");
 		typeButton2.addEventListener("click", art_semanticturkey.insertRange,
 				true);
 		typeButton2.setAttribute("tooltiptext", "Add Range");
@@ -1535,7 +1535,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 				typeButton3.setAttribute("id", "typeButton");
 				typeButton3
 						.setAttribute("image",
-								"chrome://semantic-turkey/content/images/class_delete.png");
+								"chrome://semantic-turkey/skin/images/class_delete.png");
 				typeButton3.setAttribute("flex", "0");
 				typeButton3.addEventListener("click",
 						art_semanticturkey.removeRangeEvent, true);
@@ -1607,7 +1607,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 	// InverseOf
 	var lbl = document.createElement("label");
 	var img = document.createElement("image");
-	img.setAttribute("src", "chrome://semantic-turkey/content/images/prop.png");
+	img.setAttribute("src", "chrome://semantic-turkey/skin/images/prop.png");
 	lbl.setAttribute("value", "inverseOf");
 	var row = document.createElement("row");
 	var box = document.createElement("box");
@@ -1617,7 +1617,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 	var titleBox = document.createElement("box");
 	var inversBtn = document.createElement("toolbarbutton");
 	inversBtn.setAttribute("image",
-			"chrome://semantic-turkey/content/images/individual_add.png");
+			"chrome://semantic-turkey/skin/images/individual_add.png");
 	inversBtn.setAttribute("id", "addInverseOf");
 	inversBtn
 			.addEventListener("command", art_semanticturkey.addInverseOf, true);
@@ -1645,7 +1645,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 					var remInverseBtn = document.createElement("toolbarbutton");
 					remInverseBtn
 							.setAttribute("image",
-									"chrome://semantic-turkey/content/images/prop_delete.png");
+									"chrome://semantic-turkey/skin/images/prop_delete.png");
 					remInverseBtn.setAttribute("label", "Remove Value");
 					remInverseBtn.setAttribute("id", "removeInverseOf");
 					remInverseBtn.setAttribute("flex", "0");
@@ -1667,7 +1667,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							var img = document.createElement("image");
 							img
 									.setAttribute("src",
-											"chrome://semantic-turkey/content/images/prop.png");
+											"chrome://semantic-turkey/skin/images/prop.png");
 							lci.appendChild(img);
 							var lbl = document.createElement("label");
 
@@ -1732,7 +1732,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							remInverseBtn = document.createElement("button");
 							remInverseBtn
 									.setAttribute("image",
-											"chrome://semantic-turkey/content/images/prop_delete.png");
+											"chrome://semantic-turkey/skin/images/prop_delete.png");
 							remInverseBtn.setAttribute("label", "Remove Value");
 							remInverseBtn.setAttribute("id", "removeInverseOf");
 							remInverseBtn.setAttribute("flex", "0");

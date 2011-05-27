@@ -808,34 +808,34 @@ art_semanticturkey.getImgFromType = function(type, explicit){
 	var imgType;
 	if (type == "individual") {
 		if (explicit == "false")
-			imgType = "chrome://semantic-turkey/content/images/individual_noexpl.png";
+			imgType = "chrome://semantic-turkey/skin/images/individual_noexpl.png";
 		else 
-			imgType = "chrome://semantic-turkey/content/images/individual.png";
+			imgType = "chrome://semantic-turkey/skin/images/individual.png";
 	} else if (type == "cls") {
 		if (explicit == "false") 
-			imgType = "chrome://semantic-turkey/content/images/class_imported.png";
+			imgType = "chrome://semantic-turkey/skin/images/class_imported.png";
 		else 
-			imgType = "chrome://semantic-turkey/content/images/class.png";
+			imgType = "chrome://semantic-turkey/skin/images/class.png";
 	} else if (type.indexOf("ObjectProperty") != -1) {
 		if (explicit == "false")
-			imgType = "chrome://semantic-turkey/content/images/propObject_imported.png";
+			imgType = "chrome://semantic-turkey/skin/images/propObject_imported.png";
 		else
-			imgType = "chrome://semantic-turkey/content/images/propObject20x20.png";
+			imgType = "chrome://semantic-turkey/skin/images/propObject20x20.png";
 	}else if (type.indexOf("DatatypeProperty") != -1) {
 		if (explicit == "false") 
-			imgType = "chrome://semantic-turkey/content/images/propDatatype_imported.png";
+			imgType = "chrome://semantic-turkey/skin/images/propDatatype_imported.png";
 		else
-			imgType = "chrome://semantic-turkey/content/images/propDatatype20x20.png";
+			imgType = "chrome://semantic-turkey/skin/images/propDatatype20x20.png";
 	}else if (type.indexOf("AnnotationProperty") != -1) {
 		if (explicit == "false") 
-			imgType = "chrome://semantic-turkey/content/images/propAnnotation_imported.png";
+			imgType = "chrome://semantic-turkey/skin/images/propAnnotation_imported.png";
 		else
-			imgType = "chrome://semantic-turkey/content/images/propAnnotation20x20.png";
+			imgType = "chrome://semantic-turkey/skin/images/propAnnotation20x20.png";
 	}else if (type.indexOf("Property") != -1) {
 		if (explicit == "false")
-			imgType = "chrome://semantic-turkey/content/images/prop_imported.png";
+			imgType = "chrome://semantic-turkey/skin/images/prop_imported.png";
 		else
-			imgType = "chrome://semantic-turkey/content/images/prop.png";
+			imgType = "chrome://semantic-turkey/skin/images/prop.png";
 	}else if (type.indexOf("literal") != -1) {
 		//vedere se mettere img o no
 		imgType="";

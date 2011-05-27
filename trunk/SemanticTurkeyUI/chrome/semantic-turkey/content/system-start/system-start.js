@@ -16,22 +16,16 @@ Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey
 art_semanticturkey.startST = function() {
 	art_semanticturkey.Logger.debug("entering startST");
 	try{
-		//TODO the DEBUG in this function should be removed once it is all tested
 		var isDefaultSet = art_semanticturkey.Preferences.get("extensions.semturkey.isDefaultSet", false);
-                art_semanticturkey.Logger.debug("BrZ- debug a1");
 		var defaultProjectName = art_semanticturkey.Preferences.get("extensions.semturkey.defaultProjectName", "null");
-                art_semanticturkey.Logger.debug("BrZ- debug a2");
 		var defaultProjectOntType = art_semanticturkey.Preferences.get("extensions.semturkey.defaultProjectOntType", "null");
-                art_semanticturkey.Logger.debug("BrZ- debug a3");
 		
 		if(isDefaultSet == true){
-                    art_semanticturkey.Logger.debug("BrZ- debug b");
 			art_semanticturkey.closeProject(); // This function here it is used to inform that ST is about to change project
 			var responseXML = art_semanticturkey.STRequests.Projects.openProject(defaultProjectName);
 			art_semanticturkey.openDefProject_RESPONSE(responseXML, defaultProjectName, defaultProjectOntType);
 		}
 		else{
-                    art_semanticturkey.Logger.debug("BrZ- debug c");
 			art_semanticturkey.chose_a_projects();
 		}
 		art_semanticturkey.evtMgr.fireEvent("st_started");

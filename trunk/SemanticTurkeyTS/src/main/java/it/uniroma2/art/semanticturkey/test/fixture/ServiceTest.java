@@ -35,6 +35,8 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +52,7 @@ public abstract class ServiceTest {
 	protected static Log logger = LogFactory.getLog(ServiceTest.class);
 
 	private String accessType;
-	
+
 	protected HttpClient httpclient;
 
 	public ServiceWrapper administrationService;
@@ -75,12 +77,23 @@ public abstract class ServiceTest {
 	public ServiceWrapper environmentService;
 	public ServiceWrapper ontManagerService;
 
+	
+	public void initialize(boolean delete) throws STInitializationException, IOException {
+		String sConfigFile = "testMod.properties";
+		InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(sConfigFile);
+		Properties props = new java.util.Properties();
+		props.load(in);
+		if (delete)
+			deleteWorkingFiles();
+		initialize(props.getProperty("access"));
+	}
+	
 	public void initialize(String type) throws STInitializationException, IOException {
-		
+
 		accessType = type;
-		
+
 		System.err.println("access type: " + type);
-		
+
 		if (type.equals("http")) {
 			httpInitialize();
 			initializeServiceHttpWrappers();
@@ -115,11 +128,11 @@ public abstract class ServiceTest {
 
 	@SuppressWarnings("unchecked")
 	public Class<? extends OntologyManagerFactory<ModelConfiguration>> getOntologyManagerClass() {
-		return (Class<? extends OntologyManagerFactory<ModelConfiguration>>)OntologyManagerFactorySesame2Impl.class;
+		return (Class<? extends OntologyManagerFactory<ModelConfiguration>>) OntologyManagerFactorySesame2Impl.class;
 	}
 
 	public void directInitialize() throws STInitializationException, IOException {
-		baseInitialize(); //not necessary in direct initialization
+		baseInitialize(); // not necessary in direct initialization
 		try {
 			XMLHelp.initialize();
 		} catch (Exception e) {
@@ -158,7 +171,7 @@ public abstract class ServiceTest {
 		annotationService = new ServiceHttpWrapper("annotation", httpclient);
 		clsService = new ServiceHttpWrapper("cls", httpclient);
 		deleteService = new ServiceHttpWrapper("delete", httpclient);
-		environmentService =  new ServiceHttpWrapper("environment", httpclient);
+		environmentService = new ServiceHttpWrapper("environment", httpclient);
 		individualService = new ServiceHttpWrapper("individual", httpclient);
 		inputOutputService = new ServiceHttpWrapper("inputOutput", httpclient);
 		metadataService = new ServiceHttpWrapper("metadata", httpclient);
@@ -169,10 +182,10 @@ public abstract class ServiceTest {
 		projectsService = new ServiceHttpWrapper("projects", httpclient);
 		searchOntologyService = new ServiceHttpWrapper("ontologySearch", httpclient);
 		synonymsService = new ServiceHttpWrapper("synonyms", httpclient);
-		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);		
+		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);
 		sparqlService = new ServiceHttpWrapper("sparql", httpclient);
-		statementService =  new ServiceHttpWrapper("statement", httpclient);
-		ontManagerService =  new ServiceHttpWrapper("ontManager", httpclient);	
+		statementService = new ServiceHttpWrapper("statement", httpclient);
+		ontManagerService = new ServiceHttpWrapper("ontManager", httpclient);
 	}
 
 	protected void initializeServiceDirectWrappers() {
@@ -192,9 +205,9 @@ public abstract class ServiceTest {
 		projectsService = new ServiceDirectWrapper(new Projects(""));
 		searchOntologyService = new ServiceDirectWrapper(new OntoSearch(""));
 		synonymsService = new ServiceDirectWrapper(new Synonyms(""));
-		systemStartService = new ServiceDirectWrapper(new SystemStart(""));		
+		systemStartService = new ServiceDirectWrapper(new SystemStart(""));
 		sparqlService = new ServiceDirectWrapper(new SPARQL(""));
-		statementService = new ServiceDirectWrapper(new Statement(""));		
+		statementService = new ServiceDirectWrapper(new Statement(""));
 		ontManagerService = new ServiceDirectWrapper(new OntManager(""));
 	}
 
@@ -257,5 +270,6 @@ public abstract class ServiceTest {
 	public String getAccessType() {
 		return accessType;
 	}
+
 
 }

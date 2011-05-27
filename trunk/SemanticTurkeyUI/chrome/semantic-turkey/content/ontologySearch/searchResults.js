@@ -89,7 +89,7 @@ art_semanticturkey.initList = function(foundList) {
 		var img = document.createElement("image");
 		var lbl = document.createElement("label");
 		if (type == "owl:Individual") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/individual20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/individual20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
 			lbl.setAttribute("value", name);
@@ -98,7 +98,7 @@ art_semanticturkey.initList = function(foundList) {
 			lsti.appendChild(lci);
 			myList.appendChild(lsti);
 		} else if (type == "Class") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/class20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/class20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
 			lbl.setAttribute("value", name);
@@ -109,13 +109,13 @@ art_semanticturkey.initList = function(foundList) {
 		} else if (type == "annotation") {
 			// TODO Mancano le annotation nella ricerca
 		}else if (type == "owl:ObjectProperty") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/propObject20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propObject20x20.png");
 		} else if (type == "owl:DatatypeProperty") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/propDatatype20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 		} else if (type == "owl:AnnotationProperty") {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/propAnnotation20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 		} else {
-			img.setAttribute("src", "chrome://semantic-turkey/content/images/prop20x20.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/prop20x20.png");
 		}
 		var name = foundList[i].getAttribute("name");
 		lsti.setAttribute("label", foundList[i].getAttribute("name"));

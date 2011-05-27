@@ -36,8 +36,8 @@
 				
 	<toolbox flex="0">
 		<toolbar id="skosConcept-toolbar">
-			<toolbarbutton id="addScheme" image="../images/skosC_create.png" tooltiptext="Add Concept"/>
-			<toolbarbutton id="toggleConceptLanguage"  type="checkbox" image="../images/user.png" style="width:10px;" 
+			<toolbarbutton id="addScheme" image="chrome://semantic-turkey/skin/images/skosC_create.png" tooltiptext="Add Concept"/>
+			<toolbarbutton id="toggleConceptLanguage"  type="checkbox" image="chrome://semantic-turkey/skin/images/user.png" style="width:10px;" 
 					tooltiptext="Toggle between qnames (with prefix) and human-readable rdfs:labels or skos:preferredLabel"/>
 		</toolbar>
 	</toolbox>

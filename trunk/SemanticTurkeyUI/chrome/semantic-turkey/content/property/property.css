@@ -28,43 +28,43 @@ tree.PropertyTree {
 /* display folder icons in front of the treecell text */
 
 treechildren::-moz-tree-image(Property) { 
-	list-style-image: url("../images/prop.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/prop.png"); 
 	} 
 
 treechildren::-moz-tree-image(ObjectProperty) { 
-	list-style-image: url("../images/propObject.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propObject.png"); 
 	}	
 	
 treechildren::-moz-tree-image(DatatypeProperty) { 
-	list-style-image: url("../images/propDatatype.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propDatatype.png"); 
 	} 
 
 treechildren::-moz-tree-image(AnnotationProperty) { 
-	list-style-image: url("../images/propAnnotation.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propAnnotation.png"); 
 	}
 
 treechildren::-moz-tree-image(OntologyProperty) { 
-	list-style-image: url("../images/propOntology.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propOntology.png"); 
 	} 
 
 treechildren::-moz-tree-image(Property_noexpl) { 
-	list-style-image: url("../images/prop_imported.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/prop_imported.png"); 
 	} 
 
 treechildren::-moz-tree-image(ObjectProperty_noexpl) { 
-	list-style-image: url("../images/propObject_imported.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propObject_imported.png"); 
 	} 	
 
 treechildren::-moz-tree-image(DatatypeProperty_noexpl) { 
-	list-style-image: url("../images/propDatatype_imported.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propDatatype_imported.png"); 
 	}	
 
 treechildren::-moz-tree-image(AnnotationProperty_noexpl) { 
-	list-style-image: url("../images/propAnnotation_imported.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propAnnotation_imported.png"); 
 	} 
 
 treechildren::-moz-tree-image(OntologyProperty_noexpl) { 
-	list-style-image: url("../images/propOntology_imported.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propOntology_imported.png"); 
 	} 	
 
 

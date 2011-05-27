@@ -40,7 +40,7 @@
  		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 	
 	<groupbox id="createClassBox" flex="1">
-		<caption class="header" label=" - Initialize - " image="../images/st_favicon.png" />
+		<caption class="header" label=" - Initialize - " image="chrome://semantic-turkey/skin/images/st_favicon20x20.png" />
 		<vbox id="myPanel" align="center" flex="1">
 
 			<hbox>

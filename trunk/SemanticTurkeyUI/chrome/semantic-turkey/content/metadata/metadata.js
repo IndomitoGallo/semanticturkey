@@ -132,11 +132,11 @@ art_semanticturkey.checkbind = function() {
 	var baseUriTxtBox = document.getElementById("baseUriTxtBox");
 	var nsTxtBox = document.getElementById("nsTxtBox");
 	if (button.checked == true) {
-		button.image = "../images/lock.png";
+		button.image = "chrome://semantic-turkey/skin/images/lock.png";
 		baseUriTxtBox.setAttribute("onkeyup", "art_semanticturkey.manageInputBind('base',this);");
 		nsTxtBox.setAttribute("onkeyup", "art_semanticturkey.manageInputBind('ns',this);");
 	} else {
-		button.image = "../images/unlock.png";
+		button.image = "chrome://semantic-turkey/skin/images/unlock.png";
 		baseUriTxtBox.setAttribute("onkeyup", "art_semanticturkey.manageInput('base',this);");
 		nsTxtBox.setAttribute("onkeyup", "art_semanticturkey.manageInput('ns',this);");
 	}

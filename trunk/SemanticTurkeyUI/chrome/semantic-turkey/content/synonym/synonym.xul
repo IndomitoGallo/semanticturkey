@@ -31,7 +31,7 @@
 >
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/synonym/synonym.js"/>
 <groupbox id="addsynonynmBox" flex="1">
-  <caption class="header" label=" - Add Synonym - " image="../images/st_favicon.png"/>
+  <caption class="header" label=" - Add Synonym - " image="chrome://semantic-turkey/skin/images/st_favicon.png"/>
 <vbox id="myPanel" align="center" flex="1">
 <hbox align="center" flex="1">
 <label control="name" value="Insert Synonym"/>

@@ -27,22 +27,22 @@
  
 
 treechildren::-moz-tree-image(loop) { 
-	list-style-image: url("../images/world.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/world.png"); 
 	} 
 treechildren::-moz-tree-image(WEB) { 
-	list-style-image: url("../images/world.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/world.png"); 
 	} 
 treechildren::-moz-tree-image(FAILED) { 
-	list-style-image: url("../images/world_failed.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/world_failed.png"); 
 	} 
 treechildren::-moz-tree-image(imported) { 
-	list-style-image: url("../images/world.png");
+	list-style-image: url("chrome://semantic-turkey/skin/images/world.png");
 }
 treechildren::-moz-tree-image(LOCAL) { 
-	list-style-image: url("../images/ontology.png");
+	list-style-image: url("chrome://semantic-turkey/skin/images/ontology.png");
 } 
 treechildren::-moz-tree-image(NG) { 
-	list-style-image: url("../images/ontology.png"); 
+	list-style-image: url("chrome://semantic-turkey/skin/images/ontology.png"); 
 	}  
 
 treechildren::-moz-tree-column {

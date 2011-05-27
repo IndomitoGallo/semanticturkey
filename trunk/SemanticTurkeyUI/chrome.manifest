@@ -2,15 +2,32 @@
 # Chrome Manifest file (for Firefox 3.5+)
 #
 
+# detailed instructions available at: https://developer.mozilla.org/en/chrome_registration
+
 # WARNING: don't forget the '/' at the end of the paths or it won't work!!
 
 overlay    chrome://browser/content/browser.xul chrome://semantic-turkey/content/browser-overlay.xul
 content    semantic-turkey chrome/semantic-turkey/content/
 
 
+# RESOURCE:
+# When using JavaScript code modules it may be necessary to create resource protocol aliases so extensions and
+# applications can load modules using Components.utils.import. Aliases can be created using the resource
+# instruction:
+# resource aliasname uri/to/files/ [flags]
+# This will create a mapping for resource://<aliasname>/ URIs to the path given.
+
 # modules dir
 resource   stmodules	modules/
 resource   stservices	modules/services/
+
+
+# SKIN:
+# A skin package is registered with the line
+# skin packagename skinname uri/to/files/ [flags]
+# This will register a skin package when resolving the URI chrome://packagename/skin/... .
+# The skinname is an opaque string identifying an installed skin. If more than one skin is registered for a 
+# package, the chrome registry will select the best-fit skin using the user's preferences.
 
 skin       semantic-turkey  classic/1.0  chrome/semantic-turkey/skin/classic/
 

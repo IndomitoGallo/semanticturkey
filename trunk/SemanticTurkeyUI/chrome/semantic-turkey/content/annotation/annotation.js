@@ -20,42 +20,53 @@
  * 
  */
 
-if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
+/*************************************************************************************************************
+ * 
+ * this file contains functions related to the "highlighter", that is the two events: 1) when a page is open,
+ * if it contains annotations, then the highlighter is shown 2) when the user clicks on the highlighter,
+ * annotations are shown on the page
+ * 
+ */
+
+if (typeof art_semanticturkey == 'undefined')
+	var art_semanticturkey = {};
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_Annotation.jsm",
-		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Annotation.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
 
 
-art_semanticturkey.chkAnnotationEvent = function(event) {
+/**
+ * this function checks if "annotation checking" is enabled, and in affirmative case, checks it there are
+ * annotations if there are annotations available in the page
+ * 
+ * @param event
+ * 
+ * @return
+ */
+art_semanticturkey.chkAnnotation = function(event) {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 	var chkAnn = art_semanticturkey.Preferences.get("extensions.semturkey.annotation.checkAnnotation", true);
-	if(projectIsNull == false && chkAnn == true){
-		art_semanticturkey.chkAnnotation(event);
-	} 
-};
+	if (projectIsNull == false && chkAnn == true) {
+		var doc = gBrowser.contentDocument;
+		var list = doc.getElementsByTagName("div");
 
+		art_semanticturkey.Logger.debug("doc: " + gBrowser.selectedBrowser.currentURI.spec);
+		art_semanticturkey.Logger.debug("list: " + list.length);
 
-
-art_semanticturkey.chkAnnotation = function(event){
-	var doc = gBrowser.contentDocument; 
-	var list = doc.getElementsByTagName("div");
-
-	art_semanticturkey.Logger.debug("doc: " + gBrowser.selectedBrowser.currentURI.spec);
-	art_semanticturkey.Logger.debug("list: " + list.length);
-
-	var url = gBrowser.selectedBrowser.currentURI.spec;
-	try{
-		var responseXML = art_semanticturkey.STRequests.Annotation.chkAnnotation(url);
-		art_semanticturkey.chkAnnotation_RESPONSE(responseXML);
-	}catch (e) {
-		alert(e.name + ": " + e.message);
+		var url = gBrowser.selectedBrowser.currentURI.spec;
+		try {
+			var responseXML = art_semanticturkey.STRequests.Annotation.chkAnnotation(url);
+			art_semanticturkey.chkAnnotation_RESPONSE(responseXML);
+		} catch (e) {
+			alert(e.name + ": " + e.message);
+		}
 	}
 };
+
 
 art_semanticturkey.chkAnnotation_RESPONSE = function(responseElement) {
 	var reply = responseElement.getElementsByTagName('reply')[0];
@@ -63,8 +74,7 @@ art_semanticturkey.chkAnnotation_RESPONSE = function(responseElement) {
 	art_semanticturkey.active(act);
 };
 
-
-art_semanticturkey.active= function(act) {
+art_semanticturkey.active = function(act) {
 	var statusIcon = document.getElementById("status-bar-annotation");
 	if (act == "ok") {
 		statusIcon.collapsed = false;
@@ -119,11 +129,11 @@ art_semanticturkey.viewAnnotationOnPage = function() {
 		
 };
 
-//Adding an event for the changing of a tab
-gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnotationEvent, false);
+// Adding an event for the changing of a tab
+gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnotation, false);
 
-//adding an event for loading of the loading of the page in a tab of the browser
-gBrowser.addEventListener("load", art_semanticturkey.chkAnnotationEvent, true);
+// adding an event for loading of the loading of the page in a tab of the browser
+gBrowser.addEventListener("load", art_semanticturkey.chkAnnotation, true);
 
 //TODO check this error
 //adding an event for the loading of a project // FF 4.0 says: Error: art_semanticturkey.eventListener is not a constructor Sourcefile: chrome://semantic-turkey/content/annotation/annotation.js Row: 100

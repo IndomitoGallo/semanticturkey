@@ -28,7 +28,7 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/EventObjects.js" />
 	<groupbox id="createClassBox" flex="1">
-		<caption class="header" label=" - Create Class - " image="../../images/st_favicon.png" />
+		<caption class="header" label=" - Create Class - " image="chrome://semantic-turkey/skin/images/st_favicon.png" />
 		<vbox id="myPanel" align="center" flex="1">
 
 			<hbox id="myPanel" align="center" flex="1">

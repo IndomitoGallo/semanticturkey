@@ -44,11 +44,11 @@
 
 	<toolbox flex="0">
 		<toolbar id="property-toolbar">
-			<toolbarbutton id="createObjectProperty" image="../images/propObject_create.png"  tooltiptext="Create Object Property"/>
-			<toolbarbutton id="createDatatypeProperty" image="../images/propDatatype_create.png"  tooltiptext="Create Datatype Property"/>
-			<toolbarbutton id="createAnnotationProperty" image="../images/propAnnotation_create.png"  tooltiptext="Create Annotation Property"/>
-			<toolbarbutton id="createSubProperty"  image="../images/prop_addSubProperty.png"  tooltiptext="Create SubProperty"/>
-			<toolbarbutton id="removeProperty"  image="../images/prop_delete.png"  tooltiptext="Remove Property"/>
+			<toolbarbutton id="createObjectProperty" image="chrome://semantic-turkey/skin/images/propObject_create.png"  tooltiptext="Create Object Property"/>
+			<toolbarbutton id="createDatatypeProperty" image="chrome://semantic-turkey/skin/images/propDatatype_create.png"  tooltiptext="Create Datatype Property"/>
+			<toolbarbutton id="createAnnotationProperty" image="chrome://semantic-turkey/skin/images/propAnnotation_create.png"  tooltiptext="Create Annotation Property"/>
+			<toolbarbutton id="createSubProperty"  image="chrome://semantic-turkey/skin/images/prop_addSubProperty.png"  tooltiptext="Create SubProperty"/>
+			<toolbarbutton id="removeProperty"  image="chrome://semantic-turkey/skin/images/prop_delete.png"  tooltiptext="Remove Property"/>
 		</toolbar>
 	</toolbox>
 	
@@ -56,25 +56,25 @@
 		<popup id="clipmenu" onpopupshowing="javascript:;">
 			<menuitem id="menuItemCreateSubProperty" >
 			<menuitem-iconic >
-					<image src="../images/prop_addSubProperty.png"/>
+					<image src="chrome://semantic-turkey/skin/images/prop_addSubProperty.png"/>
 					<label value="Add SubProperty"/> 						
 				</menuitem-iconic>
 			</menuitem>	
 			<menuitem id="menuItemModifyName">
 			<menuitem-iconic>
-					<image src="../images/empty20x20.png" flex="0"/> 
+					<image src="chrome://semantic-turkey/skin/images/empty20x20.png" flex="0"/> 
 					<label value="Modify Property"/> 						
 				</menuitem-iconic>
 			</menuitem>
 			<menuitem id="menuItemRemoveProperty" >
 			<menuitem-iconic >
-					<image src="../images/prop_delete.png"/>
+					<image src="chrome://semantic-turkey/skin/images/prop_delete.png"/>
 					<label value="Remove Property"/> 						
 				</menuitem-iconic>		
 			</menuitem>	
 			<menuitem id="menuItemAddSynonym">
 			<menuitem-iconic>
-					<image src="../images/empty20x20.png" flex="0"/> 
+					<image src="chrome://semantic-turkey/skin/images/empty20x20.png" flex="0"/> 
 					<label value="Add Synonym"/> 						
 				</menuitem-iconic>
 			</menuitem>
