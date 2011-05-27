@@ -31,7 +31,7 @@
 >
 <script type="application/x-javascript" src="chrome://semantic-turkey/content/class/createIndividual/createIndividual.js"/>
 <groupbox id="createClassBox" flex="1">
-  <caption class="header" label=" - Create Individual - " image="../../images/st_favicon.png"/>
+  <caption class="header" label=" - Create Individual - " image="chrome://semantic-turkey/skin/images/st_favicon.png"/>
 <vbox align="center" flex="1">
 
 <hbox  align="center" flex="1">

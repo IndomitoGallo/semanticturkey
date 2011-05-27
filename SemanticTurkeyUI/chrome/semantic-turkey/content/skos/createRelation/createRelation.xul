@@ -26,7 +26,7 @@
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/createRelation/createRelation.js" />
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/skos/SKOSUtils.js" />
 	<groupbox id="addConceptBox" flex="1">
-		<caption class="header" id="panelTitle" label=" - Add new Concept - " image="../../images/st_favicon.png" />
+		<caption class="header" id="panelTitle" label=" - Add new Concept - " image="chrome://semantic-turkey/skin/images/st_favicon.png" />
 		
 		<hbox id="addConceptPanel" flex="1">
 			<vbox flex="1">

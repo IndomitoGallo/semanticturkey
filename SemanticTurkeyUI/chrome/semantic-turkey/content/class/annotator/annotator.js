@@ -20,48 +20,48 @@
  * 
  */
 
+/**
+ * This file populates the annotator.xul dialog, which asks if the users wants to create a further annotation
+ * for the instance or relate it to a new resource annotated with the selected text
+ * 
+ */
+
 if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
-Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
-		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
 netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 window.onload = function() {
-	document.getElementById("checkAll").addEventListener("command",
-			art_semanticturkey.showAllProperties, true);
+	document.getElementById("checkAll").addEventListener("command", art_semanticturkey.showAllProperties,
+			true);
 
-	document.getElementById("annotateInstance").addEventListener("click",
-			art_semanticturkey.onAccept, true);
-	document.getElementById("cancel").addEventListener("click",
-			art_semanticturkey.onCancel, true);
-	document.getElementById("group").addEventListener("select",
-			art_semanticturkey.updateState, true);
+	document.getElementById("annotateInstance").addEventListener("click", art_semanticturkey.onAccept, true);
+	document.getElementById("cancel").addEventListener("click", art_semanticturkey.onCancel, true);
+	document.getElementById("group").addEventListener("select", art_semanticturkey.updateState, true);
 
 	var objectInstanceName = window.arguments[0].objectInstanceName;
 	var subjectInstanceName = window.arguments[0].subjectInstanceName;
 	try {
-		var responseXML = art_semanticturkey.STRequests.Individual
-				.getIndividualDescription(subjectInstanceName, "template");
+		var responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
+				subjectInstanceName, "template");
 		art_semanticturkey.getIndividualDescription_RESPONSE(responseXML);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
 
 	var radiolexNode = document.getElementById("radiolex");
-	radiolexNode.setAttribute("label", "\"" + objectInstanceName
-			+ "\" is a further annotation of \"" + subjectInstanceName + "\"");
+	radiolexNode.setAttribute("label", "\"" + objectInstanceName + "\" is a further annotation of \""
+			+ subjectInstanceName + "\"");
 
 	var radiopropNode = document.getElementById("radioprop");
-	radiopropNode.setAttribute("label", "\"" + objectInstanceName
-			+ "\" is a value of a property of \""
+	radiopropNode.setAttribute("label", "\"" + objectInstanceName + "\" is a value of a property of \""
 			+ subjectInstanceName + "\"");
 };
 
 art_semanticturkey.getIndividualDescription_RESPONSE = function(responseElement) {
-	var node = document.getElementById("annotatorTree").getElementsByTagName(
-			'treechildren')[0];
+	var node = document.getElementById("annotatorTree").getElementsByTagName('treechildren')[0];
 	var propTree = responseElement.getElementsByTagName("Properties");
 	var propertyList = propTree[0].childNodes;
 	// NScarpato 13/06/2008 change prop server
@@ -72,7 +72,7 @@ art_semanticturkey.getIndividualDescription_RESPONSE = function(responseElement)
 			var tr = document.createElement("treerow");
 			var tc = document.createElement("treecell");
 			tc.setAttribute("label", name);
-			tc.setAttribute("propType",type);
+			tc.setAttribute("propType", type);
 			type = type.substring(type.indexOf(':') + 1);
 			tr.setAttribute("properties", type);
 			tc.setAttribute("properties", type);
@@ -104,8 +104,7 @@ art_semanticturkey.showAllProperties = function() {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		try {
-			responseXML = art_semanticturkey.STRequests.Property
-					.getPropertyTree();
+			responseXML = art_semanticturkey.STRequests.Property.getPropertyTree();
 			art_semanticturkey.showAllProperties_RESPONSE(responseXML);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -119,9 +118,8 @@ art_semanticturkey.showAllProperties = function() {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		try {
-			responseXML = art_semanticturkey.STRequests.Individual
-					.getIndividualDescription(window.arguments[0].subjectInstanceName,
-							"template");
+			responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
+					window.arguments[0].subjectInstanceName, "template");
 			art_semanticturkey.getIndividualDescription_RESPONSE(responseXML);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -145,8 +143,7 @@ art_semanticturkey.onAccept = function() {
 	var sindex = document.getElementById("group").selectedIndex;
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-			.getCharPref("extensions.semturkey.extpt.annotate");
+	var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
 	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 	if (sindex == 0) {

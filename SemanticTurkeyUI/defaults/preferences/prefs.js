@@ -1,4 +1,4 @@
-pref("extensions.semturkey.annotprops.langs", "de,en,es,fr,it,nl,pt,ru");
+pref("extensions.semturkey.annotprops.langs", "en,de,es,fr,it,nl,pt,ru");
 pref("extensions.semturkey.annotprops.defaultlang", "en");
 pref("extensions.semturkey.log", "debug");
 pref("extensions.semturkey.extpt.annotate", "bookmarking");

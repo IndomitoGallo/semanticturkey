@@ -46,7 +46,7 @@
 		<vbox id="importsBox" flex="1" orient="vertical">
 			<toolbox>
 				<toolbar id="imports-toolbar">
-					<toolbarbutton id="infoOnProject" image="chrome://semantic-turkey/content/images/imports_management.png" 
+					<toolbarbutton id="infoOnProject" image="chrome://semantic-turkey/skin/images/imports_management.png" 
 								   tooltiptext="Info on the current project"/>
 				</toolbar>
 			</toolbox>
@@ -71,7 +71,7 @@
 					resizeafter="closest" />
 				<vbox pack="center">
 					<button id="lockBtn" type="checkbox" crop="center"
-						image="../images/unlock.png" checked="false" label="Bind" orient="vertical"
+						image="chrome://semantic-turkey/skin/images/unlock.png" checked="false" label="Bind" orient="vertical"
 						dir="vertical"></button>
 				</vbox>
 			</vbox>
@@ -82,11 +82,11 @@
 			</splitter>
 			<toolbox>
 				<toolbar id="prefix-toolbar">
-					<toolbarbutton id="addPrefix" image="../images/prefix_add.png"
+					<toolbarbutton id="addPrefix" image="chrome://semantic-turkey/skin/images/prefix_add.png"
 						tooltiptext="Add Prefix" />
-					<toolbarbutton id="removePrefix" image="../images/prefix_remove.png"
+					<toolbarbutton id="removePrefix" image="chrome://semantic-turkey/skin/images/prefix_remove.png"
 						tooltiptext="Remove Prefix" />
-					<toolbarbutton id="changePrefix" image="../images/prefix_change.png"
+					<toolbarbutton id="changePrefix" image="chrome://semantic-turkey/skin/images/prefix_change.png"
 						tooltiptext="Change Prefix" />
 				</toolbar>
 			</toolbox>

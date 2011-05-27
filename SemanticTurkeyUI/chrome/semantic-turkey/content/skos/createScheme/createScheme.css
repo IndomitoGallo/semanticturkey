@@ -23,7 +23,7 @@
   
  
 .imgPropertyAnnotation {  
-  list-style-image: url("../../images/propAnnotation.png");
+  list-style-image: url("chrome://semantic-turkey/skin/images/propAnnotation.png");
   width: 5px;
    height: 5px;
 }  

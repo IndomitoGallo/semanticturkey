@@ -3,7 +3,7 @@
   <groupId>it.uniroma2.art.semanticturkey</groupId>
   <artifactId>manual-tests</artifactId>
   <name>Semantic Turkey TS</name>
-  <version>1.0.2</version>
+  <version>1.0.3-SNAPSHOT</version>
   <build>
 	<plugins>
  		<plugin>
@@ -21,7 +21,7 @@
   	<dependency>
   		<groupId>it.uniroma2.art.semanticturkey.ontology</groupId>
   		<artifactId>sesame2ontmanager</artifactId>
-  		<version>1.0.3</version>
+  		<version>1.0.4-SNAPSHOT</version>
   		<scope>compile</scope>
   	</dependency>
   	<dependency>
@@ -41,7 +41,7 @@
   	<dependency>
   		<groupId>it.uniroma2.art.semanticturkey</groupId>
   		<artifactId>services-extension</artifactId>
-  		<version>0.7.2</version>
+  		<version>0.7.3-SNAPSHOT</version>
   		<scope>compile</scope>
   	</dependency>
   </dependencies>

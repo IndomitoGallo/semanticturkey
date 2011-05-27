@@ -47,7 +47,7 @@ public class ServiceUTFixture extends ServiceTest {
 
 	/**
 	 * create a <code>@BeforeClass</code> in your unit-test class which invokes this method on an instance of
-	 * the its same class (this could be done because the specific class could add some custom initialization)
+	 * its own (this could be done because the specific class could add some custom initialization)
 	 * 
 	 * @param testInst
 	 * @param delete
@@ -58,13 +58,7 @@ public class ServiceUTFixture extends ServiceTest {
 	public static void initWholeTestClass(ServiceTest testInst, boolean delete) throws IOException,
 			STInitializationException {
 		serviceTester = testInst;
-		String sConfigFile = "testMod.properties";
-		InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(sConfigFile);
-		Properties props = new java.util.Properties();
-		props.load(in);
-		if (delete)
-			serviceTester.deleteWorkingFiles();
-		serviceTester.initialize(props.getProperty("access"));
+		serviceTester.initialize(delete);
 	}
 
 	/**

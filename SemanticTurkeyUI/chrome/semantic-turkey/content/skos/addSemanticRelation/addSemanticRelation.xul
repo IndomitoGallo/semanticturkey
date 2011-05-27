@@ -29,7 +29,7 @@
 		
 	
 	<groupbox id="addConceptBox" flex="1">
-		<caption class="header" label=" - Add Semantic Relation - " image="../../images/st_favicon.png" />
+		<caption class="header" label=" - Add Semantic Relation - " image="chrome://semantic-turkey/skin/images/st_favicon.png" />
 		<hbox fles="1">
 			
 			<vbox id="addConceptPanelFrom" flex="1" style="width:250px;">

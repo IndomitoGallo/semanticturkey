@@ -44,13 +44,13 @@
 	</menulist>		
 	<toolbox flex="0">
 		<toolbar id="skosConcept-toolbar">
-			<toolbarbutton id="addConcept" image="../images/skosC_create.png" tooltiptext="Add Concept"/>
-			<toolbarbutton id="addConceptRelationship" image="../images/concept_relation.png" tooltiptext="Add semantic relation..."/>
+			<toolbarbutton id="addConcept" image="chrome://semantic-turkey/skin/images/skosC_create.png" tooltiptext="Add Concept"/>
+			<toolbarbutton id="addConceptRelationship" image="chrome://semantic-turkey/skin/images/concept_relation.png" tooltiptext="Add semantic relation..."/>
 <!--    
-			<toolbarbutton id="addBroaderConcept"  image="../images/broader_add.png"  tooltiptext="Add Broader Concept"></toolbarbutton>
-			<toolbarbutton id="addNarrowerConcept"  image="../images/narrower_add.png"  tooltiptext="Add Narrower Concept"></toolbarbutton>
+			<toolbarbutton id="addBroaderConcept"  image="chrome://semantic-turkey/skin/images/broader_add.png"  tooltiptext="Add Broader Concept"></toolbarbutton>
+			<toolbarbutton id="addNarrowerConcept"  image="chrome://semantic-turkey/skin/images/narrower_add.png"  tooltiptext="Add Narrower Concept"></toolbarbutton>
 -->			
-			<toolbarbutton id="toggleConceptLanguage"  type="checkbox" image="../images/user.png"  
+			<toolbarbutton id="toggleConceptLanguage"  type="checkbox" image="chrome://semantic-turkey/skin/images/user.png"  
 					tooltiptext="Toggle between qnames (with prefix) and human-readable rdfs:labels or skos:preferredLabel"/>
 					
 		</toolbar>
@@ -59,19 +59,19 @@
 		<popup id="clipmenu"  align="start">
 			<menuitem id="menuItemCreateNarrowerConcept" flex="1">
 				<menuitem-iconic flex="1">
-					<image src="../images/narrower_add.png" flex="0"/>
+					<image src="chrome://semantic-turkey/skin/images/narrower_add.png" flex="0"/>
 					<label value="Create new Narrower Concept..." flex="0"/> 						
 				</menuitem-iconic>
 			</menuitem>
 			<menuitem id="menuItemCreateBroaderConcept" flex="1">
 				<menuitem-iconic flex="1">
-					<image src="../images/broader_add.png" flex="0"/>
+					<image src="chrome://semantic-turkey/skin/images/broader_add.png" flex="0"/>
 					<label value="Create new Broader Concept..." flex="0"/> 						
 				</menuitem-iconic>
 			</menuitem>
 			<menuitem id="menuItemDeleteConcept"  flex="1">
 						<menuitem-iconic id="deleteItemIc" flex="1">
-									<image src="../images/class_delete.png" flex="0"/>
+									<image src="chrome://semantic-turkey/skin/images/class_delete.png" flex="0"/>
 									<label value="Delete" flex="0"/> 						
 						</menuitem-iconic>	
 			</menuitem>						

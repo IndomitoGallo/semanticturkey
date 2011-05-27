@@ -5,7 +5,7 @@
 	<artifactId>sesame2ontmanager</artifactId>
 	<packaging>bundle</packaging>
 	<name>ST EXT-R Sesame2ImplExtension</name>
-	<version>1.0.3</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<description>The OSGi bundle for Sesame2 implementation of Semantic Turkey Ontology Manager</description>
 	<issueManagement>
 		<system>Google Code</system>
@@ -106,7 +106,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>semanticturkey</artifactId>
-			<version>0.7.2</version>
+			<version>0.7.3-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>

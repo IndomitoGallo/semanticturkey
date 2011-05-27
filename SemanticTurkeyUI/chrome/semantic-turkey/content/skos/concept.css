@@ -24,26 +24,26 @@ tree {
   -moz-user-focus: normal !important;
   -moz-user-select: text;
 }
-treecol::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); }
+treecol::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); }
 
 /* display folder icons in front of the treecell text */
-treechildren::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
+treechildren::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
 
-treechildren::-moz-tree-image(base) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c1) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); }
-treechildren::-moz-tree-image(c2) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c3) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c4) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c5) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c6) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c7) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c8) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c9) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c10) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c11) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c12) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c13) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); } 
-treechildren::-moz-tree-image(c14) { list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png"); }  
+treechildren::-moz-tree-image(base) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c1) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); }
+treechildren::-moz-tree-image(c2) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c3) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c4) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c5) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c6) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c7) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c8) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c9) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c10) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c11) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c12) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c13) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); } 
+treechildren::-moz-tree-image(c14) { list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png"); }  
 
 
 toolbar[iconsize="small"] #myextension-button {
@@ -51,7 +51,7 @@ toolbar[iconsize="small"] #myextension-button {
 }
 
 treechildren::-moz-tree-column {
-	list-style-image: url("chrome://semantic-turkey/content/images/skosConcept.png");
+	list-style-image: url("chrome://semantic-turkey/skin/images/skosConcept.png");
   	background-color: #ffffff;
 }
 
