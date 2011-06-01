@@ -26,10 +26,10 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/metadata/mirrorUtils.js" />
 	<popupset>
-		<popup id="mirrorMenu" onpopupshowing="javascript:;">
+		<menupopup id="mirrorMenu" onpopupshowing="javascript:;">
 			<menuitem id="delItem" label="Delete" />
 			<menuitem id="upItem" label="Update" />
-		</popup>
+		</menupopup>
 
 	</popupset>
 

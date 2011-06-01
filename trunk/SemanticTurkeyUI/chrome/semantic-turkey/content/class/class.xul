@@ -54,7 +54,7 @@
 	</toolbox>
 		
 	<popupset>
-		<popup id="clipmenu"  align="start">
+		<menupopup id="clipmenu"  align="start">
 			<menuitem id="menuItemCreateIndividual" flex="1">
 				<menuitem-iconic flex="1">
 					<image src="chrome://semantic-turkey/skin/images/individual_add.png" flex="0"/>
@@ -97,7 +97,7 @@
 					<label value="Create Sibling Class" flex="0"/> 						
 				</menuitem-iconic>
 			</menuitem>
-		</popup>
+		</menupopup>
 	</popupset>
 			
 	<tree hidecolumnpicker="true" id="classesTree" context="clipmenu" seltype="single" flex="2">
@@ -130,7 +130,7 @@
 	</listbox>
 	
 	<popupset>
-		<popup id="clipmenulist">
+		<menupopup id="clipmenulist">
 			<menuitem id="menuItemWebLinks">
 				<menuitem-iconic>
 					<image src="chrome://semantic-turkey/skin/images/world20.png" />
@@ -149,7 +149,7 @@
 					<label value="Delete"/> 						
 				</menuitem-iconic>	
 			</menuitem>
-		</popup>
+		</menupopup>
 	</popupset>
 	
 	<!-- It isn't useful (Manuel Fiorelli 20/03/2010	

@@ -32,23 +32,23 @@
 	
 	
 	<popupset>
-		<popup id="clipmenu"  align="start">
-			<menuitem id="openProject" flex="1">
-				<label value="Open the selected project" flex="0"/> 						
+		<menupopup id="clipmenu"  align="start">
+			<menuitem id="openProject" flex="1" label="Open the selected project">
+				<!--<label value="Open the selected project"/>--> 						
 			</menuitem>
-			<menuitem id="deleteProject" flex="1">
-				<label value="Delete the selected project" flex="0"/> 						
+			<menuitem id="deleteProject" flex="1" label="Delete the selected project">
+				<!--<label value="Delete the selected project" flex="0"/>--> 						
 			</menuitem>
-			<menuitem id="cloneProject" flex="1">
-				<label value="Clone the selected project" flex="0"/> 						
+			<menuitem id="cloneProject" flex="1" label="Clone the selected project">
+				<!--<label value="Clone the selected project" flex="0"/>--> 						
 			</menuitem>
-			<menuitem id="setDeafultProject" flex="1">
-				<label value="set the selected project as the default one" flex="0"/> 						
+			<menuitem id="setDeafultProject" flex="1" label="set the selected project as the default one">
+				<!--<label value="set the selected project as the default one" flex="0"/> -->						
 			</menuitem>
-			<menuitem id="fixProject" flex="1">
-				<label value="try to fix the issues regardig this project" flex="0"/> 						
+			<menuitem id="fixProject" flex="1" label="try to fix the issues regardig this project">
+				<!--<label value="try to fix the issues regardig this project" flex="0"/> -->						
 			</menuitem>
-		</popup>
+		</menupopup>
 	</popupset>
 	
 	<groupbox flex ="1">
