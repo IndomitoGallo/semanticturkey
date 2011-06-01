@@ -56,7 +56,7 @@
 		</toolbar>
 	</toolbox>	
 		<popupset id="popupset">
-		<popup id="clipmenu"  align="start">
+		<menupopup id="clipmenu"  align="start">
 			<menuitem id="menuItemCreateNarrowerConcept" flex="1">
 				<menuitem-iconic flex="1">
 					<image src="chrome://semantic-turkey/skin/images/narrower_add.png" flex="0"/>
@@ -75,7 +75,7 @@
 									<label value="Delete" flex="0"/> 						
 						</menuitem-iconic>	
 			</menuitem>						
-		</popup>
+		</menupopup>
 	</popupset>	
 	<tree hidecolumnpicker="true" id="conceptsTree" context="clipmenu" seltype="single" flex="2">
 		<treecols>

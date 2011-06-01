@@ -53,7 +53,7 @@
 	</toolbox>
 	
 	<popupset>
-		<popup id="clipmenu" onpopupshowing="javascript:;">
+		<menupopup id="clipmenu" onpopupshowing="javascript:;">
 			<menuitem id="menuItemCreateSubProperty" >
 			<menuitem-iconic >
 					<image src="chrome://semantic-turkey/skin/images/prop_addSubProperty.png"/>
@@ -78,7 +78,7 @@
 					<label value="Add Synonym"/> 						
 				</menuitem-iconic>
 			</menuitem>
-		</popup>
+		</menupopup>
 	</popupset>
 	
 	<tree hidecolumnpicker="true" id="propertiesTree" flex="1" context="clipmenu"

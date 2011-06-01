@@ -123,14 +123,14 @@
 				</grid>
 			</vbox>
 			<popupset>
-				<popup id="importsClipmenu">
+				<menupopup id="importsClipmenu">
 					<menuitem id="remove" label="Remove Import" hidden="true" />
 					<menuitem id="mirror" label="Mirror Ontology" hidden="true" />
 					<menuitem id="downloadFromWebToMirror" label="Download from Web to Mirror"
 						hidden="true" />
 					<menuitem id="downloadFromWeb" label="Download from Web" hidden="true" />
 					<menuitem id="getFromLocalFile" label="Get from Local File" hidden="true" />
-				</popup>
+				</menupopup>
 			</popupset>
 			<tree hidecolumnpicker="true" id="importsTree" flex="1" context="importsClipmenu">
 				<treecols>
