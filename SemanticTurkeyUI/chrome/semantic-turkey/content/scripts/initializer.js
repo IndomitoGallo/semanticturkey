@@ -1,5 +1,6 @@
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
 art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	try {
 		/*
@@ -49,13 +50,15 @@ art_semanticturkey.annotationRegister = function() {
 		var family = new annComponent.wrappedJSObject.Family("bookmarking");
 		
 		//initialize function object
-		var list = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDrop,"Instance annotation");
+		var furtherAnn = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDropFurtherAnn,"further annotation");
+		var valueForProp = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDropValueForProp,"value for property");
 		var createInstance = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.treeDragDrop,"Create instance");
 		var highlightfunction = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnFunction,"Highlight function");
 		
 		//add function to family
 		family.addfunction("dragDropOverClass",createInstance);
-		family.addfunction("dragDropOverInstance",list);
+		family.addfunction("dragDropOverInstance",furtherAnn);
+		family.addfunction("dragDropOverInstance",valueForProp);
 		family.addfunction("highlightAnnotation",highlightfunction);
 		
 		//register bookmarking annotation family
@@ -95,8 +98,90 @@ art_semanticturkey.getPageAnnotations_RESPONSE = function(responseElement) {
 				highlightStartTag, highlightEndTag);
 	}
 };
-art_semanticturkey.listDragDrop = function(event, parentWindow) {
+art_semanticturkey.listDragDropFurtherAnn = function(event, parentWindow) {
+	//TODO check wchich part of this code is it really necessary
+	var elementName = event.target.tagName;
+	if (elementName == "listitem") {
+		var listItem = event.target;
+		var ds = Components.classes["@mozilla.org/widget/dragservice;1"]
+				.getService(Components.interfaces.nsIDragService);
+		var ses = ds.getCurrentSession();
+		var list = parentWindow.document.getElementById('InstancesList');
+		var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
+				.getService(Components.interfaces.nsIWindowMediator);
+		var topWindowOfType = windowManager
+				.getMostRecentWindow("navigator:browser");
+		var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;
+		// tabWin = tabWin.replace(/&/g, "%26");
+		var contentDocument = topWindowOfType.gBrowser.selectedBrowser.contentDocument;
+		var titleNodes = contentDocument.getElementsByTagName('title');
+		var title = "";
+		if (titleNodes != null) {
+			var titleNodeChildren = titleNodes[0].childNodes;
+			for (var i = 0; i < titleNodeChildren.length; i++) {
+				if (titleNodeChildren[i].nodeType == 3)
+					title = titleNodeChildren[i].nodeValue;
+			}
+		}
+		// provare con text/plain
+		if (ses.isDataFlavorSupported("text/unicode")) {
+			var transferObject = Components.classes["@mozilla.org/widget/transferable;1"]
+					.createInstance();
+			transferObject = transferObject
+					.QueryInterface(Components.interfaces.nsITransferable);
+			transferObject.addDataFlavor("text/unicode");
+			var numItems = ds.numDropItems;
+
+			for (var i = 0; i < numItems; i++) {
+				ds.getData(transferObject, i);
+			}
+
+			var str = new Object();
+			var strLength = new Object();
+			transferObject.getTransferData("text/unicode", str, strLength);
+			if (str)
+				str = str.value
+						.QueryInterface(Components.interfaces.nsISupportsString);
+			var parameters = new Object();
+			// TODO vedere quali parametri servono realmente
+			parameters.subjectInstanceName = listItem.getAttribute("label");
+			parameters.parentClsName = listItem.getAttribute("parentCls");
+			parameters.objectInstanceName = str;
+			parameters.urlPage = tabWin;
+			parameters.title = title;
+			parameters.tree = list;
+			parameters.parentWindow = parentWindow;
+			parameters.panelTree = document.getElementById("classesTree");
+			art_semanticturkey.furtherAnnotFunction(parameters);
+		}
+	} else {
+		alert("No Individual Selected!");
+	}
 	
+};
+
+art_semanticturkey.furtherAnnotFunction = function(parameters) {
+	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+			.getService(Components.interfaces.nsIWindowWatcher);
+	var window = ww.activeWindow;
+	var objectInstanceName = parameters.objectInstanceName;
+	var subjectInstanceName = parameters.subjectInstanceName;
+	var parentWindow = parameters.parentWindow;
+	try {
+		parentWindow.art_semanticturkey.STRequests.Annotation
+			.createFurtherAnnotation(
+				subjectInstanceName,
+				objectInstanceName,
+				parameters.urlPage,
+				parameters.title);
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
+
+};
+
+art_semanticturkey.listDragDropValueForProp = function(event, parentWindow) {
+	//TODO check wchich part of this code is it really necessary
 	var elementName = event.target.tagName;
 	if (elementName == "listitem") {
 		var listItem = event.target;

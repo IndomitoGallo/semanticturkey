@@ -27,16 +27,6 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/property/propertyUtilities.js" />
 
-
-	<radiogroup id="group">
-
-		<radio id="radiolex" label="Random name" selected="false" />
-
-
-		<radio id="radioprop" label="Property" selected="true" />
-
-
-	</radiogroup>
 	<toolbox>
 		<toolbar id="property-toolbar">
 			<checkbox label="Show all properties" id="checkAll" />
