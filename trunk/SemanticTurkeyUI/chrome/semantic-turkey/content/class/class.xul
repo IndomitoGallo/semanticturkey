@@ -42,6 +42,8 @@
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 	<!-- <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/> -->
+	<script src="chrome://global/content/nsDragAndDrop.js"/>
+	<script src="chrome://global/content/nsTransferable.js"/>
 	
 	<toolbox flex="0">
 		<toolbar id="findfiles-toolbar">
@@ -100,7 +102,11 @@
 		</menupopup>
 	</popupset>
 			
-	<tree hidecolumnpicker="true" id="classesTree" context="clipmenu" seltype="single" flex="2">
+	<!-- To fix the problem with the event management in the sidebar the observer art_semanticturkey.boardObserver
+	was added to the two attribute of the tree elements: ondragover and ondragdrop-->
+	<tree hidecolumnpicker="true" id="classesTree" context="clipmenu" seltype="single" flex="2"
+			ondragover="nsDragAndDrop.dragOver(event, art_semanticturkey.boardObserver)" 
+			ondragdrop="nsDragAndDrop.drop(event, art_semanticturkey.boardObserver)"	>
 		<treecols>
 			<treecol id="category"  label= "Classes" primary="true" flex="1" />
 		</treecols>
@@ -115,10 +121,14 @@
 	</splitter>
 	<!--	 <hbox flex="1">
 		<vbox flex="1">-->
-		
+	
+	<!-- To fix the problem with the event management in the sidebar the observer art_semanticturkey.boardObserver
+	was added to the two attribute of the listbox elements: ondragover and ondragdrop-->	
 	<listbox id="IndividualsList"
-		context="clipmenulist"
-		flex="1">		
+			context="clipmenulist"
+			flex="1"
+			ondragover="nsDragAndDrop.dragOver(event, art_semanticturkey.boardObserver)" 
+			ondragdrop="nsDragAndDrop.drop(event, art_semanticturkey.boardObserver)"	>		
 		<listhead>
 			<listheader>
 				<listitem-iconic>

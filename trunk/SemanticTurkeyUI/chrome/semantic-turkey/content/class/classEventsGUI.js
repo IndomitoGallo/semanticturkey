@@ -30,7 +30,7 @@ art_semanticturkey.associateEventsOnGraphicElementsClasses = function() {
 	document.getElementById("classesTree").addEventListener("click",
 			art_semanticturkey.classesTreeClick, true);
 	document.getElementById("classesTree").addEventListener("keypress",
-			art_semanticturkey.onKeyPressed, true); 
+			art_semanticturkey.onKeyPressed, true);
 
 	document.getElementById("createRootClass").addEventListener("command",
 			art_semanticturkey.createRootClass, true);
@@ -40,11 +40,11 @@ art_semanticturkey.associateEventsOnGraphicElementsClasses = function() {
 			art_semanticturkey.createSiblingClass, true);
 	document.getElementById("removeClass").addEventListener("command",
 			art_semanticturkey.removeClass, true);
-	/* 
+	/*
 	 * document.getElementById("graph").addEventListener("command",
 	 * art_semanticturkey.graph, true);
 	 */
-	//var stIsStarted = art_semanticturkey.ST_started.getStatus();
+	// var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 	if (projectIsNull == true) {
 		document.getElementById("createRootClass").disabled = true;
@@ -69,38 +69,46 @@ art_semanticturkey.associateEventsOnGraphicElementsClasses = function() {
 			art_semanticturkey.renameClass, true);
 	document.getElementById("menuItemAddSynonym").addEventListener("command",
 			art_semanticturkey.addSynonym, true);
-	//document.getElementById("menuItemGraph").addEventListener("command",
-	//		art_semanticturkey.partialGraph, true);
+	// document.getElementById("menuItemGraph").addEventListener("command",
+	// art_semanticturkey.partialGraph, true);
+
 };
 
 
-art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(responseElement){
+
+art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(
+		responseElement) {
 	var rootTreechildren = document.getElementById('rootClassTreeChildren');
 	var dataElement = responseElement.getElementsByTagName('data')[0];
 	var classList = dataElement.getElementsByTagName("class");
-	for(var i=0; i<classList.length; ++i){
-		art_semanticturkey.parsingSubClass(classList[i], rootTreechildren, true);
+	for (var i = 0; i < classList.length; ++i) {
+		art_semanticturkey
+				.parsingSubClass(classList[i], rootTreechildren, true);
 	}
-	
-	//open the owl:Thing node if it is the only node
-	if(classList.length == 1){ 
+
+	// open the owl:Thing node if it is the only node
+	if (classList.length == 1) {
 		var treeItemThing = rootTreechildren.getElementsByTagName("treeitem")[0];
 		var tree = document.getElementById("classesTree");
 		tree.view.selection.clearSelection();
 		tree.view.selection.toggleSelect(0);
-		
-		try{
-			var treeChildren = treeItemThing.getElementsByTagName("treechildren")[0];
-			var responseXML=art_semanticturkey.STRequests.Cls.getSubClasses("http://www.w3.org/2002/07/owl#Thing",true,true);
-			art_semanticturkey.getSubClassesTree_RESPONSE(responseXML,treeChildren);
+
+		try {
+			var treeChildren = treeItemThing
+					.getElementsByTagName("treechildren")[0];
+			var responseXML = art_semanticturkey.STRequests.Cls.getSubClasses(
+					"http://www.w3.org/2002/07/owl#Thing", true, true);
+			art_semanticturkey.getSubClassesTree_RESPONSE(responseXML,
+					treeChildren);
 			tree.treeBoxObject.view.toggleOpenState(tree.currentIndex);
-			
+
 			var list = document.getElementById("IndividualsList");
 			responseXML = art_semanticturkey.STRequests.Cls
-					.getClassAndInstancesInfo("http://www.w3.org/2002/07/owl#Thing", true);
-			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, list);
-		}
-		catch (e) {
+					.getClassAndInstancesInfo(
+							"http://www.w3.org/2002/07/owl#Thing", true);
+			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML,
+					list);
+		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
@@ -129,7 +137,7 @@ art_semanticturkey.getSubClassesTree_RESPONSE = function(responseElement,
 		rootTreechildren) {
 	var rootTreechildren = rootTreechildren;
 	var isRootNode = false;
-	if (typeof rootTreechildren == 'undefined'){
+	if (typeof rootTreechildren == 'undefined') {
 		rootTreechildren = document.getElementById('rootClassTreeChildren');
 		isRootNode = true;
 	}
@@ -203,18 +211,19 @@ art_semanticturkey.parsingClass = function(classNode, node, isRootNode) {
 	ti.appendChild(tr);
 	var tch = document.createElement("treechildren");
 	node.appendChild(ti);
-	//var more = classNode.getAttribute("more");
-	 var subClassList = classNode.getElementsByTagName("SubClasses")[0].childNodes;
+	// var more = classNode.getAttribute("more");
+	var subClassList = classNode.getElementsByTagName("SubClasses")[0].childNodes;
 	if (subClassList.length > 0) {
-	//if (more == "1") {
+		// if (more == "1") {
 		ti.appendChild(tch);
 		ti.setAttribute("container", true);
 		ti.setAttribute("open", false);
-		
-		 for ( var i = 0; i < subClassList.length; i++) { if
-		 (subClassList[i].nodeName == "Class")
-		  art_semanticturkey.parsingClass(subClassList[i], tch, false); }
-		 
+
+		for (var i = 0; i < subClassList.length; i++) {
+			if (subClassList[i].nodeName == "Class")
+				art_semanticturkey.parsingClass(subClassList[i], tch, false);
+		}
+
 	} else {
 		ti.setAttribute("container", false);
 	}
@@ -242,10 +251,10 @@ art_semanticturkey.parsingClass = function(classNode, node, isRootNode) {
 	 */
 };
 
-art_semanticturkey.onKeyPressed = function(event){
+art_semanticturkey.onKeyPressed = function(event) {
 	var keyCode = event.keyCode;
 	var tree = document.getElementById("classesTree");
-	
+
 	var range = tree.view.selection.getRangeCount();
 	if (range <= 0) {
 		return;
@@ -254,13 +263,13 @@ art_semanticturkey.onKeyPressed = function(event){
 	art_semanticturkey.loadInstanceList(event);
 }
 
-art_semanticturkey.openSubClassesList = function(event,tree) {
+art_semanticturkey.openSubClassesList = function(event, tree) {
 	var action = "null";
 	var tree = tree;
 	if (typeof tree == 'undefined')
 		tree = document.getElementById("classesTree");
 	var treeitem;
-	if(event.type == "keypress"){
+	if (event.type == "keypress") {
 		var keyCode = event.keyCode;
 		treeitem = tree.treeBoxObject.view.getItemAtIndex(tree.currentIndex);
 		var isContainer = treeitem.getAttribute("container");
@@ -268,76 +277,74 @@ art_semanticturkey.openSubClassesList = function(event,tree) {
 			return;
 		}
 		var isOpen = treeitem.getAttribute("open");
-		if(keyCode == KeyEvent.DOM_VK_RETURN) {
-			if(isOpen == "true"){
+		if (keyCode == KeyEvent.DOM_VK_RETURN) {
+			if (isOpen == "true") {
 				action = "loadSubTree";
-			}
-			else if(isOpen == "false"){
+			} else if (isOpen == "false") {
 				action = "emptySubTree";
 			}
-		}
-		else if((keyCode == KeyEvent.DOM_VK_RIGHT) && (isOpen == "true")){
+		} else if ((keyCode == KeyEvent.DOM_VK_RIGHT) && (isOpen == "true")) {
 			action = "loadSubTree";
-		}
-		else if  ((keyCode == KeyEvent.DOM_VK_LEFT) && (isOpen == "false")){
+		} else if ((keyCode == KeyEvent.DOM_VK_LEFT) && (isOpen == "false")) {
 			action = "emptySubTree";
-		}
-		else{
+		} else {
 			return;
 		}
-	}
-	else if(event.type == "click"){
+	} else if (event.type == "click") {
 		var row = {};
 		var col = {};
 		var part = {};
-		tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, part);
+		tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col,
+				part);
 		treeitem = tree.contentView.getItemAtIndex(row.value);
-		var isContainer =  treeitem.getAttribute("container");
-		if(isContainer == "false"){
+		var isContainer = treeitem.getAttribute("container");
+		if (isContainer == "false") {
 			return;
 		}
 		var isTwisty = (part.value == "twisty");
-		if(isTwisty == false){
-			//the user did not click on the twisty, so he does not want the sub classes
+		if (isTwisty == false) {
+			// the user did not click on the twisty, so he does not want the sub
+			// classes
 			return;
 		}
 		var isOpen = treeitem.getAttribute("open");
-		if(isOpen == "true"){
+		if (isOpen == "true") {
 			action = "emptySubTree";
-		}
-		else if(isOpen == "false"){
+		} else if (isOpen == "false") {
 			action = "loadSubTree";
 		}
-	}
-	else{
+	} else {
 		return
 	}
-	
-	//do the requested action
+
+	// do the requested action
 	var treeChildren = treeitem.getElementsByTagName("treechildren")[0];
-	if(action == "loadSubTree"){
+	if (action == "loadSubTree") {
 		// EMPTY TREE, just to be extra sure
 		while (treeChildren.hasChildNodes()) {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		var className = treeitem.getAttribute("className");
-		var responseXML=art_semanticturkey.STRequests.Cls.getSubClasses(className,true,true);
-		art_semanticturkey.getSubClassesTree_RESPONSE(responseXML,treeChildren);
-	}
-	else if(action == "emptySubTree"){
+		var responseXML = art_semanticturkey.STRequests.Cls.getSubClasses(
+				className, true, true);
+		art_semanticturkey
+				.getSubClassesTree_RESPONSE(responseXML, treeChildren);
+	} else if (action == "emptySubTree") {
 		// EMPTY TREE
 		while (treeChildren.hasChildNodes()) {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 	}
-	
+
 }
 
-art_semanticturkey.loadInstanceList = function(event,tree,list) {
+art_semanticturkey.loadInstanceList = function(event, tree, list) {
 	if (event.type == "keypress") {
 		var keyCode = event.keyCode;
-		if((keyCode != KeyEvent.DOM_VK_UP) && (keyCode == KeyEvent.DOM_VK_DOWN) &&
-				(keyCode != KeyEvent.DOM_VK_LEFT) && (keyCode == KeyEvent.DOM_VK_RIGHT)){
+		if ((keyCode != KeyEvent.DOM_VK_UP)
+				&& (keyCode == KeyEvent.DOM_VK_DOWN)
+				&& (keyCode != KeyEvent.DOM_VK_LEFT)
+				&& (keyCode == KeyEvent.DOM_VK_RIGHT)) {
 			return;
 		}
 	}
@@ -357,25 +364,25 @@ art_semanticturkey.loadInstanceList = function(event,tree,list) {
 	var list = list;
 	if (typeof list == 'undefined')
 		var list = document.getElementById("IndividualsList");
-	//if (numInst > 0) {
-		try {
-			var responseXML = art_semanticturkey.STRequests.Cls
-					.getClassAndInstancesInfo(className, true);
-			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, list);
-		} catch (e) {
-			alert(e.name + ": " + e.message);
-		}
-	/*} else {
-		var rows = list.getRowCount();
-		while (rows--) {
-			list.removeItemAt(rows);
-		}
-		list.getElementsByTagName('listheader')[0]
-				.getElementsByTagName('listitem-iconic')[0]
-				.getElementsByTagName('label')[0].setAttribute("value",
-				"Instances of " + className);
-	}*/
-	
+	// if (numInst > 0) {
+	try {
+		var start = new Date().getTime();
+
+		var responseXML = art_semanticturkey.STRequests.Cls
+				.getClassAndInstancesInfo(className, true);
+		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, list,
+				start);
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
+	/*
+	 * } else { var rows = list.getRowCount(); while (rows--) {
+	 * list.removeItemAt(rows); } list.getElementsByTagName('listheader')[0]
+	 * .getElementsByTagName('listitem-iconic')[0]
+	 * .getElementsByTagName('label')[0].setAttribute("value", "Instances of " +
+	 * className); }
+	 */
+
 }
 
 /**
@@ -433,15 +440,14 @@ art_semanticturkey.removeClass = function() {
  *         remove Class request
  */
 
-
 art_semanticturkey.removeClass_RESPONSE = function(responseElement) {
 	var resourceElement = responseElement.getElementsByTagName('Resource')[0];
 	var removedClassName = resourceElement.getAttribute("name");
-	
-	art_semanticturkey.evtMgr.fireEvent("removedClass", (new art_semanticturkey.classRemovedClass(removedClassName)) );
-	
-};
 
+	art_semanticturkey.evtMgr.fireEvent("removedClass",
+			(new art_semanticturkey.classRemovedClass(removedClassName)));
+
+};
 
 /**
  * @author Noemi Andrea invoke rename class request
@@ -465,22 +471,28 @@ art_semanticturkey.renameClass = function() {
 		parameters.parentWindow = window;
 		parameters.resourceType = "class";
 		window.openDialog("chrome://semantic-turkey/content/modifyName.xul",
-				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+				"_blank",
+				"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
 				parameters);
 	} else {
 		alert("You cannot modify this class, it's a system resource!");
 	}
 };
 
-art_semanticturkey.renameResource_RESPONSE = function(responseElement,resourceType){
+art_semanticturkey.renameResource_RESPONSE = function(responseElement,
+		resourceType) {
 	var resourceElement = responseElement
 			.getElementsByTagName('UpdateResource')[0];
 	var newResourceName = resourceElement.getAttribute("newname");
 	var oldResourceName = resourceElement.getAttribute("name");
-	if(resourceType=="class"){
-		art_semanticturkey.evtMgr.fireEvent("renamedClass", (new art_semanticturkey.classRenamedClass(newResourceName, oldResourceName)) );
-	}else if(resourceType=="individual"){
-		art_semanticturkey.evtMgr.fireEvent("renamedIndividual", (new art_semanticturkey.individualRenamedIndividual(newResourceName, oldResourceName)) );
+	if (resourceType == "class") {
+		art_semanticturkey.evtMgr.fireEvent("renamedClass",
+				(new art_semanticturkey.classRenamedClass(newResourceName,
+						oldResourceName)));
+	} else if (resourceType == "individual") {
+		art_semanticturkey.evtMgr.fireEvent("renamedIndividual",
+				(new art_semanticturkey.individualRenamedIndividual(
+						newResourceName, oldResourceName)));
 	}
 };
 
@@ -560,59 +572,47 @@ art_semanticturkey.addClass_RESPONSE = function(responseElement) {
 	var superClassName = superClassElement.getAttribute("name");
 	var classElement = responseElement.getElementsByTagName('class')[0];
 	var className = classElement.getAttribute("name");
-	
-	art_semanticturkey.evtMgr.fireEvent("createdSubClass", (new art_semanticturkey.classAddedClass(className, superClassName)) );
-	/*if (superClassName == "owl:Thing") {
-		var rootNode = document.getElementById('rootClassTreeChildren');
-		var tr = document.createElement("treerow");
-		var tc = document.createElement("treecell");
-		tc.setAttribute("numInst", "0");
-		tc.setAttribute("deleteForbidden", false);
-		//tc.setAttribute("isRootNode", true);
-		tc.setAttribute("isRootNode", false);
-		tc.setAttribute("label", className);
-		tr.appendChild(tc);
-		var ti = document.createElement("treeitem");
-		ti.setAttribute("className", className);
-		ti.appendChild(tr);
-		rootNode.appendChild(ti);
-	} else {*/
-	/*var tree = document.getElementById("classesTree");
-	var childList = tree.getElementsByTagName("treeitem");
-	for (var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndCreate(className, childList[i],
-				superClassName);
-	}*/
-	//}
+
+	art_semanticturkey.evtMgr
+			.fireEvent("createdSubClass",
+					(new art_semanticturkey.classAddedClass(className,
+							superClassName)));
+	/*
+	 * if (superClassName == "owl:Thing") { var rootNode =
+	 * document.getElementById('rootClassTreeChildren'); var tr =
+	 * document.createElement("treerow"); var tc =
+	 * document.createElement("treecell"); tc.setAttribute("numInst", "0");
+	 * tc.setAttribute("deleteForbidden", false);
+	 * //tc.setAttribute("isRootNode", true); tc.setAttribute("isRootNode",
+	 * false); tc.setAttribute("label", className); tr.appendChild(tc); var ti =
+	 * document.createElement("treeitem"); ti.setAttribute("className",
+	 * className); ti.appendChild(tr); rootNode.appendChild(ti); } else {
+	 */
+	/*
+	 * var tree = document.getElementById("classesTree"); var childList =
+	 * tree.getElementsByTagName("treeitem"); for (var i = 0; i <
+	 * childList.length; i++) { art_semanticturkey.checkAndCreate(className,
+	 * childList[i], superClassName); }
+	 */
+	// }
 };
 
-
-//TODO da eliminare, visto che tale funzione qui non dovrebbe esistere
-/*art_semanticturkey.checkAndCreate = function(className, parentNode,
-		superClassName) {
-	var parentClassName = parentNode.getAttribute("className");
-	if (parentClassName == superClassName) {
-		var parentTreeChildren = parentNode
-				.getElementsByTagName("treechildren")[0];
-		if (parentTreeChildren == null) {
-			parentTreeChildren = document.createElement("treechildren");
-			parentNode.appendChild(parentTreeChildren);
-			parentNode.setAttribute("container", true);
-			parentNode.setAttribute("open", true);
-		}
-		var tr = document.createElement("treerow");
-		var tc = document.createElement("treecell");
-		tc.setAttribute("numInst", "0");
-		tc.setAttribute("deleteForbidden", false);
-		tc.setAttribute("isRootNode", false);
-		tc.setAttribute("label", className);
-		tr.appendChild(tc);
-		var ti = document.createElement("treeitem");
-		ti.setAttribute("className", className);
-		ti.appendChild(tr);
-		parentTreeChildren.appendChild(ti);
-	}
-};*/
+// TODO da eliminare, visto che tale funzione qui non dovrebbe esistere
+/*
+ * art_semanticturkey.checkAndCreate = function(className, parentNode,
+ * superClassName) { var parentClassName = parentNode.getAttribute("className");
+ * if (parentClassName == superClassName) { var parentTreeChildren = parentNode
+ * .getElementsByTagName("treechildren")[0]; if (parentTreeChildren == null) {
+ * parentTreeChildren = document.createElement("treechildren");
+ * parentNode.appendChild(parentTreeChildren);
+ * parentNode.setAttribute("container", true); parentNode.setAttribute("open",
+ * true); } var tr = document.createElement("treerow"); var tc =
+ * document.createElement("treecell"); tc.setAttribute("numInst", "0");
+ * tc.setAttribute("deleteForbidden", false); tc.setAttribute("isRootNode",
+ * false); tc.setAttribute("label", className); tr.appendChild(tc); var ti =
+ * document.createElement("treeitem"); ti.setAttribute("className", className);
+ * ti.appendChild(tr); parentTreeChildren.appendChild(ti); } };
+ */
 
 /**
  * @author Noemi Andrea invoke add Synonym request
@@ -637,7 +637,8 @@ art_semanticturkey.addSynonym = function() {
 	parameters.name = cllabel;
 	parameters.parentWindow = window;
 	window.openDialog("chrome://semantic-turkey/content/synonym/synonym.xul",
-			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			"_blank",
+			"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
 			parameters);
 };
 
@@ -660,8 +661,7 @@ art_semanticturkey.partialGraph = function() {
 	var treecell = treerow.getElementsByTagName('treecell')[0];
 	var className = treecell.getAttribute("label");
 	try {
-		art_semanticturkey.STRequests.Graph
-				.partialGraph(className);
+		art_semanticturkey.STRequests.Graph.partialGraph(className);
 		window.content.document.location.href = "http://127.0.0.1:1979/semantic_turkey/resources/graph/Proxy?URL=http://"
 				+ "127.0.0.1:1979/semantic_turkey/resources/applet/TGLinkBrowser.html";
 	} catch (e) {
@@ -690,7 +690,7 @@ art_semanticturkey.showHideItems = function() {
 	tree = document.getElementById("classesTree");
 	var range = tree.view.selection.getRangeCount();
 	if (range <= 0) {
-		//document.getElementById("menuItemGraph").disabled = true;
+		// document.getElementById("menuItemGraph").disabled = true;
 		document.getElementById("menuItemCreateIndividual").disabled = true;
 		document.getElementById("menuItemSubClass").disabled = true;
 		document.getElementById("menuItemRemoveClass").disabled = true;
@@ -702,7 +702,7 @@ art_semanticturkey.showHideItems = function() {
 	var currentelement = tree.treeBoxObject.view
 			.getItemAtIndex(tree.currentIndex);
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
-	//document.getElementById("menuItemGraph").disabled = false;
+	// document.getElementById("menuItemGraph").disabled = false;
 	document.getElementById("menuItemCreateIndividual").disabled = false;
 	document.getElementById("menuItemSubClass").disabled = false;
 	document.getElementById("menuItemRemoveClass").disabled = false;
@@ -721,13 +721,15 @@ art_semanticturkey.showHideItems = function() {
  *         contains instances of selected class
  */
 art_semanticturkey.classesTreeClick = function(event, tree, list) {
-	if(typeof event != 'undefined'){
-		art_semanticturkey.openSubClassesList(event,tree);
-		art_semanticturkey.loadInstanceList(event,tree,list);
+	if (typeof event != 'undefined') {
+		art_semanticturkey.openSubClassesList(event, tree);
+		art_semanticturkey.loadInstanceList(event, tree, list);
 	}
 };
 
-art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement, list) {
+art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
+		responseElement, list, startAll) {
+	var startJustUIComplete = new Date().getTime();
 	var list = list;
 	if (typeof list == 'undefined')
 		list = document.getElementById("IndividualsList");
@@ -739,35 +741,34 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 			.getAttribute("name");
 	var numTotInst = responseElement.getElementsByTagName('Class')[0]
 			.getAttribute("numTotInst");
-	var hasSubClasses =  responseElement.getElementsByTagName('Class')[0]
+	var hasSubClasses = responseElement.getElementsByTagName('Class')[0]
 			.getAttribute("more"); // this can be "1" or "0" or null
-	
+
 	var classTree = document.getElementById("classesTree");
 	var childList = classTree.getElementsByTagName("treeitem");
 	for (var i = 0; i < childList.length; i++) {
-		if(childList[i].getAttribute("className") == parentClassName){
-			if(hasSubClasses != null) {
+		if (childList[i].getAttribute("className") == parentClassName) {
+			if (hasSubClasses != null) {
 				var isAlreadyContainer = childList[i].getAttribute("container");
 				var isOpen = childList[i].getAttribute("open");
-				if(hasSubClasses == "1"){
+				if (hasSubClasses == "1") {
 					childList[i].setAttribute("container", true);
-					if(isAlreadyContainer == false)
+					if (isAlreadyContainer == false)
 						childList[i].setAttribute("open", false);
-				}
-				else{ // == 0
+				} else { // == 0
 					childList[i].setAttribute("container", false);
 				}
 			}
 			var treecell = childList[i].getElementsByTagName("treecell")[0];
 			treecell.setAttribute("numInst", numTotInst);
-			if(numTotInst > 0)
-				treecell.setAttribute("label", parentClassName+"("+numTotInst+")");
+			if (numTotInst > 0)
+				treecell.setAttribute("label", parentClassName + "("
+								+ numTotInst + ")");
 			else
 				treecell.setAttribute("label", parentClassName);
 		}
-	}		
-			
-			
+	}
+
 	list.getElementsByTagName('listheader')[0]
 			.getElementsByTagName('listitem-iconic')[0]
 			.getElementsByTagName('label')[0].setAttribute("value",
@@ -777,6 +778,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 	list.getElementsByTagName('listheader')[0].setAttribute("numTotInst",
 			numTotInst);
 	var instancesList = responseElement.getElementsByTagName('Instance');
+	var startJustUI = new Date().getTime();
 	for (var i = 0; i < instancesList.length; i++) {
 		var instName = instancesList[i].getAttribute("name");
 		var lsti = document.createElement("listitem");
@@ -789,9 +791,10 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 		var lci = document.createElement("listitem-iconic");
 		var img = document.createElement("image");
 		var type = instancesList[i].getAttribute("type");
-		lsti.setAttribute("type",type);
-		img.setAttribute("src", art_semanticturkey.getImgFromType(type, explicit));
-		
+		lsti.setAttribute("type", type);
+		img.setAttribute("src", art_semanticturkey.getImgFromType(type,
+						explicit));
+
 		lci.appendChild(img);
 		var lbl = document.createElement("label");
 		lbl.setAttribute("value", instName);
@@ -802,46 +805,60 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(responseElement,
 		list.appendChild(lsti);
 	}
 
+	var end = new Date().getTime();
+	var time = end - startAll;
+	art_semanticturkey.Logger
+			.debug('Execution time loading istanceList (plus Server): ' + time
+					+ " ms");
+	time = end - startJustUIComplete;
+	art_semanticturkey.Logger
+			.debug('Execution time removing/adding istanceList (not the Server): '
+					+ time + " ms");
+	time = end - startJustUI;
+	art_semanticturkey.Logger
+			.debug('Execution time adding istanceList (not the Server): '
+					+ time + " ms");
+
 };
 
-art_semanticturkey.getImgFromType = function(type, explicit){
+art_semanticturkey.getImgFromType = function(type, explicit) {
 	var imgType;
 	if (type == "individual") {
 		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/individual_noexpl.png";
-		else 
+		else
 			imgType = "chrome://semantic-turkey/skin/images/individual.png";
 	} else if (type == "cls") {
-		if (explicit == "false") 
+		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/class_imported.png";
-		else 
+		else
 			imgType = "chrome://semantic-turkey/skin/images/class.png";
 	} else if (type.indexOf("ObjectProperty") != -1) {
 		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/propObject_imported.png";
 		else
 			imgType = "chrome://semantic-turkey/skin/images/propObject20x20.png";
-	}else if (type.indexOf("DatatypeProperty") != -1) {
-		if (explicit == "false") 
+	} else if (type.indexOf("DatatypeProperty") != -1) {
+		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/propDatatype_imported.png";
 		else
 			imgType = "chrome://semantic-turkey/skin/images/propDatatype20x20.png";
-	}else if (type.indexOf("AnnotationProperty") != -1) {
-		if (explicit == "false") 
+	} else if (type.indexOf("AnnotationProperty") != -1) {
+		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/propAnnotation_imported.png";
 		else
 			imgType = "chrome://semantic-turkey/skin/images/propAnnotation20x20.png";
-	}else if (type.indexOf("Property") != -1) {
+	} else if (type.indexOf("Property") != -1) {
 		if (explicit == "false")
 			imgType = "chrome://semantic-turkey/skin/images/prop_imported.png";
 		else
 			imgType = "chrome://semantic-turkey/skin/images/prop.png";
-	}else if (type.indexOf("literal") != -1) {
-		//vedere se mettere img o no
-		imgType="";
-	}else if (type.indexOf("bnodes") != -1) {
-		//vedere se mettere img o no
-		imgType="";
+	} else if (type.indexOf("literal") != -1) {
+		// vedere se mettere img o no
+		imgType = "";
+	} else if (type.indexOf("bnodes") != -1) {
+		// vedere se mettere img o no
+		imgType = "";
 	}
 	return imgType;
 };
@@ -877,18 +894,19 @@ art_semanticturkey.classesTreedoubleClick = function(event) {
 	if (parentLabel.indexOf('(') > -1) {
 		parentLabel = parentLabel.substring(0, parentLabel.indexOf('('));
 	}
-	//if (event.target.getAttribute("isRootNode") == "false") {
-		parameters.sourceParentElementName = parentLabel;
-	//} else {
-	//	parameters.sourceParentElementName = "owl:Thing";
-	//}
+	// if (event.target.getAttribute("isRootNode") == "false") {
+	parameters.sourceParentElementName = parentLabel;
+	// } else {
+	// parameters.sourceParentElementName = "owl:Thing";
+	// }
 	parameters.list = document.getElementById('IndividualsList');
 	parameters.tree = document.getElementById('classesTree');
 	parameters.parentWindow = window;
 	parameters.isFirstEditor = true;
 	window.openDialog(
 			"chrome://semantic-turkey/content/editors/editorPanel.xul",
-			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			"_blank",
+			"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
 			parameters);
 };
 

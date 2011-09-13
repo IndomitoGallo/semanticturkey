@@ -140,34 +140,26 @@ art_semanticturkey.showAllProperties_RESPONSE = function(responseElement) {
 };
 
 art_semanticturkey.onAccept = function() {
-	var sindex = document.getElementById("group").selectedIndex;
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefBranch);
 	var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
 	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	if (sindex == 0) {
-		window.setTimeout(function() {window.close();}, 10);
-		art_semanticturkey.furtherAnnotFunction();
-
-	} else if (sindex == 1) {
-		var tree = document.getElementById("annotatorTree");
-		var start = new Object();
-		var end = new Object();
-		var numRanges = tree.view.selection.getRangeCount();
-		var parameters;
-		if (numRanges == 1) {
-			parameters = art_semanticturkey.getParameters(tree,
-					tree.currentIndex);
-							
-				window.setTimeout(function() {window.close();}, 10); 
-				art_semanticturkey.listDragDropEnrichProp(parameters);
-			
-		} else {
-			alert("Please select a property");
-		}
+	var tree = document.getElementById("annotatorTree");
+	var start = new Object();
+	var end = new Object();
+	var numRanges = tree.view.selection.getRangeCount();
+	var parameters;
+	if (numRanges == 1) {
+		parameters = art_semanticturkey.getParameters(tree,
+				tree.currentIndex);
+						
+			window.setTimeout(function() {window.close();}, 10); 
+			art_semanticturkey.listDragDropEnrichProp(parameters);
+		
+	} else {
+		alert("Please select a property");
 	}
-
 };
 
 art_semanticturkey.onCancel = function() {
@@ -204,27 +196,6 @@ art_semanticturkey.updateState = function() {
 	} else {
 		tree.setAttribute("disabled", "false");
 	}
-};
-
-//Annotation function that add further lexicalization of an instance (0)
-art_semanticturkey.furtherAnnotFunction = function() {
-	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-			.getService(Components.interfaces.nsIWindowWatcher);
-	var window = ww.activeWindow;
-	var objectInstanceName = window.arguments[0].objectInstanceName;
-	var subjectInstanceName = window.arguments[0].subjectInstanceName;
-	var parentWindow = window.arguments[0].parentWindow;
-	try {
-		parentWindow.art_semanticturkey.STRequests.Annotation
-			.createFurtherAnnotation(
-				subjectInstanceName,
-				objectInstanceName,
-				window.arguments[0].urlPage,
-				window.arguments[0].title);
-	} catch (e) {
-		alert(e.name + ": " + e.message);
-	}
-
 };
 
 art_semanticturkey.listDragDropEnrichProp = function(parameters) {

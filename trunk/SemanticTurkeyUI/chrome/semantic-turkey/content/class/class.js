@@ -78,3 +78,19 @@ art_semanticturkey.populateClassTree = function() {
 	}
 };
 
+/*
+this observer does nothing, but it is necessary to fix the problem with the event management in the sidebar
+see https://developer.mozilla.org/en/Drag_and_Drop_JavaScript_Wrapper and
+https://developer.mozilla.org/en/Drag_and_Drop_Example
+*/
+art_semanticturkey.boardObserver = {
+  getSupportedFlavours : function () {
+    var flavours = new FlavourSet();
+    flavours.appendFlavour("text/unicode");
+    return flavours;
+  },
+
+  onDragOver: function (event, flavour, session) {},
+
+  onDrop: function (event, dropdata, session) {}
+}

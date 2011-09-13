@@ -66,7 +66,7 @@ window.onload = function() {
 art_semanticturkey.onAccept = function() {
 	
 	var sitem = document.getElementById("group").selectedItem;
-	//get the id of item selected: used for address the function
+	//get the id of the item selected: used it to address the function
 	var sindex = sitem.getAttribute("id");
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefBranch);
@@ -82,7 +82,7 @@ art_semanticturkey.onAccept = function() {
 	if (AnnotFunctionList[defaultAnnotFun] != null) {
 		//get the functions for the event drag'n'drop over instance
 		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");
-		//set timeout for close the window
+		//set timeout to close the window
 		window.setTimeout(function() {window.close();}, 100);
 		
 		//execute the selected function

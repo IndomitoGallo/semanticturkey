@@ -79,17 +79,17 @@ art_semanticturkey.classDragDrop = function(event) {
 		var count=0;
 		var index;
 		
-		//check how much function are present and enabled
+		//check how many functions are present and enabled
 		for(var j=0; j<FunctionOI.length;j++)
 			if(FunctionOI[j].isEnabled()){
 				count++;
 				index=j;
 			}
 		
-		//if no functions alert the user
+		//if no function is present/enabled alert the user
 		if(count == 0)
 			alert("No registered or enabled functions for this event");
-		//if 1 function is present and enabled execute 
+		//if 1 function is present and enabled execute it 
 		else if (count == 1) {
 			var fun = FunctionOI[index].getfunct();
 			fun(event, window);
