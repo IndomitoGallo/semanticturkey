@@ -1,3 +1,12 @@
+version 0.7.3 (SNAPSHOT)
+date: 27-05-2011 (till now)
+  * compatibility with Firefox 4.0 (changed bridgeComponent.js)
+  * introduction of new extension point in annotation mechanism (annotation.js and
+    annotator.js and annotationComponent.js)
+  * moved all images to skin/classic/1.0 and rearranged image references in all files accordingly
+  * annotation.js: chkAnnotationEvent --> merged in chkAnnotation 
+  * compatibility with Firefox 4.x->9.x : drag'n'drop mechanism (see bug: https://bugzilla.mozilla.org/show_bug.cgi?id=664963)
+
 version 0.7.2
 date: 20-01-2011
   * modified getSubClasses request from Cls.java for showing chosen labels instead of the class qname

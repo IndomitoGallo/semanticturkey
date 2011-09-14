@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class SemanticTurkey {
-	public final static VersionNumber versionNumber = new VersionNumber(0, 7, 2);
+	public final static VersionNumber versionNumber = new VersionNumber(0, 7, 3);
 	static protected HttpServer s_httpServer;
 	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
 	private final static int port = 1979;
