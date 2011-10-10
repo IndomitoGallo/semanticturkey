@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Export-Package: it.uniroma2.art.semanticturkey.servlet.main;uses:="it.
  uniroma2.art.semanticturkey.plugin.extpts,it.uniroma2.art.semantictur
  key.utilities,it.uniroma2.art.semanticturkey.ontology,it.uniroma2.art
- .semanticturkey.servlet,org.slf4j,it.uniroma2.art.semanticturkey.reso
- urces,org.w3c.dom,it.uniroma2.art.owlart.models,it.uniroma2.art.owlar
+ .semanticturkey.servlet,org.slf4j,org.w3c.dom,it.uniroma2.art.semanti
+ cturkey.resources,it.uniroma2.art.owlart.models,it.uniroma2.art.owlar
  t.exceptions,it.uniroma2.art.semanticturkey.project,it.uniroma2.art.o
  wlart.navigation,it.uniroma2.art.owlart.model,it.uniroma2.art.semanti
  cturkey,it.uniroma2.art.semanticturkey.vocabulary,it.uniroma2.art.sem
@@ -13,13 +13,14 @@ Export-Package: it.uniroma2.art.semanticturkey.servlet.main;uses:="it.
  it.uniroma2.art.owlart.io,it.uniroma2.art.semanticturkey.plugin,it.un
  iroma2.art.owlart.models.conf,it.uniroma2.art.semanticturkey.ontology
  .utilities,it.uniroma2.art.owlart.query,org.json,it.uniroma2.art.owla
- rt.query.io,org.xml.sax,org.osgi.framework,javax.servlet.http";versio
- n="0.7.2.SNAPSHOT"
-Tool: Bnd-0.0.357
+ rt.query.io,org.xml.sax,org.osgi.framework,javax.servlet.http"
+Built-By: Odnamar
+Tool: Bnd-1.15.0
 Bundle-Name: Semantic Turkey SE
-Created-By: 1.6.0_07 (Sun Microsystems Inc.)
-Bundle-Version: 0.7.2.SNAPSHOT
-Bnd-LastModified: 1291057866438
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.6.0_16
+Bundle-Version: 0.8.0
+Bnd-LastModified: 1318285329641
 Bundle-ManifestVersion: 2
 Bundle-Activator: it.uniroma2.art.semanticturkey.servlet.main.ServletB
  undle
@@ -37,10 +38,8 @@ Import-Package: com.google.common.base,com.google.common.collect,it.un
  2.art.semanticturkey.plugin,it.uniroma2.art.semanticturkey.plugin.ext
  pts,it.uniroma2.art.semanticturkey.project,it.uniroma2.art.semantictu
  rkey.resources,it.uniroma2.art.semanticturkey.servlet,it.uniroma2.art
- .semanticturkey.servlet.main;version="0.7",it.uniroma2.art.semantictu
- rkey.utilities,it.uniroma2.art.semanticturkey.vocabulary,javax.servle
- t.http,org.json,org.osgi.framework;version="1.5",org.slf4j;version="1
- .5",org.w3c.dom,org.xml.sax
+ .semanticturkey.utilities,it.uniroma2.art.semanticturkey.vocabulary,j
+ avax.servlet.http,org.json,org.osgi.framework;version="[1.5,2)",org.s
+ lf4j;version="[1.5,2)",org.w3c.dom,org.xml.sax
 Bundle-SymbolicName: it.uniroma2.art.semanticturkey.services-extension
-Originally-Created-By: 1.6.0_07 (Sun Microsystems Inc.)
 
