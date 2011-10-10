@@ -8,7 +8,7 @@
 
 		<!-- The name of the addon intended for display in the UI.  -->
 		<em:id>semanticturkey@art.uniroma2.it</em:id>
-		<em:version>0.7.3-SNAPSHOT</em:version>
+		<em:version>0.8.0</em:version>
                 <em:unpack>true</em:unpack>
 		<!-- The 2 declares that it is installing an extension -->
 		<em:type>2</em:type>
@@ -55,7 +55,7 @@
 					The maximum version of Firefox you're saying this extension will
 					work with
 				-->
-				<em:maxVersion>9.0.*</em:maxVersion>
+				<em:maxVersion>9.0</em:maxVersion>
 			</rdf:Description>
 		</em:targetApplication>
 
