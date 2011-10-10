@@ -4,7 +4,7 @@
 	<groupId>it.uniroma2.art.semanticturkey</groupId>
 	<artifactId>services-extension</artifactId>
 	<name>Semantic Turkey SE</name>
-	<version>0.7.3-SNAPSHOT</version>
+	<version>0.8.0</version>
 	<description>The set of basic services bundled with the default Semantic Turkey XPI</description>
 	<developers>
 		<developer>
@@ -61,8 +61,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>semanticturkey</artifactId>
-			<version>0.7.3-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>0.8.0</version>
 		</dependency>
 	</dependencies>
 </project>

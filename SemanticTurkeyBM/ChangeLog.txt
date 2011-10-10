@@ -1,6 +1,7 @@
-version 0.7.3 (SNAPSHOT)
-date: 27-05-2011 (till now)
+version 0.8.0
+date: 10-10-2011
   * compatibility with Firefox 4.0 (changed bridgeComponent.js)
+  * compatibility checked up to Firefox 9.0
   * introduction of new extension point in annotation mechanism (annotation.js and
     annotator.js and annotationComponent.js)
   * moved all images to skin/classic/1.0 and rearranged image references in all files accordingly
