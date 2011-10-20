@@ -112,7 +112,7 @@ public class OntoSearch extends ServiceAdapter {
 		String request = searchOntologyRequest;
 		logger.debug("searchString: " + inputString);
 
-		// concistency check on proposed types
+		// consistency check on proposed types
 		if (!types.equals("property") && !types.equals("clsNInd"))
 			return servletUtilities.createExceptionResponse(request,
 					"\"types\" parameter not correctly specified in GET request");
@@ -139,13 +139,13 @@ public class OntoSearch extends ServiceAdapter {
 			ARTURIResource perfectMatchingResource = null;
 			if (wellFormedAndAbsolute)
 				perfectMatchingResource = ontModel.createURIResource(inputStringExpandedQName);
-			if (ModelUtilities.checkExistingResource(ontModel, perfectMatchingResource)) {
+			if ((perfectMatchingResource != null)
+					&& (ModelUtilities.checkExistingResource(ontModel, perfectMatchingResource))) {
 				if ((ontModel instanceof RDFSModel)
 						&& ((RDFSModel) ontModel).isClass(perfectMatchingResource))
 					results.add(new Struct(VocabularyTypesStrings.cls, perfectMatchingResource, null, 1));
 				else if (ontModel.isProperty(perfectMatchingResource))
-					results
-							.add(new Struct(VocabularyTypesStrings.property, perfectMatchingResource, null, 1));
+					results.add(new Struct(VocabularyTypesStrings.property, perfectMatchingResource, null, 1));
 				else
 					results.add(new Struct(VocabularyTypesStrings.individual, perfectMatchingResource, null,
 							1));
@@ -179,12 +179,11 @@ public class OntoSearch extends ServiceAdapter {
 						+ ModelUtilities.isAvailableNamespace(ontModel, searchStringNamespace));
 
 				if (namespaceGiven && !ModelUtilities.isAvailableNamespace(ontModel, searchStringNamespace)) {
-					logger
-							.debug("namespace: "
-									+ searchStringNamespace
-									+ " associated to prefix: "
-									+ searchStringPrefix
-									+ " is not recognized in this ontology, please use an existing prefix to restrict your search or do not use a prefix at all to search the whole ontology");
+					logger.debug("namespace: "
+							+ searchStringNamespace
+							+ " associated to prefix: "
+							+ searchStringPrefix
+							+ " is not recognized in this ontology, please use an existing prefix to restrict your search or do not use a prefix at all to search the whole ontology");
 					if (prefixGiven)
 						return servletUtilities
 								.createExceptionResponse(
