@@ -729,7 +729,7 @@ art_semanticturkey.classesTreeClick = function(event, tree, list) {
 
 art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 		responseElement, list, startAll) {
-	var startJustUIComplete = new Date().getTime();
+	//var startJustUIComplete = new Date().getTime();
 	var list = list;
 	if (typeof list == 'undefined')
 		list = document.getElementById("IndividualsList");
@@ -778,7 +778,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 	list.getElementsByTagName('listheader')[0].setAttribute("numTotInst",
 			numTotInst);
 	var instancesList = responseElement.getElementsByTagName('Instance');
-	var startJustUI = new Date().getTime();
+	//var startJustUI = new Date().getTime();
 	for (var i = 0; i < instancesList.length; i++) {
 		var instName = instancesList[i].getAttribute("name");
 		var lsti = document.createElement("listitem");
@@ -805,6 +805,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 		list.appendChild(lsti);
 	}
 
+	/*
 	var end = new Date().getTime();
 	var time = end - startAll;
 	art_semanticturkey.Logger
@@ -818,7 +819,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 	art_semanticturkey.Logger
 			.debug('Execution time adding istanceList (not the Server): '
 					+ time + " ms");
-
+	*/
 };
 
 art_semanticturkey.getImgFromType = function(type, explicit) {
