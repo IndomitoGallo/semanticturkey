@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>0.8.1-SNAPSHOT</version>
+	</parent>	
+			
+	<artifactId>st-firefox-ext</artifactId>
+	<name>Semantic Turkey Firefox Extension</name>
+	<description>The javascript and XUL resources used to build the true firefox extension bunlded in the Semantic Turkey XPI</description>
+	
+</project>

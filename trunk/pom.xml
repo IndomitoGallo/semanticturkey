@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>it.uniroma2.art.semanticturkey</groupId>
+	<artifactId>semanticturkey</artifactId>
+	<name>Semantic Turkey</name>
+	<version>0.8.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<description>Semantic Turkey parent project. It contains the three modules about: core business logic, core
+		services and firefox extension (ui and client in general) of the system.
+   	An ANT build file allows to package the xpi for Firefox installation (read README2BUILD.TXT file for info)
+  </description>
+
+	<scm>
+		<connection>scm:svn:http://semanticturkey.googlecode.com/svn/trunk/</connection>
+		<developerConnection>scm:svn:https://semanticturkey.googlecode.com/svn/trunk/</developerConnection>
+		<tag>HEAD</tag>
+		<url>http://code.google.com/p/semanticturkey/source/browse/#svn/trunk/</url>
+	</scm>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/semanticturkey/issues/</url>
+	</issueManagement>
+
+	<modules>
+		<module>st-core-framework</module>
+		<module>st-core-services</module>
+		<module>st-graph-applet</module>
+		<module>st-sesame2-ontmanager</module>
+		<module>st-test-suite</module>
+		<module>st-firefox-ext</module>
+	</modules>
+
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+			<roles>
+				<role>BM Development</role>
+				<role>SE Development</role>
+				<role>contributions on business logic in UI project</role>
+				<role>Maven and ANT build Management</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>turbati</id>
+			<name>Andrea Turbati</name>
+			<email>turbati@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/turbati</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+			<roles>
+				<role>UI project development</role>
+				<role>contributions on SE project</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>nscarpato</id>
+			<name>Noemi Scarpato</name>
+			<email>scarpato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/scarpato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+			<roles>
+				<role>UI development before version 0.7</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
