@@ -11,6 +11,10 @@
    	An ANT build file allows to package the xpi for Firefox installation (read README2BUILD.TXT file for info)
   </description>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
 	<scm>
 		<connection>scm:svn:http://semanticturkey.googlecode.com/svn/trunk/</connection>
 		<developerConnection>scm:svn:https://semanticturkey.googlecode.com/svn/trunk/</developerConnection>
@@ -81,6 +85,7 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
