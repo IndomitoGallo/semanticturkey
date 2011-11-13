@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>0.8.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>st-graph-applet</artifactId>
+	<name>Semantic Turkey onto-graph visualization applet</name>
+	<description>An applet which is invoked inside a new Firefox tab, to explore the ontology/concept scheme being edited through a graph view</description>
+
+	<developers>
+		<developer>
+			<id>c.ieva</id>
+			<name>Carlo Ieva</name>
+			<email>c.ieva@tiscali.it</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<roles>
+				<role>General concept, fixes, refactoring and deployment, Maven and ANT management</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target><ant antfile="install.xml"/></target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<finalName>${project.artifactId}</finalName>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-core-framework</artifactId>
+			<version>0.8.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.0-beta2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jung</groupId>
+			<artifactId>jung-api</artifactId>
+			<version>2.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jung</groupId>
+			<artifactId>jung-algorithms</artifactId>
+			<version>2.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jung</groupId>
+			<artifactId>jung-visualization</artifactId>
+			<version>2.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jung</groupId>
+			<artifactId>jung-graph-impl</artifactId>
+			<version>2.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>
