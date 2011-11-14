@@ -6,10 +6,32 @@
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
 		<version>0.8.1-SNAPSHOT</version>
-	</parent>	
-			
+	</parent>
+
 	<artifactId>st-firefox-ext</artifactId>
 	<name>Semantic Turkey Firefox Extension</name>
 	<description>The javascript and XUL resources used to build the true firefox extension bunlded in the Semantic Turkey XPI</description>
-	
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<ant antfile="st-build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

@@ -6,8 +6,8 @@
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
 		<version>0.8.1-SNAPSHOT</version>
-	</parent>	
-			
+	</parent>
+
 	<artifactId>st-core-services</artifactId>
 	<name>Semantic Turkey Core Services</name>
 	<description>The set of core services bundled with the default Semantic Turkey XPI</description>
@@ -31,7 +31,7 @@
 			<organizationUrl>http://art.uniroma2.it</organizationUrl>
 		</developer>
 	</developers>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -41,19 +41,33 @@
 				<configuration>
 					<instructions>
 						<Export-Package>it.uniroma2.art.semanticturkey.servlet.main</Export-Package>
-						<!-- <Private-Package></Private-Package>  -->
+						<!-- <Private-Package></Private-Package> -->
 						<Bundle-Activator>it.uniroma2.art.semanticturkey.servlet.main.ServletBundle</Bundle-Activator>
-						<!--
-							<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
-							<Embed-Directory>lib</Embed-Directory>
-						-->
+						<!-- <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency> <Embed-Directory>lib</Embed-Directory> -->
 					</instructions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<ant antfile="st-build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<finalName>${project.groupId}.${project.artifactId}</finalName>
-	</build>		
-	
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
@@ -61,4 +75,5 @@
 			<version>0.8.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
 </project>
