@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
 		<version>0.8.1-SNAPSHOT</version>
-	</parent>	
-	
+	</parent>
+
 	<artifactId>st-sesame2-ontmanager</artifactId>
 	<packaging>bundle</packaging>
 	<name>ST EXT-R Sesame2ImplExtension</name>
@@ -38,15 +38,10 @@
 
 						<Bundle-Activator>it.uniroma2.art.semanticturkey.ontology.sesame2.Sesame2ImplBundle</Bundle-Activator>
 
-						<!--
-							<Private-Package>it.uniroma2.art.semanticturkey.ontology.sesame2,
-							org.openrdf.*, info.aduna.*</Private-Package>
-							<_exportcontents>it.uniroma2.art.semanticturkey.ontology.sesame2,
-							org.openrdf.*, info.aduna.*</_exportcontents>
-							<Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package>
-
-							to import:
-						-->
+						<!-- <Private-Package>it.uniroma2.art.semanticturkey.ontology.sesame2, 
+							org.openrdf.*, info.aduna.*</Private-Package> <_exportcontents>it.uniroma2.art.semanticturkey.ontology.sesame2, 
+							org.openrdf.*, info.aduna.*</_exportcontents> <Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package> 
+							to import: -->
 						<Import-Package>!com.hp.*,
 							!com.hp.jena.*,
 							!org.apache.avalon.framework.*,
@@ -79,9 +74,25 @@
 						<Embed-Transitive>true</Embed-Transitive>
 						<Bundle-ClassPath>{maven-dependencies},.</Bundle-ClassPath>
 						<Embed-Directory>lib</Embed-Directory>
-
 					</instructions>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<ant antfile="st-build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<finalName>${project.groupId}.${project.artifactId}</finalName>
@@ -151,7 +162,7 @@
 				<exclusion>
 					<groupId>com.hp.hpl.jena</groupId>
 					<artifactId>json-jena</artifactId>
-				</exclusion>				
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>

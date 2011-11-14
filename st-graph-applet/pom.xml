@@ -32,6 +32,7 @@
 	</developers>
 
 	<build>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -40,7 +41,9 @@
 					<execution>
 						<phase>install</phase>
 						<configuration>
-							<target><ant antfile="install.xml"/></target>
+							<target>
+								<ant antfile="st-build.xml" />
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -49,7 +52,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<finalName>${project.artifactId}</finalName>
 	</build>
 
 	<dependencies>
