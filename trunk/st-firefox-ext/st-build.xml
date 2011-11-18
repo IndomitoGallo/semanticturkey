@@ -6,38 +6,15 @@
     |
     +-->
 
-<project default="final" basedir="." name="SemanticTurkey" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project default="final" basedir="." name="SemanticTurkey">
 
-	<path id="maven-ant-tasks.classpath" path="../system-resources/antlib/maven-ant-tasks-2.0.10.jar" />
-	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
-
-
-	<target name="start" depends="init">
-
-		<echo>======================================================================
-               ${fullname} ${version} [${year}]
-======================================================================
-Building with ${ant.version}
-----------------------------------------------------------------------
-Using build file ${ant.file}
-----------------------------------------------------------------------
-Running on Java version ${ant.java.version} on ${os.name}
-----------------------------------------------------------------------
-Compiler options:
- - debug ......... [${compiler.debug}]
- - optimize ...... [${compiler.optimize}]
- - deprecation ... [${compiler.deprecation}]
-======================================================================
-</echo>
-	</target>
+	<target name="start" depends="init"/>
 
 	<target name="init">
 		<!-- Set the timestamps -->
 		<tstamp>
 			<format property="builddate" pattern="yyyy-MM-d" />
 		</tstamp>
-
-		<property environment="env" />
 
 		<!-- Get the build properties from an external file -->
 		<property file="../build.properties" />
@@ -47,26 +24,28 @@ Compiler options:
 
 	<target name="dist" depends="init" description="copies all files for the ST distribution">
 
+		<!-- firefox resources are now copied through resources:resource maven goal defined in the pom
 		<copy todir="../${dist}">			
 			<fileset dir="src/main/firefox" includes="**" excludes="**/*.idl"/>
 		</copy>
+		-->
 
 		<!-- touch the directory so that firefox registry reloads (helps during development) -->
 		<touch>
-			<fileset dir="../${dist}" />
+			<fileset dir="../${dist.dir}" />
 		</touch>
 	</target>
 
 	<!-- === Package The Distribution XPI ================================================= -->
 
 	<target name="xpi" depends="dist" description="Create the XPI extension">
-		<zip zipfile="../${name}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist}" includes="**" />
+		<zip zipfile="../${name}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.dir}" includes="**" />
 	</target>
 
 	<!-- === Delete the distribution folder ================================================= -->
 
 	<target name="delete_dist" depends="xpi" description="deletes the distribution folder">
-		<delete dir="../${dist}" />
+		<!-- <delete dir="../${dist}" /> -->
 	</target>
 
 	<!-- === Final Empty Task ================================================= -->

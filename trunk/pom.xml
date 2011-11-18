@@ -11,8 +11,7 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<distribution.directory>dist</distribution.directory>
-		<antbuild>true</antbuild>
+		<dist.dir>target/dist</dist.dir>
 	</properties>
 
 	<scm>
