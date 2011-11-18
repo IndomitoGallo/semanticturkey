@@ -71,7 +71,7 @@ public class UpdateRoutines {
 			if (currentVersionNumber.compareTo(new VersionNumber(0, 7, 2)) < 0)
 				align_from_071_to_072();
 
-			Config.setVersionNumber(new VersionNumber(0, 7, 2));
+			Config.setVersionNumber(SemanticTurkey.versionNumber);
 		}
 	}
 

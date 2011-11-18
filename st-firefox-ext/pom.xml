@@ -15,6 +15,44 @@
 	<build>
 		<plugins>
 			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>../${dist.dir}</outputDirectory>
+							<includeEmptyDirs>true</includeEmptyDirs>
+							<resources>
+								<resource>
+									<directory>src/main/firefox</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>chrome.manifest</include>
+										<include>install.rdf</include>
+										<include>components/data/sturkey.properties</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>src/main/firefox</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>chrome.manifest</exclude>
+										<exclude>install.rdf</exclude>
+										<exclude>components/data/sturkey.properties</exclude>
+										<exclude>**/*.idl</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
 				<executions>

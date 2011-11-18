@@ -85,7 +85,9 @@
 						<phase>install</phase>
 						<configuration>
 							<target>
-								<ant antfile="st-build.xml" />
+								<copy todir="../${dist.dir}/extensions/ontmanager">
+									<fileset dir="${project.build.directory}" includes="*.jar" />
+								</copy>
 							</target>
 						</configuration>
 						<goals>

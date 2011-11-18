@@ -60,7 +60,7 @@ public class VersionNumber implements Comparable<VersionNumber> {
 			if (nums > 1)
 				minor = parseNumber(codes[1]);
 			if (nums > 2)
-				revision = parseNumber(codes[2]);
+				revision = parseNumber(codes[2].split("-")[0]);
 		}
 	}
 
