@@ -291,7 +291,7 @@ public class Cls extends Resource {
 			if (instance.isURIResource()) {
 				instanceElement.setAttribute("name", ontModel.getQName(instance.asURIResource().getURI()));
 			} else {
-				instanceElement.setAttribute("name", ontModel.getQName(instance.toString()));
+				instanceElement.setAttribute("name", instance.asBNode().getID());
 			}
 			// EXPLICIT-STATUS SETTING
 			if (explicitInstances.contains(instance))
