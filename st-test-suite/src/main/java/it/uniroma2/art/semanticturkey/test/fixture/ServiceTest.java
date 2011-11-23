@@ -46,7 +46,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public abstract class ServiceTest {
 
 	final static String STExtDirName = "STTest/extensions/extDir";
-	final static String SystemResourcesDir = "../system-resources";
+	final static String XULResourcesDir = "../st-firefox-ext/src/main/firefox";
 	final static String dataDirName = "components/data";
 	final static String extensionsDirName = "extensions";
 	protected static Log logger = LogFactory.getLog(ServiceTest.class);
@@ -111,17 +111,17 @@ public abstract class ServiceTest {
 		// it is used whenever the SemanticTurkeyData dir in the STTest is deleted
 		File fakeSTSourceDataDir = new File(STExtDirName, dataDirName);
 		Utilities.deleteDir(fakeSTSourceDataDir);
-		Utilities.recursiveCopy(new File(SystemResourcesDir, dataDirName), fakeSTSourceDataDir);
+		Utilities.recursiveCopy(new File(XULResourcesDir, dataDirName), fakeSTSourceDataDir);
 
 		// this is done to always get a fresh copy of the extensions dir from the original SemanticTurkeyBM
 		// folder
 		// it is used whenever the SemanticTurkeyData dir in the STTest is deleted
 		// this is necessary for FelixFixture since it behaves the same way as the runtime system, and
-		// uses felix to dinamicaly load services bundled in this directory
+		// uses felix to dinamically load services bundled in this directory
 		// we just use it anyway even in non-felix implementation of the test fixture
 		File fakeSTSourceExtensionsDir = new File(STExtDirName, extensionsDirName);
 		Utilities.deleteDir(fakeSTSourceExtensionsDir);
-		Utilities.recursiveCopy(new File(SystemResourcesDir, extensionsDirName), fakeSTSourceExtensionsDir);
+		Utilities.recursiveCopy(new File(XULResourcesDir, extensionsDirName), fakeSTSourceExtensionsDir);
 
 	}
 
