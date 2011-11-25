@@ -197,8 +197,7 @@ public class Metadata extends Resource {
 			return addOntImport(fromWebToMirror, toImport, altURL, destLocalFile, addFromWebToMirrorRequest);
 		}
 		// downloads and imports an ontology from the web; next time the turkey is started, the ontology
-		// will
-		// be imported again
+		// will be imported again
 		if (request.equals(addFromWebRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String altURL = setHttpPar(alturlPar);
@@ -206,8 +205,7 @@ public class Metadata extends Resource {
 			return addOntImport(fromWeb, baseuri, altURL, null, addFromWebRequest);
 		}
 		// downloads and imports an ontology from a local file; caching it into a local file in the
-		// ontology
-		// mirror location
+		// ontology mirror location
 		if (request.equals(addFromLocalFileRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String localFilePath = setHttpPar(localFilePathPar);
