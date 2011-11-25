@@ -5,6 +5,9 @@ date: XX-XX-2011
   * fixed bug in search preventing use of space separated keywords 
   * improved version number management, by reusing the same vn defined in the core ST for updating the
     previous one 
+  * import is more robust when the passed URI is wrong for the ontology but it is a successful URL for
+    retrieving its data (see issue 63)
+  * added facility methods in XMLHelp class which simplify unit testing over XML responses
 
 version 0.8.0
 date: 10-10-2011

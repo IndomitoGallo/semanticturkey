@@ -27,15 +27,28 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.assertResponseREPLY;
+import static org.junit.Assert.*;
+
+import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
+import it.uniroma2.art.owlart.vocabulary.OWL;
+import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
+import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
+import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato
@@ -49,9 +62,9 @@ public class Metadata_UT extends ServiceUTFixture {
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");
 		startST();
-		importSTExample();		
+		importSTExample();
 	}
-	
+
 	/**
 	 * just checks the the response is a REPLY
 	 */
@@ -71,4 +84,72 @@ public class Metadata_UT extends ServiceUTFixture {
 		assertResponseREPLY(resp);
 	}
 
+	@Test
+	public void importFromWebWithSlightlyWrongURITest() {
+		// real declared URI of the ontology is http://usefulinc.com/ns/doap#, so including the Hash
+		String uriMissingTrailingHash = "http://usefulinc.com/ns/doap";
+		String correctURI = uriMissingTrailingHash + "#";
+
+		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromWebRequest,
+				par(Metadata.baseuriPar, uriMissingTrailingHash));
+		assertResponseREPLY(resp);
+
+		// httpRequest: service=metadata&request=getImports| async:false parameters: undefined port: 1979
+
+		resp = serviceTester.metadataService.makeRequest(Metadata.getImportsRequest);
+
+		assertResponseREPLY(resp);
+
+		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+				.getOntologyManager();
+		RDFModel ontModel = repMgr.getOntModel();
+		try {
+			ARTStatementIterator it = ontModel.listStatements(NodeFilters.ANY, RDF.Res.TYPE, OWL.Res.ONTOLOGY, false, NodeFilters.ANY);
+			while (it.streamOpen()) {
+				System.out.println(it.getNext());
+			}
+			
+		} catch (ModelAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Element dataElement = ((XMLResponseREPLY) resp).getDataElement();
+
+		assertFalse(uriMissingTrailingHash
+				+ " should be missing from the import list and replaced with the correct " + correctURI,
+				XMLHelp.hasChildWithAttributeValue(dataElement, "uri", uriMissingTrailingHash));
+
+		assertTrue(correctURI + " should appear in the import list, replacing the wrong uri without the hash",
+				XMLHelp.hasChildWithAttributeValue(dataElement, "uri", correctURI));
+
+	}
+	
+	
+	@Test
+	public void importFromWebWithCompletelyWrongURITest() {
+		// real declared URI of the ontology is http://usefulinc.com/ns/doap#, so including the Hash
+		String wrongURI = "http://art.uniroma2.it/ontologies/heritage";
+		String correctURI = "http://ai-nlp.info.uniroma2.it/ontologies/heritage";
+
+		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromWebRequest,
+				par(Metadata.baseuriPar, wrongURI));
+		assertResponseREPLY(resp);
+
+		// httpRequest: service=metadata&request=getImports| async:false parameters: undefined port: 1979
+
+		resp = serviceTester.metadataService.makeRequest(Metadata.getImportsRequest);
+
+		assertResponseREPLY(resp);
+
+		Element dataElement = ((XMLResponseREPLY) resp).getDataElement();
+
+		assertFalse(wrongURI
+				+ " should be missing from the import list and replaced with the correct: " + correctURI,
+				XMLHelp.hasChildWithAttributeValue(dataElement, "uri", wrongURI));
+
+		assertTrue(correctURI + " should appear in the import list, replacing the wrong uri: " + wrongURI,
+				XMLHelp.hasChildWithAttributeValue(dataElement, "uri", correctURI));
+
+	}
 }

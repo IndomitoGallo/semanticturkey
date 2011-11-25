@@ -32,6 +32,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -190,7 +192,7 @@ public class XMLHelp {
 	public static void XML2OutputStream(Element xml, boolean indent, OutputStream os) {
 		Properties outputProps = new Properties();
 		outputProps.setProperty("encoding", "UTF-8");
-		outputProps.setProperty("indent", indent?"yes":"no");
+		outputProps.setProperty("indent", indent ? "yes" : "no");
 		outputProps.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		_IdentityTransformer.setOutputProperties(outputProps);
 
@@ -264,6 +266,69 @@ public class XMLHelp {
 		InputSource inStream = new InputSource();
 		inStream.setCharacterStream(new StringReader(stringedXml));
 		return builder.parse(inStream);
+	}
+
+	/**
+	 * simplifies XML querying/casting/etc.. by returning a collection of all Elements which are child of
+	 * <code>parent</code> and have their name equal to <code>tagName</code>
+	 * 
+	 * @param parent
+	 * @return
+	 */
+	public static Collection<Element> getChildElements(Element parent, String tagName) {
+		ArrayList<Element> children = new ArrayList<Element>();
+		NodeList nl = parent.getElementsByTagName(tagName);
+		int length = nl.getLength();
+		for (int i = 0; i < length; i++) {
+			children.add((Element) nl.item(i));
+		}
+		return children;
+	}
+
+	/**
+	 * as for {@link #getChildElements(Element, String)} but returns all children no matter their tag name
+	 * 
+	 * @param parent
+	 * @return
+	 */
+	public static Collection<Element> getChildElements(Element parent) {
+		return getChildElements(parent, "*");
+	}
+
+	/**
+	 * returns <code>true</code> if node <code>parent</code> has a child Element with tagname equal to
+	 * <code>tagName</code> and with value of attribute <code>attrName</code> equal to <code>attrValue</code>
+	 * 
+	 * @param parent
+	 * @param tagName
+	 * @param attrName
+	 * @param attrValue
+	 * @return
+	 */
+	public static boolean hasChildWithAttributeValue(Element parent, String tagName, String attrName,
+			String attrValue) {
+		NodeList nl = parent.getElementsByTagName(tagName);
+		int length = nl.getLength();
+		for (int i = 0; i < length; i++) {
+			String value = ((Element) nl.item(i)).getAttribute(attrName);
+			if (value != null && value.equals(attrValue))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * as for {@link #hasChildWithAttributeValue(Element, String, String, String)} but examining all children
+	 * of Element <code>parent</code> no matter their tag name
+	 * 
+	 * 
+	 * @param parent
+	 * @param attrName
+	 * @param attrValue
+	 * @return
+	 */
+	public static boolean hasChildWithAttributeValue(Element parent, String attrName, String attrValue) {
+		return hasChildWithAttributeValue(parent, "*", attrName, attrValue);
 	}
 
 }

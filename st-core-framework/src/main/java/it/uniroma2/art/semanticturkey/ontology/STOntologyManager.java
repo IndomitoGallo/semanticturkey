@@ -43,8 +43,12 @@ import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.owlart.navigation.ARTNamespaceIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
+import it.uniroma2.art.owlart.utilities.RDFIterators;
+import it.uniroma2.art.owlart.vocabulary.OWL;
+import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.semanticturkey.exceptions.ImportManagementException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.project.Project;
@@ -95,13 +99,13 @@ public abstract class STOntologyManager<T extends RDFModel> {
 
 	/**
 	 * this map tells whether a given ontology import has been refreshed or not<br>
-	 * this information can't be accessed through:
+	 * this information can't be accessed:
 	 * <ul>
-	 * <li><b>supportOntologies/applicationOntologies/listofExplicitOWLImports</b>: since these are
+	 * <li>through <b>supportOntologies/applicationOntologies/listofExplicitOWLImports</b>: since these are
 	 * <i>declarations of the intention</i> to import an ontology, but do not reflect its true import of data</li>
-	 * <li><b>checking availability of the ontology as a Named Graph in the ontology triples</b>. The reason
-	 * is that when the ontology is being declared as a WEB resource, then it needs to be refreshed from the
-	 * WEB, even if its content is already present as a NG, every time the project is loaded</li>
+	 * <li>by <b>checking availability of the ontology as a Named Graph in the ontology triples</b>. The
+	 * reason is that when the ontology is being declared as a WEB resource, then it needs to be refreshed
+	 * from the WEB, even if its content is already present as a NG, every time the project is loaded</li>
 	 * </ul>
 	 * for these reasons, this map is used to formally acknowledge the fact that the a ontology has been
 	 * loaded/refreshed for the current working session
@@ -109,8 +113,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	protected HashMultimap<ImportModality, ARTResource> refreshedOntologies;
 
 	/**
-	 * this set contains named graphs the triples o which should be never shown to the user (whether he is in
-	 * user or admin mode)<br/>
+	 * this set contains named graphs containing triples that should be never shown to the user (whether he is
+	 * in user or admin mode)<br/>
 	 * typical examples of ontologies in this set are those needed by specific triple stores to handle
 	 * reasoning<br/>
 	 * note that these ontologies are <i>declared</i> to be support ontologies, but the developer must still
@@ -486,8 +490,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			long projTimeStamp = proj.getTimeStamp();
 			long mirroredOntFileTimeStamp = OntologiesMirror.getMirroredOntologyFile(baseURI).lastModified();
 			if (mirroredOntFileTimeStamp > projTimeStamp) {
-				logger
-						.debug("mirrored ontology is more recent than the project, so named graph is updated with data from the mirror");
+				logger.debug("mirrored ontology is more recent than the project, so named graph is updated with data from the mirror");
 				owlModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, importedOntology);
 				addOntologyImportFromMirror(baseURI, mirroredOntologyEntry, mod, false);
 			} else {
@@ -626,12 +629,12 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		File inputFile = new File(fromLocalFilePath);
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(inputFile, baseURI, RDFFormat.guessRDFFormatFromFile(inputFile), owlModel
-					.createURIResource(baseURI));
+			owlModel.addRDF(inputFile, baseURI, RDFFormat.guessRDFFormatFromFile(inputFile),
+					owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
-				importsStatusMap.put(owlModel.createURIResource(baseURI), ImportStatus.createFailedStatus(e
-						.getMessage()));
+				importsStatusMap.put(owlModel.createURIResource(baseURI),
+						ImportStatus.createFailedStatus(e.getMessage()));
 			} else
 				throw new ModelUpdateException(e);
 		}
@@ -657,12 +660,12 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirFileString);
 		File physicalMirrorFile = new File(mirFile.getAbsolutePath());
 		try {
-			owlModel.addRDF(physicalMirrorFile, baseURI, RDFFormat.RDFXML, owlModel
-					.createURIResource(baseURI));
+			owlModel.addRDF(physicalMirrorFile, baseURI, RDFFormat.RDFXML,
+					owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
-				importsStatusMap.put(owlModel.createURIResource(baseURI), ImportStatus.createFailedStatus(e
-						.getMessage()));
+				importsStatusMap.put(owlModel.createURIResource(baseURI),
+						ImportStatus.createFailedStatus(e.getMessage()));
 			} else
 				throw new ModelUpdateException(e);
 		}
@@ -705,14 +708,15 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			boolean updateImportStatement) throws ModelUpdateException {
 		try {
 			logger.debug("importing: " + baseURI);
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(sourceURL), baseURI, RDFFormat.RDFXML,
+					owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			// an exception has been thrown
 			if (!updateImportStatement) {
 				// if this method has not been invoked to produce a new import (just because the ontology is
 				// already formally imported, then update its import status to FAILED
-				importsStatusMap.put(owlModel.createURIResource(baseURI), ImportStatus.createFailedStatus(e
-						.getMessage()));
+				importsStatusMap.put(owlModel.createURIResource(baseURI),
+						ImportStatus.createFailedStatus(e.getMessage()));
 			} else
 				// in the opposite situation (the ontology is being formally imported for the first time) an
 				// exception is thrown
@@ -740,11 +744,12 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			ModelUpdateException {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(sourceURL), baseURI, RDFFormat.RDFXML,
+					owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
-				importsStatusMap.put(owlModel.createURIResource(baseURI), ImportStatus.createFailedStatus(e
-						.getMessage()));
+				importsStatusMap.put(owlModel.createURIResource(baseURI),
+						ImportStatus.createFailedStatus(e.getMessage()));
 			} else
 				throw new ModelUpdateException(e);
 		}
@@ -779,6 +784,38 @@ public abstract class STOntologyManager<T extends RDFModel> {
 				+ ", thought for updating the import status: " + updateImportStatement);
 		try {
 			ARTURIResource ont = owlModel.createURIResource(baseURI);
+
+			// ***************************
+			// Checking that the imported ontology has exactly the same URI used to import it. This may happen
+			// when the given URI is a successful URL for retrieving the ontology but it is not the URI of
+			// the ontology
+
+			Set<ARTURIResource> declOnts = RDFIterators.getSetFromIterator(RDFIterators
+					.toURIResourceIterator(owlModel.listSubjectsOfPredObjPair(RDF.Res.TYPE, OWL.Res.ONTOLOGY,
+							false, ont)));
+
+			// the import ont does not contain the declaration of itself as an ont and it contains at least
+			// one declaration (probably its own one)
+			if (!declOnts.contains(ont) && !declOnts.isEmpty()) {
+				// extracting the real baseURI of the imported ontology
+				ARTURIResource realURI = declOnts.iterator().next();
+				// checking that the realURI has not already been imported, by checking the existence of its
+				// NG in the current data
+				if (owlModel.hasTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, false, realURI)) {
+					// if realURI is already imported, then remove the data imported in the wrong URI
+					owlModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, ont);
+					// and throw an exception
+					throw new ModelUpdateException("the real URI for the imported ontology: " + ont
+							+ " is actually: " + realURI + " which, however, has already been imported");
+				} else {
+					// we have to move imported data to the correct baseuri
+					renameNG(ont, realURI);
+					ont = realURI;
+					baseURI = realURI.getURI();
+				}
+			}
+
+			// ***************************
 
 			if (method == fromWebToMirror) {
 				Utilities.download(new URL(sourcePath), localFile.getAbsolutePath());
@@ -831,6 +868,28 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		} catch (ModelAccessException e) {
 			throw new ModelUpdateException(e);
 		}
+	}
+
+	/*
+	 * I should add this to OWLART instead
+	 */
+	/**
+	 * renames an existing NG to a new name (actually, moves all o the data from the old one to the new one,
+	 * and deletes the triples in the old one)
+	 * 
+	 * @param oldNG
+	 * @param newNG
+	 * @throws ModelAccessException
+	 * @throws ModelUpdateException
+	 */
+	public void renameNG(ARTURIResource oldNG, ARTURIResource newNG) throws ModelAccessException,
+			ModelUpdateException {
+		ARTStatementIterator it = owlModel.listStatements(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY,
+				false, oldNG);
+		while (it.streamOpen()) {
+			owlModel.addStatement(it.getNext(), newNG);
+		}
+		owlModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, oldNG);
 	}
 
 	// @TODO this method will be put in a subclass of this which only handles OWLModel
@@ -921,8 +980,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		if (numOntToBeRemoved != 0) {
 			// deletes the content of the imported ontologies
 			logger.debug("clearing all RDF data associated to named graphs: " + toBeRemovedOntologies);
-			owlModel
-					.clearRDF(toBeRemovedOntologies.toArray(new ARTURIResource[toBeRemovedOntologies.size()]));
+			owlModel.clearRDF(toBeRemovedOntologies.toArray(new ARTURIResource[toBeRemovedOntologies.size()]));
 
 			for (ARTURIResource remOnt : toBeRemovedOntologies) {
 				// deletes the entry from the importStatusMap
@@ -1064,8 +1122,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		checkImportFailed(baseURI);
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(inputFile, baseURI, RDFFormat.guessRDFFormatFromFile(inputFile), owlModel
-					.createURIResource(baseURI));
+			owlModel.addRDF(inputFile, baseURI, RDFFormat.guessRDFFormatFromFile(inputFile),
+					owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			throw new ModelUpdateException(e);
 		}
