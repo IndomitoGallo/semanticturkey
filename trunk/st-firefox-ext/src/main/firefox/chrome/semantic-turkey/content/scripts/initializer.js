@@ -46,22 +46,22 @@ art_semanticturkey.annotationRegister = function() {
 		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 		.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		
-		//initialize family object
+		// initialize family object
 		var family = new annComponent.wrappedJSObject.Family("bookmarking");
 		
-		//initialize function object
+		// initialize function object
 		var furtherAnn = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDropFurtherAnn,"further annotation");
 		var valueForProp = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDropValueForProp,"value for property");
 		var createInstance = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.treeDragDrop,"Create instance");
 		var highlightfunction = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnFunction,"Highlight function");
 		
-		//add function to family
+		// add function to family
 		family.addfunction("dragDropOverClass",createInstance);
 		family.addfunction("dragDropOverInstance",furtherAnn);
 		family.addfunction("dragDropOverInstance",valueForProp);
 		family.addfunction("highlightAnnotation",highlightfunction);
 		
-		//register bookmarking annotation family
+		// register bookmarking annotation family
 		annComponent.wrappedJSObject.register(family);
 		
 	} catch (e) {
@@ -71,7 +71,7 @@ art_semanticturkey.annotationRegister = function() {
 				.getService(Components.interfaces.nsIPromptService);
 		prompts.alert(null, "Annotation Extension Point Initialization Error",
 				"an error occurred during initialization of the Annotation Component:\n"
-						//+ e.getMessage());
+						// + e.getMessage());
                                                 + e.toString());
 	}
 };
@@ -99,7 +99,7 @@ art_semanticturkey.getPageAnnotations_RESPONSE = function(responseElement) {
 	}
 };
 art_semanticturkey.listDragDropFurtherAnn = function(event, parentWindow) {
-	//TODO check wchich part of this code is it really necessary
+	// TODO check wchich part of this code is it really necessary
 	var elementName = event.target.tagName;
 	if (elementName == "listitem") {
 		var listItem = event.target;
@@ -181,7 +181,7 @@ art_semanticturkey.furtherAnnotFunction = function(parameters) {
 };
 
 art_semanticturkey.listDragDropValueForProp = function(event, parentWindow) {
-	//TODO check wchich part of this code is it really necessary
+	// TODO check wchich part of this code is it really necessary
 	var elementName = event.target.tagName;
 	if (elementName == "listitem") {
 		var listItem = event.target;
@@ -234,6 +234,21 @@ art_semanticturkey.listDragDropValueForProp = function(event, parentWindow) {
 			parameters.tree = list;
 			parameters.parentWindow = parentWindow;
 			parameters.panelTree = document.getElementById("classesTree");
+			parameters.functors = {};
+			parameters.functors.addAnnotation = function(p) {
+				return parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(p.urlPage,p.subjectInstanceName, p.objectInstanceName,p.title);
+			};
+			parameters.functors.relateAndAnnotateBindAnnot = function(p) {
+			
+				return parentWindow.art_semanticturkey.STRequests.Annotation.relateAndAnnotateBindAnnot(
+						p.subjectInstanceName,
+						p.predicatePropertyName,
+						p.objectInstanceName,
+						p.urlPage,
+						p.title,
+						p.lexicalization);
+			};
+			
 			window
 					.openDialog(
 							"chrome://semantic-turkey/content/class/annotator/annotator.xul",
