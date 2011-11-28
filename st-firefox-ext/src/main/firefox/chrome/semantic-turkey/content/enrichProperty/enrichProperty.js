@@ -175,8 +175,15 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 					selectedObjClsName,
 					type
 			);
-			return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(win.arguments[0].urlPage,win.arguments[0].subjectInstanceName,
-			win.arguments[0].objectInstanceName,win.arguments[0].title);
+
+			// The annotation has to be applied to the resource, which is the value
+			// of the property assigned before
+			var newParameters = {};
+			newParameters.__proto__ = win.arguments[0];
+			newParameters.subjectInstanceName = newParameters.objectInstanceName;
+			 
+			return win.arguments[0].functors.addAnnotation(newParameters);
+
 				/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
 								win.arguments[0].subjectInstanceName,
@@ -226,13 +233,13 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, myList) {
 			}
 		} else {
 			win.close();
-			return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
-					.relateAndAnnotateBindAnnot(
-							win.arguments[0].subjectInstanceName,
-							win.arguments[0].predicatePropertyName,
-							instanceName, win.arguments[0].urlPage,
-							win.arguments[0].title,
-							win.arguments[0].objectInstanceName);
+
+			var newParameters = {};
+			newParameters.__proto__ = win.arguments[0];
+			newParameters.lexicalization = newParameters.objectInstanceName;
+			newParameters.objectInstanceName = instanceName;
+						
+			return win.arguments[0].functors.relateAndAnnotateBindAnnot(newParameters);
 		}
 	} catch (e) {
 		alert(e.name + ": " + e.message);

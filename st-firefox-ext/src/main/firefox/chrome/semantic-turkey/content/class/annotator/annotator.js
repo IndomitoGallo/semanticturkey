@@ -39,10 +39,10 @@ window.onload = function() {
 
 	document.getElementById("annotateInstance").addEventListener("click", art_semanticturkey.onAccept, true);
 	document.getElementById("cancel").addEventListener("click", art_semanticturkey.onCancel, true);
-	document.getElementById("group").addEventListener("select", art_semanticturkey.updateState, true);
 
 	var objectInstanceName = window.arguments[0].objectInstanceName;
 	var subjectInstanceName = window.arguments[0].subjectInstanceName;
+
 	try {
 		var responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
 				subjectInstanceName, "template");
@@ -51,13 +51,6 @@ window.onload = function() {
 		alert(e.name + ": " + e.message);
 	}
 
-	var radiolexNode = document.getElementById("radiolex");
-	radiolexNode.setAttribute("label", "\"" + objectInstanceName + "\" is a further annotation of \""
-			+ subjectInstanceName + "\"");
-
-	var radiopropNode = document.getElementById("radioprop");
-	radiopropNode.setAttribute("label", "\"" + objectInstanceName + "\" is a value of a property of \""
-			+ subjectInstanceName + "\"");
 };
 
 art_semanticturkey.getIndividualDescription_RESPONSE = function(responseElement) {
@@ -153,8 +146,12 @@ art_semanticturkey.onAccept = function() {
 	if (numRanges == 1) {
 		parameters = art_semanticturkey.getParameters(tree,
 				tree.currentIndex);
-						
-			window.setTimeout(function() {window.close();}, 10); 
+
+			// Inherits the given parameters
+			parameters.__proto__ = window.arguments[0];
+		
+			window.setTimeout(function() {window.close();}, 10);
+
 			art_semanticturkey.listDragDropEnrichProp(parameters);
 		
 	} else {
@@ -183,27 +180,13 @@ art_semanticturkey.getParameters = function(tree, index) {
 	return parameters;
 };
 
-art_semanticturkey.updateState = function() {
-	index = "update";
-	var sindex = document.getElementById("group").selectedIndex;
-	/*
-	 * if (sindex == 0) name.disabled = true; else name.disabled = false;
-	 */
-
-	var tree = document.getElementById("annotatorTree");
-	if (sindex == 0) {
-		tree.setAttribute("disabled", "true");
-	} else {
-		tree.setAttribute("disabled", "false");
-	}
-};
-
 art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 	try {
 		// NScarpato 26/11/2010
 		var responseXML = art_semanticturkey.STRequests.Property.getRange(
 				parameters.predicatePropertyName, "false");
 		var ranges = responseXML.getElementsByTagName("ranges")[0];
+
 		if (ranges.getAttribute("rngType").indexOf("resource") != -1) {
 			window
 					.openDialog(
@@ -234,8 +217,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					"plainLiteral",
 					parametersLang.lang
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+			return parameters.functors.addAnnotation(parameters);
+
 			/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 					.relateAndAnnotateBindCreate(
 							parameters.subjectInstanceName,
@@ -260,8 +244,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parameters.rangeType,
 					"typedLiteral"
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+			return parameters.functors.addAnnotation(parameters);
+
 			/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 					.relateAndAnnotateBindCreate(
 							parameters.subjectInstanceName,
@@ -295,8 +280,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					"plainLiteral",
 					parametersLang.lang
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+				return parameters.functors.addAnnotation(parameters);
+
 				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
 								parameters.subjectInstanceName,
@@ -321,8 +307,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parameters.rangeType,
 					"typedLiteral"
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+				return parameters.functors.addAnnotation(parameters);
+
 				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
 								parameters.subjectInstanceName,
@@ -370,8 +357,8 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					rangeQName,
 					type
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+			return parameters.functors.addAnnotation(parameters);
 			 
 		}else if (ranges.getAttribute("rngType").indexOf("undetermined") != -1) {
 			var literalsParameters = new Object();
@@ -396,8 +383,9 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					"plainLiteral",
 					parametersLang.lang
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+				return parameters.functors.addAnnotation(parameters);
+
 				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
 							parameters.subjectInstanceName,
@@ -421,8 +409,8 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parameters.rangeType,
 					"typedLiteral"
 			);
-			return parameters.parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(parameters.urlPage,parameters.subjectInstanceName,
-			parameters.objectInstanceName,parameters.title);
+
+				return parameters.functors.addAnnotation(parameters);
 				/*return parameters.parentWindow.art_semanticturkey.STRequests.Annotation
 						.relateAndAnnotateBindCreate(
 							parameters.subjectInstanceName,
