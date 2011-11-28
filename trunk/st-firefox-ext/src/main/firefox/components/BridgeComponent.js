@@ -182,24 +182,55 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 		/*
 		 * Enumerate URLs to our JARs and class directories
 		 */
-		var javaPath = extensionPath + "components/lib/";
-		var jarFilepaths = [
-		    				javaPath + "classes/", // semantic turkey classes, when deployed in a folder
-		    				javaPath + "resources/", // semantic turkey resources (ex: logj4 property file)
-		    				javaPath + "st-core-framework.jar", // semantic turkey classes, when embedded in a jar
-		    				javaPath + "org.apache.felix.main-2.0.1.jar",
-		    				javaPath + "google-collections-1.0-rc1.jar",
-		    				javaPath + "javax.servlet-5.1.12.jar",
-		    				javaPath + "jetty-5.1.10.jar",
-		    				javaPath + "log4j-1.2.14.jar",
-		    				javaPath + "owlart-api-2.0.2.jar",
-		    				javaPath + "secondstring-2006.06.15.jar",
-		    				javaPath + "servlet-api-2.4.jar",
-		    				javaPath + "slf4j-api-1.5.6.jar",
-		    				javaPath + "slf4j-log4j12-1.5.6.jar",
-		    				javaPath + "jcl-over-slf4j-1.5.6.jar",
-		    				javaPath + "json-20090211.jar"
-		];
+//		var javaPath = extensionPath + "components/lib/";
+//		var jarFilepaths = [
+//		    				javaPath + "classes/", // semantic turkey classes, when deployed in a folder
+//		    				javaPath + "resources/", // semantic turkey resources (ex: logj4 property file)
+//		    				javaPath + "st-core-framework.jar", // semantic turkey classes, when embedded in a jar
+//		    				javaPath + "org.apache.felix.main-2.0.1.jar",
+//		    				javaPath + "google-collections-1.0-rc1.jar",
+//		    				javaPath + "javax.servlet-5.1.12.jar",
+//		    				javaPath + "jetty-5.1.10.jar",
+//		    				javaPath + "log4j-1.2.14.jar",
+//		    				javaPath + "owlart-api-2.0.2.jar",
+//		    				javaPath + "secondstring-2006.06.15.jar",
+//		    				javaPath + "servlet-api-2.4.jar",
+//		    				javaPath + "slf4j-api-1.5.6.jar",
+//		    				javaPath + "slf4j-log4j12-1.5.6.jar",
+//		    				javaPath + "jcl-over-slf4j-1.5.6.jar",
+//		    				javaPath + "json-20090211.jar"
+//		];
+		var ios = Components.classes["@mozilla.org/network/io-service;1"].  
+        getService(Components.interfaces.nsIIOService);
+
+		var extensionDirectory = ios.newURI(extensionPath, null, null).QueryInterface(Components.interfaces.nsIFileURL).file;
+		
+		var libDirectory = extensionDirectory.clone();
+		libDirectory.append("components");
+		libDirectory.append("lib");
+
+		var jarFilepaths = [];
+
+		var classesDirectory = libDirectory.clone();	// semantic turkey classes, when deployed in a folder
+		classesDirectory.append("classes");
+
+		var resourcesDirectory = libDirectory.clone();	// semantic turkey resources (ex: logj4 property file)
+		resourcesDirectory.append("resources");
+
+		jarFilepaths.push(ios.newFileURI(classesDirectory).spec);
+		jarFilepaths.push(ios.newFileURI(resourcesDirectory).spec);
+
+		var entries = libDirectory.directoryEntries;
+
+		while (entries.hasMoreElements()) {
+		    var e = entries.getNext().QueryInterface(Components.interfaces.nsILocalFile);
+		    
+		    if (e.isFile() && e.leafName.match(/\.jar$/) != null) {
+		        jarFilepaths.push(ios.newFileURI(e).spec);
+		    }
+		}
+		
+		
 		this._packages = this._packageLoader(jarFilepaths, this._traceFlag);
 
 		/*
