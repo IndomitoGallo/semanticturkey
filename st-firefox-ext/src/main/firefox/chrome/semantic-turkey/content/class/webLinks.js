@@ -28,6 +28,9 @@ Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
 window.onload = function() {
+	document.getElementById("web-link-copy")
+		.addEventListener("command", art_semanticturkey.copyWebLink, true);
+
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onClose, true);
 	var instanceName = window.arguments[0].instanceName;
@@ -55,20 +58,12 @@ art_semanticturkey.getBookmarks_RESPONSE = function(responseElement, status) {
 		var pagelbl2 = document.createElement("label");
 		pagelbl2.setAttribute("value", title);
 		pagelbl2.setAttribute("class", "text-link");
-		pagelbl2.linkValue = value;
-		pagelbl2.addEventListener("click", art_semanticturkey.openLinkEvent, true);
+		pagelbl2.setAttribute("href", value);
+		pagelbl2.setAttribute("context", "web-link-context-menu");
 		labelBox.appendChild(pagelbl2);
 	}
 };
 
-art_semanticturkey.openLinkEvent = function(event) {
-	art_semanticturkey.openLink(event.target.linkValue);
-}
-
-art_semanticturkey.openLink = function(value) {
-	close();
-	art_semanticturkey.openUrl(value);
-};
 /**
  * @author NScarpato ATurbati
  * @date 09-10-2009 close window
@@ -76,6 +71,17 @@ art_semanticturkey.openLink = function(value) {
 art_semanticturkey.onClose = function() {
 	close();
 };
+
+art_semanticturkey.copyWebLink = function(event) {
+	var element = document.popupNode;
+	
+	var url = element.getAttribute("href");
+	
+    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].  
+    getService(Components.interfaces.nsIClipboardHelper);  
+    gClipboardHelper.copyString(url);  
+};
+
 // *********** register request handler method (they need to be registered after
 // the declaration of function )***********************
 

@@ -31,8 +31,15 @@
    >
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/class/webLinks.js"/>
     <script type="application/x-javascript" src="chrome://semantic-turkey/content/utilities/utilities.js"/>
+    
+	<popupset>
+		<menupopup id="web-link-context-menu">
+			<menuitem label="Copy URL" id="web-link-copy"/>
+		</menupopup>
+	</popupset>
+	
 	<vbox flex="1">
-	<vbox flex="1" id="labelBox">
+	<vbox flex="1" id="labelBox" style="overflow:auto">
 		<label class="header" value="WEB PAGES" />
 	</vbox>
 	<button id="cancel" label="Cancel" flex="0"/>
