@@ -54,7 +54,6 @@ window.onload = function() {
 	
 	
 	art_semanticturkey.associateEventsFiredByServer();
-	
 };
 
 window.onunload = function(){

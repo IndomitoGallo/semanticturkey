@@ -87,6 +87,9 @@ window.onload = function() {
 	art_semanticturkey.eventListenerArrayObject
 			.addEventListenerToArrayAndRegister("refreshEditor",
 					art_semanticturkey.refreshPanel, null);
+
+	document.getElementById("web-link-copy")
+			.addEventListener("command", art_semanticturkey.copyWebLink, true);
 };
 
 window.onunload = function() {
@@ -306,21 +309,15 @@ art_semanticturkey.getWebLinks_RESPONSE = function(responseElement) {
 		var linkTitle = bookmarksList[i].getAttribute("title");
 		var linkUrl = bookmarksList[i].getAttribute("value");
 		var row = document.createElement("row");
-		var textbox = document.createElement("textbox");
-		textbox.setAttribute("value", linkTitle);
-		textbox.setAttribute("readonly", "true");
-		textbox.setAttribute("class", "text-link");
-		textbox.addEventListener("mouseover",
-				art_semanticturkey.setCursorPointerEvent, true);
-		textbox.addEventListener("mouseout",
-				art_semanticturkey.setCursorDefaultEvent, true);
-		textbox
-				.addEventListener("click", art_semanticturkey.openUrlEvent,
-						true);
-		var containerObj = new Object();
-		containerObj.value = linkUrl;
-		textbox.containerObj = containerObj;
-		row.appendChild(textbox);
+
+		var label = document.createElement("label");
+		label.setAttribute("value", linkTitle);
+		label.setAttribute("href", linkUrl);
+		label.setAttribute("class", "text-link");
+		label.setAttribute("context", "web-link-context-menu");
+
+		row.appendChild(label);
+
 		rowsBox.appendChild(row);
 	}
 };
@@ -2755,4 +2752,14 @@ art_semanticturkey.setCursorDefaultEvent = function(event) {
 
 art_semanticturkey.setTextBluEvent = function(event) {
 	event.target.style.color = 'blue';
+};
+
+art_semanticturkey.copyWebLink = function(event) {
+	var element = document.popupNode;
+	
+	var url = element.getAttribute("href");
+	
+    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].  
+    getService(Components.interfaces.nsIClipboardHelper);  
+    gClipboardHelper.copyString(url);  
 };
