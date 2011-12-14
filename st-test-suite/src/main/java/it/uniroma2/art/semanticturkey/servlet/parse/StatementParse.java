@@ -18,8 +18,9 @@ import java.util.Collection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+
 /**
- * @author Armando Stellato <stellato@info.uniroma2.it>
+ * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a>
  *
  */
 public class StatementParse {

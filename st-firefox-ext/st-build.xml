@@ -47,9 +47,11 @@
 	<target name="delete_dist" depends="xpi" description="deletes the distribution folder">
 		<!-- <delete dir="../${dist}" /> -->
 	</target>
+	
+	<!-- === Final Task ================================================= -->
 
-	<!-- === Final Empty Task ================================================= -->
-
-	<target name="final" depends="delete_dist" />
+	<target name="final" depends="delete_dist">
+		<copy toDir="../${dist.dir}" file="../system-resources/server_run.xml"/>
+	</target>
 
 </project>
