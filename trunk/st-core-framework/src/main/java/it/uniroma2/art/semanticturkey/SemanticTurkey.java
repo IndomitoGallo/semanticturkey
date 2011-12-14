@@ -47,13 +47,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  Classe che si occupa di inizializzare l'applicazione,attivare il file di log,caricare il profilo utente,
- * creare il WebServer associando le relative Servlet (WebSearch,STServer,Proxy) ed infine creare il SesameARTRepositoryImpl
- * relativo all'ontologia 
- *
- */
-/**
- * @author Armando Stellato Contributor(s): Andrea Turbati
+ * <p>
+ * Main class in charge of:
+ * </p>
+ * <ul>
+ * <li>initializing the application</li>
+ * <li>activating the loggers and point them to the logging files</li>
+ * <li>creating the web server and initialize the servlet</li>
+ * <li>loading the Ontology Manager OSGi bundles</li>
+ * </ul>
+ * 
+ * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a><br/>
+ *         Contributor: Andrea Turbati <a href="mailto:turbati@info.uniroma2.it">turbati@info.uniroma2.it</a>
  * 
  */
 public class SemanticTurkey {
@@ -103,6 +108,12 @@ public class SemanticTurkey {
 		PluginManager.loadOntManagersImpl();
 		// SemanticTurkey.class.getResource("log4j.properties").toString();
 		return null;
+	}
+
+	public static void main(String[] args) {
+		String extensionDir = new File(System.getProperty("user.dir")).toURI().toString();
+		System.out.println("ext dir: " + extensionDir);
+		initialize(extensionDir);
 	}
 
 	/**

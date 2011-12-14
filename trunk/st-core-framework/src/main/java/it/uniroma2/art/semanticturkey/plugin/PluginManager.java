@@ -93,17 +93,9 @@ public class PluginManager {
 	 * this method retrieves all OSGi bundles which are located in firefox extensions
 	 */
 	public static void loadOntManagersImpl() {
-		String fireFoxExtensionDir = Resources.getExtensionPath(); // initially initialized with the
-		// SemanticTurkey extension folder
-		// starts the felix platform
 		startFelix();
 
-		File dir = new File(fireFoxExtensionDir);
-		// goes up from the ST extension folder to the Firefox extension folder. There should be no need for
-		// this while-loop, since the position of the extension folder is stable one folder up in the tree
-		while (!(dir.getAbsoluteFile().toString().endsWith("extensions"))) {
-			dir = dir.getAbsoluteFile().getParentFile();
-		}
+		File dir = getExtensionApplicationsDir();
 
 		// problema con gli spazi, converto %20 in spazio
 		dir = new File(dir.getAbsolutePath().replace("%20", " "));
@@ -119,6 +111,18 @@ public class PluginManager {
 
 		// Faccio la start dei bundle appena trovati
 		startAllBundle();
+	}
+
+	/**
+	 * this method returns the folder where all Firefox extensions are being hosted. This folder is used to
+	 * retrieve other OSGi bundles which may have been installed in the extension dir of other Firefox
+	 * extensions
+	 * 
+	 * @return
+	 */
+	private static File getExtensionApplicationsDir() {
+		String semanticTurkeyExtensionDir = Resources.getExtensionPath();
+		return new File(semanticTurkeyExtensionDir).getAbsoluteFile().getParentFile();
 	}
 
 	/**
@@ -222,17 +226,10 @@ public class PluginManager {
 	 *            HashMap che conterr� le classi che gestiscono le richieste del client
 	 */
 	public static void loadExtensions(STServer stServer) {
-		String dirExtension = Resources.getExtensionPath();
-
 		// faccio partire la piattaforma felix
 		startFelix();
-		File dir = new File(dirExtension);
 
-		while (!(dir.getAbsoluteFile().toString().endsWith("extensions"))) {
-			dir = dir.getAbsoluteFile().getParentFile();
-			// risalgo le cartelle fino a quando non arrivo alla directory
-			// che contiene le estensioni di firefox
-		}
+		File dir = getExtensionApplicationsDir();
 
 		// problema con gli spazi, converto %20 in spazio
 		dir = new File(dir.getAbsolutePath().replace("%20", " "));
@@ -301,15 +298,15 @@ public class PluginManager {
 
 			// Updates the org.osgi.framework.system.packages with Semantic Turkey specific packages
 			// via the system bundle.
-			configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES, defaultProperties
-					.getProperty("org.osgi.framework.system.packages")
-					+ ", " + stProperties.getProperty("it.uniroma2.art.semanticturkey.osgi.packages"));
+			configMap.put(
+					Constants.FRAMEWORK_SYSTEMPACKAGES,
+					defaultProperties.getProperty("org.osgi.framework.system.packages") + ", "
+							+ stProperties.getProperty("it.uniroma2.art.semanticturkey.osgi.packages"));
 
 			// System.out.println(configMap.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
 
 			// Explicitly specify the directory to use for caching bundles.
-			System.out
-					.println("felix dir: " + Resources.getOSGiPath());
+			System.out.println("felix dir: " + Resources.getOSGiPath());
 			// TODO check if this change is correct
 			// configMap.put(BundleCache.CACHE_PROFILE_DIR_PROP, (new File(Resources.getOntologyDir(),
 			// "felix")).getPath() );
