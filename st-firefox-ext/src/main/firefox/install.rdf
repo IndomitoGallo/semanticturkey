@@ -55,7 +55,7 @@
 					The maximum version of Firefox you're saying this extension will
 					work with
 				-->
-				<em:maxVersion>9.0</em:maxVersion>
+				<em:maxVersion>9.*</em:maxVersion>
 			</rdf:Description>
 		</em:targetApplication>
 
