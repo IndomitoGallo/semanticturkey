@@ -78,20 +78,17 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	}
 
 	/**
-	 * as for {@link ServiceAdapter#setHttpPar(String) but invokes {@link Boolean#parseBoolean(String)} on the string value of the parameter}
+	 * as for {@link ServiceAdapter#setHttpPar(String) but invokes {@link Boolean#parseBoolean(String)} on
+	 * the string value of the parameter}
 	 * 
 	 * @param parameterName
 	 * @return
 	 */
 	public boolean setHttpBooleanPar(String parameterName) {
 		String strvalue = setHttpPar(parameterName);
-		boolean value = false;
-		if (strvalue!=null)
-			value = Boolean.parseBoolean(strvalue);
-		return value;
+		return (strvalue == null) ? false : (Boolean.parseBoolean(strvalue));
 	}
-	
-	
+
 	/**
 	 * checks that the http parameters identified by <code>pars</code> have been properly initialized
 	 * 
