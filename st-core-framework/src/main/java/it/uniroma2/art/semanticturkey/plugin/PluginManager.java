@@ -223,7 +223,7 @@ public class PluginManager {
 	 * client
 	 * 
 	 * @param map
-	 *            HashMap che conterr� le classi che gestiscono le richieste del client
+	 *            HashMap containing classes which handle client requests
 	 */
 	public static void loadExtensions(STServer stServer) {
 		// faccio partire la piattaforma felix
@@ -386,7 +386,7 @@ public class PluginManager {
 
 		bundle = getBundleByLocation(bundleJarFileURIString);
 
-		if (bundle == null) { // il bundle non � installato, quindi lo installo
+		if (bundle == null) { // the bundle is not installed, installing it...
 			try {
 				logger.info("bundle: " + bundleJarFile + " is not in the bundle cache, installing it now");
 				bundle = m_felix.getBundleContext().installBundle(bundleJarFileURIString);
@@ -402,7 +402,7 @@ public class PluginManager {
 				e.printStackTrace();
 			}
 		} else {
-			// Il bundle � installato, ora controllo se non � stato aggiornato
+			// The bundle is installed, checking if it is installed
 			jarPresent.add(bundle.getLocation());
 			logger.info("bundle: " + bundleJarFile + " is present");
 			if (bundle.getLastModified() < bundleJarFile.lastModified()) { // il bundle � stato modificato
@@ -418,7 +418,7 @@ public class PluginManager {
 					e.printStackTrace();
 				}
 			}
-			// Il bundle non � stato modicato, quindi non faccio niente
+			// the bundle has not been modified, nothing to do...
 		}
 
 	}

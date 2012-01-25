@@ -53,10 +53,10 @@ public class ServiceUTFixture extends ServiceTest {
 	 * @throws IOException
 	 * @throws STInitializationException
 	 */
-	public static void initWholeTestClass(ServiceTest testInst, boolean delete) throws IOException,
-			STInitializationException {
+	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath, boolean delete) throws IOException,
+			STInitializationException {		
 		serviceTester = testInst;
-		serviceTester.initialize(delete);
+		serviceTester.initialize(STDirectoryRelPath, delete);		
 	}
 
 	/**
@@ -68,9 +68,13 @@ public class ServiceUTFixture extends ServiceTest {
 	 * @throws STInitializationException
 	 */
 	public static void initWholeTestClass(ServiceTest testInst) throws IOException, STInitializationException {
-		initWholeTestClass(testInst, true);
+		initWholeTestClass(testInst, "..", true);
 	}
 
+	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath) throws IOException, STInitializationException {
+		initWholeTestClass(testInst, STDirectoryRelPath, true);
+	}
+	
 	public static void startST() {
 
 		Response resp = serviceTester.systemStartService.makeRequest(SystemStart.startRequest, par(
