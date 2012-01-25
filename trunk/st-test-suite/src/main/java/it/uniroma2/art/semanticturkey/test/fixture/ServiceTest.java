@@ -46,7 +46,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public abstract class ServiceTest {
 
 	final static String STExtDirName = "STTest/extensions/extDir";
-	final static String XULResourcesDir = "../st-firefox-ext/src/main/firefox";
+	final static String XULResourcesDir = "st-firefox-ext/src/main/firefox";
 	final static String dataDirName = "components/data";
 	final static String extensionsDirName = "extensions";
 	protected static Log logger = LogFactory.getLog(ServiceTest.class);
@@ -78,26 +78,35 @@ public abstract class ServiceTest {
 	public ServiceWrapper ontManagerService;
 
 	public void initialize(boolean delete) throws STInitializationException, IOException {
+		initialize("..", delete);
+	}
+	
+	public void initialize(String semTurkeyRelPath, boolean delete) throws STInitializationException, IOException {
 		String sConfigFile = "testMod.properties";
 		InputStream in = ClassLoader.getSystemClassLoader().getResourceAsStream(sConfigFile);
 		Properties props = new java.util.Properties();
 		props.load(in);
+		logger.debug("accessed unit-test properties:\n" + props);
 		if (delete)
 			deleteWorkingFiles();
-		initialize(props.getProperty("access"));
+		initialize(semTurkeyRelPath, props.getProperty("access"));
+	}
+	
+	public void initialize(String type) throws STInitializationException, IOException {
+		initialize("..", type);
 	}
 
-	public void initialize(String type) throws STInitializationException, IOException {
+	public void initialize(String semTurkeyRelPath, String type) throws STInitializationException, IOException {
 
 		accessType = type;
 
 		System.err.println("access type: " + type);
 
 		if (type.equals("http")) {
-			httpInitialize();
+			httpInitialize(semTurkeyRelPath);
 			initializeServiceHttpWrappers();
 		} else if (type.equals("direct")) {
-			directInitialize();
+			directInitialize(semTurkeyRelPath);
 			initializeServiceDirectWrappers();
 		} else
 			throw new IllegalArgumentException(
@@ -106,12 +115,15 @@ public abstract class ServiceTest {
 
 	// INITIALIZE METHODS
 
-	public void baseInitialize() throws IOException {
+	
+	
+	public void baseInitialize(String semturkeyProjectRelativePath) throws IOException {
 		// this is done to always get a fresh copy of the data dir from the original SemanticTurkeyBM folder
 		// it is used whenever the SemanticTurkeyData dir in the STTest is deleted
 		File fakeSTSourceDataDir = new File(STExtDirName, dataDirName);
 		Utilities.deleteDir(fakeSTSourceDataDir);
-		Utilities.recursiveCopy(new File(XULResourcesDir, dataDirName), fakeSTSourceDataDir);
+		File xulResourcesRealDir = new File(semturkeyProjectRelativePath, XULResourcesDir);
+		Utilities.recursiveCopy(new File(xulResourcesRealDir, dataDirName), fakeSTSourceDataDir);
 
 		// this is done to always get a fresh copy of the extensions dir from the original SemanticTurkeyBM
 		// folder
@@ -121,7 +133,7 @@ public abstract class ServiceTest {
 		// we just use it anyway even in non-felix implementation of the test fixture
 		File fakeSTSourceExtensionsDir = new File(STExtDirName, extensionsDirName);
 		Utilities.deleteDir(fakeSTSourceExtensionsDir);
-		Utilities.recursiveCopy(new File(XULResourcesDir, extensionsDirName), fakeSTSourceExtensionsDir);
+		Utilities.recursiveCopy(new File(xulResourcesRealDir, extensionsDirName), fakeSTSourceExtensionsDir);
 
 	}
 
@@ -144,8 +156,8 @@ public abstract class ServiceTest {
 		}
 	}
 
-	public void directInitialize() throws STInitializationException, IOException {
-		baseInitialize(); // not necessary in direct initialization
+	public void directInitialize(String semTurkeyRelPath) throws STInitializationException, IOException {
+		baseInitialize(semTurkeyRelPath); // not necessary in direct initialization
 		try {
 			XMLHelp.initialize();
 		} catch (Exception e) {
@@ -165,8 +177,8 @@ public abstract class ServiceTest {
 		Resources.initializeUserResources();
 	}
 
-	public void httpInitialize() throws IOException {
-		baseInitialize();
+	public void httpInitialize(String semTurkeyRelPath) throws IOException {
+		baseInitialize(semTurkeyRelPath);
 		// String curDir = System.getProperty("user.dir");
 		// File STExtDirFullPath = new File(curDir);
 		// STExtDirFullPath.get

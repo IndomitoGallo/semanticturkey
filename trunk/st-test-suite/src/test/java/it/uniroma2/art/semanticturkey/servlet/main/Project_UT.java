@@ -57,16 +57,29 @@ public class Project_UT extends ServiceUTFixture {
 
 	}
 
+	
+	// http://127.0.0.1:1979/semantic_turkey/resources/stserver/STServer?
+	// service=projects&
+	// request=newProject&
+	// name=fooproject&
+	// ontologyType=OWL&
+	// baseuri=http://foo.it&
+	// ontmanager=it.uniroma2.art.semanticturkey.ontology.sesame2.OntologyManagerFactorySesame2Impl&
+	// ontMgrConfiguration=it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2PersistentInMemoryModelConfiguration&
+	// cfgPars=syncDelay:::1000|_|directTypeInference:::true|_|rdfsInference:::true
 	/**
 	 * check if it is possible to create, close, open, then close again and finally delete a project
 	 */
 	@Test
 	public void testCreateCloseProject() {
-		Response resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "mario"), par(Projects.baseuriPar, "http://mario.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
-				par(Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL")
+		Response resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "mario"),
+				par(Projects.baseuriPar, "http://mario.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL")
 
 		);
 		assertAffirmativeREPLY(resp);
@@ -74,15 +87,15 @@ public class Project_UT extends ServiceUTFixture {
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 	}
 
@@ -95,27 +108,30 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectFromFileRequest, par(
-				Projects.projectNamePar, "pippo"), par(Projects.baseuriPar, "http://mario.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()), par(
-				Projects.ontFilePar, "testInput/azienda.owl"), par(Projects.ontMgrConfigurationPar,
-				Sesame2PersistentInMemoryModelConfiguration.class.getName()), par(Projects.ontologyTypePar,
-				"OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectFromFileRequest,
+				par(Projects.projectNamePar, "pippo"),
+				par(Projects.baseuriPar, "http://mario.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontFilePar, "testInput/azienda.owl"),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest, par(
-				Projects.projectNamePar, "pippo"), par(Projects.newProjectNamePar, "salvo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest,
+				par(Projects.projectNamePar, "pippo"), par(Projects.newProjectNamePar, "salvo"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "pippo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "pippo"));
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "salvo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "salvo"));
 		assertAffirmativeREPLY(resp);
 
 	}
@@ -124,10 +140,10 @@ public class Project_UT extends ServiceUTFixture {
 	public void testInvalidProjectName() {
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "pippo\\|//"), par(Projects.baseuriPar, "http://pippo.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()), par(
-				Projects.projectTypePar, ProjectType.continuosEditing.toString()));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "pippo\\|//"), par(Projects.baseuriPar, "http://pippo.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.projectTypePar, ProjectType.continuosEditing.toString()));
 		assertResponseEXCEPTION(resp);
 	}
 
@@ -136,33 +152,41 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectFromFileRequest, par(
-				Projects.projectNamePar, "pluto"), par(Projects.baseuriPar, "http://pluto.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()), par(
-				Projects.ontFilePar, "testInput/azienda.owl"), par(Projects.ontMgrConfigurationPar,
-				Sesame2PersistentInMemoryModelConfiguration.class.getName()), par(Projects.ontologyTypePar,
-				"OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectFromFileRequest,
+				par(Projects.projectNamePar, "pluto"),
+				par(Projects.baseuriPar, "http://pluto.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontFilePar, "testInput/azienda.owl"),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "pippo"), par(Projects.baseuriPar, "http://pippo.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
-				par(Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "pippo"),
+				par(Projects.baseuriPar, "http://pippo.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectFromFileRequest, par(
-				Projects.projectNamePar, "topolino"), par(Projects.baseuriPar, "http://topolino.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
-				par(Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"), par(Projects.ontFilePar,
-						"testInput/azienda.owl"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectFromFileRequest,
+				par(Projects.projectNamePar, "topolino"),
+				par(Projects.baseuriPar, "http://topolino.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"), par(Projects.ontFilePar, "testInput/azienda.owl"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
@@ -171,16 +195,16 @@ public class Project_UT extends ServiceUTFixture {
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.listProjectsRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "pluto"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "pluto"));
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "pippo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "pippo"));
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "topolino"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "topolino"));
 		assertAffirmativeREPLY(resp);
 	}
 
@@ -192,41 +216,44 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "mario"), par(Projects.baseuriPar, "http://mario.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
-				par(Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "mario"),
+				par(Projects.baseuriPar, "http://mario.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 
 		importSTExample();
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.exportProjectRequest, par(
-				Projects.projectFilePar, "marietto.zip"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.exportProjectRequest,
+				par(Projects.projectFilePar, "marietto.zip"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.importProjectRequest, par(
-				Projects.projectFilePar, "marietto.zip")
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.importProjectRequest,
+				par(Projects.projectFilePar, "marietto.zip")
 		// par(Projects.projectNamePar, "salvo")
 				);
 		assertFailREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.importProjectRequest, par(
-				Projects.projectFilePar, "marietto.zip"), par(Projects.projectNamePar, "salvo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.importProjectRequest,
+				par(Projects.projectFilePar, "marietto.zip"), par(Projects.projectNamePar, "salvo"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "salvo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "salvo"));
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 	}
 
@@ -238,24 +265,27 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "mario"), par(Projects.baseuriPar, "http://mario.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
-				par(Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "mario"),
+				par(Projects.baseuriPar, "http://mario.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 
 		importSTExample();
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.getProjectPropertyRequest, par(
-				Projects.propNamesPar, "name;defaultNamespace"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.getProjectPropertyRequest,
+				par(Projects.propNamesPar, "name;defaultNamespace"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 
 	}
@@ -268,16 +298,19 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.createNewProjectRequest, par(
-				Projects.projectNamePar, "mario"), par(Projects.baseuriPar, "http://mario.it"), par(
-				Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()), par(
-				Projects.ontMgrConfigurationPar, Sesame2NonPersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+		resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "mario"),
+				par(Projects.baseuriPar, "http://mario.it"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2NonPersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
 		// assertResponseEXCEPTION(resp);
 
 		System.out.println(ProjectManager.getCurrentProject());
-		
+
 		importSTExample();
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectRequest);
@@ -285,15 +318,15 @@ public class Project_UT extends ServiceUTFixture {
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "mario"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "mario"));
 		assertAffirmativeREPLY(resp);
 	}
 
@@ -305,32 +338,34 @@ public class Project_UT extends ServiceUTFixture {
 
 		Response
 
-		resp = serviceTester.systemStartService.makeRequest(SystemStart.startRequest, par(
-				SystemStart.baseuriPar, "http://test.it"), par(
-				Projects.ontMgrConfigurationPar, Sesame2NonPersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+		resp = serviceTester.systemStartService.makeRequest(
+				SystemStart.startRequest,
+				par(SystemStart.baseuriPar, "http://test.it"),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2NonPersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, "OWL"));
 		assertAffirmativeREPLY(resp);
-		
+
 		System.out.println(ProjectManager.getCurrentProject());
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest, par(
-				Projects.projectNamePar, ProjectManager.mainProjectName), par(Projects.newProjectNamePar,
-				"pippo"));		
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest,
+				par(Projects.projectNamePar, ProjectManager.mainProjectName),
+				par(Projects.newProjectNamePar, "pippo"));
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest, par(
-				Projects.projectNamePar, "pippo"));
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest,
+				par(Projects.projectNamePar, "pippo"));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest, par(
-				Projects.projectNamePar, "pippo"));		
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
+				par(Projects.projectNamePar, "pippo"));
 		assertAffirmativeREPLY(resp);
 	}
 

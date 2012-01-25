@@ -52,6 +52,7 @@
 
 	<target name="final" depends="delete_dist">
 		<copy toDir="../${dist.dir}" file="../system-resources/server_run.xml"/>
+		<copy toDir="../${dist.dir}" file="../system-resources/server_run.bat"/>
 	</target>
 
 </project>
