@@ -64,21 +64,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.owlart</groupId>
 			<artifactId>owlart-api</artifactId>
-			<version>2.0.2</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.5.6</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.5.6</version>
-			<type>jar</type>
+			<version>2.0.4-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

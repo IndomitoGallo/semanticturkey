@@ -748,7 +748,7 @@ public class Property extends Resource {
 		try {
 			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID, RDFTypesEnum
 					.valueOf(nodeType));
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request,
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			ARTLiteralIterator it = ontModel.parseDataRange(dataRange, NodeFilters.MAINGRAPH);

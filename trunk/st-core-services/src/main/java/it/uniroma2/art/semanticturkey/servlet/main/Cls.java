@@ -150,9 +150,9 @@ public class Cls extends Resource {
 		} else if (request.equals(getClassAndInstancesInfoRequest)) {
 			String clsQName = setHttpPar(clsQNameField);
 			String listMod = setHttpPar(directInstPar);
-			String hasSubClassesMod = setHttpPar(hasSubClassesPar);
+			boolean hasSubClassesReq = setHttpBooleanPar(hasSubClassesPar);
 			checkRequestParametersAllNotNull(clsQNameField);
-			response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesMod);
+			response = getClassAndInstancesInfo(clsQName, listMod, hasSubClassesReq);
 		} else if (request.equals(getSuperClassesRequest)) {
 			String clsQName = setHttpPar(clsQNameField);
 			checkRequestParametersAllNotNull(clsQNameField);
@@ -216,13 +216,10 @@ public class Cls extends Resource {
 	 *            the qname of the class whose instances are being retrieved
 	 * @return an xml Response listing the instances of clsQName
 	 */
-	public Response getClassAndInstancesInfo(String clsQName, String listMod, String hasSubClassesParameter) {
+	public Response getClassAndInstancesInfo(String clsQName, String listMod, boolean hasSubClassesRequest) {
 		boolean direct = true;
-		boolean hasSubClassesRequest = false;
 		if (listMod != null && listMod.equals(allInstances))
 			direct = false;
-		if (hasSubClassesParameter != null && hasSubClassesParameter.equals("true"))
-			hasSubClassesRequest = true;
 		logger.debug("replying to \"getInstancesListXML(" + clsQName + ")\"");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTURIResource cls;
@@ -756,7 +753,7 @@ public class Cls extends Resource {
 	 */
 
 	/**
-	 * gets the namespace mapping for the loaded ontology
+	 * adds an rdfs:superClassOf relationship between two resources (already defined in the ontology)
 	 * 
 	 * <Tree type="add_superclass"> <Type qname="rtv:Person"/> </Tree>
 	 * 
@@ -770,8 +767,8 @@ public class Cls extends Resource {
 		String superClsURI;
 		try {
 			superClsURI = ontModel.expandQName(superclsQName);
-			cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
-			ARTURIResource superCls = ontModel.createURIResource(superClsURI);
+			cls = ontModel.retrieveURIResource(ontModel.expandQName(clsQName));
+			ARTURIResource superCls = ontModel.retrieveURIResource(superClsURI);
 			if (cls == null)
 				return ServletUtilities.getService().createExceptionResponse(request,
 						clsQName + " is not present in the ontology");
