@@ -621,7 +621,6 @@ public class ServletUtilities {
 		return null;
 	}
 
-	// Ramon Orrù(2010) : modifica per introduzione serializzazione JSON
 	public ResponseREPLY createReplyResponse(String request, RepliesStatus status, String message,
 			SerializationType ser_type) {
 		if (ser_type == SerializationType.xml) {
@@ -639,7 +638,6 @@ public class ServletUtilities {
 		return null;
 	}
 
-	// Ramon Orrù (2010) : modifica per introduzione serializzazione JSON
 	public ResponseREPLY createReplyFAIL(String request, String message, SerializationType ser_type) {
 		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
