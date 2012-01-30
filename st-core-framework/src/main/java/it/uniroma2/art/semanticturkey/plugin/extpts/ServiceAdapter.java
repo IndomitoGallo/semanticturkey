@@ -30,6 +30,7 @@ package it.uniroma2.art.semanticturkey.plugin.extpts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceRequest;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 
 import java.util.ArrayList;
@@ -198,11 +199,15 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected Response logAndSendException(Exception e) {
 		return logAndSendException(httpParameters.get("request"), e);
 	}
-
+	
 	protected Response logAndSendException(Exception e, String msg) {
 		return logAndSendException(httpParameters.get("request"), e, msg);
 	}
 
+	protected Response logAndSendException(String msg) {
+		return logAndSendException(httpParameters.get("request"), msg);
+	}
+	
 	/**
 	 * this convenience method prepares an exception response initialized with the given arguments, logs the
 	 * occurred exception with level "error" and prints the stack trace
@@ -212,14 +217,17 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 * @return
 	 */
 	protected Response logAndSendException(String request, Exception e) {
-		getLogger().error(e.toString());
-		e.printStackTrace(System.err);
-		return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
+		return logAndSendException(request, e.toString());
 	}
 
+	protected Response logAndSendException(String request, String msg) {
+		getLogger().error(msg);
+		return servletUtilities.createExceptionResponse(request, msg);
+	}
+	
 	/**
-	 * this convenience method prepares an exception response initialized with the given arguments, logs the
-	 * occurred exception with level "error" and prints the stack trace
+	 * this convenience method prepares an exception response initialized with the given arguments and logs the
+	 * occurred exception with level "error"
 	 * 
 	 * @param request
 	 * @param e
@@ -228,8 +236,11 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 */
 	protected Response logAndSendException(String request, Exception e, String msg) {
 		getLogger().error(e.toString());
-		e.printStackTrace(System.err);
 		return ServletUtilities.getService().createExceptionResponse(request, msg);
 	}
 
+	protected Response logAndSendException(String request, String msg, SerializationType sertype) {
+		getLogger().error(msg);
+		return ServletUtilities.getService().createExceptionResponse(request, msg, sertype);
+	}
 }
