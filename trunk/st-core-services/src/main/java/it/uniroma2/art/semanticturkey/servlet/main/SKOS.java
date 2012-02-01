@@ -218,7 +218,7 @@ public class SKOS extends Resource {
 			SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
 			ARTURIResource subject = skosModel.createURIResource(skosModel.expandQName(concept));
 
-			skosModel.removeConcept(subject, NodeFilters.MAINGRAPH);
+			skosModel.deleteConcept(subject, NodeFilters.MAINGRAPH);
 
 		} catch (ModelAccessException e) {
 			return servletUtilities.createExceptionResponse(Req.addConceptRequest, e);

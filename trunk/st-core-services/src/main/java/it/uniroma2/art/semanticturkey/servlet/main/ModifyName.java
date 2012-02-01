@@ -26,7 +26,6 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.TransactionBasedModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -76,26 +75,18 @@ public class ModifyName extends ServiceAdapter {
 		return changeResourceName(qname, newQname);
 	}
 
-	/*
-	 * catch (ModelUpdateException e) { return servletUtilities.createExceptionResponse(request, e); } catch
-	 * (ModelAccessException e) { return servletUtilities.createExceptionResponse(request, e); } catch
-	 * (DuplicatedResourceException e) { return servletUtilities.createExceptionResponse(request,
-	 * e.getMessage()); } finally {
-	 * 
-	 * }
-	 */
-
 	public Response changeResourceName(String qName, String newQName) {
 		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource res = null;
+		String newResURI = null;
 		try {
 			res = ontModel.createURIResource(ontModel.expandQName(qName));
-			if (!ModelUtilities.checkExistingResource(ontModel, res))
-				return ServletUtilities.getService().createExceptionResponse(renameRequest,
+			if (!ontModel.existsResource(res))
+				return logAndSendException(renameRequest,
 						"inconsistency error: resource " + res + " is not present in the ontModel");
-			if (ModelUtilities.checkExistingResource(ontModel, ontModel.createURIResource(ontModel
-					.expandQName(newQName))))
-				return ServletUtilities.getService().createExceptionResponse(
+			newResURI = ontModel.expandQName(qName);
+			if (ontModel.existsResource(ontModel.createURIResource(newResURI)))
+				return logAndSendException(
 						renameRequest,
 						"could not rename resource: " + res + " to: " + newQName
 								+ " because a resource with this name already exists in the ontology");
@@ -112,10 +103,8 @@ public class ModifyName extends ServiceAdapter {
 			}
 
 		try {
-			ontModel.renameIndividual(res, ontModel.expandQName(newQName));
+			ontModel.renameResource(res, newResURI);
 		} catch (ModelUpdateException e1) {
-			return logAndSendException(e1);
-		} catch (ModelAccessException e1) {
 			return logAndSendException(e1);
 		}
 

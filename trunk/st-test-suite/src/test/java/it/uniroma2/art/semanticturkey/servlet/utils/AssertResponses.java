@@ -126,8 +126,10 @@ public class AssertResponses {
 		try {
 			Document xmlOracle = XMLHelp.inputStream2XML(streamedXml);
 			System.err.println("\nexpected:\n\n" + XMLHelp.XML2String(xmlOracle));
-			System.err.println("\nresponse received:\n\n" + XMLHelp.XML2String(response.getResponseObject(), true));
-			if (!XMLHelp.XML2String(xmlOracle, true).equals(XMLHelp.XML2String(response.getResponseObject(), true)))
+			System.err.println("\nresponse received:\n\n"
+					+ XMLHelp.XML2String(response.getResponseObject(), true));
+			if (!XMLHelp.XML2String(xmlOracle, true).equals(
+					XMLHelp.XML2String(response.getResponseObject(), true)))
 				throw new AssertionError("response:\n" + response + "\nis not the expected response:\n\n"
 						+ XMLHelp.XML2String(xmlOracle, true));
 		} catch (IOException e) {
@@ -148,6 +150,15 @@ public class AssertResponses {
 		assertContains(msg, true, it, elem);
 	}
 
+	/**
+	 * TODO: this does not work because parsStatements produces a collection of statements, and not of strings, so
+	 * the check is if the statement equals a string...
+	 * 
+	 * @param msg
+	 * @param condition
+	 * @param it
+	 * @param elem
+	 */
 	static public void assertContains(String msg, boolean condition, Collection<?> it, Object elem) {
 		if (!condition == it.contains(elem))
 			fail(msg);

@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Element;
 
-/**Classe che si occupa della cancellazione di classi o istanze dell'ontologia
- * si possono cancellare solo classi e istanze che non appartengono alla Domain ontology*/
 /**
+ * 
+ * 
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
 public class Delete extends ServiceAdapter {
@@ -88,8 +88,7 @@ public class Delete extends ServiceAdapter {
 	}
 
 	public Response deleteResource(String qname, String request) {
-		logger.debug("request to delet resource: " + qname);
-		ServletUtilities servletUtilities = new ServletUtilities();
+		logger.debug("request to delete resource: " + qname);
 		String encodedQName = servletUtilities.encodeLabel(qname);
 		OWLModel model = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource resource;
@@ -136,9 +135,9 @@ public class Delete extends ServiceAdapter {
 		element.setAttribute("name", qname);
 		element.setAttribute("type", request);
 		return response;
-
 	}
 
+	
 	public void deleteClass(ARTResource cls, OWLModel ontModel) throws ModelUpdateException {
 		logger.debug("deleting class: " + cls );
 		ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, cls); // 1) removes all the incoming edges
