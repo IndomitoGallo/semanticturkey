@@ -8,7 +8,6 @@ import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.main.Administration;
-import it.uniroma2.art.semanticturkey.servlet.main.Annotate;
 import it.uniroma2.art.semanticturkey.servlet.main.Annotation;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
 import it.uniroma2.art.semanticturkey.servlet.main.Delete;
@@ -56,7 +55,6 @@ public abstract class ServiceTest {
 	protected HttpClient httpclient;
 
 	public ServiceWrapper administrationService;
-	public ServiceWrapper annotateService;
 	public ServiceWrapper annotationService;
 	public ServiceWrapper clsService;
 	public ServiceWrapper deleteService;
@@ -192,7 +190,6 @@ public abstract class ServiceTest {
 
 	protected void initializeServiceHttpWrappers() {
 		administrationService = new ServiceHttpWrapper("administration", httpclient);
-		annotateService = new ServiceHttpWrapper("annotate", httpclient);
 		annotationService = new ServiceHttpWrapper("annotation", httpclient);
 		clsService = new ServiceHttpWrapper("cls", httpclient);
 		deleteService = new ServiceHttpWrapper("delete", httpclient);
@@ -215,7 +212,6 @@ public abstract class ServiceTest {
 
 	protected void initializeServiceDirectWrappers() {
 		administrationService = new ServiceDirectWrapper(new Administration(""));
-		annotateService = new ServiceDirectWrapper(new Annotate(""));
 		annotationService = new ServiceDirectWrapper(new Annotation(""));
 		clsService = new ServiceDirectWrapper(new Cls(""));
 		deleteService = new ServiceDirectWrapper(new Delete(""));
