@@ -34,9 +34,7 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
@@ -133,12 +131,15 @@ public class SemanticTurkey {
 
 		SocketListener listener = new SocketListener();
 		listener.setPort(port);
-		try {
-			listener.setInetAddress(InetAddress.getByName("localhost"));
-		} catch (UnknownHostException e1) {
-			logger.error("UnknownHostException", e1);
-			e1.printStackTrace();
-		}
+
+		// BINDING TO A SPECIFIC IP ADDRESS, commented, restore it if it is important for security, maybe
+		// with as an optional branching
+		// try {
+		// listener.setInetAddress(InetAddress.getByName("localhost"));
+		// } catch (UnknownHostException e1) {
+		// logger.error("UnknownHostException", e1);
+		// e1.printStackTrace();
+		// }
 		server.addListener(listener);
 
 		HttpContext context = new HttpContext();
