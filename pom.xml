@@ -52,6 +52,21 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 			</roles>
 		</developer>
 		<developer>
+			<id>fiorelli</id>
+			<name>Manuel Fiorelli</name>
+			<email>fiorelli@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/fiorelli</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+			<roles>
+				<role>st-core-framework: Innovation and Development</role>
+				<role>design and development of UI widgets for st-firefox-ext module</role>
+				<role>SKOS support</role>
+				<role>st-core-services Development</role>				
+				<role>Maven and ANT build Management</role>
+			</roles>
+		</developer>
+		<developer>
 			<id>turbati</id>
 			<name>Andrea Turbati</name>
 			<email>turbati@info.uniroma2.it</email>
@@ -100,13 +115,13 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
-      		<id>test</id>
-      		<activation>
-      		</activation>
-    	</profile>
+			<id>test</id>
+			<activation>
+			</activation>
+		</profile>
 	</profiles>
 
 </project>
