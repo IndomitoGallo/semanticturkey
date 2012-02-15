@@ -23,21 +23,13 @@
 
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
-import it.uniroma2.art.owlart.model.ARTBNode;
-import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
@@ -45,46 +37,15 @@ import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RDFUtilities {
 
 	protected static Logger logger = LoggerFactory.getLogger(RDFUtilities.class);
 
-	// TODO this should be provided in next version of OWL ART API
-	public static String renderRDFNode(OWLModel model, ARTURIResource resource) throws ModelAccessException {
-		return model.getQName(resource.getURI());
-	}
-
-	// TODO this should be provided in next version of OWL ART API
-	// only dataRange is rendered at the moment
-	public static String renderRDFNode(OWLModel model, ARTBNode node) throws ModelAccessException {
-		if (model.isDataRange(node)) {
-			ARTLiteralIterator it = model.parseDataRange(node, NodeFilters.MAINGRAPH);
-			StringBuffer buffy;
-			if (!it.streamOpen())
-				buffy = new StringBuffer("{ }");
-			else {
-				buffy = new StringBuffer("{" + it.getNext());
-				while (it.streamOpen()) {
-					buffy.append(", " + it.getNext().getLabel());
-				}
-				buffy.append("}");
-			}
-			it.close();
-			return buffy.toString();
-		} else {
-			return node.getID();
-		}
-	}
-
-	// TODO this should be provided in next version of OWL ART API
-	public static String renderRDFNode(OWLModel model, ARTNode node) throws ModelAccessException {
-		if (node.isURIResource())
-			return renderRDFNode(model, node.asURIResource());
-		if (node.isBlank())
-			return renderRDFNode(model, node.asBNode());
-		else
-			return node.asLiteral().getLabel(); // Literal
-	}
 
 	/**
 	 * returns one of:
