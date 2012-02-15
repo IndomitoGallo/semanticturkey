@@ -27,28 +27,37 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import it.uniroma2.art.owlart.utilities.RDFRenderer;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
-import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
+import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+/**
+ * 
+ * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a>
+ * 
+ */
 public class RDFXMLHelp {
 
 	/**
-	 * renders the description of a RDF node under an XML Element. First, the nature of the node is revealed,
-	 * among:
+	 * This method has nothing to do with the RDFXML standard for serializing RDF graphs.<br/>
+	 * 
+	 * It simply renders the description of a RDF node under a single XML Element, and additional information
+	 * that needs to be presented can be defined in the request. <br/>
+	 * First, the nature ({@link RDFTypesEnum}) of the node is revealed, among:
 	 * <ul>
 	 * <li>uri</li>
 	 * <li>bnode</li>
 	 * <li>plainLiteral</li>
 	 * <li>typedLiteral</li>
 	 * </ul>
-	 * with additional information depending on its nature<br/>
-	 * an optional <code>visualization</code> argument enables for a rendered visualization of the node
+	 * then additional information, such as the node <em>role</em> ({@link RDFResourceRolesEnum}), can be
+	 * optionally added<br/>
+	 * an optional <code>rendering</code> argument enables for a rendered visualization of the node
 	 * 
 	 * 
 	 * @param parent
@@ -60,9 +69,8 @@ public class RDFXMLHelp {
 	 * @param role
 	 *            when <code>true</code>, if the node is a resource, it tells the role of the resource (cls,
 	 *            ontology, property...). see {@link RDFResourceRolesEnum}
-	 * @param visualization
-	 *            if a visual representation of the node is to be provided in its xml representation. If true,
-	 *            it provides
+	 * @param rendering
+	 *            If true, it provides a human readable representation of the node
 	 *            <ul>
 	 *            <li>a <code>show</code> attribute representing the node</li>
 	 *            <li>if the value is a typed literal, a <code>typeQName</code> attribute providing a qname
@@ -72,8 +80,8 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element addRDFNodeXMLElement(Element parent, OWLModel model, ARTNode node, boolean role,
-			boolean visualization) throws DOMException, ModelAccessException {
+	public static Element addRDFNodeXMLElement(Element parent, RDFModel model, ARTNode node, boolean role,
+			boolean rendering) throws DOMException, ModelAccessException {
 		Element nodeElement;
 		if (node.isResource()) {
 			if (node.isURIResource()) {
@@ -95,7 +103,7 @@ public class RDFXMLHelp {
 				// typed literal
 				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.typedLiteral.toString());
 				nodeElement.setAttribute("type", dt.getURI());
-				if (visualization)
+				if (rendering)
 					nodeElement.setAttribute("typeQName", model.getQName(dt.getURI()));
 			} else {
 				// plain literal
@@ -107,8 +115,8 @@ public class RDFXMLHelp {
 			nodeElement.setTextContent(lit.getLabel());
 		}
 
-		if (visualization) {
-			nodeElement.setAttribute("show", RDFUtilities.renderRDFNode(model, node));
+		if (rendering) {
+			nodeElement.setAttribute("show", RDFRenderer.renderRDFNode(model, node));
 		}
 
 		return nodeElement;
