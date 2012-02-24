@@ -40,6 +40,7 @@ import it.uniroma2.art.semanticturkey.exceptions.ProjectDeletionException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
+import it.uniroma2.art.semanticturkey.exceptions.ReservedPropertyUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.ModelTypeRegistry;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.AbstractProject;
@@ -83,6 +84,7 @@ public class Projects extends ServiceAdapter {
 		public final static String saveProjectAsRequest = "saveProjectAs";
 		public final static String listProjectsRequest = "listProjects";
 		public final static String getProjectPropertyRequest = "getProjectProperty";
+		public final static String setProjectPropertyRequest = "setProjectProperty";
 		public final static String getCurrentProjectRequest = "getCurrentProject";
 		public final static String repairProjectRequest = "repairProject";
 	}
@@ -98,6 +100,8 @@ public class Projects extends ServiceAdapter {
 	public final static String cfgParsPar = "cfgPars";
 	public final static String ontFilePar = "file";
 	public final static String projectFilePar = "projfile";
+	public final static String propNamePar = "name";
+	public final static String propValuePar = "value";
 	public final static String propNamesPar = "propNames";
 
 	// response tags
@@ -216,6 +220,13 @@ public class Projects extends ServiceAdapter {
 			checkRequestParametersAllNotNull(propNamesPar);
 			return getProjectProperty(propNamesCompact, projectName);
 		}
+		
+		else if (request.equals(Req.setProjectPropertyRequest)) {
+			String propName = setHttpPar(propNamePar);
+			String propValue = setHttpPar(propValuePar);
+			checkRequestParametersAllNotNull(propNamePar, propValuePar);
+			return setProjectProperty(propName, propValue);
+		}
 
 		else if (request.equals(Req.getCurrentProjectRequest)) {
 			return getCurrentProject();
@@ -237,8 +248,8 @@ public class Projects extends ServiceAdapter {
 			UpdateRoutines.repairProject(projectName);
 			return resp;
 		} catch (IOException e) {
-			return logAndSendException(request, e, "unable to access property file for project: " + projectName
-					+ " (which seems however to exist)");
+			return logAndSendException(request, e, "unable to access property file for project: "
+					+ projectName + " (which seems however to exist)");
 		} catch (InvalidProjectNameException e) {
 			return logAndSendException(request, e,
 					"UPDATING OLD PROJECT TO NEW FORMAT: strangely, the project name is invalid");
@@ -246,7 +257,8 @@ public class Projects extends ServiceAdapter {
 			return logAndSendException(request, e, "UPDATING OLD PROJECT TO NEW FORMAT: strangely, project: "
 					+ projectName + " does not exist, while it has been previously checked for existence");
 		} catch (ProjectInconsistentException e) {
-			return logAndSendException(request, e, "the project was in a inconsistent state which I'm unable to repair: " + e.getMessage());
+			return logAndSendException(request, e,
+					"the project was in a inconsistent state which I'm unable to repair: " + e.getMessage());
 		}
 	}
 
@@ -281,12 +293,12 @@ public class Projects extends ServiceAdapter {
 				if (absProj instanceof Project<?>) {
 					Project<? extends RDFModel> proj = (Project<? extends RDFModel>) absProj;
 					try {
-						projElem.setAttribute(ontoTypeAttr, ((Project) proj).getModelType().getName());
-						String ontMgr = ((Project) proj).getOntologyManagerImplID();
+						projElem.setAttribute(ontoTypeAttr, ((Project<?>) proj).getModelType().getName());
+						String ontMgr = ((Project<?>) proj).getOntologyManagerImplID();
 						projElem.setAttribute(ontMgrAttr, ontMgr);
-						String mConfID = ((Project) proj).getModelConfigurationID();
+						String mConfID = ((Project<?>) proj).getModelConfigurationID();
 						projElem.setAttribute(modelConfigAttr, mConfID);
-						projElem.setAttribute(typeAttr, ((Project) proj).getType());
+						projElem.setAttribute(typeAttr, ((Project<?>) proj).getType());
 
 						projElem.setAttribute(statusAttr, "ok");
 					} catch (DOMException e) {
@@ -297,7 +309,7 @@ public class Projects extends ServiceAdapter {
 						projElem.setAttribute(statusAttr, "error");
 						projElem.setAttribute(statusMsgAttr, e.getMessage());
 					}
-					
+
 				} else
 					// proj instanceof CorruptedProject
 					projElem.setAttribute(statusAttr, "corrupted");
@@ -344,7 +356,8 @@ public class Projects extends ServiceAdapter {
 
 		try {
 			Project<?> proj = ProjectManager.openProject(projectName);
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
@@ -355,7 +368,6 @@ public class Projects extends ServiceAdapter {
 			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		
 	}
 
 	/**
@@ -585,12 +597,13 @@ public class Projects extends ServiceAdapter {
 
 			Project<?> proj = ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
 					modelConfigurationClass, modelConfiguration);
-			
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			XMLHelp.newElement(dataElement, "type", proj.getType());			
+			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
-			
+
 		} catch (InvalidProjectNameException e) {
 			logger.error(e.getMessage());
 			return servletUtilities.createExceptionResponse(request, e.toString());
@@ -644,8 +657,9 @@ public class Projects extends ServiceAdapter {
 					RDFFormat.guessRDFFormatFromFile(ontFileToImport), NodeFilters.MAINGRAPH);
 			// RDFFormat.RDFXML, NodeFilters.MAINGRAPH);
 			logger.info("rdf data imported from file: " + file);
-			
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
@@ -697,7 +711,6 @@ public class Projects extends ServiceAdapter {
 	 * @return
 	 */
 	public Response getProjectProperty(String propNamesCompact, String projName) {
-		String request = Req.getProjectPropertyRequest;
 		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
 
 		String[] propNames = propNamesCompact.split(";");
@@ -711,20 +724,15 @@ public class Projects extends ServiceAdapter {
 				for (int i = 0; i < propNames.length; i++)
 					propValues[i] = ProjectManager.getProjectProperty(projName, propNames[i]);
 			} catch (IOException e) {
-				e.printStackTrace();
-				logger.error("" + e);
-				return servletUtilities.createExceptionResponse(request, e.toString());
+				return logAndSendException(e);
 			} catch (InvalidProjectNameException e) {
-				e.printStackTrace();
-				logger.error("" + e);
-				return servletUtilities.createExceptionResponse(request, e.toString());
+				return logAndSendException(e);
 			} catch (ProjectInexistentException e) {
-				e.printStackTrace();
-				logger.error("" + e);
-				return servletUtilities.createExceptionResponse(request, e.toString());
+				return logAndSendException(e);
 			}
 
-		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(Req.getProjectPropertyRequest,
+				RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		for (int i = 0; i < propValues.length; i++) {
@@ -736,6 +744,31 @@ public class Projects extends ServiceAdapter {
 		}
 
 		return resp;
+
+	}
+
+	// the following service does not allow to modify properties of closed projects, as that kind of
+	// modification allows for changing even syste, properties
+
+	/**
+	 * This service sets the value of a property of the current project.
+	 * 
+	 * @param propName
+	 * @param propValue
+	 * @return
+	 */
+	public Response setProjectProperty(String propName, String propValue) {
+		Project<? extends RDFModel> currProj = ProjectManager.getCurrentProject();
+		try {
+			currProj.setProperty(propName, propValue);
+		} catch (ProjectUpdateException e) {
+			return logAndSendException(e);
+		} catch (ReservedPropertyUpdateException e) {
+			return servletUtilities.createReplyResponse(Req.setProjectPropertyRequest, RepliesStatus.fail,
+					e.getMessage());
+		}
+
+		return servletUtilities.createReplyResponse(Req.setProjectPropertyRequest, RepliesStatus.ok);
 
 	}
 }

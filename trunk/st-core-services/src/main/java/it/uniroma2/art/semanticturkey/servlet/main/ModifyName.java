@@ -84,7 +84,7 @@ public class ModifyName extends ServiceAdapter {
 			if (!ontModel.existsResource(res))
 				return logAndSendException(renameRequest,
 						"inconsistency error: resource " + res + " is not present in the ontModel");
-			newResURI = ontModel.expandQName(qName);
+			newResURI = ontModel.expandQName(newQName);
 			if (ontModel.existsResource(ontModel.createURIResource(newResURI)))
 				return logAndSendException(
 						renameRequest,
