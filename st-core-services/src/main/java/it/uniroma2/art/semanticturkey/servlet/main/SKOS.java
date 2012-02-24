@@ -110,7 +110,6 @@ public class SKOS extends Resource {
 		logger.debug("request to skos");
 
 		Response response = null;
-		ServletUtilities servletUtilities = new ServletUtilities();
 		// all new fashoned requests are put inside these grace brackets
 		if (request == null)
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);

@@ -17,7 +17,7 @@
  * SemanticTurkey was developed by the Artificial Intelligence Research Group
  * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
  * Current information about SemanticTurkey can be obtained at 
- * http//ai-nlp.info.uniroma2.it/software/...
+ * http//art.uniroma2.it/software/...
  *
  */
 
@@ -100,7 +100,7 @@ public class Project_UT extends ServiceUTFixture {
 	}
 
 	/**
-	 * check if it is possible to create, save as (and pass to) another project, close this new project and
+	 * check if it is possible to create, save as (and move to) another project, close this new project and
 	 * finally delete both projects
 	 */
 	@Test
@@ -261,7 +261,7 @@ public class Project_UT extends ServiceUTFixture {
 	 * checks getProjectProperty service
 	 */
 	@Test
-	public void testGetProjectProperty() {
+	public void testGetSetProjectProperty() {
 
 		Response
 
@@ -280,6 +280,24 @@ public class Project_UT extends ServiceUTFixture {
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.getProjectPropertyRequest,
 				par(Projects.propNamesPar, "name;defaultNamespace"));
 		assertAffirmativeREPLY(resp);
+		
+		// this is a system property
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.setProjectPropertyRequest,
+				par(Projects.propNamesPar, "defaultNamespace"), 
+				par(Projects.propNamesPar, "value")
+		);
+		assertFailREPLY(resp);
+		
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.setProjectPropertyRequest,
+				par(Projects.propNamesPar, "myProp"), 
+				par(Projects.propNamesPar, "myPropValue")
+		);
+		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.projectsService.makeRequest(Projects.Req.getProjectPropertyRequest,
+				par(Projects.propNamesPar, "myProp"));
+		assertAffirmativeREPLY(resp);
+		
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
@@ -289,6 +307,7 @@ public class Project_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 
 	}
+	
 
 	/**
 	 * checks creation, save and reopen of <em>saveToStore</em> projects

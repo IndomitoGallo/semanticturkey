@@ -45,6 +45,7 @@ import it.uniroma2.art.semanticturkey.exceptions.ProjectCreationException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectIncompatibleException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
+import it.uniroma2.art.semanticturkey.exceptions.ReservedPropertyUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappings;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
@@ -58,6 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
@@ -85,6 +87,25 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public static final String PROJECT_MODEL_TYPE = "ModelType";
 	public static final String PROJECT_STORE_DIR_NAME = "store";
 	public static final String PLUGINS_PROP = "plugins";
+
+	// this hashset, used by the setProperty(...) method, prevents ST system properties from being
+	// accidentally overwritten by third party plugins/extensions
+	public static final HashSet<String> reservedProperties = new HashSet<String>();
+	static {
+
+		reservedProperties.add(INFOFILENAME);
+		reservedProperties.add(MODELCONFIG_FILENAME);
+		reservedProperties.add(TIMESTAMP_PROP);
+		reservedProperties.add(PROJECT_NAME_PROP);
+		reservedProperties.add(MODELCONFIG_ID);
+		reservedProperties.add(ONTOLOGY_MANAGER_ID_PROP);
+		reservedProperties.add(BASEURI_PROP);
+		reservedProperties.add(DEF_NS_PROP);
+		reservedProperties.add(PROJECT_TYPE);
+		reservedProperties.add(PROJECT_MODEL_TYPE);
+		reservedProperties.add(PROJECT_STORE_DIR_NAME);
+		reservedProperties.add(PLUGINS_PROP);
+	}
 
 	private static final String SEPARATION_SYMBOL = ";";
 
@@ -138,8 +159,7 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 								+ getOntologyManagerImplID());
 
 			try {
-				modelConfiguration = ontMgrFact
-						.createModelConfigurationObject(getModelConfigurationID());
+				modelConfiguration = ontMgrFact.createModelConfigurationObject(getModelConfigurationID());
 				modelConfiguration.loadParameters(modelConfigFile);
 			} catch (ClassNotFoundException e) {
 				throw new ProjectAccessException(e);
@@ -272,19 +292,19 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 		return stp_properties.getProperty(DEF_NS_PROP);
 	}
 
-	public String getType() throws ProjectInconsistentException {		
+	public String getType() throws ProjectInconsistentException {
 		return getRequiredProperty(PROJECT_TYPE);
 	}
 
 	String getRequiredProperty(String propertyName) throws ProjectInconsistentException {
 		String propValue = stp_properties.getProperty(propertyName);
-		if (propValue!=null)
+		if (propValue != null)
 			return propValue;
 		else
 			throw new ProjectInconsistentException("missing required " + propertyName
 					+ " value from description of project: " + this.getName());
 	}
-	
+
 	/**
 	 * returns the value associated to a given property for this project
 	 * 
@@ -295,6 +315,23 @@ public abstract class Project<MODELTYPE extends RDFModel> extends AbstractProjec
 	public String getProperty(String propName) {
 		logger.debug("getting value of property: " + propName);
 		return stp_properties.getProperty(propName);
+	}
+
+	public void setProperty(String propName, String propValue) throws ProjectUpdateException,
+			ReservedPropertyUpdateException {
+		logger.debug("setting property: " + propName + " to value: " + propValue);
+		if (reservedProperties.contains(propName))
+			throw new ReservedPropertyUpdateException(propName);
+
+		String oldValue = stp_properties.getProperty(propName);
+		try {
+			stp_properties.setProperty(propName, propValue);
+			updateProjectProperties();
+		} catch (IOException e) {
+			stp_properties.setProperty(propName, oldValue);
+			throw new ProjectUpdateException(e);
+		}
+
 	}
 
 	public void setBaseURI(String baseURI) throws ProjectUpdateException {

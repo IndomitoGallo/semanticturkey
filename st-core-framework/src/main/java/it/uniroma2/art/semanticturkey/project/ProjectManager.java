@@ -511,6 +511,7 @@ public class ProjectManager {
 	}
 
 	public static void closeCurrentProject() throws ModelUpdateException {
+		logger.debug("closing current project: " + _currentProject.getName());
 		_currentProject.getOntModel().close();
 		_currentProject = null;
 	}
@@ -646,6 +647,7 @@ public class ProjectManager {
 	 */
 	public static void setProjectProperty(String projectName, String property, String propValue)
 			throws IOException, InvalidProjectNameException, ProjectInexistentException {
+		
 		logger.debug("setting property: " + property + " of project: " + projectName + " to value: "
 				+ propValue);
 		File projectDir = getProjectDir(projectName);
