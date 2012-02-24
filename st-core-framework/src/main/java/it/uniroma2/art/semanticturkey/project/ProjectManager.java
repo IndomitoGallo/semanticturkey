@@ -655,9 +655,13 @@ public class ProjectManager {
 		File infoSTPFile = new File(projectDir, Project.INFOFILENAME);
 		logger.debug("infoSTPFile: " + infoSTPFile);
 		Properties stp_properties = new Properties();
-		stp_properties.load(new FileInputStream(infoSTPFile));
+		FileInputStream propFileInputStream = new FileInputStream(infoSTPFile);
+		stp_properties.load(propFileInputStream);
+		propFileInputStream.close();
 		stp_properties.setProperty(property, propValue);
-		stp_properties.store(new BufferedOutputStream(new FileOutputStream(infoSTPFile)), "");
+		BufferedOutputStream propFileWriteStream = new BufferedOutputStream(new FileOutputStream(infoSTPFile));
+		stp_properties.store(propFileWriteStream, "");
+		propFileWriteStream.close();
 	}
 
 	/**

@@ -220,7 +220,7 @@ public class Projects extends ServiceAdapter {
 			checkRequestParametersAllNotNull(propNamesPar);
 			return getProjectProperty(propNamesCompact, projectName);
 		}
-		
+
 		else if (request.equals(Req.setProjectPropertyRequest)) {
 			String propName = setHttpPar(propNamePar);
 			String propValue = setHttpPar(propValuePar);
@@ -432,18 +432,13 @@ public class Projects extends ServiceAdapter {
 	 */
 	public Response saveProjectAs(String newProjectName) {
 
-		String request = Req.saveProjectAsRequest;
 		logger.info("requested to save current project as project: " + newProjectName);
-
-		if (newProjectName.equals(ProjectManager.mainProjectName)) {
-			return servletUtilities.createReplyFAIL(request, "cannot save as the main project");
-		}
 
 		String projectName = ProjectManager.getCurrentProject().getName();
 		try {
 
 			if (ProjectManager.existsProject(newProjectName)) {
-				return servletUtilities.createReplyFAIL(request, "project " + newProjectName
+				return servletUtilities.createReplyFAIL(Req.saveProjectAsRequest, "project " + newProjectName
 						+ " already exists!");
 			}
 
@@ -451,25 +446,24 @@ public class Projects extends ServiceAdapter {
 			ProjectManager.cloneProjectToNewProject(projectName, newProjectName);
 			ProjectManager.openProject(newProjectName);
 		} catch (ModelUpdateException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (InvalidProjectNameException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (DuplicatedResourceException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (IOException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (UnavailableResourceException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (ProjectAccessException e) {
-			return logAndSendException(request, e);
+			return logAndSendException(e);
 		} catch (ProjectInexistentException e) {
 			return logAndSendException(
-					request,
 					e,
 					"weird error: ProjectManager reported that it is impossible to clone the current project because it does not exist!");
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		return servletUtilities.createReplyResponse(Req.saveProjectAsRequest, RepliesStatus.ok);
 	}
 
 	/**
