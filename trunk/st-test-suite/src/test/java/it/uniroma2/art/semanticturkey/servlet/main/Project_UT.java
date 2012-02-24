@@ -283,14 +283,14 @@ public class Project_UT extends ServiceUTFixture {
 		
 		// this is a system property
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.setProjectPropertyRequest,
-				par(Projects.propNamesPar, "defaultNamespace"), 
-				par(Projects.propNamesPar, "value")
+				par(Projects.propNamePar, "defaultNamespace"), 
+				par(Projects.propValuePar, "value")
 		);
 		assertFailREPLY(resp);
 		
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.setProjectPropertyRequest,
-				par(Projects.propNamesPar, "myProp"), 
-				par(Projects.propNamesPar, "myPropValue")
+				par(Projects.propNamePar, "myProp"), 
+				par(Projects.propValuePar, "myPropValue")
 		);
 		assertAffirmativeREPLY(resp);
 		
