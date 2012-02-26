@@ -115,7 +115,7 @@ public class SimpleViewer extends JApplet
 		frame.setVisible(true);
     }
     
-	@SuppressWarnings({ "unchecked", "serial" })
+	@SuppressWarnings({ "serial" })
 	public void init()
 	{
     	Graph<Vertex, Edge> ig = Graphs.<Vertex, Edge>synchronizedDirectedGraph(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -206,7 +206,7 @@ public class SimpleViewer extends JApplet
         jp.setBackground(Color.WHITE);
         jp.setLayout(new BorderLayout());
         jp.add(visualizationServer, BorderLayout.WEST);
-        Class[] combos = getCombos();
+        Class<?>[] combos = getCombos();
         jcb = new JComboBox(combos);
         // use a renderer to shorten the layout name presentation
         jcb.setRenderer(new DefaultListCellRenderer() {
@@ -542,7 +542,7 @@ public class SimpleViewer extends JApplet
 		}
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Class<? extends Layout>[] getCombos()
     {
         List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();

@@ -26,19 +26,19 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesStrings;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.CompareNames;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -51,7 +51,6 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -140,14 +139,14 @@ public class OntoSearch extends ServiceAdapter {
 			if (wellFormedAndAbsolute)
 				perfectMatchingResource = ontModel.createURIResource(inputStringExpandedQName);
 			if ((perfectMatchingResource != null)
-					&& (ModelUtilities.checkExistingResource(ontModel, perfectMatchingResource))) {
+					&& (ontModel.existsResource(perfectMatchingResource))) {
 				if ((ontModel instanceof RDFSModel)
 						&& ((RDFSModel) ontModel).isClass(perfectMatchingResource))
-					results.add(new Struct(VocabularyTypesStrings.cls, perfectMatchingResource, null, 1));
+					results.add(new Struct(RDFResourceRolesEnum.cls, perfectMatchingResource, null, 1));
 				else if (ontModel.isProperty(perfectMatchingResource))
-					results.add(new Struct(VocabularyTypesStrings.property, perfectMatchingResource, null, 1));
+					results.add(new Struct(RDFResourceRolesEnum.property, perfectMatchingResource, null, 1));
 				else
-					results.add(new Struct(VocabularyTypesStrings.individual, perfectMatchingResource, null,
+					results.add(new Struct(RDFResourceRolesEnum.individual, perfectMatchingResource, null,
 							1));
 			} else {
 
@@ -209,12 +208,12 @@ public class OntoSearch extends ServiceAdapter {
 								NodeFilters.MAINGRAPH);
 						logger.debug("collectResults for classes: ");
 						collectResults(searchedResources, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven, VocabularyTypesStrings.cls);
+								searchStringLocalName, namespaceGiven, RDFResourceRolesEnum.cls);
 					}
 					logger.debug("collectResults for instances: ");
 					searchedResources = ontModel.listNamedInstances();
 					collectResults(searchedResources, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.individual);
+							namespaceGiven, RDFResourceRolesEnum.individual);
 				} else { // property
 					ARTURIResourceIterator searchedProperties;
 
@@ -223,25 +222,25 @@ public class OntoSearch extends ServiceAdapter {
 						searchedProperties = ((OWLModel) ontModel).listObjectProperties(true,
 								NodeFilters.MAINGRAPH);
 						collectResults(searchedProperties, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven, VocabularyTypesStrings.objectProperty);
+								searchStringLocalName, namespaceGiven, RDFResourceRolesEnum.objectProperty);
 
 						searchedProperties = ((OWLModel) ontModel).listDatatypeProperties(true,
 								NodeFilters.MAINGRAPH);
 						collectResults(searchedProperties, results, searchStringNamespace,
 								searchStringLocalName, namespaceGiven,
-								VocabularyTypesStrings.datatypeProperty);
+								RDFResourceRolesEnum.datatypeProperty);
 
 						searchedProperties = ((OWLModel) ontModel).listAnnotationProperties(true,
 								NodeFilters.MAINGRAPH);
 						collectResults(searchedProperties, results, searchStringNamespace,
 								searchStringLocalName, namespaceGiven,
-								VocabularyTypesStrings.annotationProperty);
+								RDFResourceRolesEnum.annotationProperty);
 
 					}
 
 					searchedProperties = ontModel.listProperties(NodeFilters.MAINGRAPH);
 					collectResults(searchedProperties, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, VocabularyTypesStrings.property);
+							namespaceGiven, RDFResourceRolesEnum.property);
 				}
 
 			}
@@ -267,7 +266,7 @@ public class OntoSearch extends ServiceAdapter {
 			for (Struct result : results) {
 				Element newElement = XMLHelp.newElement(dataElement, "found");
 				newElement.setAttribute("name", rep.getQName(result._resource.getURI()));
-				newElement.setAttribute("type", result._type);
+				newElement.setAttribute("type", result._type.toString());
 			}
 		} catch (DOMException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
@@ -279,7 +278,7 @@ public class OntoSearch extends ServiceAdapter {
 	}
 
 	private void collectResults(Iterator<ARTURIResource> searchedResources, ArrayList<Struct> results,
-			String searchStringNamespace, String searchStringLocalName, boolean namespaceGiven, String type) {
+			String searchStringNamespace, String searchStringLocalName, boolean namespaceGiven, RDFResourceRolesEnum type) {
 		double match;
 		while (searchedResources.hasNext()) {
 			ARTURIResource nextClass = searchedResources.next();
@@ -308,12 +307,12 @@ public class OntoSearch extends ServiceAdapter {
 	}
 
 	private class Struct {
-		public String _type;
+		public RDFResourceRolesEnum _type;
 		public ARTURIResource _resource;
 		// public String _lexicalization;
 		public double _value;
 
-		public Struct(String type, ARTURIResource resource, String lexicalization, double value) {
+		public Struct(RDFResourceRolesEnum type, ARTURIResource resource, String lexicalization, double value) {
 			_type = type;
 			_resource = resource;
 			// _lexicalization = lexicalization;

@@ -30,7 +30,6 @@ import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.asser
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
-import it.uniroma2.art.semanticturkey.ontology.sesame2.OntologyManagerFactoryAllegroGraphImpl;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;

@@ -27,7 +27,7 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.PrefixMapping;
@@ -274,7 +274,7 @@ public class Metadata extends Resource {
 		String ontQName;
 		try {
 			ontQName = model.getQName(model.getBaseURI());
-			return getResourceDescription(ontQName, VocabularyTypesInts.ontology, templateandvalued);
+			return getResourceDescription(ontQName, RDFResourceRolesEnum.ontology, templateandvalued);
 		} catch (ModelAccessException e) {
 			logger.error("" + e);
 			return servletUtilities.createExceptionResponse(request, e);

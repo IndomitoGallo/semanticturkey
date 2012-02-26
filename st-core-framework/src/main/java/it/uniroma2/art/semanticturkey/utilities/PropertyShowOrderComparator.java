@@ -29,7 +29,6 @@ package it.uniroma2.art.semanticturkey.utilities;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 
 import java.util.Comparator;
 
@@ -46,25 +45,25 @@ public class PropertyShowOrderComparator implements Comparator<ARTURIResource> {
 	}
 	
 	public int compare(ARTURIResource prop1, ARTURIResource prop2) {
-		int type1 = assignType(prop1);
-		int type2 = assignType(prop2);
+		int type1 = assignPriority(prop1);
+		int type2 = assignPriority(prop2);
 		return type1 - type2;
 	}
 	
 	
-	private int assignType(ARTURIResource prop) {
+	private int assignPriority(ARTURIResource prop) {
 		try {
             if (rep.isObjectProperty(prop))
-            	return VocabularyTypesInts.objectProperty;
+            	return 1;
             else if (rep.isDatatypeProperty(prop))
-            	return VocabularyTypesInts.datatypeProperty;
+            	return 2;
             else if (rep.isAnnotationProperty(prop))
-            	return VocabularyTypesInts.annotationProperty;
+            	return 3;
             else if (rep.isProperty(prop))
-            	return VocabularyTypesInts.property;
-            else return VocabularyTypesInts.unknown;
+            	return 0;
+            else return 4;
         } catch (ModelAccessException e) {
-            return VocabularyTypesInts.undetermined;
+            return 5;
         }		 
 	}
 	
