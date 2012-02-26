@@ -43,17 +43,16 @@ import it.uniroma2.art.owlart.navigation.RDFIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
-import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
+import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.Collection;
@@ -314,7 +313,7 @@ public class Cls extends Resource {
 		String request = createInstanceRequest;
 		try {
 			instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceQName));
-			if (ModelUtilities.checkExistingResource(ontModel, instanceRes)) {
+			if (ontModel.existsResource(instanceRes)) {
 				return servletUtilities.createExceptionResponse(request,
 						"there is another resource with the same name!");
 			}
@@ -518,7 +517,7 @@ public class Cls extends Resource {
 
 			clsURI = ontModel.expandQName(clsQName);
 			ARTURIResource cls = ontModel.createURIResource(clsURI);
-			boolean exists = ModelUtilities.checkExistingResource(ontModel, cls);
+			boolean exists = ontModel.existsResource(cls);
 			if (!exists) {
 				logger.error("there is no resource with name: " + clsQName);
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
@@ -707,7 +706,7 @@ public class Cls extends Resource {
 			try {
 				clsURI = ontModel.expandQName(clsQName);
 				ARTURIResource cls = ontModel.createURIResource(clsURI);
-				boolean exists = ModelUtilities.checkExistingResource(ontModel, cls);
+				boolean exists = ontModel.existsResource(cls);
 				if (!exists) {
 					logger.error("there is no resource with name: " + clsQName);
 					return servletUtilities.createExceptionResponse(request,
@@ -886,7 +885,7 @@ public class Cls extends Resource {
 	 */
 	public Response getClassDescription(String subjectClassQName, String method) {
 		logger.debug("getClassDescription; qname: " + subjectClassQName);
-		return getResourceDescription(subjectClassQName, VocabularyTypesInts.cls, method);
+		return getResourceDescription(subjectClassQName, RDFResourceRolesEnum.cls, method);
 	}
 
 	public Response createClass(String newClassQName, String superClassQName) {
@@ -901,7 +900,7 @@ public class Cls extends Resource {
 			logger.debug("superClassQName: " + superClassQName + " expanded in: " + superClassURI);
 			newClassURI = ontModel.expandQName(newClassQName);
 			ARTURIResource res = ontModel.createURIResource(newClassURI);
-			boolean exists = ModelUtilities.checkExistingResource(ontModel, res);
+			boolean exists = ontModel.existsResource(res);
 			if (exists) {
 				logger.error("there is a resource with the same name!");
 				return servletUtilities.createExceptionResponse(request,
@@ -931,7 +930,7 @@ public class Cls extends Resource {
 	}
 
 	public Response getSuperClasses(String clsQName) {
-		return getSuperTypes(Cls.getSuperClassesRequest, clsQName, VocabularyTypesInts.cls);
+		return getSuperTypes(Cls.getSuperClassesRequest, clsQName, RDFResourceRolesEnum.cls);
 	}
 
 }

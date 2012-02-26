@@ -258,7 +258,7 @@ public class Project_UT extends ServiceUTFixture {
 	}
 
 	/**
-	 * checks getProjectProperty service
+	 * checks get/set ProjectProperty service
 	 */
 	@Test
 	public void testGetSetProjectProperty() {
@@ -292,13 +292,14 @@ public class Project_UT extends ServiceUTFixture {
 				par(Projects.propNamePar, "myProp"), 
 				par(Projects.propValuePar, "myPropValue")
 		);
-		assertAffirmativeREPLY(resp);
+		assertAffirmativeREPLY(resp);		
 		
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.getProjectPropertyRequest,
 				par(Projects.propNamesPar, "myProp"));
 		assertAffirmativeREPLY(resp);
 		
-
+		System.out.println(resp);
+		
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		assertAffirmativeREPLY(resp);
 
@@ -381,7 +382,7 @@ public class Project_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
-		assertAffirmativeREPLY(resp);
+		assertAffirmativeREPLY(resp);		
 
 		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
 				par(Projects.projectNamePar, "pippo"));

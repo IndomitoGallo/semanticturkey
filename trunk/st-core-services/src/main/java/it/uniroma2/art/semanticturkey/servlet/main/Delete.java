@@ -94,7 +94,7 @@ public class Delete extends ServiceAdapter {
 		ARTURIResource resource;
 		try {
 			resource = model.createURIResource(model.expandQName(encodedQName));
-			if (!ModelUtilities.checkExistingResource(model, resource))
+			if (!model.existsResource(resource))
 				return servletUtilities.createExceptionResponse("deleteResource",
 						"client/server inconsistency error: there is no resource corresponding to: " + qname
 								+ " in the ontModel!");

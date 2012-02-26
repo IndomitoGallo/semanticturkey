@@ -28,21 +28,20 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -50,7 +49,6 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Element;
 
 /**
@@ -130,7 +128,7 @@ public class Individual extends Resource {
 	 */
 	public Response getIndividualDescription(String subjectInstanceQName, String method) {
 		logger.debug("getIndDescription; qname: " + subjectInstanceQName);
-		return getResourceDescription(subjectInstanceQName, VocabularyTypesInts.individual, method);
+		return getResourceDescription(subjectInstanceQName, RDFResourceRolesEnum.individual, method);
 	}
 
 	/**
@@ -150,7 +148,7 @@ public class Individual extends Resource {
 		ARTURIResource individual;
 		try {
 			individual = ontModel.createURIResource(ontModel.expandQName(indQName));
-			if (!ModelUtilities.checkExistingResource(ontModel, individual))
+			if (!ontModel.existsResource(individual))
 				return servletUtilities.createExceptionResponse(getDirectNamedTypesRequest, indQName
 						+ " is not present in the ontology");
 
@@ -189,11 +187,11 @@ public class Individual extends Resource {
 			individual = model.createURIResource(model.expandQName(indQName));
 			ARTURIResource typeCls = model.createURIResource(model.expandQName(typeQName));
 
-			if (!ModelUtilities.checkExistingResource(model, individual))
+			if (!model.existsResource(individual))
 				return servletUtilities.createExceptionResponse(request, individual
 						+ " is not present in the ontology");
 
-			if (!ModelUtilities.checkExistingResource(model, typeCls))
+			if (!model.existsResource(typeCls))
 				return servletUtilities.createExceptionResponse(request, typeQName
 						+ " is not present in the ontology");
 

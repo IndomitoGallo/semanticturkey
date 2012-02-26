@@ -36,9 +36,8 @@ import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
-import it.uniroma2.art.owlart.vocabulary.VocabularyTypesInts;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
@@ -46,9 +45,9 @@ import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -249,7 +248,7 @@ public class Property extends Resource {
 	}
 
 	public Response getSuperProperties(String propQName) {
-		return getSuperTypes(Req.getSuperPropertiesRequest, propQName, VocabularyTypesInts.property);
+		return getSuperTypes(Req.getSuperPropertiesRequest, propQName, RDFResourceRolesEnum.property);
 	}
 
 	public Response getDomain(String propQName) {
@@ -455,7 +454,7 @@ public class Property extends Resource {
 	 */
 	public Response getPropertyInfo(String propertyQName, String method) {
 		logger.debug("getting property description for: " + propertyQName);
-		return getResourceDescription(propertyQName, VocabularyTypesInts.property, method);
+		return getResourceDescription(propertyQName, RDFResourceRolesEnum.property, method);
 	}
 
 	public final int addProperty = 0;
@@ -500,7 +499,7 @@ public class Property extends Resource {
 			// editProperty(propertyQName, request, addProperty, propertyType, superPropertyQName);
 			case addProperty: {
 
-				boolean exists = ModelUtilities.checkExistingResource(ontModel, property);
+				boolean exists = ontModel.existsResource(property);
 				if (exists) {
 					logger.error("there is a resource with the same name!");
 					return servletUtilities.createExceptionResponse(request,
@@ -628,7 +627,7 @@ public class Property extends Resource {
 			property = model.createURIResource(propertyURI);
 			individual = model.createURIResource(individualURI);
 
-			if (!ModelUtilities.checkExistingResource(model, property)) {
+			if (!model.existsResource(property)) {
 				logger.debug("there is no property named: " + propertyURI + " !");
 				return servletUtilities.createExceptionResponse(request, "there is no property named: "
 						+ propertyURI + " !");
@@ -685,7 +684,7 @@ public class Property extends Resource {
 			try {
 				valueURI = model.expandQName(valueString);
 				ARTURIResource valueObject = model.createURIResource(valueURI);
-				if (!ModelUtilities.checkExistingResource(model, valueObject)) {
+				if (!model.existsResource(valueObject)) {
 					logger.debug("there is no object named: " + valueURI + " !");
 					return servletUtilities.createExceptionResponse(request, "there is no object named: "
 							+ valueURI + " !");
@@ -712,7 +711,7 @@ public class Property extends Resource {
 					} else { // bnode
 						valueResourceObject = model.createBNode(valueString);
 					}
-					if (!ModelUtilities.checkExistingResource(model, valueResourceObject)) {
+					if (!model.existsResource(valueResourceObject)) {
 						logger.debug("there is no object: " + valueResourceObject + " !");
 						return servletUtilities.createExceptionResponse(request, "there is no object: "
 								+ valueResourceObject + " !");
