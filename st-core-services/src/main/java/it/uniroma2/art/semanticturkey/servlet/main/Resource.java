@@ -39,6 +39,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
@@ -102,7 +103,7 @@ public abstract class Resource extends ServiceAdapter {
 
 	protected String getExactResourceDescriptionRequest(RDFResourceRolesEnum resRole) {
 		switch (resRole) {
-			
+
 		case cls:
 			return classDescriptionRequest;
 		case property:
@@ -130,7 +131,8 @@ public abstract class Resource extends ServiceAdapter {
 	 *            reported
 	 * @return
 	 */
-	protected Response getResourceDescription(String resourceQName, RDFResourceRolesEnum restype, String method) {
+	protected Response getResourceDescription(String resourceQName, RDFResourceRolesEnum restype,
+			String method) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTResource resource;
 		try {
@@ -153,7 +155,7 @@ public abstract class Resource extends ServiceAdapter {
 					propertyValuesMap);
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(getExactResourceDescriptionRequest(restype), e);
+			return logAndSendException(e);
 		}
 
 	}
@@ -236,8 +238,8 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
-	protected Response getXMLResourceDescription(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
-			String method, HashSet<ARTURIResource> properties,
+	protected Response getXMLResourceDescription(OWLModel ontModel, ARTResource resource,
+			RDFResourceRolesEnum restype, String method, HashSet<ARTURIResource> properties,
 			Multimap<ARTURIResource, ARTNode> propertyValuesMap) {
 		ArrayList<ARTURIResource> sortedProperties = new ArrayList<ARTURIResource>(properties);
 		logger.debug("sortedProperties: " + sortedProperties);
@@ -246,7 +248,7 @@ public abstract class Resource extends ServiceAdapter {
 		String request = getExactResourceDescriptionRequest(restype);
 
 		// RESPONSE PREPARATION
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		dataElement.setAttribute("type", method);
 
@@ -285,7 +287,7 @@ public abstract class Resource extends ServiceAdapter {
 		if (method.equals(templateandvalued) && restype != RDFResourceRolesEnum.individual) {
 			Element superTypesElem = XMLHelp.newElement(dataElement, "SuperTypes");
 			try {
-				getSuperTypes(ontModel, resource, restype, superTypesElem);
+				collectParents(ontModel, resource, restype, superTypesElem);
 			} catch (ModelAccessException e) {
 				return ServletUtilities.getService().createExceptionResponse(request, e);
 			}
@@ -302,7 +304,7 @@ public abstract class Resource extends ServiceAdapter {
 		if (restype == RDFResourceRolesEnum.ontology) {
 			Element importsElem = XMLHelp.newElement(dataElement, "Imports");
 			try {
-				getImports(ontModel, resource.asURIResource(), importsElem);
+				collectImports(ontModel, resource.asURIResource(), importsElem);
 			} catch (ModelAccessException e) {
 				return ServletUtilities.getService().createExceptionResponse(request, e);
 			}
@@ -489,7 +491,7 @@ public abstract class Resource extends ServiceAdapter {
 			}
 			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			getSuperTypes(ontModel, cls, resType, dataElement);
+			collectParents(ontModel, cls, resType, dataElement);
 			return response;
 		} catch (ModelAccessException e) {
 			logger.error(request + ":" + e);
@@ -497,8 +499,8 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
-	protected void getSuperTypes(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype, Element superTypesElem)
-			throws ModelAccessException {
+	protected void collectParents(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
+			Element superTypesElem) throws ModelAccessException {
 		// TODO filter on admin also here
 		Collection<? extends ARTResource> directSuperTypes;
 		Collection<? extends ARTResource> directExplicitSuperTypes;
@@ -508,11 +510,17 @@ public abstract class Resource extends ServiceAdapter {
 					.listDirectSuperClasses(resource));
 			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(ontModel.listSuperClasses(
 					resource, false));
-		} else { // should be - by exclusion - properties
+		} else if (restype == RDFResourceRolesEnum.property) {
 			directSuperTypes = RDFIterators.getCollectionFromIterator(((DirectReasoning) ontModel)
 					.listDirectSuperProperties(resource));
 			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(ontModel.listSuperProperties(
 					resource.asURIResource(), false));
+		} else { // should be - by exclusion - skos concepts
+			directSuperTypes = RDFIterators.getCollectionFromIterator(((SKOSModel) ontModel).listBroaderConcepts(
+					resource.asURIResource(), false, true));
+			directExplicitSuperTypes = directSuperTypes;
+			// TODO check if to be implemented better. For the moment, we retrieve only explicit, so all of
+			// them are explicit
 		}
 
 		for (ARTResource superType : directSuperTypes) {
@@ -530,7 +538,7 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
-	protected void getImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem)
+	protected void collectImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem)
 			throws ModelAccessException {
 
 		Collection<ARTURIResource> imports;
