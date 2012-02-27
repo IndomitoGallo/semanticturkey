@@ -27,11 +27,18 @@
  */
 package it.uniroma2.art.semanticturkey.plugin.extpts;
 
+import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceRequest;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +57,8 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected ServiceRequest _oReq = null;
 	protected List<ServletListener> listeners = new ArrayList<ServletListener>();
 	protected ServletUtilities servletUtilities;
+	
+	protected ARTResource[] userGraphs;
 
 	protected HashMap<String, String> httpParameters;
 
@@ -57,6 +66,9 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		servletUtilities = ServletUtilities.getService();
 		httpParameters = new HashMap<String, String>();
 		this.id = id;
+		
+		userGraphs = new ARTResource[1];
+		userGraphs[0] = NodeFilters.ANY;
 	}
 
 	/**
@@ -181,6 +193,12 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return resp;
 	}
 
+	protected XMLResponseREPLY createReplyResponse(RepliesStatus status) {
+		return servletUtilities.createReplyResponse(httpParameters.get("request"),
+				status);
+	}
+	
+	
 	/**
 	 * this is a method invoked by this class' implementation of {@link ServiceInterface#getResponse()},
 	 * throwing specific exceptions for wrongly specific http parameters. Current implementation just throws
@@ -243,4 +261,21 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		getLogger().error(msg);
 		return ServletUtilities.getService().createExceptionResponse(request, msg, sertype);
 	}
+	
+	
+	protected ARTResource getWorkingGraph() throws ModelAccessException {
+		return NodeFilters.MAINGRAPH;
+	}
+	
+	
+	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException {
+		return userGraphs;
+	}
+	
+	
+	protected OWLModel getOWLModel() {
+		return ProjectManager.getCurrentProject().getOWLModel();
+	}
+	
+	
 }
