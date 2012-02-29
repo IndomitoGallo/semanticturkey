@@ -41,6 +41,7 @@ import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
+import it.uniroma2.art.semanticturkey.servlet.fixture.TestInitializationFailed;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -57,7 +58,7 @@ import org.w3c.dom.Element;
 public class Metadata_UT extends ServiceUTFixture {
 
 	@BeforeClass
-	public static void init() throws IOException, STInitializationException {
+	public static void init() throws IOException, STInitializationException, TestInitializationFailed {
 		ServiceTest tester = new Metadata_UT();
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");

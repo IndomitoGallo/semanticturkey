@@ -930,7 +930,7 @@ public class Cls extends Resource {
 	}
 
 	public Response getSuperClasses(String clsQName) {
-		return getSuperTypes(Cls.getSuperClassesRequest, clsQName, RDFResourceRolesEnum.cls);
+		return getSuperTypes(clsQName, RDFResourceRolesEnum.cls);
 	}
 
 }

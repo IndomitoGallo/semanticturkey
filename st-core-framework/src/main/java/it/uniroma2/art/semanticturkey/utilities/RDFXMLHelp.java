@@ -122,4 +122,8 @@ public class RDFXMLHelp {
 		return nodeElement;
 	}
 
+	public static Element addRDFNodeXMLElement(Element parent, ARTNode node) throws DOMException,
+			ModelAccessException {
+		return addRDFNodeXMLElement(parent, null, node, false, false);
+	}
 }

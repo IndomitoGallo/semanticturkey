@@ -269,15 +269,13 @@ public class Metadata extends Resource {
 	}
 
 	public Response getOntologyDescription() {
-		String request = ontologyDescriptionRequest;
 		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		String ontQName;
 		try {
 			ontQName = model.getQName(model.getBaseURI());
 			return getResourceDescription(ontQName, RDFResourceRolesEnum.ontology, templateandvalued);
 		} catch (ModelAccessException e) {
-			logger.error("" + e);
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		}
 	}
 

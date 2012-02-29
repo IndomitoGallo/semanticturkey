@@ -72,7 +72,6 @@ public class Projects extends ServiceAdapter {
 	// requests
 	public static class Req {
 		public final static String openProjectRequest = "openProject";
-		public final static String openMainProjectRequest = "openMainProject";
 		public final static String createNewProjectRequest = "newProject";
 		public final static String createNewProjectFromFileRequest = "newProjectFromFile";
 		public final static String closeProjectRequest = "closeProject";
@@ -133,10 +132,6 @@ public class Projects extends ServiceAdapter {
 			String projectName = setHttpPar(projectNamePar);
 			checkRequestParametersAllNotNull(projectNamePar);
 			return openProject(projectName);
-		}
-
-		else if (request.equals(Req.openMainProjectRequest)) {
-			return openMainProject();
 		}
 
 		else if (request.equals(Req.createNewProjectRequest)) {
@@ -318,29 +313,6 @@ public class Projects extends ServiceAdapter {
 		} catch (ProjectAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
 		}
-	}
-
-	/**
-	 * opens the main project of Semantic Turkey
-	 * 
-	 * @return
-	 */
-	public Response openMainProject() {
-
-		String request = Req.openMainProjectRequest;
-		logger.info("requested to open main project");
-
-		try {
-			ProjectManager.openMainProject();
-		} catch (ProjectAccessException e) {
-			logger.error("", e);
-			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
-		} catch (ProjectInexistentException e) {
-			logger.error("", e);
-			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
-		}
-
-		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**

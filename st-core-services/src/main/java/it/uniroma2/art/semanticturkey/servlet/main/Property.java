@@ -248,7 +248,7 @@ public class Property extends Resource {
 	}
 
 	public Response getSuperProperties(String propQName) {
-		return getSuperTypes(Req.getSuperPropertiesRequest, propQName, RDFResourceRolesEnum.property);
+		return getSuperTypes(propQName, RDFResourceRolesEnum.property);
 	}
 
 	public Response getDomain(String propQName) {

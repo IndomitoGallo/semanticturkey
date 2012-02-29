@@ -98,13 +98,15 @@ public class UpdateRoutines {
 	 * @throws IOException
 	 */
 	private static void align_from_071_to_072() {
-		File mainProjDir = Resources.getMainProjectDir();
+		String mainProjectName = "project-main";
+		File mainProjDir = new File(Resources.getSemTurkeyDataDir(), mainProjectName);
+		
 		if (mainProjDir.exists()) {
 			logger
 					.info("version 0.7.1 had a main project folder, main project is no more present (any project can be a project loaded at startup now, and this feature is completely handled by the client)");
 			try {
 				String newMainProjectName = "wasMainProject";
-				ProjectManager.cloneProjectToNewProject(ProjectManager.mainProjectName, newMainProjectName);
+				ProjectManager.cloneProjectToNewProject(mainProjectName, newMainProjectName);
 				repairProject("wasMainProject");
 
 				// Utilities.recursiveCopy(mainProjDir, new File(Resources.getProjectsDir(),

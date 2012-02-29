@@ -27,26 +27,23 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
-import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +129,8 @@ public class SystemStart extends ServiceAdapter {
 	 *         <Tree type="startResponse"> <response state="affirmative"> <baseuri
 	 *         uri="http://art.uniroma2.it/ontologies/rtv"> <ontModelImplementation id="sesame"> <response/>
 	 *         </Tree>
+	 *         
+	 * @deprecated
 	 */
 	public Response startSystem(String baseuri, String ontModelImplID, String ontMgrConfig, String ontPars) {
 
@@ -140,7 +139,7 @@ public class SystemStart extends ServiceAdapter {
 				+ "\nontModelImplID=" + ontModelImplID);
 
 		try {
-			Project<? extends RDFModel> mainProj = ProjectManager.openMainProject();
+			Project<? extends RDFModel> mainProj = ProjectManager.openProject("testProject");
 			baseuri = mainProj.getBaseURI();
 			ontModelImplID = mainProj.getOntologyManagerImplID();
 			logger.info("main project had already been initialized with these parameters:\nbaseuri="
@@ -148,6 +147,7 @@ public class SystemStart extends ServiceAdapter {
 		} catch (ProjectInexistentException e) {
 			logger.info("main project has never been initialized; initializing it now");
 
+			/*
 			// if ontModelImplID has not been specified, we guess it in case it is unique
 			if (ontModelImplID == null) {
 				ArrayList<String> IDs = PluginManager.getOntManagerImplIDs();
@@ -167,13 +167,16 @@ public class SystemStart extends ServiceAdapter {
 
 				Properties configuration = Projects.resolveConfigParameters(ontPars);
 
-				ProjectManager.createMainProject(baseuri, defaultNamespace, ontModelImplID, ontMgrConfig,
+				ProjectManager.createProject("testProject", "OWL", baseuri, ontmanager,
+					modelConfigurationClass, modelConfiguration);
+				MainProject(baseuri, defaultNamespace, ontModelImplID, ontMgrConfig,
 						configuration);
 			} catch (ProjectInconsistentException e1) {
 				return ServletUtilities.getService().createExceptionResponse(request, e1.getMessage());
 			} catch (ProjectUpdateException e1) {
 				return ServletUtilities.getService().createExceptionResponse(request, e1.getMessage());
 			}
+			*/
 		} catch (ProjectAccessException e) {
 			logger.info("problems in project creation", e);
 			return ServletUtilities.getService().createExceptionResponse(request, e.toString());

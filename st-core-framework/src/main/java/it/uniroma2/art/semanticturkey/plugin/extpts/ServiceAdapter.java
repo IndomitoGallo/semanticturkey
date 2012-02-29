@@ -29,11 +29,15 @@ package it.uniroma2.art.semanticturkey.plugin.extpts;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceRequest;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
@@ -57,7 +61,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected ServiceRequest _oReq = null;
 	protected List<ServletListener> listeners = new ArrayList<ServletListener>();
 	protected ServletUtilities servletUtilities;
-	
+
 	protected ARTResource[] userGraphs;
 
 	protected HashMap<String, String> httpParameters;
@@ -66,7 +70,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		servletUtilities = ServletUtilities.getService();
 		httpParameters = new HashMap<String, String>();
 		this.id = id;
-		
+
 		userGraphs = new ARTResource[1];
 		userGraphs[0] = NodeFilters.ANY;
 	}
@@ -193,12 +197,24 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return resp;
 	}
 
+	// RESPONSE PACKAGING
+
 	protected XMLResponseREPLY createReplyResponse(RepliesStatus status) {
-		return servletUtilities.createReplyResponse(httpParameters.get("request"),
-				status);
+		return servletUtilities.createReplyResponse(httpParameters.get("request"), status);
 	}
-	
-	
+
+	protected XMLResponseREPLY createReplyFAIL(String message) {
+		return servletUtilities.createReplyFAIL(httpParameters.get("request"), message);
+	}
+
+	protected ResponseREPLY createReplyResponse(RepliesStatus status, SerializationType ser_type) {
+		return servletUtilities.createReplyResponse(httpParameters.get("request"), status, ser_type);
+	}
+
+	public ResponseREPLY createReplyFAIL(String message, SerializationType ser_type) {
+		return servletUtilities.createReplyFAIL(_oReq.getParameter("request"), message, ser_type);
+	}
+
 	/**
 	 * this is a method invoked by this class' implementation of {@link ServiceInterface#getResponse()},
 	 * throwing specific exceptions for wrongly specific http parameters. Current implementation just throws
@@ -217,7 +233,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected Response logAndSendException(Exception e) {
 		return logAndSendException(httpParameters.get("request"), e);
 	}
-	
+
 	protected Response logAndSendException(Exception e, String msg) {
 		return logAndSendException(httpParameters.get("request"), e, msg);
 	}
@@ -225,7 +241,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected Response logAndSendException(String msg) {
 		return logAndSendException(httpParameters.get("request"), msg);
 	}
-	
+
 	/**
 	 * this convenience method prepares an exception response initialized with the given arguments, logs the
 	 * occurred exception with level "error" and prints the stack trace
@@ -242,10 +258,10 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		getLogger().error(msg);
 		return servletUtilities.createExceptionResponse(request, msg);
 	}
-	
+
 	/**
-	 * this convenience method prepares an exception response initialized with the given arguments and logs the
-	 * occurred exception with level "error"
+	 * this convenience method prepares an exception response initialized with the given arguments and logs
+	 * the occurred exception with level "error"
 	 * 
 	 * @param request
 	 * @param e
@@ -261,21 +277,26 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		getLogger().error(msg);
 		return ServletUtilities.getService().createExceptionResponse(request, msg, sertype);
 	}
-	
-	
+
 	protected ARTResource getWorkingGraph() throws ModelAccessException {
 		return NodeFilters.MAINGRAPH;
 	}
-	
-	
+
 	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException {
 		return userGraphs;
 	}
-	
-	
+
 	protected OWLModel getOWLModel() {
 		return ProjectManager.getCurrentProject().getOWLModel();
 	}
-	
-	
+
+	protected ARTURIResource retrieveQNamedResource(RDFModel model, String qname, ARTResource[] graphs)
+			throws NonExistingRDFResourceException, ModelAccessException {
+		ARTURIResource res = model.createURIResource(model.expandQName(qname));
+		if (model.existsResource(res, graphs))
+			return res;
+		throw new NonExistingRDFResourceException(res, graphs);
+
+	}
+
 }

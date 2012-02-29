@@ -94,8 +94,8 @@ public class PluginTest extends SystemStartTest {
 		resp = projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		System.out.println(resp);
 		
-		resp = projectsService.makeRequest(Projects.Req.openMainProjectRequest);
-		System.out.println(resp);
+		// resp = projectsService.makeRequest(Projects.Req.openMainProjectRequest);
+		// System.out.println(resp);
 		
 		resp = pluginsService.makeRequest(Plugins.Req.getPluginsForProjectRequest);
 	}

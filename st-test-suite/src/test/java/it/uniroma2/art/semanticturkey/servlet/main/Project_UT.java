@@ -350,43 +350,5 @@ public class Project_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 	}
 
-	/**
-	 * check if it is possible to save main project as a new project
-	 */
-	@Test
-	public void testSaveAsOfMainProject() {
-
-		Response
-
-		resp = serviceTester.systemStartService.makeRequest(
-				SystemStart.startRequest,
-				par(SystemStart.baseuriPar, "http://test.it"),
-				par(Projects.ontMgrConfigurationPar,
-						Sesame2NonPersistentInMemoryModelConfiguration.class.getName()),
-				par(Projects.ontologyTypePar, "OWL"));
-		assertAffirmativeREPLY(resp);
-
-		System.out.println(ProjectManager.getCurrentProject());
-
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.saveProjectAsRequest,
-				par(Projects.projectNamePar, ProjectManager.mainProjectName),
-				par(Projects.newProjectNamePar, "pippo"));
-		assertAffirmativeREPLY(resp);
-
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
-		assertAffirmativeREPLY(resp);
-
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.openProjectRequest,
-				par(Projects.projectNamePar, "pippo"));
-		System.out.println(resp);
-		assertAffirmativeREPLY(resp);
-
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.closeProjectRequest);
-		assertAffirmativeREPLY(resp);		
-
-		resp = serviceTester.projectsService.makeRequest(Projects.Req.deleteProjectRequest,
-				par(Projects.projectNamePar, "pippo"));
-		assertAffirmativeREPLY(resp);
-	}
 
 }

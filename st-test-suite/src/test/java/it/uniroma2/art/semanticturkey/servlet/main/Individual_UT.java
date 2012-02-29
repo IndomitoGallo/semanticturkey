@@ -30,6 +30,7 @@ import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.asser
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
+import it.uniroma2.art.semanticturkey.servlet.fixture.TestInitializationFailed;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class Individual_UT extends ServiceUTFixture {
 	
 	
 	@BeforeClass
-	public static void init() throws IOException, STInitializationException {
+	public static void init() throws IOException, STInitializationException, TestInitializationFailed {
 		ServiceTest tester = new Individual_UT();
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");

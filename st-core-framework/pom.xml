@@ -47,6 +47,13 @@
 		</plugins>		
 	</build>
 
+	<repositories>
+		<repository>
+			<id>clojars.org</id>
+			<url>http://clojars.org/repo</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>jetty</groupId>
@@ -56,11 +63,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.wcohen.ss</groupId>
+			<groupId>com.wcohen.ss.art.uniroma2.it</groupId>
 			<artifactId>secondstring</artifactId>
 			<version>2006.06.15</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>it.uniroma2.art.owlart</groupId>
