@@ -28,6 +28,8 @@ package it.uniroma2.art.semanticturkey.servlet.fixture;
 
 import it.uniroma2.art.owlart.sesame2impl.models.conf.Sesame2PersistentInMemoryModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
+import it.uniroma2.art.semanticturkey.ontology.sesame2.OntologyManagerFactorySesame2Impl;
+import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
@@ -53,10 +55,10 @@ public class ServiceUTFixture extends ServiceTest {
 	 * @throws IOException
 	 * @throws STInitializationException
 	 */
-	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath, boolean delete) throws IOException,
-			STInitializationException {		
+	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath, boolean delete)
+			throws IOException, STInitializationException {
 		serviceTester = testInst;
-		serviceTester.initialize(STDirectoryRelPath, delete);		
+		serviceTester.initialize(STDirectoryRelPath, delete);
 	}
 
 	/**
@@ -71,17 +73,32 @@ public class ServiceUTFixture extends ServiceTest {
 		initWholeTestClass(testInst, "..", true);
 	}
 
-	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath) throws IOException, STInitializationException {
+	public static void initWholeTestClass(ServiceTest testInst, String STDirectoryRelPath)
+			throws IOException, STInitializationException {
 		initWholeTestClass(testInst, STDirectoryRelPath, true);
 	}
-	
-	public static void startST() {
 
-		Response resp = serviceTester.systemStartService.makeRequest(SystemStart.startRequest, par(
-				SystemStart.baseuriPar, "http://art.uniroma2.it/ontologies/myont"), par(
-				Projects.ontMgrConfigurationPar, Sesame2PersistentInMemoryModelConfiguration.class
-						.getName()), par(Projects.ontologyTypePar, "OWL"));
+	public static void startST() throws TestInitializationFailed {
+		startST("OWL");
+	}
+
+	public static void startST(String modelType) throws TestInitializationFailed {
+
+		Response resp = serviceTester.projectsService.makeRequest(
+				Projects.Req.createNewProjectRequest,
+				par(Projects.projectNamePar, "testProject"),
+				par(Projects.baseuriPar, "http://art.uniroma2.it/ontologies/myont"),
+				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
+				par(Projects.projectTypePar, ProjectType.continuosEditing.toString()),
+				par(Projects.ontMgrConfigurationPar,
+						Sesame2PersistentInMemoryModelConfiguration.class.getName()),
+				par(Projects.ontologyTypePar, modelType));
+
 		System.out.println(resp);
+
+		if (!resp.isAffirmative())
+			throw new TestInitializationFailed();
+
 	}
 
 	/**
@@ -94,9 +111,10 @@ public class ServiceUTFixture extends ServiceTest {
 	 */
 	public static void importTestOntologyFromLocalFile(String stxOntologyURI, String ontFileName) {
 
-		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromLocalFileRequest, par(
-				Metadata.baseuriPar, stxOntologyURI), par(Metadata.localFilePathPar, "testInput/"
-				+ ontFileName), par(Metadata.mirrorFilePar, ontFileName));
+		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromLocalFileRequest,
+				par(Metadata.baseuriPar, stxOntologyURI),
+				par(Metadata.localFilePathPar, "testInput/" + ontFileName),
+				par(Metadata.mirrorFilePar, ontFileName));
 		System.out.println(resp);
 
 		resp = serviceTester.metadataService.makeRequest(Metadata.getNSPrefixMappingsRequest);
@@ -118,8 +136,7 @@ public class ServiceUTFixture extends ServiceTest {
 	 * @return
 	 */
 	public static Element getFirstElement(Response resp, String elemName) {
-		return (Element) ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName(elemName)
-		.item(0);
+		return (Element) ((XMLResponseREPLY) resp).getDataElement().getElementsByTagName(elemName).item(0);
 	}
 
 }

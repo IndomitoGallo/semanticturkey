@@ -85,7 +85,6 @@ public class ProjectManager {
 	}
 
 	public static final String triples_exchange_FileName = "ontology.nt";
-	public static final String mainProjectName = "project-main";
 
 	private static Project<? extends RDFModel> _currentProject;
 
@@ -333,50 +332,6 @@ public class ProjectManager {
 		}
 	}
 
-	/**
-	 * this method creates the main project, which is located in a dedicated folder out of the standard
-	 * project folder
-	 * 
-	 * @param baseURI
-	 * @param defaultNamespace
-	 * @param ontManagerID
-	 * @return
-	 * @throws ProjectInconsistentException
-	 * @throws ProjectUpdateException
-	 */
-	public static Project<OWLModel> createMainProject(String baseURI, String defaultNamespace,
-			String ontManagerID, String modelConfigurationClass, Properties configuration)
-			throws ProjectInconsistentException, ProjectUpdateException {
-
-		try {
-			return createProject(Resources.mainProjectName, OWLModel.class, baseURI, defaultNamespace,
-					ontManagerID, modelConfigurationClass, configuration);
-		} catch (DuplicatedResourceException e) {
-			throw new ProjectInconsistentException(
-					"inconsistent load of main project: reported error is an attempt to overwrite the main project, but this should never happen\n"
-							+ e);
-		} catch (InvalidProjectNameException e) {
-			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n"
-					+ e.getMessage());
-		} catch (ProjectCreationException e) {
-			throw new ProjectInconsistentException("inconsistent load of main project, reason:\n"
-					+ e.getMessage());
-		}
-
-	}
-
-	/**
-	 * opens the main project
-	 * 
-	 * @return
-	 * @throws ProjectAccessException
-	 * @throws ProjectAccessException
-	 * @throws ProjectInexistentException
-	 */
-	public static Project<? extends RDFModel> openMainProject() throws ProjectAccessException,
-			ProjectInexistentException {
-		return openProject(ProjectManager.mainProjectName);
-	}
 
 	/**
 	 * opens an already created project, with name <code>projectName</code>
@@ -488,8 +443,6 @@ public class ProjectManager {
 	public static File resolveProjectNameToDir(String projectName) throws InvalidProjectNameException {
 		if (!validProjectName(projectName))
 			throw new InvalidProjectNameException();
-		if (projectName.equals(mainProjectName))
-			return Resources.getMainProjectDir();
 		else
 			return new File(Resources.getProjectsDir(), projectName);
 	}

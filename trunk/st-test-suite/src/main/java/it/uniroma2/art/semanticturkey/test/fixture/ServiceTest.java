@@ -22,6 +22,7 @@ import it.uniroma2.art.semanticturkey.servlet.main.Page;
 import it.uniroma2.art.semanticturkey.servlet.main.Plugins;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
 import it.uniroma2.art.semanticturkey.servlet.main.Property;
+import it.uniroma2.art.semanticturkey.servlet.main.SKOS;
 import it.uniroma2.art.semanticturkey.servlet.main.SPARQL;
 import it.uniroma2.art.semanticturkey.servlet.main.Statement;
 import it.uniroma2.art.semanticturkey.servlet.main.Synonyms;
@@ -74,6 +75,7 @@ public abstract class ServiceTest {
 	public ServiceWrapper statementService;
 	public ServiceWrapper environmentService;
 	public ServiceWrapper ontManagerService;
+	public ServiceWrapper skosService;
 
 	public void initialize(boolean delete) throws STInitializationException, IOException {
 		initialize("..", delete);
@@ -208,6 +210,7 @@ public abstract class ServiceTest {
 		sparqlService = new ServiceHttpWrapper("sparql", httpclient);
 		statementService = new ServiceHttpWrapper("statement", httpclient);
 		ontManagerService = new ServiceHttpWrapper("ontManager", httpclient);
+		skosService = new ServiceHttpWrapper("skos", httpclient);
 	}
 
 	protected void initializeServiceDirectWrappers() {
@@ -230,6 +233,7 @@ public abstract class ServiceTest {
 		sparqlService = new ServiceDirectWrapper(new SPARQL(""));
 		statementService = new ServiceDirectWrapper(new Statement(""));
 		ontManagerService = new ServiceDirectWrapper(new OntManager(""));
+		skosService = new ServiceDirectWrapper(new SKOS(""));
 	}
 
 	public static ParameterPair par(String par, String value) {

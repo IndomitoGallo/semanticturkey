@@ -57,7 +57,6 @@ public class Resources {
 	private static final String _ontTempDirLocalName = "ont-temp";
 	private static final String _ontMirrorDirDefaultLocationLocalName = "ontologiesMirror";
 	private static final String _projectsDirName = "projects";
-	public static final String mainProjectName = "project-main";
 
 	private static String _ontLibraryDir;
 
@@ -204,10 +203,6 @@ public class Resources {
 
 	public static File getProjectsDir() {
 		return new File(_userDirectoryPath, _projectsDirName);
-	}
-
-	public static File getMainProjectDir() {
-		return new File(_userDirectoryPath, mainProjectName);
 	}
 
 	/**

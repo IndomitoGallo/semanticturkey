@@ -32,6 +32,7 @@ import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
+import it.uniroma2.art.semanticturkey.servlet.fixture.TestInitializationFailed;
 import it.uniroma2.art.semanticturkey.servlet.main.Statement;
 import it.uniroma2.art.semanticturkey.servlet.parse.StatementParse;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
@@ -51,7 +52,7 @@ import org.w3c.dom.Element;
 public class Statement_UT extends ServiceUTFixture {
 
 	@BeforeClass
-	public static void init() throws IOException, STInitializationException {
+	public static void init() throws IOException, STInitializationException, TestInitializationFailed {
 		ServiceTest tester = new Statement_UT();
 		ServiceUTFixture.initWholeTestClass(tester);
 		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");

@@ -24,30 +24,34 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.filter.ConceptsInSchemePredicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
-import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+
+import com.google.common.collect.Iterators;
 
 public class SKOS extends Resource {
 
@@ -74,8 +78,10 @@ public class SKOS extends Resource {
 
 		// REMOVE REQUESTS
 		public static final String deleteConceptRequest = "deleteConcept";
+		public static final String deleteSchemeRequest = "deleteScheme";
 		public static final String removePrefLabelRequest = "removePrefLabel";
 		public static final String removeAltLabelRequest = "removeAltLabel";
+		public static final String removeConceptFromSchemeRequest = "removeConceptFromScheme";
 
 		// TREE (ONLY FOR DEBUGGING)
 		public static final String showSKOSConceptsTreeRequest = "showSKOSConceptsTree";
@@ -87,6 +93,8 @@ public class SKOS extends Resource {
 		final static public String concept = "concept";
 		final static public String conceptFrom = "conceptFrom";
 		final static public String conceptTo = "conceptTo";
+		final static public String forceDeleteDanglingConcepts = "forceDeleteDanglingConcepts";
+		final static public String setForceDeleteDanglingConcepts = "setForceDeleteDanglingConcepts";
 		final static public String label = "label";
 		final static public String langTag = "lang";
 		final static public String newConcept = "newConcept";
@@ -130,6 +138,12 @@ public class SKOS extends Resource {
 			checkRequestParametersAllNotNull(Par.concept, "method");
 			response = getConceptDescription(conceptName, method);
 
+		} else if (request.equals(conceptSchemeDescriptionRequest)) {
+			String schemeName = setHttpPar(Par.scheme);
+			String method = setHttpPar("method");
+			checkRequestParametersAllNotNull(Par.scheme, "method");
+			response = getConceptSchemeDescription(schemeName, method);
+
 		} else if (request.equals(Req.getTopConceptsRequest)) {
 			String schemaURI = setHttpPar(Par.scheme);
 			String defaultLanguage = setHttpPar(Par.langTag);
@@ -139,11 +153,12 @@ public class SKOS extends Resource {
 
 		} else if (request.equals(Req.getNarrowerConceptsRequest)) {
 			String conceptName = setHttpPar(Par.concept);
+			String schemeName = setHttpPar(Par.scheme);
 			boolean treeView = setHttpBooleanPar(Par.treeView);
 			String defaultLanguage = setHttpPar(Par.langTag);
 			checkRequestParametersAllNotNull(Par.concept);
 			logger.debug("SKOS.getNarrowerConceptsRequest:" + response);
-			response = getNarrowerConcepts(conceptName, treeView, defaultLanguage);
+			response = getNarrowerConcepts(conceptName, schemeName, treeView, defaultLanguage);
 
 		} else if (request.equals(Req.getPrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
@@ -166,6 +181,14 @@ public class SKOS extends Resource {
 			logger.debug("SKOS.removeConceptRequest:" + response);
 			response = deleteConcept(concept);
 
+		} else if (request.equals(Req.deleteSchemeRequest)) {
+			String scheme = setHttpPar(Par.scheme);
+			boolean setForceDeleteDanglingConcepts = setHttpBooleanPar(Par.setForceDeleteDanglingConcepts);
+			boolean forceDeleteDanglingConcepts = setHttpBooleanPar(Par.forceDeleteDanglingConcepts);
+			checkRequestParametersAllNotNull(Par.scheme);
+			logger.debug("SKOS.deleteSchemeRequest:" + response);
+			response = deleteScheme(scheme, setForceDeleteDanglingConcepts, forceDeleteDanglingConcepts);
+
 		} else if (request.equals(Req.removePrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String lang = setHttpPar(Par.langTag);
@@ -182,18 +205,14 @@ public class SKOS extends Resource {
 			logger.debug("SKOS." + Req.removeAltLabelRequest + ":\n" + response);
 			response = removeAltLabel(skosConceptName, label, lang);
 
-			// ADD SKOS METHODS
-		} else if (request.equals(Req.createConceptRequest)) {
-			String conceptName = setHttpPar(Par.concept);
-			String broaderConceptName = setHttpPar(Par.broaderConcept);
-			String schemeName = setHttpPar(Par.scheme);
-			String prefLabel = setHttpPar(Par.prefLabel);
-			String prefLabelLanguage = setHttpPar(Par.langTag);
+		} else if (request.equals(Req.removeConceptFromSchemeRequest)) {
+			String concept = setHttpPar(Par.concept);
+			String scheme = setHttpPar(Par.scheme);
 			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
-			logger.debug("SKOS.addConceptRequest:" + response);
-			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
-					prefLabelLanguage);
+			logger.debug("SKOS.removeConceptFromSchemeRequest:" + response);
+			response = removeConceptFromScheme(concept, scheme);
 
+			// ADD SKOS METHODS
 		} else if (request.equals(Req.addBroaderConceptRequest)) {
 			// newConcept, relatedConcept,rdfsLabel,
 			// rdfsLabelLanguage,preferredLabel,preferredLabelLanguage
@@ -227,6 +246,18 @@ public class SKOS extends Resource {
 			response = addAltLabel(skosConceptName, label, lang);
 
 			// CREATE SKOS METHODS
+			
+		} else if (request.equals(Req.createConceptRequest)) {
+			String conceptName = setHttpPar(Par.concept);
+			String broaderConceptName = setHttpPar(Par.broaderConcept);
+			String schemeName = setHttpPar(Par.scheme);
+			String prefLabel = setHttpPar(Par.prefLabel);
+			String prefLabelLanguage = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
+			logger.debug("SKOS.createConceptRequest:" + response);
+			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
+					prefLabelLanguage);			
+			
 		} else if (request.equals(Req.createSchemeRequest)) {
 			String schemeName = setHttpPar(Par.scheme);
 			String preferredLabel = setHttpPar(Par.prefLabel);
@@ -242,7 +273,7 @@ public class SKOS extends Resource {
 		}
 
 		else
-			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
 		return response;
@@ -263,15 +294,18 @@ public class SKOS extends Resource {
 		return response;
 	}
 
-	
 	public Response getConceptDescription(String conceptName, String method) {
 		logger.debug("getConceptDescription; name: " + conceptName);
 		return getResourceDescription(conceptName, RDFResourceRolesEnum.concept, method);
 	}
-	
+
+	public Response getConceptSchemeDescription(String schemeName, String method) {
+		logger.debug("getConceptSchemeDescription; name: " + schemeName);
+		return getResourceDescription(schemeName, RDFResourceRolesEnum.conceptScheme, method);
+	}
+
 	public Response deleteConcept(String concept) {
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(Req.deleteConceptRequest,
-				RepliesStatus.ok);
+		ResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		logger.debug("remove concept");
 		logger.debug("concept: " + concept);
 
@@ -290,9 +324,36 @@ public class SKOS extends Resource {
 		return response;
 	}
 
+	public Response deleteScheme(String schemeName, boolean setForceDeleteDanglingConcepts,
+			boolean forceDeleteDanglingConcepts) {
+		ResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		logger.debug("remove scheme: " + schemeName);
+		try {
+
+			SKOSModel skosModel = getSKOSModel();
+			ARTURIResource scheme = skosModel.retrieveURIResource(skosModel.expandQName(schemeName),
+					getUserNamedGraphs());
+			if (scheme == null || skosModel.isSKOSConceptScheme(scheme, getUserNamedGraphs()))
+				return logAndSendException("resource" + scheme + " does not exist or is not a scheme");
+
+			if (!setForceDeleteDanglingConcepts) {
+				if (skosModel.listConceptsInScheme(scheme, getUserNamedGraphs()).streamOpen())
+					return createReplyFAIL("the scheme is not empty. Assign dangling concepts to other"
+							+ "schemes or express your preference about removing or not the dangling concepts");
+			}
+
+			skosModel.deleteScheme(scheme, forceDeleteDanglingConcepts, getWorkingGraph());
+
+		} catch (ModelAccessException e) {
+			logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			logAndSendException(e);
+		}
+		return response;
+	}
+
 	public Response createConceptScheme(String schemeQName, String prefLabel, String lang) {
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
-				Req.createSchemeRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		logger.debug("new scheme name: " + schemeQName);
 
 		try {
@@ -380,6 +441,33 @@ public class SKOS extends Resource {
 		return response;
 	}
 
+	public Response removeConceptFromScheme(String conceptQName, String schemeQName) {
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		logger.debug("concept: " + conceptQName);
+		logger.debug("scheme: " + schemeQName);
+
+		try {
+
+			SKOSModel skosModel = getSKOSModel();
+			ARTURIResource concept = skosModel.retrieveURIResource(skosModel.expandQName(conceptQName),
+					getUserNamedGraphs());
+			ARTURIResource scheme = skosModel.retrieveURIResource(skosModel.expandQName(schemeQName));
+
+			if (concept == null)
+				return logAndSendException(concept + " is not present in the scheme");
+			if (scheme == null)
+				return logAndSendException(scheme + " is not present in the scheme");
+
+			skosModel.removeConceptFromScheme(concept, scheme, getWorkingGraph());
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+
 	public Response createConcept(String conceptName, String superConceptName, String schemeName,
 			String prefLabel, String prefLabelLang) {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
@@ -390,18 +478,21 @@ public class SKOS extends Resource {
 			ARTResource wrkGraph = getWorkingGraph();
 			SKOSModel skosModel = getSKOSModel();
 			ARTResource[] graphs = getUserNamedGraphs();
+			
 			ARTURIResource newConcept = skosModel.createURIResource(skosModel.expandQName(conceptName));
-			ARTURIResource superConcept;
-			if (superConceptName != null)
-				superConcept = skosModel.createURIResource(skosModel.expandQName(superConceptName));
-			else
-				superConcept = NodeFilters.NONE;
-			ARTURIResource conceptScheme = skosModel.createURIResource(skosModel.expandQName(schemeName));
-
-			if (isExistingResource(skosModel, newConcept, graphs)) {
-				return logAndSendException("not possible to add: " + newConcept
+			if (skosModel.existsResource(newConcept, graphs)) {
+				return logAndSendException("not possible to create: " + newConcept
 						+ "; there is a resource with the same name!");
 			}
+			
+			ARTURIResource superConcept;
+			if (superConceptName != null)
+				superConcept = retrieveQNamedResource(skosModel, superConceptName, graphs);
+			else
+				superConcept = NodeFilters.NONE;
+			
+			ARTURIResource conceptScheme = retrieveQNamedResource(skosModel, schemeName, graphs);
+
 
 			// add new concept...
 			logger.debug("adding concept to graph: " + wrkGraph);
@@ -418,9 +509,11 @@ public class SKOS extends Resource {
 			makeConceptXML(skosModel, newConcept, conceptElement, false, prefLabelLang);
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(Req.createConceptRequest, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(Req.createConceptRequest, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -429,23 +522,35 @@ public class SKOS extends Resource {
 	 * get the narrower concepts of a given concept. To be used for building skos trees in UI applications.
 	 * 
 	 * @param conceptName
+	 * @param schemeName
+	 *            if !=null, filters the narrower concepts only among those who belong to the given scheme
 	 * @param TreeView
 	 *            if true, then information about the availability of narrower concepts of <concept> is
 	 *            produced
 	 * @param defaultLanguage
 	 * @return
 	 */
-	public Response getNarrowerConcepts(String conceptName, boolean TreeView, String defaultLanguage) {
+	public Response getNarrowerConcepts(String conceptName, String schemeName, boolean TreeView,
+			String defaultLanguage) {
 		SKOSModel skosModel = getSKOSModel();
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			Element dataElement = response.getDataElement();
-			ARTURIResource concept = skosModel.createURIResource(skosModel.expandQName(conceptName));
-			ARTURIResourceIterator it = skosModel.listNarrowerConcepts(concept, false, true,
+			ARTURIResource concept = retrieveQNamedResource(skosModel, conceptName, getUserNamedGraphs()); 
+			ARTURIResourceIterator unfilteredIt = skosModel.listNarrowerConcepts(concept, false, true,
 					getUserNamedGraphs());
-
+			Iterator<ARTURIResource> it;
+			if (schemeName != null) {
+				ARTURIResource scheme = retrieveQNamedResource(skosModel, schemeName, getUserNamedGraphs()); 
+				it = Iterators.filter(unfilteredIt, ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
+			} else {
+				it = unfilteredIt;
+			}
 			makeConceptListXML(skosModel, dataElement, it, TreeView, defaultLanguage);
+			unfilteredIt.close();
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 		return response;
@@ -453,8 +558,7 @@ public class SKOS extends Resource {
 
 	public Response getAllSchemesList(String defaultLanguage) {
 		SKOSModel skosModel = (SKOSModel) ProjectManager.getCurrentProject().getOntModel();
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
-				Req.getAllSchemesListRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 		logger.debug("[getAllSchemesList] defaultLanguage: " + defaultLanguage);
 
@@ -474,7 +578,7 @@ public class SKOS extends Resource {
 			}
 
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(Req.getAllSchemesListRequest, e);
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -703,14 +807,13 @@ public class SKOS extends Resource {
 		subConceptsIterator.close();
 	}
 
-	private void makeConceptListXML(SKOSModel skosModel, Element dataElement, ARTURIResourceIterator it,
+	private void makeConceptListXML(SKOSModel skosModel, Element dataElement, Iterator<ARTURIResource> it,
 			boolean treeView, String defaultLanguage) throws DOMException, ModelAccessException {
-		while (it.streamOpen()) {
+		while (it.hasNext()) {
 			ARTURIResource concept = it.next();
 			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
 			makeConceptXML(skosModel, concept, conceptElement, treeView, defaultLanguage);
 		}
-		it.close();
 	}
 
 	// TODO good idea to have a single method for XML-rendering concepts, but I don't like the fact that it
@@ -737,28 +840,6 @@ public class SKOS extends Resource {
 				conceptElement.setAttribute("more", "0");
 		}
 		conceptElement.setAttribute("label", getConceptLabel(concept, defaultLanguage));
-	}
-
-	/**
-	 * this method checks that there is at least a triple referencing the given named resource
-	 * <code>res</code> seeAlso: {@link RDFModel#retrieveURIResource(String, ARTResource...)}
-	 * 
-	 * @param model
-	 * @param res
-	 * @return
-	 * @throws ModelAccessException
-	 */
-	public static boolean isExistingResource(RDFModel model, ARTResource res, ARTResource[] graphs)
-			throws ModelAccessException {
-		if (model.hasTriple(res, NodeFilters.ANY, NodeFilters.ANY, true, graphs))
-			return true;
-		if (model.hasTriple(NodeFilters.ANY, NodeFilters.ANY, res, true, graphs))
-			return true;
-		if (res.isURIResource())
-			if (model.hasTriple(NodeFilters.ANY, res.asURIResource(), NodeFilters.ANY, true, graphs))
-				return true;
-
-		return false;
 	}
 
 	@SuppressWarnings("unchecked")
