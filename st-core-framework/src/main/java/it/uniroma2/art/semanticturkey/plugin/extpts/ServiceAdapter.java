@@ -33,6 +33,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -285,6 +286,11 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException {
 		return userGraphs;
 	}
+	
+	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException {
+		RDFModel model = ProjectManager.getCurrentProject().getOntModel();
+		return model.listNamedGraphs();
+	} 
 
 	protected OWLModel getOWLModel() {
 		return ProjectManager.getCurrentProject().getOWLModel();
