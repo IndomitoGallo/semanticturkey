@@ -333,7 +333,7 @@ public class SKOS extends Resource {
 			SKOSModel skosModel = getSKOSModel();
 			ARTURIResource scheme = skosModel.retrieveURIResource(skosModel.expandQName(schemeName),
 					getUserNamedGraphs());
-			if (scheme == null || skosModel.isSKOSConceptScheme(scheme, getUserNamedGraphs()))
+			if (scheme == null || !skosModel.isSKOSConceptScheme(scheme, getUserNamedGraphs()))
 				return logAndSendException("resource" + scheme + " does not exist or is not a scheme");
 
 			if (!setForceDeleteDanglingConcepts) {

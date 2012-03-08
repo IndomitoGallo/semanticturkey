@@ -158,13 +158,11 @@ public class Cls extends Resource {
 			response = getSuperClasses(clsQName);
 		} else if (request.equals(getSubClassesRequest)) {
 			String clsQName = setHttpPar(clsQNameField);
-			String tree = setHttpPar(treePar);
-			String instNum = setHttpPar(instNumPar);
+			boolean tree = setHttpBooleanPar(treePar);
+			boolean instNum = setHttpBooleanPar(instNumPar);
 			checkRequestParametersAllNotNull(clsQNameField);
-			boolean treeBool = (tree == null) ? false : (Boolean.parseBoolean(tree));
-			boolean instNumBool = (instNum == null) ? false : (Boolean.parseBoolean(instNum));
 			String labelQuery = setHttpPar(labelQueryPar);
-			response = getSubClasses(clsQName, treeBool, instNumBool, labelQuery);
+			response = getSubClasses(clsQName, tree, instNum, labelQuery);
 		} else if (request.equals(getClassesInfoAsRootsForTreeRequest)) {
 			String clsesQNames = setHttpPar(clsesQNamesPar);
 			String instNum = setHttpPar(instNumPar);
@@ -207,6 +205,152 @@ public class Cls extends Resource {
 		return response;
 	}
 
+	/**
+	 * retrieves subclasses of class identified by qname clsQname. The response provides additional info
+	 * depending on other arguments' values
+	 * 
+	 * @param clsQName
+	 * @param forTree
+	 *            <code>true</code> if this request has been performed to fill an ontology class tree. In this
+	 *            case, an attribute called "more" is being provided for each subclass. If its value is 1 then
+	 *            the subclass has subclasses itself
+	 * @param instNum
+	 *            <code>true</code> if the user is interested in knowing the number of instances per concept
+	 * @param labelQuery
+	 *            if != <code>null</code>, then this String is used to drive custom label providers to return
+	 *            appropriate labels to be shown in place of the class qname. Built-in label provider allows
+	 *            for retrieving values of a property attached to the class, by using this syntax:<br/>
+	 * <br/>
+	 *            <code>prop:&lt;propertyqname&gt;[#&lt;iso code for language&gt;]</code><br/>
+	 * <br/>
+	 *            example: "prop:rdfs:label###en" will show the value on property <em>rdfs:label</em> for the
+	 *            english language, instead of the class qname<br/>
+	 *            the reponse to this method may be a WARNING reply in case the labelQuery does not identify a
+	 *            valid property to be used for retrieving labels
+	 * @return
+	 */
+	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
+
+		String request = getSubClassesRequest;
+		try {
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+
+			String clsURI;
+
+			clsURI = ontModel.expandQName(clsQName);
+			ARTURIResource cls = ontModel.createURIResource(clsURI);
+			boolean exists = ontModel.existsResource(cls);
+			if (!exists) {
+				logger.error("there is no resource with name: " + clsQName);
+				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
+						+ clsQName);
+			}
+
+			ARTURIResource labelProp = null;
+			String requestedISOLang = null;
+			if (labelQuery != null) {
+				if (labelQuery.startsWith("prop:")) {
+					String queryString = labelQuery.substring(5); // remove the "prop:"
+					String[] propStringElements = queryString.split("###");
+					String propertyQName = propStringElements[0];
+					if (propStringElements.length > 1)
+						requestedISOLang = propStringElements[1];
+
+					String propURI = ontModel.expandQName(propertyQName);
+					labelProp = ontModel.retrieveURIResource(propURI);
+					if (labelProp == null)
+						response.setReplyStatusWARNING("label query msg: " + queryString
+								+ " returned no valid property in the ontology");
+				}
+			}
+
+			logger.debug("labelProp: " + labelProp);
+
+			// creating named subclasses iterator
+			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
+
+			while (subClassesIterator.streamOpen()) {
+				ARTURIResource subClass = subClassesIterator.getNext();
+				Element classElement = XMLHelp.newElement(dataElement, "class");
+
+				boolean deleteForbidden = servletUtilities.checkWriteOnly(subClass);
+				classElement.setAttribute("deleteForbidden", Boolean.toString(deleteForbidden));
+
+				classElement.setAttribute("name", ontModel.getQName(subClass.getURI()));
+
+				if (instNum) {
+					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel,
+							subClass, true, NodeFilters.MAINGRAPH);
+					if (numInst > 0)
+						classElement.setAttribute("numInst", "(" + numInst + ")");
+					else
+						classElement.setAttribute("numInst", "0");
+				}
+
+				if (forTree) {
+					RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel,
+							subClass);
+					if (subSubClassesIterator.hasNext())
+						classElement.setAttribute("more", "1"); // the subclass has further subclasses
+					else
+						classElement.setAttribute("more", "0"); // the subclass has no subclasses itself
+					subSubClassesIterator.close();
+				}
+
+				if (labelProp != null) {
+					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(subClass, labelProp, false);
+
+					if (it.streamOpen()) {
+						String label = null;
+						ARTNode nodeLabel = it.getNext();
+						logger.debug("nodeLabel: " + nodeLabel);
+						// if node is not a Literal, then get its String representation as the label for the
+						// class, else if there is no specified iso-language code, get the label from the
+						// literal else get the first value whose language matches the specified iso-language
+						if (nodeLabel.isLiteral()) {
+							if (requestedISOLang == null) {
+								label = nodeLabel.asLiteral().getLabel();
+								logger.debug("no preferred ISO language, getting first available label: "
+										+ label);
+							} else {
+								// the rationale behind this odd nested loop is to avoid all other checks
+								// (such as the availability of the requestedISOLang or checking the nature of
+								// the nodeLabel) to be repeated for each value of the label property
+								while (label == null) {
+									ARTLiteral literalLabel = nodeLabel.asLiteral();
+									String gotISOLang = literalLabel.getLanguage();
+									logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
+									if (gotISOLang.equals(requestedISOLang)) {
+										label = literalLabel.getLabel();
+									}
+									if (it.streamOpen())
+										nodeLabel = it.getNext();
+									else
+										break;
+								}
+							}
+						} else
+							label = nodeLabel.toString();
+
+						if (label != null)
+							classElement.setAttribute("label", label);
+					}
+				}
+
+			}
+			subClassesIterator.close();
+			return response;
+
+		} catch (ModelAccessException e) {
+			logger.error(request + ":" + e);
+			return servletUtilities.createExceptionResponse(request, e);
+		}
+
+	}	
+	
+	
 	/**
 	 * 
 	 * @author Armando Stellato
@@ -483,148 +627,7 @@ public class Cls extends Resource {
 		subClassesIterator.close();
 	}
 
-	/**
-	 * retrieves subclasses of class identified by qname clsQname. The response provides additional info
-	 * depending on other arguments' values
-	 * 
-	 * @param clsQName
-	 * @param forTree
-	 *            <code>true</code> if this request has been performed to fill an ontology class tree. In this
-	 *            case, an attribute called "more" is being provided for each subclass. If its value is 1 then
-	 *            the subclass has subclasses itself
-	 * @param instNum
-	 *            <code>true</code> if the user is interested in knowing the number of instances per concept
-	 * @param labelQuery
-	 *            if != <code>null</code>, then this String is used to drive custom label providers to return
-	 *            appropriate labels to be shown in place of the class qname. Built-in label provider allows
-	 *            for retrieving values of a property attached to the class, by using this syntax:<br/>
-	 *            <code>prop:&lt;propertyqname&gt;[#&lt;iso code for language&gt;]</code><br/>
-	 *            example: "prop:rdfs:label###en" will show the value on property <em>rdfs:label</em> for the
-	 *            english language, instead of the class qname<br/>
-	 *            the reponse to this method may be a WARNING reply in case the labelQuery does not identify a
-	 *            valid property to be used for retrieving labels
-	 * @return
-	 */
-	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
-		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
-		String request = getSubClassesRequest;
-		try {
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
-			Element dataElement = response.getDataElement();
-
-			String clsURI;
-
-			clsURI = ontModel.expandQName(clsQName);
-			ARTURIResource cls = ontModel.createURIResource(clsURI);
-			boolean exists = ontModel.existsResource(cls);
-			if (!exists) {
-				logger.error("there is no resource with name: " + clsQName);
-				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
-						+ clsQName);
-			}
-
-			ARTURIResource labelProp = null;
-			String requestedISOLang = null;
-			if (labelQuery != null) {
-				if (labelQuery.startsWith("prop:")) {
-					String queryString = labelQuery.substring(5); // remove the "prop:"
-					String[] propStringElements = queryString.split("###");
-					String propertyQName = propStringElements[0];
-					if (propStringElements.length > 1)
-						requestedISOLang = propStringElements[1];
-
-					String propURI = ontModel.expandQName(propertyQName);
-					labelProp = ontModel.retrieveURIResource(propURI);
-					if (labelProp == null)
-						response.setReplyStatusWARNING("label query msg: " + queryString
-								+ " returned no valid property in the ontology");
-				}
-			}
-
-			logger.debug("labelProp: " + labelProp);
-
-			// creating named subclasses iterator
-			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
-
-			while (subClassesIterator.streamOpen()) {
-				ARTURIResource subClass = subClassesIterator.getNext();
-				Element classElement = XMLHelp.newElement(dataElement, "class");
-
-				boolean deleteForbidden = servletUtilities.checkWriteOnly(subClass);
-				classElement.setAttribute("deleteForbidden", Boolean.toString(deleteForbidden));
-
-				classElement.setAttribute("name", ontModel.getQName(subClass.getURI()));
-
-				if (instNum) {
-					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel,
-							subClass, true, NodeFilters.MAINGRAPH);
-					if (numInst > 0)
-						classElement.setAttribute("numInst", "(" + numInst + ")");
-					else
-						classElement.setAttribute("numInst", "0");
-				}
-
-				if (forTree) {
-					RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel,
-							subClass);
-					if (subSubClassesIterator.hasNext())
-						classElement.setAttribute("more", "1"); // the subclass has further subclasses
-					else
-						classElement.setAttribute("more", "0"); // the subclass has no subclasses itself
-					subSubClassesIterator.close();
-				}
-
-				if (labelProp != null) {
-					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(subClass, labelProp, false);
-
-					if (it.streamOpen()) {
-						String label = null;
-						ARTNode nodeLabel = it.getNext();
-						logger.debug("nodeLabel: " + nodeLabel);
-						// if node is not a Literal, then get its String representation as the label for the
-						// class, else if there is no specified iso-language code, get the label from the
-						// literal else get the first value whose language matches the specified iso-language
-						if (nodeLabel.isLiteral()) {
-							if (requestedISOLang == null) {
-								label = nodeLabel.asLiteral().getLabel();
-								logger.debug("no preferred ISO language, getting first available label: "
-										+ label);
-							} else {
-								// the rationale behind this odd nested loop is to avoid all other checks
-								// (such as the availability of the requestedISOLang or checking the nature of
-								// the nodeLabel) to be repeated for each value of the label property
-								while (label == null) {
-									ARTLiteral literalLabel = nodeLabel.asLiteral();
-									String gotISOLang = literalLabel.getLanguage();
-									logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
-									if (gotISOLang.equals(requestedISOLang)) {
-										label = literalLabel.getLabel();
-									}
-									if (it.streamOpen())
-										nodeLabel = it.getNext();
-									else
-										break;
-								}
-							}
-						} else
-							label = nodeLabel.toString();
-
-						if (label != null)
-							classElement.setAttribute("label", label);
-					}
-				}
-
-			}
-			subClassesIterator.close();
-			return response;
-
-		} catch (ModelAccessException e) {
-			logger.error(request + ":" + e);
-			return servletUtilities.createExceptionResponse(request, e);
-		}
-
-	}
 
 	private class subClassesIterator implements RDFIterator<ARTURIResource> {
 
@@ -717,8 +720,8 @@ public class Cls extends Resource {
 				// class name
 				classElement.setAttribute("name", ontModel.getQName(cls.getURI()));
 				// class deletable?
-				classElement.setAttribute("deleteForbidden", Boolean.toString(servletUtilities
-						.checkWriteOnly(cls)));
+				classElement.setAttribute("deleteForbidden",
+						Boolean.toString(servletUtilities.checkWriteOnly(cls)));
 				// class has children?
 				RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
 				if (subClassesIterator.hasNext())

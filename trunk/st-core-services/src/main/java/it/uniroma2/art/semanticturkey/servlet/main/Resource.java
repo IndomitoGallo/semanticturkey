@@ -123,7 +123,7 @@ public abstract class Resource extends ServiceAdapter {
 		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
 		logger.debug("class for the ontModel is: " + ontModel.getClass());
 		OWLModel owlModel = ProjectManager.getCurrentProject().getOWLModel();
-		
+
 		ARTResource resource;
 		try {
 			resource = ontModel.createURIResource(ontModel.expandQName(resourceQName));
@@ -163,8 +163,9 @@ public abstract class Resource extends ServiceAdapter {
 	protected void extractTemplateProperties(OWLModel ontModel, ARTResource resource,
 			HashSet<ARTURIResource> properties) throws ModelAccessException {
 
-		Collection<ARTResource> types = RDFIterators.getCollectionFromIterator(ontModel.listTypes(resource,
-				true));
+		ARTResource[] graphs = getUserNamedGraphs();
+
+		ARTResourceIterator types = ontModel.listTypes(resource, true, graphs);
 
 		// TYPES FILTER preparation
 		// gets only domain types, no rdf/rdfs/owl language classes cited in the types nor, if in userStatus,
@@ -180,7 +181,7 @@ public abstract class Resource extends ServiceAdapter {
 		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(prunedPredicates);
 
 		logger.debug("types for " + resource + ": " + types);
-		Iterator<ARTResource> filteredTypesIterator = Iterators.filter(types.iterator(), typesFilter);
+		Iterator<ARTResource> filteredTypesIterator = Iterators.filter(types, typesFilter);
 		while (filteredTypesIterator.hasNext()) {
 			ARTResource typeCls = (ARTResource) filteredTypesIterator.next();
 			if (typeCls.isURIResource()) {
@@ -191,31 +192,30 @@ public abstract class Resource extends ServiceAdapter {
 				}
 			}
 		}
+		types.close();
 	}
 
 	// TODO generate specific filters for classes, properties and individuals
-	protected void extractValuedProperties(OWLModel ontModel, RDFResourceRolesEnum restype, ARTResource resource,
-			HashSet<ARTURIResource> properties, Multimap<ARTURIResource, ARTNode> propertyValuesMap)
-			throws ModelAccessException {
+	protected void extractValuedProperties(OWLModel ontModel, RDFResourceRolesEnum restype,
+			ARTResource resource, HashSet<ARTURIResource> properties,
+			Multimap<ARTURIResource, ARTNode> propertyValuesMap) throws ModelAccessException {
 		ARTStatementIterator stit = ontModel.listStatements(resource, NodeFilters.ANY, NodeFilters.ANY, true);
 
 		bannedPredicatesForResourceDescription = new ArrayList<ARTURIResource>();
-				
-		if (restype==RDFResourceRolesEnum.ontology) {
+
+		if (restype == RDFResourceRolesEnum.ontology) {
 			bannedPredicatesForResourceDescription.add(OWL.Res.IMPORTS);
-		}
-		else if (restype==RDFResourceRolesEnum.cls) {			
-			bannedPredicatesForResourceDescription.add(RDFS.Res.SUBCLASSOF);	
-		}
-		else if (restype==RDFResourceRolesEnum.property) {			
-			bannedPredicatesForResourceDescription.add(RDFS.Res.SUBPROPERTYOF);	
+		} else if (restype == RDFResourceRolesEnum.cls) {
+			bannedPredicatesForResourceDescription.add(RDFS.Res.SUBCLASSOF);
+		} else if (restype == RDFResourceRolesEnum.property) {
+			bannedPredicatesForResourceDescription.add(RDFS.Res.SUBPROPERTYOF);
 			bannedPredicatesForResourceDescription.add(RDFS.Res.DOMAIN);
 			bannedPredicatesForResourceDescription.add(RDFS.Res.RANGE);
 			bannedPredicatesForResourceDescription.add(OWL.Res.INVERSEOF);
-		}
-		else if (restype==RDFResourceRolesEnum.concept) {
+		} else if (restype == RDFResourceRolesEnum.concept) {
 			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.BROADER);
-			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.BROADERTRANSITIVE);
+			bannedPredicatesForResourceDescription
+					.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.BROADERTRANSITIVE);
 			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.PREFLABEL);
 			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.ALTLABEL);
 		}
@@ -243,7 +243,7 @@ public abstract class Resource extends ServiceAdapter {
 	protected Response getXMLResourceDescription(RDFModel ontModel, ARTResource resource,
 			RDFResourceRolesEnum restype, String method, HashSet<ARTURIResource> properties,
 			Multimap<ARTURIResource, ARTNode> propertyValuesMap) {
-				
+
 		OWLModel owlModel = toOWLModel(ontModel);
 		ArrayList<ARTURIResource> sortedProperties = new ArrayList<ARTURIResource>(properties);
 		logger.debug("sortedProperties: " + sortedProperties);
@@ -293,17 +293,18 @@ public abstract class Resource extends ServiceAdapter {
 				if (restype == RDFResourceRolesEnum.concept || restype == RDFResourceRolesEnum.conceptScheme) {
 					ARTLiteral prefLabel = ((SKOSModel) ontModel).getPrefLabel(resource.asURIResource(),
 							getLanguagePref(), true, getUserNamedGraphs());
-					if (prefLabel!=null) {
+					if (prefLabel != null) {
 						Element labelsElem = XMLHelp.newElement(dataElement, "prefLabel");
 						labelsElem.setTextContent(prefLabel.getLabel());
 						labelsElem.setAttribute("lang", prefLabel.getLanguage());
 					}
 				}
-				
+
 				// TOPCONCEPTS
 				if (restype == RDFResourceRolesEnum.conceptScheme) {
 					Element topConceptsElem = XMLHelp.newElement(dataElement, "topConcepts");
-					collectTopConcepts((SKOSModel)ontModel, resource.asURIResource(), restype, topConceptsElem);
+					collectTopConcepts((SKOSModel) ontModel, resource.asURIResource(), restype,
+							topConceptsElem);
 				}
 
 			} catch (ModelAccessException e) {
@@ -578,7 +579,6 @@ public abstract class Resource extends ServiceAdapter {
 		return lang != null ? lang : "en";
 	}
 
-	
 	// assuming that the input model is an OWL or a SKOS(SKOSXL) one
 	public OWLModel toOWLModel(RDFModel model) {
 		if (model instanceof OWLModel)
@@ -587,5 +587,5 @@ public abstract class Resource extends ServiceAdapter {
 			// if (proj.getOntologyType().equals(OntologyType.SKOS))
 			return ((SKOSModel) model).getOWLModel();
 	}
-	
+
 }

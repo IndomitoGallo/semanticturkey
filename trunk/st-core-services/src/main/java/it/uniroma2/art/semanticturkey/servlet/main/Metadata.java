@@ -286,10 +286,9 @@ public class Metadata extends Resource {
 	 */
 	public Response getNamedGraphs() {
 		String request = getNamedGraphsRequest;
-		RDFModel owlModel = ProjectManager.getCurrentProject().getOntModel();
 		try {
-			ARTResourceIterator it = owlModel.listNamedGraphs();
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			ARTResourceIterator it = listNamedGraphs();
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			while (it.streamOpen()) {
 				Element ngElem = XMLHelp.newElement(dataElement, "namedgraph");
@@ -565,7 +564,7 @@ public class Metadata extends Resource {
 		return response;
 	}
 
-	// vedere cmq se � possibile definire in qualche modo in javascript degli alberi infiniti
+	// vedere cmq se è possibile definire in qualche modo in javascript degli alberi infiniti
 	/**
 	 * gets the namespace mapping for the loaded ontology
 	 * 
