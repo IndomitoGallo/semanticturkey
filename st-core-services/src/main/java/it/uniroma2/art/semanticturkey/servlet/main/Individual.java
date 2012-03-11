@@ -27,7 +27,6 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
@@ -36,13 +35,13 @@ import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.Collection;
@@ -137,23 +136,19 @@ public class Individual extends Resource {
 	 * 
 	 */
 	public Response getDirectNamedTypes(String indQName) {
-		ServletUtilities servletUtilities = new ServletUtilities();
 		logger.debug("replying to \"getTypes(" + indQName + ").");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
-				getDirectNamedTypesRequest, RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		ARTURIResource individual;
 		try {
-			individual = ontModel.createURIResource(ontModel.expandQName(indQName));
-			if (!ontModel.existsResource(individual))
-				return servletUtilities.createExceptionResponse(getDirectNamedTypesRequest, indQName
-						+ " is not present in the ontology");
+			ARTResource[] graphs = getUserNamedGraphs();
+			individual = retrieveExistingResource(ontModel, indQName, graphs);
 
-			ARTResourceIterator directTypesIterator = ((DirectReasoning) ontModel)
-					.listDirectTypes(individual);
+			ARTResourceIterator directTypesIterator = ((DirectReasoning) ontModel).listDirectTypes(
+					individual, graphs);
 
 			while (directTypesIterator.streamOpen()) {
 				ARTResource type = directTypesIterator.getNext();
@@ -164,7 +159,9 @@ public class Individual extends Resource {
 			}
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(getDirectNamedTypesRequest, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		return response;
@@ -177,43 +174,32 @@ public class Individual extends Resource {
 	 * 
 	 */
 	public Response addType(String indQName, String typeQName) {
-		ServletUtilities servletUtilities = new ServletUtilities();
 		logger.debug("replying to \"addType(" + indQName + "," + typeQName + ")\".");
 		OWLModel model = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
-		String request = addTypeRequest;
 
 		ARTURIResource individual;
 		try {
-			individual = model.createURIResource(model.expandQName(indQName));
-			ARTURIResource typeCls = model.createURIResource(model.expandQName(typeQName));
-
-			if (!model.existsResource(individual))
-				return servletUtilities.createExceptionResponse(request, individual
-						+ " is not present in the ontology");
-
-			if (!model.existsResource(typeCls))
-				return servletUtilities.createExceptionResponse(request, typeQName
-						+ " is not present in the ontology");
+			ARTResource[] graphs = getUserNamedGraphs();
+			individual = retrieveExistingResource(model, indQName, graphs);
+			ARTURIResource typeCls = retrieveExistingResource(model, typeQName, graphs);
 
 			Collection<ARTResource> types = RDFIterators.getCollectionFromIterator(((DirectReasoning) model)
-					.listDirectTypes(individual));
+					.listDirectTypes(individual, graphs));
 
 			if (types.contains(typeCls))
-				return servletUtilities.createExceptionResponse(request, typeQName
-						+ " is already a type for: " + indQName);
+				return logAndSendException(typeQName + " is not a type for: " + indQName);
 
-			model.addType(individual, typeCls);
+			model.addType(individual, typeCls, getWorkingGraph());
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			logger.debug(Utilities.printStackTrace(e));
-			return servletUtilities.createExceptionResponse(request, "error in adding type: " + typeQName
-					+ " to individual " + indQName + ": " + e.getMessage());
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);
@@ -228,62 +214,48 @@ public class Individual extends Resource {
 	 * 
 	 */
 	public Response removeType(String indQName, String typeQName) {
-		ServletUtilities servletUtilities = new ServletUtilities();
 		logger.debug("replying to \"removeType(" + indQName + "," + typeQName + ")\".");
 		OWLModel model = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
-		String request = removeTypeRequest;
 
-		ARTResource individual;
 		try {
-			individual = model.createURIResource(model.expandQName(indQName));
-			ARTResource typeCls = model.createURIResource(model.expandQName(typeQName));
-
-			if (individual == null)
-				return servletUtilities.createExceptionResponse(request, indQName
-						+ " is not present in the ontology");
-
-			if (typeCls == null)
-				return servletUtilities.createExceptionResponse(request, typeQName
-						+ " is not present in the ontology");
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTResource individual = retrieveExistingResource(model, indQName, graphs);
+			ARTURIResource typeCls = retrieveExistingResource(model, typeQName, graphs);
 
 			Collection<ARTResource> types = RDFIterators.getCollectionFromIterator(((DirectReasoning) model)
-					.listDirectTypes(individual));
+					.listDirectTypes(individual, graphs));
 
 			if (!types.contains(typeCls))
-				return servletUtilities.createExceptionResponse(request, typeQName + " is not a type for: "
-						+ indQName);
+				return logAndSendException(typeQName + " is not a type for: " + indQName);
 
-			if (!model.hasTriple(individual, RDF.Res.TYPE, typeCls, false, NodeFilters.MAINGRAPH))
-				return servletUtilities
-						.createExceptionResponse(
-								request,
-								"this type relationship comes from an imported ontology or has been inferred, so it cannot be deleted explicitly");
+			if (!model.hasTriple(individual, RDF.Res.TYPE, typeCls, false, getWorkingGraph()))
+				return logAndSendException("this type relationship comes from an imported ontology or has been inferred, so it cannot be deleted explicitly");
 
-			model.removeType(individual, typeCls);
+			model.removeType(individual, typeCls, getWorkingGraph());
 
 			if (types.size() == 1)
-				keepCareOfOrphaneResource(model, individual);
+				keepCareOfOrphaneResource(model, individual, graphs);
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, "error in removing type: " + typeQName
-					+ " from individual " + indQName + ": " + e.getMessage());
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element typeElement = XMLHelp.newElement(dataElement, "Type");
 		typeElement.setAttribute("qname", typeQName);
 		return response;
 	}
 
-	private void keepCareOfOrphaneResource(OWLModel model, ARTResource individual)
+	private void keepCareOfOrphaneResource(OWLModel model, ARTResource individual, ARTResource[] graphs)
 			throws ModelAccessException, ModelUpdateException {
-		ARTResourceIterator it = model.listTypes(individual, true, NodeFilters.MAINGRAPH);
+		ARTResourceIterator it = model.listTypes(individual, true, graphs);
 		if (!it.streamOpen())
-			model.addType(individual, OWL.Res.THING);
+			model.addType(individual, OWL.Res.THING, getWorkingGraph());
 	}
 
 }

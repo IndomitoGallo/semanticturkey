@@ -32,7 +32,6 @@ import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
@@ -46,6 +45,7 @@ import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
@@ -75,7 +75,7 @@ import com.google.common.collect.Iterators;
  * <li>creating a new instance from a given class(<em> move it to {@link Individual} !</li>
  * </ul>
  * 
- * @author Donato Griesi, Armando Stellato, Andrea Turbati
+ * @author Armando Stellato, Andrea Turbati, Donato Griesi
  * 
  */
 public class Cls extends Resource {
@@ -232,22 +232,15 @@ public class Cls extends Resource {
 	public Response getSubClasses(String clsQName, boolean forTree, boolean instNum, String labelQuery) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
-		String request = getSubClassesRequest;
 		try {
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 
-			String clsURI;
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
 
-			clsURI = ontModel.expandQName(clsQName);
-			ARTURIResource cls = ontModel.createURIResource(clsURI);
-			boolean exists = ontModel.existsResource(cls);
-			if (!exists) {
-				logger.error("there is no resource with name: " + clsQName);
-				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
-						+ clsQName);
-			}
-
+			// TODO I would replace this with a general check attached to the idea of creating representation
+			// of resources
 			ARTURIResource labelProp = null;
 			String requestedISOLang = null;
 			if (labelQuery != null) {
@@ -269,7 +262,7 @@ public class Cls extends Resource {
 			logger.debug("labelProp: " + labelProp);
 
 			// creating named subclasses iterator
-			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
+			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
 
 			while (subClassesIterator.streamOpen()) {
 				ARTURIResource subClass = subClassesIterator.getNext();
@@ -282,7 +275,7 @@ public class Cls extends Resource {
 
 				if (instNum) {
 					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel,
-							subClass, true, NodeFilters.MAINGRAPH);
+							subClass, true, graphs);
 					if (numInst > 0)
 						classElement.setAttribute("numInst", "(" + numInst + ")");
 					else
@@ -299,8 +292,12 @@ public class Cls extends Resource {
 					subSubClassesIterator.close();
 				}
 
+				// TODO I would replace this with a general check attached to the idea of creating
+				// representation
+				// of resources
 				if (labelProp != null) {
-					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(subClass, labelProp, false);
+					ARTNodeIterator it = ontModel
+							.listValuesOfSubjPredPair(subClass, labelProp, false, graphs);
 
 					if (it.streamOpen()) {
 						String label = null;
@@ -344,13 +341,13 @@ public class Cls extends Resource {
 			return response;
 
 		} catch (ModelAccessException e) {
-			logger.error(request + ":" + e);
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
-	}	
-	
-	
+	}
+
 	/**
 	 * 
 	 * @author Armando Stellato
@@ -365,25 +362,22 @@ public class Cls extends Resource {
 			direct = false;
 		logger.debug("replying to \"getInstancesListXML(" + clsQName + ")\"");
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
-		ARTURIResource cls;
-		try {
-			String clsURI = ontModel.expandQName(clsQName);
-			cls = ontModel.createURIResource(clsURI);
-			if (cls == null)
-				return servletUtilities.createExceptionResponse(getClassAndInstancesInfoRequest, "class: "
-						+ clsQName + " is not present in the ontModel");
 
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(getClassAndInstancesInfoRequest,
-					RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			dataElement.setAttribute("type", "Instpanel");
 			Element root = XMLHelp.newElement(dataElement, "Class");
-			root.setAttribute("name", ontModel.getQName(clsURI));
+			root.setAttribute("name", clsQName);
 
 			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkWriteOnly(cls)));
 
 			if (hasSubClassesRequest) {
-				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls);
+				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls,
+						graphs);
 				if (subSubClassesIterator.hasNext())
 					root.setAttribute("more", "1"); // the subclass has further subclasses
 				else
@@ -396,30 +390,33 @@ public class Cls extends Resource {
 			// reported in brackets near the classes in the classs tree (he has to find the class by
 			// its name!)
 			String numTotInst = ""
-					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, direct);
+					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, direct,
+							graphs);
 			root.setAttribute("numTotInst", numTotInst);
 			// again, to sync with the class tree (update the number of instances near the name of the
 			// classes)
-			createInstancesXMLList(ontModel, cls, direct, root);
+			createInstancesXMLList(ontModel, cls, direct, root, graphs);
 			return response;
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(getClassAndInstancesInfoRequest, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 
-	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element element)
-			throws ModelAccessException {
+	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element element,
+			ARTResource... graphs) throws ModelAccessException {
 		Element instancesElement = XMLHelp.newElement(element, "Instances");
 
 		// TODO filter on admin also here
 		ARTResourceIterator instancesIterator;
 		if (direct)
-			instancesIterator = ((DirectReasoning) ontModel).listDirectInstances(cls);
+			instancesIterator = ((DirectReasoning) ontModel).listDirectInstances(cls, graphs);
 		else
-			instancesIterator = ontModel.listInstances(cls, true);
+			instancesIterator = ontModel.listInstances(cls, true, graphs);
 
 		Collection<ARTResource> explicitInstances = RDFIterators.getCollectionFromIterator(ontModel
-				.listInstances(cls, false, NodeFilters.MAINGRAPH));
+				.listInstances(cls, false, getWorkingGraph()));
 
 		while (instancesIterator.streamOpen()) {
 			ARTResource instance = instancesIterator.getNext();
@@ -454,32 +451,27 @@ public class Cls extends Resource {
 	public Response createInstanceOption(String instanceQName, String clsQName) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource instanceRes;
-		String request = createInstanceRequest;
 		try {
 			instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceQName));
 			if (ontModel.existsResource(instanceRes)) {
-				return servletUtilities.createExceptionResponse(request,
-						"there is another resource with the same name!");
+				return logAndSendException("there is another resource with the same name!");
 			}
-			ARTURIResource clsRes = ontModel.createURIResource(ontModel.expandQName(clsQName));
+			ARTURIResource clsRes = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs());
 			ontModel.addInstance(ontModel.expandQName(instanceQName), clsRes);
-			logger.debug("dopo add instance");
 			return updateClassOnTree(clsQName, instanceQName);
 		} catch (ModelAccessException e) {
-			logger.error("instance creation error: ", e);
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, "instance creation error: "
-					+ e.getMessage());
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 
 	public Response updateClassOnTree(String clsQName, String instanceName) {
-		String request = createInstanceRequest;
-		ServletUtilities servletUtilities = new ServletUtilities();
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		try {
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element clsElement = XMLHelp.newElement(dataElement, "Class");
 			ARTResource cls;
@@ -488,13 +480,16 @@ public class Cls extends Resource {
 			cls = ontModel.createURIResource(clsURI);
 			clsElement.setAttribute("clsName", ontModel.getQName(clsURI));
 			String numTotInst = ""
-					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true);
+					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true,
+							getUserNamedGraphs());
 			clsElement.setAttribute("numTotInst", numTotInst);
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
-			instanceElement.setAttribute("instanceName", servletUtilities.decodeLabel(instanceName));
+			// instanceElement.setAttribute("instanceName", servletUtilities.decodeLabel(instanceName));
+			instanceElement.setAttribute("instanceName", instanceName); // think the decodeLabel is no more
+																		// necessary
 			return response;
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return logAndSendException(e);
 		}
 
 	}
@@ -508,23 +503,16 @@ public class Cls extends Resource {
 	 */
 	public Response getClassSubTreeXML(String clsQName) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
-		ARTURIResource cls;
-		String request = getClassTreeRequest;
-		try {
-			cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
-		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
-		}
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		ARTURIResource cls;		
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
-			this.recursiveCreateClassesXMLTree(ontModel, cls, dataElement);
+			cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
+			this.recursiveCreateClassesXMLTree(ontModel, cls, dataElement, getUserNamedGraphs());
 		} catch (DOMException e) {
-			return ServletUtilities.getService().createExceptionResponse(request,
-					"exception raised in building the classes tree: " + e.getMessage());
+			return logAndSendException("exception raised in building the classes tree: " + e.getMessage());
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -545,15 +533,13 @@ public class Cls extends Resource {
 	 * </data>
 	 * </tt>
 	 * 
-	 *@return Response tree
+	 * @return Response tree
 	 */
 	public Response createClassXMLTree() {
 
-		String request = getClassTreeRequest;
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		Predicate<ARTResource> exclusionPredicate;
@@ -562,19 +548,22 @@ public class Cls extends Resource {
 		else
 			exclusionPredicate = DomainResourcePredicate.domResPredicate;
 
+		
+		// TODO I should have "graphs" in the filter constructor too
 		Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(ontModel),
 				exclusionPredicate);
 		try {
-			ARTURIResourceIterator namedClassesIt = ontModel.listNamedClasses(true);
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResourceIterator namedClassesIt = ontModel.listNamedClasses(true, graphs);
 			Iterator<ARTURIResource> filtIt;
 			filtIt = Iterators.filter(namedClassesIt, rootUserClsPred);
 			while (filtIt.hasNext()) {
 				ARTURIResource cls = filtIt.next().asURIResource();
-				recursiveCreateClassesXMLTree(ontModel, cls, dataElement);
+				recursiveCreateClassesXMLTree(ontModel, cls, dataElement, graphs);
 			}
 			namedClassesIt.close();
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return logAndSendException(e);
 		}
 
 		return response;
@@ -602,13 +591,13 @@ public class Cls extends Resource {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	void recursiveCreateClassesXMLTree(RDFSModel ontModel, ARTURIResource cls, Element element)
-			throws DOMException, ModelAccessException {
+	void recursiveCreateClassesXMLTree(RDFSModel ontModel, ARTURIResource cls, Element element,
+			ARTResource... graphs) throws DOMException, ModelAccessException {
 		Element classElement = XMLHelp.newElement(element, "Class");
 		boolean deleteForbidden = servletUtilities.checkWriteOnly(cls);
 		classElement.setAttribute("name", ontModel.getQName(cls.getURI()));
 
-		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true);
+		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true, graphs);
 		if (numInst > 0)
 			classElement.setAttribute("numInst", "(" + numInst + ")");
 		else
@@ -616,25 +605,25 @@ public class Cls extends Resource {
 
 		classElement.setAttribute("deleteForbidden", Boolean.toString(deleteForbidden));
 
-		ARTResourceIterator subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(cls);
+		ARTResourceIterator subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(cls,
+				graphs);
 		Iterator<ARTResource> namedSubClassesIterator = Iterators.filter(subClassesIterator,
 				URIResourcePredicate.uriFilter);
 		Element subClassesElem = XMLHelp.newElement(classElement, "SubClasses");
 		while (namedSubClassesIterator.hasNext()) {
 			ARTURIResource subClass = namedSubClassesIterator.next().asURIResource();
-			recursiveCreateClassesXMLTree(ontModel, subClass, subClassesElem);
+			recursiveCreateClassesXMLTree(ontModel, subClass, subClassesElem, graphs);
 		}
 		subClassesIterator.close();
 	}
-
-
 
 	private class subClassesIterator implements RDFIterator<ARTURIResource> {
 
 		RDFIterator<? extends ARTResource> subClassesIterator;
 		Iterator<? extends ARTResource> finalIterator;
 
-		subClassesIterator(RDFSModel ontModel, ARTURIResource superCls) throws ModelAccessException {
+		subClassesIterator(RDFSModel ontModel, ARTURIResource superCls, ARTResource... graphs)
+				throws ModelAccessException {
 			// to check that even with a non-owl reasoning triple-store, root classes are computed as children
 			// of owl:Thing
 			if (superCls.equals(OWL.Res.THING)) {
@@ -648,11 +637,11 @@ public class Cls extends Resource {
 				Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(
 						ontModel), exclusionPredicate);
 
-				subClassesIterator = ontModel.listNamedClasses(true, NodeFilters.MAINGRAPH);
+				subClassesIterator = ontModel.listNamedClasses(true, graphs);
 				finalIterator = Iterators.filter(subClassesIterator, rootUserClsPred);
 
 			} else {
-				subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(superCls);
+				subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(superCls, graphs);
 				finalIterator = Iterators.filter(subClassesIterator, URIResourcePredicate.uriFilter);
 			}
 		}
@@ -697,24 +686,15 @@ public class Cls extends Resource {
 	public Response getClassesInfoAsRootsForTree(String clsesQNamesString, boolean instNumBool) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
-		String request = getClassesInfoAsRootsForTreeRequest;
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
 		String[] clsesQNames = clsesQNamesString.split("\\|_\\|");
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			for (String clsQName : clsesQNames) {
 
-		for (String clsQName : clsesQNames) {
-
-			String clsURI;
-			try {
-				clsURI = ontModel.expandQName(clsQName);
-				ARTURIResource cls = ontModel.createURIResource(clsURI);
-				boolean exists = ontModel.existsResource(cls);
-				if (!exists) {
-					logger.error("there is no resource with name: " + clsQName);
-					return servletUtilities.createExceptionResponse(request,
-							"there is no resource with name: " + clsQName);
-				}
+				ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
 
 				Element classElement = XMLHelp.newElement(dataElement, "class");
 				// class name
@@ -723,7 +703,7 @@ public class Cls extends Resource {
 				classElement.setAttribute("deleteForbidden",
 						Boolean.toString(servletUtilities.checkWriteOnly(cls)));
 				// class has children?
-				RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls);
+				RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
 				if (subClassesIterator.hasNext())
 					classElement.setAttribute("more", "1"); // the subclass has further subclasses
 				else
@@ -732,18 +712,17 @@ public class Cls extends Resource {
 
 				if (instNumBool) {
 					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls,
-							true);
+							true, graphs);
 					if (numInst > 0)
 						classElement.setAttribute("numInst", "(" + numInst + ")");
 					else
 						classElement.setAttribute("numInst", "0");
 				}
-
-			} catch (ModelAccessException e) {
-				logger.error(request + ":" + e);
-				return servletUtilities.createExceptionResponse(request, e);
 			}
-
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 
@@ -763,43 +742,33 @@ public class Cls extends Resource {
 	public Response addSuperClass(String clsQName, String superclsQName) {
 		logger.debug("replying to \"addSuperClass(" + clsQName + "," + superclsQName + ")\".");
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
-		String request = addSuperClsRequest;
 
-		ARTURIResource cls;
-		String superClsURI;
 		try {
-			superClsURI = ontModel.expandQName(superclsQName);
-			cls = ontModel.retrieveURIResource(ontModel.expandQName(clsQName));
-			ARTURIResource superCls = ontModel.retrieveURIResource(superClsURI);
-			if (cls == null)
-				return ServletUtilities.getService().createExceptionResponse(request,
-						clsQName + " is not present in the ontology");
-
-			if (superCls == null)
-				return ServletUtilities.getService().createExceptionResponse(request,
-						superclsQName + " is not present in the ontology");
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+			ARTURIResource superCls = retrieveExistingResource(ontModel, superclsQName, graphs);
 
 			Collection<ARTResource> superClasses = RDFIterators
-					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls));
+					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls,
+							graphs));
 
 			if (superClasses.contains(superCls))
-				return ServletUtilities.getService().createExceptionResponse(request,
-						superclsQName + " is already a type for: " + clsQName);
+				return logAndSendException(superclsQName + " is already a superclass of: " + clsQName);
 
 			ontModel.addSuperClass(cls, superCls);
 
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-					RepliesStatus.ok);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			Element typeElement = XMLHelp.newElement(dataElement, "Type");
-			typeElement.setAttribute("qname", ontModel.getQName(superClsURI));
+			Element superClsElement = XMLHelp.newElement(dataElement, "Type");
+			superClsElement.setAttribute("qname", superclsQName);
 			return response;
 
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return ServletUtilities.getService().createExceptionResponse(request,
-					"error in adding type: " + superclsQName + " to cls " + clsQName + ": " + e.getMessage());
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 	}
@@ -814,56 +783,42 @@ public class Cls extends Resource {
 	public Response removeSuperClass(String clsQName, String superClassQName) {
 		logger.debug("replying to \"removeType(" + clsQName + "," + superClassQName + ")\".");
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
-		ServletUtilities servletUtilities = ServletUtilities.getService();
-		String request = removeSuperClsRequest;
-		ARTResource cls;
-		String superClassURI;
+
 		try {
-			superClassURI = ontModel.expandQName(superClassQName);
-			cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
-			ARTResource superCls = ontModel.createURIResource(superClassURI);
-
-			if (cls == null)
-				return servletUtilities.createExceptionResponse(request, clsQName
-						+ " is not present in the ontology");
-
-			if (superCls == null)
-				return servletUtilities.createExceptionResponse(request, superClassQName
-						+ " is not present in the ontology");
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+			ARTResource superCls = retrieveExistingResource(ontModel, superClassQName, graphs);
 
 			Collection<ARTResource> superClasses = RDFIterators
-					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls));
+					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls,
+							graphs));
 
 			if (!superClasses.contains(superCls))
-				return servletUtilities.createExceptionResponse(request, superClassQName
-						+ " is not a superclass for: " + clsQName);
+				return logAndSendException(superClassQName + " is not a superclass for: " + clsQName);
 
-			if (!ontModel.hasTriple(cls, RDFS.Res.SUBCLASSOF, superCls, false, NodeFilters.MAINGRAPH))
-				return servletUtilities
-						.createExceptionResponse(
-								request,
-								"this sublcass relationship comes from an imported ontology or has been inferred, so it cannot be deleted explicitly");
+			if (!ontModel.hasTriple(cls, RDFS.Res.SUBCLASSOF, superCls, false, getWorkingGraph()))
+				return logAndSendException("this sublcass relationship comes from an imported ontology or has been inferred, so it cannot be deleted explicitly");
 
 			ontModel.removeSuperClass(cls, superCls);
 
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-					RepliesStatus.ok);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
-			typeElement.setAttribute("qname", ontModel.getQName(superClassURI));
+			typeElement.setAttribute("qname", superClassQName);
 			return response;
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, "error in removing superclass: "
-					+ superClassQName + " from class " + clsQName + ": " + e.getMessage());
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 	}
 
 	/**
-	 * very similar to {@link Individual#getIndividualDescription(String, String)} , it contains additional
+	 * very similar to {@link INSIndividual#getIndividualDescription(String, String)} , it contains additional
 	 * features for classes (rdfs:subClassOf property is reported apart).
 	 * 
 	 * @param subjectClassQName
@@ -892,42 +847,34 @@ public class Cls extends Resource {
 	}
 
 	public Response createClass(String newClassQName, String superClassQName) {
-		String request = createClassRequest;
-		logger.debug("willing to create class: " + newClassQName + " as subClassOf: " + superClassQName);
+		logger.debug("creating class: " + newClassQName + " as subClassOf: " + superClassQName);
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
-		logger.debug("ontModel: " + ontModel);
-		String newClassURI;
-		String superClassURI;
 		try {
-			superClassURI = ontModel.expandQName(superClassQName);
-			logger.debug("superClassQName: " + superClassQName + " expanded in: " + superClassURI);
-			newClassURI = ontModel.expandQName(newClassQName);
+			String newClassURI = ontModel.expandQName(newClassQName);
 			ARTURIResource res = ontModel.createURIResource(newClassURI);
 			boolean exists = ontModel.existsResource(res);
-			if (exists) {
-				logger.error("there is a resource with the same name!");
-				return servletUtilities.createExceptionResponse(request,
-						"there is a resource with the same name!");
+			if (exists) {				
+				return logAndSendException("there is a resource with the same name!");
 			}
-			ARTResource superClassResource = ontModel.createURIResource(superClassURI);
-			logger.debug("trying to create class: " + newClassURI + " as subClassOf: " + superClassResource);
+			ARTResource superClassResource = retrieveExistingResource(ontModel, superClassQName, getUserNamedGraphs());
 
 			ontModel.addClass(newClassURI);
 			ontModel.addSuperClass(res, superClassResource);
 
-			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
-					RepliesStatus.ok);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element clsElement = XMLHelp.newElement(dataElement, "class");
 			clsElement.setAttribute("name", ontModel.getQName(newClassURI));
 			Element superClsElement = XMLHelp.newElement(dataElement, "superclass");
-			superClsElement.setAttribute("name", ontModel.getQName(superClassURI));
+			superClsElement.setAttribute("name", superClassQName);
 			return response;
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 	}
