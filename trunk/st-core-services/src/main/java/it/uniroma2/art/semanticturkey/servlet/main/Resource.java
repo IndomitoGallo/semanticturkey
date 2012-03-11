@@ -51,6 +51,7 @@ import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -126,25 +127,28 @@ public abstract class Resource extends ServiceAdapter {
 
 		ARTResource resource;
 		try {
-			resource = ontModel.createURIResource(ontModel.expandQName(resourceQName));
+			ARTResource[] graphs = getUserNamedGraphs();
+			resource = retrieveExistingResource(ontModel, resourceQName, graphs);
 			HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
 
 			// TEMPLATE PROPERTIES (properties which can be shown since the selected instance has at least a
 			// type which falls in their domain)
-			extractTemplateProperties(owlModel, resource, properties);
+			extractTemplateProperties(owlModel, resource, properties, graphs);
 
 			// VALUED PROPERTIES (properties over which the selected instance has one or more values)
 			Multimap<ARTURIResource, ARTNode> propertyValuesMap = HashMultimap.create();
 			// if I want the collection of values for each property to be a set, i could use MultiValueMap,
 			// and define an HashSet Factory
 			if (method.equals(templateandvalued)) {
-				extractValuedProperties(owlModel, restype, resource, properties, propertyValuesMap);
+				extractValuedProperties(owlModel, restype, resource, properties, propertyValuesMap, graphs);
 			}
 			// XML COMPILATION SECTION
 			return getXMLResourceDescription(ontModel, resource, restype, method, properties,
-					propertyValuesMap);
+					propertyValuesMap, graphs);
 
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 
@@ -161,9 +165,7 @@ public abstract class Resource extends ServiceAdapter {
 	 * @throws ModelAccessException
 	 */
 	protected void extractTemplateProperties(OWLModel ontModel, ARTResource resource,
-			HashSet<ARTURIResource> properties) throws ModelAccessException {
-
-		ARTResource[] graphs = getUserNamedGraphs();
+			HashSet<ARTURIResource> properties, ARTResource... graphs) throws ModelAccessException {
 
 		ARTResourceIterator types = ontModel.listTypes(resource, true, graphs);
 
@@ -185,8 +187,9 @@ public abstract class Resource extends ServiceAdapter {
 		while (filteredTypesIterator.hasNext()) {
 			ARTResource typeCls = (ARTResource) filteredTypesIterator.next();
 			if (typeCls.isURIResource()) {
-				Iterator<ARTURIResource> filteredPropsIterator = Iterators.filter(
-						ontModel.listPropertiesForDomainClass(typeCls, true), propsExclusionPredicate);
+				Iterator<ARTURIResource> filteredPropsIterator = Iterators
+						.filter(ontModel.listPropertiesForDomainClass(typeCls, true, graphs),
+								propsExclusionPredicate);
 				while (filteredPropsIterator.hasNext()) {
 					properties.add(filteredPropsIterator.next());
 				}
@@ -198,8 +201,10 @@ public abstract class Resource extends ServiceAdapter {
 	// TODO generate specific filters for classes, properties and individuals
 	protected void extractValuedProperties(OWLModel ontModel, RDFResourceRolesEnum restype,
 			ARTResource resource, HashSet<ARTURIResource> properties,
-			Multimap<ARTURIResource, ARTNode> propertyValuesMap) throws ModelAccessException {
-		ARTStatementIterator stit = ontModel.listStatements(resource, NodeFilters.ANY, NodeFilters.ANY, true);
+			Multimap<ARTURIResource, ARTNode> propertyValuesMap, ARTResource... graphs)
+			throws ModelAccessException {
+		ARTStatementIterator stit = ontModel.listStatements(resource, NodeFilters.ANY, NodeFilters.ANY, true,
+				graphs);
 
 		bannedPredicatesForResourceDescription = new ArrayList<ARTURIResource>();
 
@@ -242,7 +247,7 @@ public abstract class Resource extends ServiceAdapter {
 
 	protected Response getXMLResourceDescription(RDFModel ontModel, ARTResource resource,
 			RDFResourceRolesEnum restype, String method, HashSet<ARTURIResource> properties,
-			Multimap<ARTURIResource, ARTNode> propertyValuesMap) {
+			Multimap<ARTURIResource, ARTNode> propertyValuesMap, ARTResource... graphs) {
 
 		OWLModel owlModel = toOWLModel(ontModel);
 		ArrayList<ARTURIResource> sortedProperties = new ArrayList<ARTURIResource>(properties);
@@ -264,9 +269,10 @@ public abstract class Resource extends ServiceAdapter {
 				// TODO filter on admin also here
 
 				Collection<ARTResource> directTypes = RDFIterators
-						.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectTypes(resource));
+						.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectTypes(resource,
+								graphs));
 				Collection<ARTResource> directExplicitTypes = RDFIterators.getCollectionFromIterator(ontModel
-						.listTypes(resource, false));
+						.listTypes(resource, false, getWorkingGraph()));
 
 				for (ARTResource type : directTypes) {
 					// TODO remove when unnamed types are supported
@@ -286,13 +292,13 @@ public abstract class Resource extends ServiceAdapter {
 				if (restype == RDFResourceRolesEnum.cls || restype == RDFResourceRolesEnum.property
 						|| restype == RDFResourceRolesEnum.concept) {
 					Element superTypesElem = XMLHelp.newElement(dataElement, "SuperTypes");
-					collectParents(owlModel, resource, restype, superTypesElem);
+					collectParents(owlModel, resource, restype, superTypesElem, graphs);
 				}
 
 				// LABELS
 				if (restype == RDFResourceRolesEnum.concept || restype == RDFResourceRolesEnum.conceptScheme) {
 					ARTLiteral prefLabel = ((SKOSModel) ontModel).getPrefLabel(resource.asURIResource(),
-							getLanguagePref(), true, getUserNamedGraphs());
+							getLanguagePref(), true, graphs);
 					if (prefLabel != null) {
 						Element labelsElem = XMLHelp.newElement(dataElement, "prefLabel");
 						labelsElem.setTextContent(prefLabel.getLabel());
@@ -304,7 +310,7 @@ public abstract class Resource extends ServiceAdapter {
 				if (restype == RDFResourceRolesEnum.conceptScheme) {
 					Element topConceptsElem = XMLHelp.newElement(dataElement, "topConcepts");
 					collectTopConcepts((SKOSModel) ontModel, resource.asURIResource(), restype,
-							topConceptsElem);
+							topConceptsElem, graphs);
 				}
 
 			} catch (ModelAccessException e) {
@@ -316,11 +322,11 @@ public abstract class Resource extends ServiceAdapter {
 		try {
 
 			if (restype == RDFResourceRolesEnum.property)
-				enrichXMLForProperty(owlModel, resource.asURIResource(), dataElement);
+				enrichXMLForProperty(owlModel, resource.asURIResource(), dataElement, graphs);
 
 			if (restype == RDFResourceRolesEnum.ontology) {
 				Element importsElem = XMLHelp.newElement(dataElement, "Imports");
-				collectImports(owlModel, resource.asURIResource(), importsElem);
+				collectImports(owlModel, resource.asURIResource(), importsElem, graphs);
 			}
 
 			// OTHER PROPERTIES
@@ -331,15 +337,15 @@ public abstract class Resource extends ServiceAdapter {
 				Element propertyElem = XMLHelp.newElement(propertiesElement, "Property");
 				propertyElem.setAttribute("name", ontModel.getQName(prop.getURI()));
 
-				if (owlModel.isDatatypeProperty(prop)) {
+				if (owlModel.isDatatypeProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "owl:DatatypeProperty");
-				} else if (owlModel.isObjectProperty(prop)) {
+				} else if (owlModel.isObjectProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "owl:ObjectProperty");
-				} else if (owlModel.isAnnotationProperty(prop)) {
+				} else if (owlModel.isAnnotationProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "owl:AnnotationProperty");
-				} else if (owlModel.isOntologyProperty(prop)) {
+				} else if (owlModel.isOntologyProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "owl:OntologyProperty");
-				} else if (owlModel.isProperty(prop)) {
+				} else if (owlModel.isProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "rdf:Property");
 				} else {
 					propertyElem.setAttribute("type", "unknown"); // this is just a safe exit for discovering
@@ -369,7 +375,7 @@ public abstract class Resource extends ServiceAdapter {
 
 	private String checkExplicit(OWLModel ontModel, ARTResource subj, ARTURIResource pred, ARTNode obj)
 			throws ModelAccessException {
-		if (ontModel.hasTriple(subj, pred, obj, false, NodeFilters.MAINGRAPH))
+		if (ontModel.hasTriple(subj, pred, obj, false, getWorkingGraph()))
 			return "true";
 		else
 			return "false";
@@ -377,11 +383,14 @@ public abstract class Resource extends ServiceAdapter {
 
 	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
 			throws ModelAccessException {
+		ARTResource wgraph = getWorkingGraph();
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
-		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, NodeFilters.MAINGRAPH);
+		// TODO clearly reasoning=true requires the sole main graph (which contains reasoned triples too) but,
+		// what to do when the wgraph is not the main graph?
+		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, wgraph);
 		Iterator<ARTResource> filteredDomains = Iterators.filter(domains, URIResourcePredicate.uriFilter);
 		Collection<ARTResource> explicitDomains = RDFIterators.getCollectionFromIterator(ontModel
-				.listPropertyDomains(property, false, NodeFilters.MAINGRAPH));
+				.listPropertyDomains(property, false, wgraph));
 		System.out.println("explicitDomains: " + explicitDomains);
 		while (filteredDomains.hasNext()) {
 			ARTResource nextDomain = filteredDomains.next();
@@ -400,10 +409,12 @@ public abstract class Resource extends ServiceAdapter {
 
 	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
 			boolean visualization) throws ModelAccessException {
+		ARTResource wgraph = getWorkingGraph();
 		Element rangesElement = XMLHelp.newElement(treeElement, "ranges");
-		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, NodeFilters.MAINGRAPH);
+		// TODO check todo when wgraph!=MAINGRAPH
+		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, wgraph);
 		Collection<ARTResource> explicitRanges = RDFIterators.getCollectionFromIterator(ontModel
-				.listPropertyRanges(property, false, NodeFilters.MAINGRAPH));
+				.listPropertyRanges(property, false, wgraph));
 		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
 
 		while (ranges.hasNext()) {
@@ -426,9 +437,10 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
-	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement)
-			throws ModelAccessException {
+	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement,
+			ARTResource... graphs) throws ModelAccessException {
 
+		ARTResource wgraph = getWorkingGraph();
 		// DOMAIN AND RANGES
 		injectPropertyDomainXML(ontModel, property, treeElement);
 		injectPropertyRangeXML(ontModel, property, treeElement, true);
@@ -436,99 +448,96 @@ public abstract class Resource extends ServiceAdapter {
 		// FACETS
 		Element facetsElement = XMLHelp.newElement(treeElement, "facets");
 
-		if (ontModel.isSymmetricProperty(property)) {
+		if (ontModel.isSymmetricProperty(property, graphs)) {
 			Element symmetricPropElement = XMLHelp.newElement(facetsElement, "symmetric");
 			symmetricPropElement.setAttribute("value", "true");
-			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.SYMMETRICPROPERTY, false,
-					NodeFilters.MAINGRAPH))
+			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.SYMMETRICPROPERTY, false, wgraph))
 				symmetricPropElement.setAttribute("explicit", "true");
 			else
 				symmetricPropElement.setAttribute("explicit", "false");
 		}
-		if (ontModel.isFunctionalProperty(property)) {
+		if (ontModel.isFunctionalProperty(property, graphs)) {
 			Element functionalPropElement = XMLHelp.newElement(facetsElement, "functional");
 			functionalPropElement.setAttribute("value", "true");
-			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.FUNCTIONALPROPERTY, false,
-					NodeFilters.MAINGRAPH))
+			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.FUNCTIONALPROPERTY, false, wgraph))
 				functionalPropElement.setAttribute("explicit", "true");
 			else
 				functionalPropElement.setAttribute("explicit", "false");
 		}
-		if (ontModel.isInverseFunctionalProperty(property)) {
+		if (ontModel.isInverseFunctionalProperty(property, graphs)) {
 			Element inverseFunctionalPropElement = XMLHelp.newElement(facetsElement, "inverseFunctional");
 			inverseFunctionalPropElement.setAttribute("value", "true");
-			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.INVERSEFUNCTIONALPROPERTY, false,
-					NodeFilters.MAINGRAPH))
+			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.INVERSEFUNCTIONALPROPERTY, false, wgraph))
 				inverseFunctionalPropElement.setAttribute("explicit", "true");
 			else
 				inverseFunctionalPropElement.setAttribute("explicit", "false");
 		}
-		if (ontModel.isTransitiveProperty(property)) {
+		if (ontModel.isTransitiveProperty(property, graphs)) {
 			Element transitivePropElement = XMLHelp.newElement(facetsElement, "transitive");
 			transitivePropElement.setAttribute("value", "true");
-			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.TRANSITIVEPROPERTY, false,
-					NodeFilters.MAINGRAPH))
+			if (ontModel.hasTriple(property, RDF.Res.TYPE, OWL.Res.TRANSITIVEPROPERTY, false, wgraph))
 				transitivePropElement.setAttribute("explicit", "true");
 			else
 				transitivePropElement.setAttribute("explicit", "false");
 		}
 		ARTStatementIterator iterator = ontModel.listStatements(property, OWL.Res.INVERSEOF, NodeFilters.ANY,
-				true);
-		if (iterator.hasNext()) {
+				true, graphs);
+		if (iterator.streamOpen()) {
 			Element inverseHeaderElement = XMLHelp.newElement(facetsElement, "inverseOf");
-			while (iterator.hasNext()) {
-				ARTURIResource inverseProp = iterator.next().getObject().asURIResource();
+			while (iterator.streamOpen()) {
+				ARTURIResource inverseProp = iterator.getNext().getObject().asURIResource();
 				Element transitivePropElement = XMLHelp.newElement(inverseHeaderElement, "Value");
 				transitivePropElement.setAttribute("value", ontModel.getQName(inverseProp.getURI()));
-				if (ontModel.hasTriple(property, OWL.Res.INVERSEOF, inverseProp, false, NodeFilters.ANY))
+				if (ontModel.hasTriple(property, OWL.Res.INVERSEOF, inverseProp, false, wgraph))
 					transitivePropElement.setAttribute("explicit", "true");
 				else
 					transitivePropElement.setAttribute("explicit", "false");
 			}
 		}
-
+		iterator.close();
 	}
 
 	public Response getSuperTypes(String resourceQName, RDFResourceRolesEnum resType) {
 		logger.debug("getting supertypes of: " + resourceQName);
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
-		logger.debug("ontModel: " + ontModel);
-		try {
 
-			String newClassURI = ontModel.expandQName(resourceQName);
-			ARTURIResource cls = ontModel.createURIResource(newClassURI);
-			boolean exists = ontModel.existsResource(cls);
-			if (!exists)
-				return logAndSendException("there is no resource with name: " + resourceQName);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource cls = retrieveExistingResource(ontModel, resourceQName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			collectParents(ontModel, cls, resType, dataElement);
+			collectParents(ontModel, cls, resType, dataElement, graphs);
 			return response;
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 	}
 
 	protected void collectParents(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
-			Element superTypesElem) throws ModelAccessException {
+			Element superTypesElem, ARTResource... graphs) throws ModelAccessException {
 		// TODO filter on admin also here
 		Collection<? extends ARTResource> directSuperTypes;
 		Collection<? extends ARTResource> directExplicitSuperTypes;
 
+		ARTResource wgraph = getWorkingGraph();
+
 		if (restype == RDFResourceRolesEnum.cls) {
-			directSuperTypes = RDFIterators.getCollectionFromIterator(((DirectReasoning) ontModel)
-					.listDirectSuperClasses(resource));
+			directSuperTypes = RDFIterators.getSetFromIterator(((DirectReasoning) ontModel)
+					.listDirectSuperClasses(resource, graphs));
 			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(ontModel.listSuperClasses(
-					resource, false));
+					resource, false, wgraph));
 		} else if (restype == RDFResourceRolesEnum.property) {
-			directSuperTypes = RDFIterators.getCollectionFromIterator(((DirectReasoning) ontModel)
-					.listDirectSuperProperties(resource));
+			directSuperTypes = RDFIterators.getSetFromIterator(((DirectReasoning) ontModel)
+					.listDirectSuperProperties(resource, graphs));
 			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(ontModel.listSuperProperties(
-					resource.asURIResource(), false));
+					resource.asURIResource(), false, wgraph));
 		} else { // should be - by exclusion - skos concepts
-			directSuperTypes = RDFIterators.getCollectionFromIterator(((SKOSModel) ontModel)
-					.listBroaderConcepts(resource.asURIResource(), false, true));
-			directExplicitSuperTypes = directSuperTypes;
+			directSuperTypes = RDFIterators.getSetFromIterator(((SKOSModel) ontModel).listBroaderConcepts(
+					resource.asURIResource(), false, true, graphs));
+			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(((SKOSModel) ontModel)
+					.listBroaderConcepts(resource.asURIResource(), false, false, wgraph));
 			// TODO check if to be implemented better. For the moment, we retrieve only explicit, so all of
 			// them are explicit
 		}
@@ -549,11 +558,12 @@ public abstract class Resource extends ServiceAdapter {
 	}
 
 	protected void collectTopConcepts(SKOSModel ontModel, ARTURIResource resource,
-			RDFResourceRolesEnum restype, Element topConceptsElem) throws ModelAccessException {
+			RDFResourceRolesEnum restype, Element topConceptsElem, ARTResource... graphs)
+			throws ModelAccessException {
 
 		ARTURIResourceIterator topConcepts;
 
-		topConcepts = ontModel.listTopConceptsInScheme(resource, true, getUserNamedGraphs());
+		topConcepts = ontModel.listTopConceptsInScheme(resource, true, graphs);
 
 		while (topConcepts.streamOpen()) {
 			ARTURIResource topConcept = topConcepts.getNext();
@@ -562,12 +572,12 @@ public abstract class Resource extends ServiceAdapter {
 		topConcepts.close();
 	}
 
-	protected void collectImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem)
-			throws ModelAccessException {
+	protected void collectImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem,
+			ARTResource... graphs) throws ModelAccessException {
 
 		Collection<ARTURIResource> imports;
 
-		imports = RDFIterators.getCollectionFromIterator(ontModel.listOntologyImports(ontology));
+		imports = RDFIterators.getCollectionFromIterator(ontModel.listOntologyImports(ontology, graphs));
 
 		for (ARTURIResource importedOntology : imports) {
 			RDFXMLHelp.addRDFNodeXMLElement(importsElem, ontModel, importedOntology, false, false);

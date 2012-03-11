@@ -296,7 +296,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return ProjectManager.getCurrentProject().getOWLModel();
 	}
 
-	protected ARTURIResource retrieveQNamedResource(RDFModel model, String qname, ARTResource[] graphs)
+	protected ARTURIResource retrieveExistingResource(RDFModel model, String qname, ARTResource[] graphs)
 			throws NonExistingRDFResourceException, ModelAccessException {
 		ARTURIResource res = model.createURIResource(model.expandQName(qname));
 		if (model.existsResource(res, graphs))

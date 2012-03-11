@@ -487,11 +487,11 @@ public class SKOS extends Resource {
 			
 			ARTURIResource superConcept;
 			if (superConceptName != null)
-				superConcept = retrieveQNamedResource(skosModel, superConceptName, graphs);
+				superConcept = retrieveExistingResource(skosModel, superConceptName, graphs);
 			else
 				superConcept = NodeFilters.NONE;
 			
-			ARTURIResource conceptScheme = retrieveQNamedResource(skosModel, schemeName, graphs);
+			ARTURIResource conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
 
 
 			// add new concept...
@@ -536,12 +536,12 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			Element dataElement = response.getDataElement();
-			ARTURIResource concept = retrieveQNamedResource(skosModel, conceptName, getUserNamedGraphs()); 
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, getUserNamedGraphs()); 
 			ARTURIResourceIterator unfilteredIt = skosModel.listNarrowerConcepts(concept, false, true,
 					getUserNamedGraphs());
 			Iterator<ARTURIResource> it;
 			if (schemeName != null) {
-				ARTURIResource scheme = retrieveQNamedResource(skosModel, schemeName, getUserNamedGraphs()); 
+				ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, getUserNamedGraphs()); 
 				it = Iterators.filter(unfilteredIt, ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
 			} else {
 				it = unfilteredIt;
