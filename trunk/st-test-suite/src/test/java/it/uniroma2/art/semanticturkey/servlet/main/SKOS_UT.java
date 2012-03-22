@@ -197,7 +197,7 @@ public class SKOS_UT extends ServiceUTFixture {
 	
 	@Test
 	public void getSchemesMatrixPerConceptTest() {
-		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getSchemesMatrixPerConcept,
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getSchemesMatrixPerConceptRequest,
 				par(SKOS.Par.concept, "telecommunicationsTools"),
 				par(SKOS.Par.langTag, "en")
 		);
