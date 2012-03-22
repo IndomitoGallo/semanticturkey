@@ -246,7 +246,7 @@ public class SKOS extends Resource {
 			response = addAltLabel(skosConceptName, label, lang);
 
 			// CREATE SKOS METHODS
-			
+
 		} else if (request.equals(Req.createConceptRequest)) {
 			String conceptName = setHttpPar(Par.concept);
 			String broaderConceptName = setHttpPar(Par.broaderConcept);
@@ -256,8 +256,8 @@ public class SKOS extends Resource {
 			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
 			logger.debug("SKOS.createConceptRequest:" + response);
 			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
-					prefLabelLanguage);			
-			
+					prefLabelLanguage);
+
 		} else if (request.equals(Req.createSchemeRequest)) {
 			String schemeName = setHttpPar(Par.scheme);
 			String preferredLabel = setHttpPar(Par.prefLabel);
@@ -375,9 +375,9 @@ public class SKOS extends Resource {
 			makeConceptXML(skosModel, newScheme, conceptElement, false, lang);
 
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(Req.createConceptRequest, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(Req.createConceptRequest, e);
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -390,15 +390,9 @@ public class SKOS extends Resource {
 		try {
 
 			SKOSModel skosModel = getSKOSModel();
-			ARTURIResource concept = skosModel.retrieveURIResource(skosModel.expandQName(conceptQName),
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptQName, getUserNamedGraphs());
+			ARTURIResource broaderConcept = retrieveExistingResource(skosModel, braoderConceptQName,
 					getUserNamedGraphs());
-			ARTURIResource broaderConcept = skosModel.retrieveURIResource(skosModel
-					.expandQName(braoderConceptQName));
-
-			if (concept == null)
-				return logAndSendException(concept + " is not present in the scheme");
-			if (broaderConcept == null)
-				return logAndSendException(broaderConcept + " is not present in the scheme");
 
 			skosModel.addBroaderConcept(concept, broaderConcept, getWorkingGraph());
 
@@ -409,6 +403,8 @@ public class SKOS extends Resource {
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 		return response;
@@ -478,21 +474,20 @@ public class SKOS extends Resource {
 			ARTResource wrkGraph = getWorkingGraph();
 			SKOSModel skosModel = getSKOSModel();
 			ARTResource[] graphs = getUserNamedGraphs();
-			
+
 			ARTURIResource newConcept = skosModel.createURIResource(skosModel.expandQName(conceptName));
 			if (skosModel.existsResource(newConcept, graphs)) {
 				return logAndSendException("not possible to create: " + newConcept
 						+ "; there is a resource with the same name!");
 			}
-			
+
 			ARTURIResource superConcept;
 			if (superConceptName != null)
 				superConcept = retrieveExistingResource(skosModel, superConceptName, graphs);
 			else
 				superConcept = NodeFilters.NONE;
-			
-			ARTURIResource conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
 
+			ARTURIResource conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
 
 			// add new concept...
 			logger.debug("adding concept to graph: " + wrkGraph);
@@ -536,13 +531,14 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			Element dataElement = response.getDataElement();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, getUserNamedGraphs()); 
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, getUserNamedGraphs());
 			ARTURIResourceIterator unfilteredIt = skosModel.listNarrowerConcepts(concept, false, true,
 					getUserNamedGraphs());
 			Iterator<ARTURIResource> it;
 			if (schemeName != null) {
-				ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, getUserNamedGraphs()); 
-				it = Iterators.filter(unfilteredIt, ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
+				ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, getUserNamedGraphs());
+				it = Iterators.filter(unfilteredIt,
+						ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
 			} else {
 				it = unfilteredIt;
 			}
