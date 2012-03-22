@@ -195,6 +195,14 @@ public class SKOS_UT extends ServiceUTFixture {
 		assertResponseEXCEPTION(resp);
 	}
 	
-	
+	@Test
+	public void getSchemesMatrixPerConceptTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getSchemesMatrixPerConcept,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.langTag, "en")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);			
+	}
 
 }
