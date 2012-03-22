@@ -1,6 +1,6 @@
 pref("extensions.semturkey.annotprops.langs", "en,de,es,fr,it,nl,pt,ru");
 pref("extensions.semturkey.annotprops.defaultlang", "en");
-pref("extensions.semturkey.log", "debug");
+pref("extensions.semturkey.log", "info");
 pref("extensions.semturkey.extpt.annotate", "bookmarking");
 pref("extensions.semturkey.server.ip", "127.0.0.1");
 pref("extensions.semturkey.server.port", "1979");
