@@ -67,7 +67,7 @@ public class SKOS extends Resource {
 		public static final String getAllSchemesListRequest = "getAllSchemesList";
 		public static final String getPrefLabelRequest = "getPrefLabel";
 		public static final String getAltLabelsRequest = "getAltLabels";
-		public static final String getSchemesMatrixPerConcept = "getSchemesMatrixPerConcept";
+		public static final String getSchemesMatrixPerConceptRequest = "getSchemesMatrixPerConceptRequest";
 
 		// ADD REQUESTS
 		public static final String addBroaderConceptRequest = "addBroaderConcept";
@@ -85,6 +85,9 @@ public class SKOS extends Resource {
 		public static final String removePrefLabelRequest = "removePrefLabel";
 		public static final String removeAltLabelRequest = "removeAltLabel";
 		public static final String removeConceptFromSchemeRequest = "removeConceptFromScheme";
+
+		// MODIFY REQUESTS
+		public static final String assignHierarchyToSchemeRequest = "assignHierarchyToScheme";
 
 		// TREE (ONLY FOR DEBUGGING)
 		public static final String showSKOSConceptsTreeRequest = "showSKOSConceptsTree";
@@ -177,11 +180,11 @@ public class SKOS extends Resource {
 			logger.debug("SKOS." + Req.getAltLabelsRequest + ":\n" + response);
 			response = listAltLabels(skosConceptName, lang);
 
-		} else if (request.equals(Req.getSchemesMatrixPerConcept)) {
+		} else if (request.equals(Req.getSchemesMatrixPerConceptRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String lang = setHttpPar(Par.langTag);
 			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
-			logger.debug("SKOS." + Req.getSchemesMatrixPerConcept + ":\n" + response);
+			logger.debug("SKOS." + Req.getSchemesMatrixPerConceptRequest + ":\n" + response);
 			response = getSchemesMatrixPerConcept(skosConceptName, lang);
 
 			// REMOVE SKOS METHODS
@@ -276,6 +279,15 @@ public class SKOS extends Resource {
 			logger.debug("SKOS.createSchemeRequest:" + response);
 			response = createConceptScheme(schemeName, preferredLabel, preferredLabelLanguage);
 
+			// MODIFY
+
+		} else if (request.equals(Req.assignHierarchyToSchemeRequest)) {
+			String conceptName = setHttpPar(Par.concept);
+			String schemeName = setHttpPar(Par.scheme);
+			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
+			logger.debug(Req.assignHierarchyToSchemeRequest + ":\n" + response);
+			response = assignHierarchyToScheme(conceptName, schemeName);
+
 		} else if (request.equals(Req.showSKOSConceptsTreeRequest)) {
 			String schemeName = setHttpPar(Par.scheme);
 			checkRequestParametersAllNotNull(Par.scheme);
@@ -289,7 +301,36 @@ public class SKOS extends Resource {
 		return response;
 	}
 
-	private Response getSchemesMatrixPerConcept(String skosConceptName, String lang) {
+	public Response assignHierarchyToScheme(String conceptName, String schemeName) {
+		SKOSModel skosModel = getSKOSModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			assignHierarchyToSchemeRecursive(skosModel, concept, scheme, graphs);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+
+	private void assignHierarchyToSchemeRecursive(SKOSModel skosModel, ARTURIResource concept,
+			ARTURIResource scheme, ARTResource... graphs) throws ModelAccessException, ModelUpdateException {
+		skosModel.addConceptToScheme(concept, scheme, graphs);
+		ARTURIResourceIterator narrowers = skosModel.listNarrowerConcepts(concept, false, true, graphs);
+		while (narrowers.streamOpen()) {
+			ARTURIResource narrower = narrowers.getNext();
+			assignHierarchyToSchemeRecursive(skosModel, narrower, scheme, graphs);
+		}
+		narrowers.close();
+	}
+
+	public Response getSchemesMatrixPerConcept(String skosConceptName, String lang) {
 		SKOSModel skosModel = getSKOSModel();
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
@@ -301,8 +342,9 @@ public class SKOS extends Resource {
 			ARTURIResourceIterator schemes = skosModel.listAllSchemes(graphs);
 			while (schemes.streamOpen()) {
 				ARTURIResource scheme = schemes.getNext();
-				Element schemeElem = RDFXMLHelp.addRDFNodeXMLElement(dataElement, skosModel, scheme, false, true);
-				schemeElem.setAttribute("inScheme", (schemesForConcept.contains(scheme)?"true":"false"));				
+				Element schemeElem = RDFXMLHelp.addRDFNodeXMLElement(dataElement, skosModel, scheme, false,
+						true);
+				schemeElem.setAttribute("inScheme", (schemesForConcept.contains(scheme) ? "true" : "false"));
 			}
 			schemes.close();
 
