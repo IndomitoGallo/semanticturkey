@@ -32,6 +32,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
@@ -44,6 +45,7 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -65,6 +67,7 @@ public class SKOS extends Resource {
 		public static final String getAllSchemesListRequest = "getAllSchemesList";
 		public static final String getPrefLabelRequest = "getPrefLabel";
 		public static final String getAltLabelsRequest = "getAltLabels";
+		public static final String getSchemesMatrixPerConcept = "getSchemesMatrixPerConcept";
 
 		// ADD REQUESTS
 		public static final String addBroaderConceptRequest = "addBroaderConcept";
@@ -174,6 +177,13 @@ public class SKOS extends Resource {
 			logger.debug("SKOS." + Req.getAltLabelsRequest + ":\n" + response);
 			response = listAltLabels(skosConceptName, lang);
 
+		} else if (request.equals(Req.getSchemesMatrixPerConcept)) {
+			String skosConceptName = setHttpPar(Par.concept);
+			String lang = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			logger.debug("SKOS." + Req.getSchemesMatrixPerConcept + ":\n" + response);
+			response = getSchemesMatrixPerConcept(skosConceptName, lang);
+
 			// REMOVE SKOS METHODS
 		} else if (request.equals(Req.deleteConceptRequest)) {
 			String concept = setHttpPar(Par.concept);
@@ -276,6 +286,31 @@ public class SKOS extends Resource {
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
+		return response;
+	}
+
+	private Response getSchemesMatrixPerConcept(String skosConceptName, String lang) {
+		SKOSModel skosModel = getSKOSModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			Element dataElement = response.getDataElement();
+			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
+			Collection<ARTURIResource> schemesForConcept = RDFIterators.getCollectionFromIterator(skosModel
+					.listAllSchemesForConcept(skosConcept, graphs));
+			ARTURIResourceIterator schemes = skosModel.listAllSchemes(graphs);
+			while (schemes.streamOpen()) {
+				ARTURIResource scheme = schemes.getNext();
+				Element schemeElem = RDFXMLHelp.addRDFNodeXMLElement(dataElement, skosModel, scheme, false, true);
+				schemeElem.setAttribute("inScheme", (schemesForConcept.contains(scheme)?"true":"false"));				
+			}
+			schemes.close();
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
 		return response;
 	}
 

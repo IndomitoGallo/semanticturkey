@@ -57,7 +57,11 @@ public class RDFXMLHelp {
 	 * </ul>
 	 * then additional information, such as the node <em>role</em> ({@link RDFResourceRolesEnum}), can be
 	 * optionally added<br/>
-	 * an optional <code>rendering</code> argument enables for a rendered visualization of the node
+	 * an optional <code>rendering</code> argument enables for a rendered visualization of the node<br/>
+	 * <br/>
+	 * Note: of the above options, only the <code>role</code> requires further retrieval operations. For this
+	 * reason, it should be used with care, only when the nature of the resource is known to be variable and
+	 * the user is interested in knowing it
 	 * 
 	 * 
 	 * @param parent
