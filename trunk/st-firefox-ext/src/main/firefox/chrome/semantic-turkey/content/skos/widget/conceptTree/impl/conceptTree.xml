@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="conceptTree"
+		extends="chrome://semantic-turkey/content/widget/taxonomyTree/impl/taxonomyTree.xml#taxonomyTree">
+		<handlers>
+			<handler event="it.uniroma2.art.semanticturkey.event.widget.tree.dblclick">
+			<![CDATA[
+			if (this.selectedConcept == null) return;
+			
+			var parameters = {
+				sourceElement : null,		// elemento contenente i dati della riga corrente
+				sourceType : "SkosConcept",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
+				sourceElementName : this.selectedConcept,	// nome dell'elemento corrente (quello usato per identificazione: attualmente il qname)
+				sourceParentElementName : "", // nome dell'elemento genitore
+				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
+				deleteForbidden : false, 	 // cancellazione vietata 
+				parentWindow : window		 // finestra da cui viene aperto l'editor
+			};
+			window.openDialog(
+					"chrome://semantic-turkey/content/editors/editorPanel.xul",
+					"_blank",
+					"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
+					parameters);
+			]]>
+			</handler>
+		</handlers>
+		<implementation>
+			<constructor>
+			<![CDATA[
+				if (typeof this.art_semanticturkey == "undefined") {
+					this.art_semanticturkey= {};
+				}
+
+				Components.utils.import("resource://stmodules/stEvtMgr.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stservices/SERVICE_Projects.jsm", this.art_semanticturkey);
+			
+				var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+				                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
+                mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/event/eventObjects.js", this);
+
+				var bound = this;
+				
+				function DataRow(record) {
+					this.__defineGetter__("id", function(){return this.record.concept;});
+					this.__defineSetter__("id", function(v){this.record.concept = v;});
+					this.record = record;
+					
+					this.isContainer = true;
+					this.isContainerEmpty = record.more != "1";
+					
+					this.level = 0;
+					this.isContainerOpen = false;
+					this.cache = {};
+				}
+				
+				this._view.sourceAdapter.fetchRoots = function() {						
+						var responseXML = null;
+						try{
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getTopConcepts(bound.conceptScheme, "en");
+						}catch (e) {
+							return [];
+						}
+						
+						return parseResponse(responseXML);
+				};
+					
+				this._view.sourceAdapter.fetchChildren = function(id){
+						var responseXML = null;
+						try{
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(id, bound.conceptScheme, "en");
+						}catch (e) {
+							return [];
+						}
+						return parseResponse(responseXML);
+				};
+					
+				var parseResponse = function(responseElement) {
+					var result = [];
+					
+					var dataElement = responseElement.getElementsByTagName('data')[0];
+					var conceptList = dataElement.getElementsByTagName("concept");
+					
+					for (var i = 0; i < conceptList.length; ++i) {
+
+						item = new DataRow({concept : conceptList[i].getAttribute("name"), 
+					                                                            more : conceptList[i].getAttribute("more"),
+					                                                            label : conceptList[i].getAttribute("label"),
+					                                                            uri : conceptList[i].getAttribute("uri")							
+					                                                            }); 
+						
+						result.push(item);						
+					}
+					
+					
+					return result;
+				};
+								
+				this._view.provider.getImageURL = function(row, col) {
+						return "chrome://semantic-turkey/skin/images/skosConcept.png";
+				};
+
+/*				
+				this._view.addLabelDecorator({getDecoratedLabel : function(label, row, col) {
+					return label + "(" + row.record.numInst + ")";
+				}});
+*/
+
+		/*		
+				this._view.addImageDecorator(new function(){
+					this.getDecoratedImage = function(imageURL, row, col) {
+			
+						if (!foo) {
+							return;
+						}
+			
+						var canvas = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");				
+
+						canvas.width = 16;
+						canvas.height = 16;
+						var context = canvas.getContext("2d");
+
+						context.drawImage(img, 0, 0);
+						
+						context.fillStyle = "black";
+						context.textBaseline = "top";
+						context.fillText("C", 0, 0);						
+						
+						var url = canvas.toDataURL("image/png");
+						
+						return url;
+					};	
+				});
+*/
+
+				this.columns = "concept";
+				
+				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
+				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
+
+				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
+				this.stEventArray.addEventListenerToArrayAndRegister("skosConceptRemoved", function(eventId, skosConceptRemovedObj) {
+					bound._view.removeRows(skosConceptRemovedObj.getConceptName());
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosConceptAdded", function(eventId, skosConceptAddedObj) {
+					var narrowerConcept = skosConceptAddedObj.getConceptQName();
+					var broaderConcept = skosConceptAddedObj.getBroaderConceptQName();
+					var u = skosConceptAddedObj.getURI();
+					var hasSubsumees = skosConceptAddedObj.hasSubsumees();
+					var l = skosConceptAddedObj.getLabel();
+
+					var row = new DataRow({concept : narrowerConcept, more : hasSubsumees ? "1" : "0", label : l, uri : u});
+
+					bound._view.addRow(broaderConcept, row);
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosBroaderConceptAdded", function(eventId, skosBroaderConceptAddedObj) {
+					var narrowerConcept = skosBroaderConceptAddedObj.getConceptName();
+					var broaderConcept = skosBroaderConceptAddedObj.getBroaderConceptName();
+					var u = skosBroaderConceptAddedObj.getURI();
+					var hasSubsumees = skosBroaderConceptAddedObj.hasSubsumees();
+					var l = skosBroaderConceptAddedObj.getLabel();
+								
+					var row = new DataRow({concept : narrowerConcept, more : hasSubsumees ? "1" : "0", label : l, uri : u});
+					
+					bound._view.addRow(broaderConcept, row);
+					
+					var topNoMore = true;
+					
+					if (topNoMore) {
+						bound._view.removeRows(narrowerConcept, 0);					
+					}
+				}, null);
+
+				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
+					
+					if (resourceRenamedObj.getOldName() === bound.conceptScheme) {
+						// Assigns the new name to the private attribute, to prevent the widget from reloading
+						bound._conceptScheme = resourceRenamedObj.getNewName();
+						return;
+					}
+					
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
+							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+				
+				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeRemoved", function(eventId, skosSchemeRemovedObj) {
+					if (skosSchemeRemovedObj.getSchemeName() == bound.conceptScheme) {
+						bound.conceptScheme = "";
+					}
+				}, null);
+
+				
+				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept:edit", this, ctxMenu);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+				
+				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept:edit", this, taxonomyToolbar);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				
+				this.projectType = "SKOS";				
+			]]>
+			</constructor>
+			<destructor>
+				this.stEventArray.deregisterAllListener();
+				this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);
+				this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);
+			</destructor>
+			<property name="selectedConcept">
+				<getter>
+					var taxonomyTree =
+					document.getAnonymousElementByAttribute(this, "ano_id",
+					"taxonomyTree");
+
+					if (taxonomyTree.currentIndex == -1) return null;
+
+					var row = this._view.getRow(taxonomyTree.currentIndex);
+
+					return row.id;
+				</getter>
+			</property>
+			<property name="conceptScheme">
+				<getter>
+					return this._conceptScheme;
+				</getter>
+				<setter>
+					if (typeof this._conceptScheme == "undefined" ||
+					this._conceptScheme != val) {
+					this._conceptScheme = val;
+
+					this._view.reload();
+					}
+				</setter>
+			</property>
+		</implementation>
+	</binding>
+</bindings>

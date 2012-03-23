@@ -1,0 +1,587 @@
+<?xml version="1.0"?>  
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">  
+	<binding id="taxonomyTree">  
+		<resources>
+			<stylesheet src="taxonomyTree.css" />
+		</resources>
+		<content>
+			<xul:toolbar id="taxonomyToolbar" ano_id="taxonomyToolbar" />
+			<xul:tree flex="1" context="_child" hidecolumnpicker="true" ano_id="taxonomyTree" seltype="single">
+				<xul:treecols ano_id="taxonomyHeading" />
+				<xul:treechildren ano_id="taxonomyChildren" flex="1" />
+				<xul:menupopup ano_id="ctx">
+				</xul:menupopup>
+			</xul:tree>
+		</content>
+		<implementation>
+			<attribute name="projectType" />
+			<property name="columns">
+				<setter>
+				<![CDATA[
+					this.setAttribute("columns", val);
+				]]>				
+				</setter>
+				<getter>
+				<![CDATA[
+					return this.getAttribute("columns");
+				]]>
+				</getter>
+			</property>
+			<property name="hideheading">
+				<setter>
+				<![CDATA[
+					this.setAttributeNS("http://semanticturkey.uniroma2.it/xmlns/widget#", "hideheading", val);
+				]]>				
+				</setter>
+				<getter>
+				<![CDATA[
+					return this.getAttributeNS("http://semanticturkey.uniroma2.it/xmlns/widget#", "hideheading");
+				]]>
+				</getter>
+			</property>
+			<constructor>
+			<![CDATA[
+			this.art_semanticturkey = {};
+			
+			Components.utils.import("resource://stmodules/Logger.jsm");
+			Components.utils.import("resource://stmodules/ProjectST.jsm", this.art_semanticturkey);
+			Components.utils.import("resource://stmodules/stEvtMgr.jsm", this.art_semanticturkey);
+
+			
+			var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+			                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
+            mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/event/eventObjects.js", this);
+
+			var taxonomyTree = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyTree");
+			
+			var taxonomyHeading = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyHeading");
+			
+			var bound = this;
+			
+			taxonomyTree.view = this._view = new function() {
+				var self = this;
+			
+				var visibleRows = [];
+				var treeBoxObject = null;
+				
+				var powered = false;
+				
+				this.__defineGetter__("visibleRows2", function(){return visibleRows;});
+				
+				// You should NOT change the adapter after the view has been loaded
+				this.sourceAdapter = {};
+				
+				this.sourceAdapter.fetchRoots = function() {
+					return [];
+				};
+
+				this.sourceAdapter.fetchChildren = function(id) {return [];};
+
+				// You should NOT change the provider after the view has been loaded
+				this.provider = {};
+				
+				this.provider.getLabel = function(row, col) {
+					return row.record[col.id];
+				};
+				
+				this.provider.getValue = function(row, col) {
+					return row.record[col.id];
+				};
+				
+				this.provider.getImageURL = function(row, col) {
+					return "";
+				};
+								
+				var labelDecorators = [];
+				var imageDecorators = [];
+				
+				this.addLabelDecorator = function(decorator) {
+					labelDecorators.push(decorator);
+					
+					self.invalidate();					
+				};
+				
+				this.addImageDecorator = function(decorator) {
+					imageDecorators.push(decorator);
+					
+					self.invalidate();				
+				};
+
+				
+				this.__defineGetter__("rowCount", function() {return visibleRows.length});
+				
+				this.setTree = function(tree) {
+					treeBoxObject = tree;
+				};
+						
+				this.isSorted = function() {
+					return false;
+				};
+				
+				this.getRowProperties = function(rowIndex, properties) {
+					// Nothing todo
+				};
+				
+				this.getColumnProperties = function(col, properties) {
+					// Nothing todo
+				};
+				
+				this.getCellProperties = function(rowIndex, col, properties) {
+					// Nothing todo
+				};
+				
+				this.isContainer = function(rowIndex) {
+					return visibleRows[rowIndex].isContainer;
+				};
+				
+				this.isContainerEmpty = function(rowIndex) {
+					return visibleRows[rowIndex].isContainerEmpty;
+				};
+				
+				this.isContainerOpen = function(rowIndex) {
+					return visibleRows[rowIndex].isContainerOpen;
+				};
+				
+				this.getLevel = function(rowIndex) {
+					return visibleRows[rowIndex].level;
+				};
+				
+				this.getParentIndex = function(rowIndex) {
+					for (var i = rowIndex -1 ; i >= 0 ; i--) {
+						if (visibleRows[i].level < visibleRows[rowIndex].level) {
+							return i;
+						}
+					}
+					
+					return -1;
+				};
+				
+				this.isSeparator = function(rowIndex) {
+					return false;
+				};
+				
+				this.isEditable = function(rowIndex, col) {
+					return false;
+				};
+				
+				this.getImageSrc = function(row, col) {
+					var imageURL = getCache(row, col.id, "imageURL");
+					
+					if (imageURL != undefined) {
+						return imageURL;
+					}
+					
+					imageURL = this.provider.getImageURL(visibleRows[row], col);
+					
+					for (var i = 0 ; i < imageDecorators.length ; i++) {
+						imageURL = imageDecorators[i].getDecoratedImage(imageURL, visibleRows[row], col);
+					}
+					
+					setCache(row, col.id, "imageURL", imageURL);
+					
+					return imageURL;
+				};
+				
+				this.getCellText = function(row, col) {
+					var label = getCache(row, col.id, "label");					
+
+					
+					if (label != undefined) {
+						return label;
+					}
+				
+					label = this.provider.getLabel(visibleRows[row], col);
+					
+					for (var i = 0 ; i < labelDecorators.length ; i++) {
+						label = labelDecorators[i].getDecoratedLabel(label, visibleRows[row], col);
+					}
+					
+					setCache(row, col.id, "label", label);
+					
+					return label;
+				};
+				
+				this.getCellValue = function(row, col) {
+					if (col.id == "checked") Logger.debug(row + "/" + this.provider.getValue(visibleRows[row], col));
+				
+					return this.provider.getValue(visibleRows[row], col);
+				};
+				
+				var getCache = function(rowIndex, colId, key) {
+					var row = visibleRows[rowIndex];
+					var cache = row.cache;
+					
+					if (typeof cache[colId] == "undefined") {
+						return undefined;
+					}
+					
+					return cache[colId][key];
+				};
+				
+				var setCache = function(rowIndex, colId, key, value) {
+					var row = visibleRows[rowIndex];
+					var cache = row.cache;
+
+					if (typeof cache[colId] == "undefined") {
+						cache[colId] = {};
+					}
+					
+					cache[colId][key] = value;				
+				};
+
+				var clearCache = function() {
+					for (var i = 0 ; i < visibleRows.length ; i++) {
+						visibleRows[i].cache = {};
+					}
+				};
+				
+				var clearCache1 = function(rowIndex) {
+					var row = visibleRows[rowIndex];
+					row.cache = {};
+				};
+				
+				var clearCache2 = function(rowIndex, colId) {
+					var row = visibleRows[rowIndex];
+					var cache = row.cache;
+					
+					if (typeof cache[colId] != "undefined") {
+						cache[colId] = undefined;
+					}
+				};
+				
+				var clearCache3 = function(rowIndex, colId, key) {
+					var row = visibleRows[rowIndex];
+					var cache = row.cache;
+					
+					if (typeof cache[colId] != "undefined") {
+						if (typeof cache[coldId][key] != "undefined") {
+							cache[coldId][key] = undefined;
+						}
+					}
+				};			
+				
+				this.invalidate = function() {
+					clearCache();
+					treeBoxObject.invalidate();
+				}
+				
+				this.reload = function() {
+					if (powered) {
+						var rows = this.sourceAdapter.fetchRoots();
+						var delta = visibleRows.length - rows.length;
+						visibleRows = rows;
+						treeBoxObject.rowCountChanged(0, -delta);						
+					} else {
+						var delta = visibleRows.length;
+						visibleRows = [];
+						treeBoxObject.rowCountChanged(0, -delta);						
+					}
+				}
+				
+				this.invalidateRow = function(rowIndex) {
+					clearCache1(rowIndex);
+					treeBoxObject.invalidateRow(rowIndex);
+				}
+				
+				this.cycleHeader = function(col) {
+					// Nothing to do
+				};
+				
+				this.toggleOpenState = function(rowIndex) {
+					var row = visibleRows[rowIndex];
+
+					if (row.isContainer == false) {
+						return;
+					}
+					
+					if (row.isContainerOpen == true) {
+						closeContainer(rowIndex);
+					} else if (!row.isContainerEmpty) {
+						openContainer(rowIndex);
+					}
+				};
+				
+				var closeContainer = function(rowIndex) {
+					var currentLevel = visibleRows[rowIndex].level;
+					
+					var i = rowIndex + 1;
+					for ( ; i < visibleRows.length ; i++) {
+						if (visibleRows[i].level <= currentLevel) {
+							break;
+						}
+					}
+					
+					var deleteCount = i - rowIndex - 1;
+					visibleRows.splice(rowIndex + 1, deleteCount);						
+					visibleRows[rowIndex].isContainerOpen = false;
+					
+					treeBoxObject.rowCountChanged(rowIndex + 1, -deleteCount);
+					treeBoxObject.invalidateRow(rowIndex);
+				};
+				
+				var openContainer = function(rowIndex) {
+					var row = visibleRows[rowIndex];
+						
+					var children = self.sourceAdapter.fetchChildren(row.id);
+					
+					var delta = children.length;
+					
+					if (delta != 0) {
+					
+						children.forEach(function(element, index, array) {
+							element.level = row.level + 1;
+						});
+						
+						visibleRows.splice.apply(visibleRows, [rowIndex + 1, 0].concat(children));
+											
+						row.isContainerOpen = true;
+						treeBoxObject.rowCountChanged(rowIndex+1, delta);
+						
+									
+					} else {
+						row.isContainerOpen = false;
+						row.isContainerEmpty = true;
+					}
+							
+					treeBoxObject.invalidateRow(rowIndex);
+				};
+
+				this.powerOn = function() {
+					powered = true;
+					
+					if (treeBoxObject == null) {
+						return;
+					}					
+					
+					var roots = this.sourceAdapter.fetchRoots();
+
+					var delta = roots.length - visibleRows.length;
+						
+					visibleRows = roots;
+						
+					treeBoxObject.rowCountChanged(0, delta);
+					treeBoxObject.invalidate();				
+				};
+				
+				this.powerOff = function() {
+					powered = false;
+					var delta = visibleRows.length;
+					
+					visibleRows = [];
+					
+					treeBoxObject.rowCountChanged(0, -delta);
+				};
+				
+				this.canDrop = function(index, orientation, dataTransfer) {
+
+                };
+                
+                this.isSelectable = function(rowIndex, col) {
+                	return true;
+                };
+                
+                this.removeRows = function(id, level) {
+                	treeBoxObject.beginUpdateBatch();
+                	
+                	for (var i = 0 ; i < visibleRows.length ; ) {
+                		if (visibleRows[i].id == id) {
+                			if (typeof level != "undefined" && visibleRows[i].level != level) {
+                				i++;
+                				continue;
+                			}
+                			
+                			var j = i + 1;
+                			for ( ; j < visibleRows.length ; j++) {
+                				if (visibleRows[i].level >= visibleRows[j].level) break;
+                			}
+                			
+                			var parent = this.getParentIndex(i);
+                			visibleRows.splice(i, j - i);
+                			
+                			treeBoxObject.rowCountChanged(i, -(j - i));
+                			
+                			if (parent != -1) {
+                				if (this.childrenCount(parent) == 0) {
+									visibleRows[parent].isContainerOpen = false;
+									visibleRows[parent].isContainerEmpty = true;
+									
+									treeBoxObject.invalidateRow(parent);
+                				}
+                			}
+                			
+                		} else {
+                			i++;
+                		}
+                	}
+                	
+                	treeBoxObject.endUpdateBatch();
+                };
+                
+                this.childrenCount = function(rowIndex) {
+               		var count = 0 ;
+               		
+               		for (var i = rowIndex + 1 ; i < visibleRows.length ; i++) {
+               			if (visibleRows[rowIndex].level >= visibleRows[i].level) break;
+               			
+               			if (visibleRows[rowIndex].level + 1 == visibleRows[i].level) ++count; 
+               		}
+               		
+               		return count;		
+                }
+                
+                this.addRow = function(parentName, childRow) {
+					if (parentName == null) {
+						visibleRows.push(childRow);
+						childRow.level = 0;
+						
+						treeBoxObject.rowCountChanged(visibleRows.length - 1, 1);
+						return;
+					}
+
+                	treeBoxObject.beginUpdateBatch();
+
+                	for (var i = 0 ; i < visibleRows.length ; i++) {
+                		if (visibleRows[i].id == parentName) {
+                			visibleRows[i].isContainerEmpty = false;
+							
+							treeBoxObject.invalidateRow(i);
+
+							if (visibleRows[i].isContainerOpen) {
+								var clone = {};
+	                			clone.__proto__ = childRow;
+	
+	                			visibleRows.splice(i+1, 0, clone);
+	                			clone.level = visibleRows[i].level + 1;
+	                			treeBoxObject.rowCountChanged(i+1,1);
+							}
+
+                			i++;
+                		}
+                	}
+                	
+                	treeBoxObject.endUpdateBatch();
+                };
+                
+                this.getRow = function(rowIndex) {
+	           		return visibleRows[rowIndex];
+                };
+			};
+		
+			this.addEventListener("dblclick",function(event){
+						var row = {};
+						var col = {};
+						var part = {};
+						taxonomyTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, part);
+						
+						var event = document.createEvent("CustomEvent");
+						event.initCustomEvent("it.uniroma2.art.semanticturkey.event.widget.tree.dblclick", true, true, {rowIndex : row.value, col : col.value, part : part});
+						bound.dispatchEvent(event);
+			},true);
+			
+			var eventsHandler = new function() {
+				this.contextmenu = function(event) {
+					var targetName = event.target.tagName;
+					
+					var index = -1;
+					
+					if (targetName == "xul:treechildren") { // mouse right click
+						var row = {};
+						var col = {};
+						var part = {};
+						taxonomyTree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, part);
+						
+						if (row.value != -1 && part.value != "twisty") {
+							index = row.value;
+						}								
+					} else if(targetName == "xul:tree") {	// keyboard event
+						var index = taxonomyTree.currentIndex;
+					}
+					
+					
+				}
+					
+				taxonomyTree.addEventListener("contextmenu", this.contextmenu, true);
+
+				bound.addEventListener("DOMAttrModified", function(e){
+					if (e.attrName == "hideheading") {
+						headingHideShow();
+					} else if (e.attrName == "columns") {
+						buildHeading();
+					}
+				}, true);
+			};
+			
+			var headingHideShow = function() {
+				if (bound.hideheading == "true") {
+					taxonomyHeading.style.height = "0px";
+				} else {
+					taxonomyHeading.style.height = undefined;
+				}
+			};
+			
+			var buildHeading = function() {
+				while (taxonomyHeading.hasChildNodes()) {
+					taxonomyHeading.removeLastChild();
+				}
+				
+				if (bound.columns == null) {
+					return;
+				}
+				
+				var cols = bound.columns.split(",");
+				
+				var empty = true;
+				for (var i = 0 ; i < cols.length ; i++) {
+					var t = /([^\[\]]+)(?:\[(.+)\])?/.exec(cols[i].trim());
+					
+					if (t == null) continue;
+					
+					var colEl = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "treecol");
+					
+					colEl.setAttribute("id", t[1]);
+					colEl.setAttribute("label", t[1]);
+					colEl.setAttribute("flex", "1");
+					
+					if (typeof t[2] != "undefined") {
+						colEl.setAttribute("type", t[2]);
+					}
+					
+					if (empty) {
+						colEl.setAttribute("primary","true");
+						empty = false;
+					}
+					
+					taxonomyHeading.appendChild(colEl);
+				}
+			};
+			
+			buildHeading();
+			headingHideShow();
+			
+			window.addEventListener("load", function(event) {
+				if (typeof bound.art_semanticturkey.CurrentProject == "undefined") return; // I don't know why the load event appers to be invoked multiple times
+
+				if (bound.art_semanticturkey.CurrentProject.isNull() == false /*&& bound.art_semanticturkey.CurrentProject.getType() == bound.projectType */) {
+					bound._view.powerOn();
+				}
+			}, false);
+			
+			this.stEventArray2 = new this.art_semanticturkey.eventListenerArrayClass();
+			this.stEventArray2.addEventListenerToArrayAndRegister("projectOpened", function(eventId, projectOpenedObj) {
+				if (projectOpenedObj.getType() == bound.projectType) {
+					bound._view.powerOn();
+				}
+			}, null);
+			this.stEventArray2.addEventListenerToArrayAndRegister("projectClosed", function(eventId, projectClosedObj) {
+				bound._view.powerOff();
+			}, null);
+					
+			]]>
+			</constructor>
+			<destructor>
+				this.stEventArray2.deregisterAllListener();
+			</destructor>
+		</implementation>
+	</binding>  
+</bindings>
