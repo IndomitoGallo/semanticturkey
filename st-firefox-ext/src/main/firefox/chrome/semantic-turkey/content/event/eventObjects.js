@@ -323,7 +323,7 @@ art_semanticturkey.eventListenerArrayClass = function(){
 	
 	this.deregisterAllListener = function(){
 		for ( var id in arrayListener) {
-			for(var i=0; i<arrayListener.length; ++i){
+			for(var i=0; i<arrayListener[id].length; ++i){
 				art_semanticturkey.evtMgr.deregisterForEvent(id, arrayListener[id][i]);
 			}
 		}
