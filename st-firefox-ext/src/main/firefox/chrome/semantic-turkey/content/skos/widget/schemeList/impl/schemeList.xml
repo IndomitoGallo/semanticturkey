@@ -1,0 +1,158 @@
+<?xml version="1.0"?>  
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">  
+	<binding id="schemeList" extends="chrome://semantic-turkey/content/widget/taxonomyTree/impl/taxonomyTree.xml#taxonomyTree">
+		<resources>
+			<stylesheet src="schemeList.css" />
+		</resources>
+		<handlers>
+			<handler event="it.uniroma2.art.semanticturkey.event.widget.tree.dblclick">
+			<![CDATA[
+			if (this.selectedScheme == null) return;
+			
+			if (event.detail.col.element.getAttribute("type") == "checkbox") return;
+			
+			var parameters = {
+				sourceElement : null,		// elemento contenente i dati della riga corrente
+				sourceType : "SkosScheme",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
+				sourceElementName : this.selectedScheme,	// nome dell'elemento corrente (quello usato per identificazione: attualmente il qname)
+				sourceParentElementName : "", // nome dell'elemento genitore
+				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
+				deleteForbidden : false, 	 // cancellazione vietata 
+				parentWindow : window		 // finestra da cui viene aperto l'editor
+			};
+			window.openDialog(
+					"chrome://semantic-turkey/content/editors/editorPanel.xul",
+					"_blank",
+					"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
+					parameters);
+			]]>
+			</handler>
+		</handlers>
+		<implementation>
+			<constructor>
+			<![CDATA[
+				var bound = this;
+				
+				if (typeof this.art_semanticturkey == "undefined") { 
+					this.art_semanticturkey = {};
+				}
+
+				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Logger.jsm");
+				
+				var bound = this;
+				
+				function DataRow(record) {
+					this.__defineGetter__("id", function(){return this.record.name;});
+					this.__defineSetter__("id", function(v){this.record.name = v;});
+					this.record = record;
+					
+					this.isContainer = true;
+					this.isContainerEmpty = true;
+					
+					this.level = 0;
+					this.isContainerOpen = false;
+					
+					this.cache = {};
+				}
+								
+				this._view.sourceAdapter.fetchRoots = function() {						
+						var responseXML = null;
+						try{
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList("en");
+						}catch (e) {
+							return [];
+						}
+						
+						var schemes = parseResponse(responseXML);			
+						return schemes;
+				};
+					
+				this._view.sourceAdapter.fetchChildren = function(id){
+					return [];
+				};
+					
+				var parseResponse = function(responseElement) {
+					var result = [];
+					
+					var dataElement = responseElement.getElementsByTagName('data')[0];
+					var schemeList = dataElement.getElementsByTagName("Scheme");
+					
+					for (var i = 0; i < schemeList.length; ++i) {
+
+						item = new DataRow({
+				                            uri : schemeList[i].getAttribute("uri"), 
+					                        label : schemeList[i].getAttribute("label"),
+					                        name : schemeList[i].getAttribute("name")							
+					                       }); 
+						
+						result.push(item);						
+					}
+					
+					
+					return result;
+				};
+
+				if (!this.columns) {
+					this.columns = "name, uri, label";
+					buildHeading();
+				}
+				
+				this.projectType = "SKOS";
+
+				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
+				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeRemoved", function(eventId, skosSchemeRemovedObj) {
+					bound._view.removeRows(skosSchemeRemovedObj.getSchemeName());
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeAdded", function(eventId, skosSchemeAddedObj) {
+					var n = skosSchemeAddedObj.getSchemeName();
+					var l = skosSchemeAddedObj.getLabel();
+					var u = skosSchemeAddedObj.getURI();
+					
+					var row = new DataRow({uri : u, name : n, label : l});
+
+					bound._view.addRow(null, row);
+				}, null);
+								
+				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
+							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+
+				
+				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
+				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
+				
+				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme:edit", this, ctxMenu);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+				
+				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme:edit", this, taxonomyToolbar);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);			
+			]]>
+			</constructor>
+			<destructor>
+				this.stEventArray.deregisterAllListener();
+
+				this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);
+				this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);				
+			</destructor>
+			<property name="selectedScheme">
+				<getter>
+					var taxonomyTree = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyTree");
+					
+					if (taxonomyTree.currentIndex == -1) return null;
+					
+					var row = this._view.getRow(taxonomyTree.currentIndex);
+					
+					return row.id;
+				</getter>
+			</property>
+		</implementation>
+	</binding>  
+</bindings>
