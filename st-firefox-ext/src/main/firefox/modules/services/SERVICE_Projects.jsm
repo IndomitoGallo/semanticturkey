@@ -1,5 +1,6 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/stEvtMgr.jsm");
 
 EXPORTED_SYMBOLS = [ "HttpMgr", "STRequests" ];
 
@@ -222,6 +223,27 @@ function getCurrentProject() {
 	return HttpMgr.GET(serviceName, service.getCurrentProjectRequest);
 }
 
+function getProjectProperty(propNames, projectName) {
+	Logger.debug('[SERVICE_Projects.jsm] getProjectProperty');
+	var propNames_p = "propNames=" + propNames;
+	var name_p = projectName == null ? "" : "name=" + projectName;
+	return HttpMgr.GET(serviceName, service.getProjectPropertyRequest, propNames_p, name_p);
+}
+
+function setProjectProperty(propName, propValue) {
+	Logger.debug('[SERVICE_Projects.jsm] setProjectProperty');
+	var propName_p = "name=" + propName;
+	var propValue_p = "value=" + propValue;
+	
+	var reply = HttpMgr.GET(serviceName, service.setProjectPropertyRequest, propName_p, propValue_p);
+	
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("projectPropertySet", {getPropName : function(){return propName;}, getPropValue : function(){return propValue;}});
+	}
+
+	return reply;
+}
+
 // Projects SERVICE INITIALIZATION
 service.openProject = openProject;
 service.repairProject = repairProject;
@@ -237,3 +259,6 @@ service.saveProject = saveProject;
 service.saveProjectAs = saveProjectAs;
 service.listProjects = listProjects;
 service.getCurrentProject = getCurrentProject;
+service.getProjectProperty = getProjectProperty;
+service.setProjectProperty = setProjectProperty;
+

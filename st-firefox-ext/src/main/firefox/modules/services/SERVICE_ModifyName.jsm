@@ -1,5 +1,6 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/stEvtMgr.jsm");
 
 EXPORTED_SYMBOLS = [ "HttpMgr", "STRequests" ];
 
@@ -15,9 +16,15 @@ var serviceName = service.serviceName;
  * @return
  */
 function rename(oldName,newName){
-	var oldName = "oldName=" + oldName;
-	var newName = "newName=" + newName;
-	return HttpMgr.GET(serviceName, service.renameRequest, oldName,newName);
+	var oldName_p = "oldName=" + oldName;
+	var newName_p = "newName=" + newName;
+	var reply = HttpMgr.GET(serviceName, service.renameRequest, oldName_p, newName_p);
+	
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("resourceRenamed", {getOldName : function(){return oldName;}, getNewName : function(){return newName;}});
+	}
+
+	return reply;
 }
 //ModifyName SERVICE INITIALIZATION
 service.rename = rename;
