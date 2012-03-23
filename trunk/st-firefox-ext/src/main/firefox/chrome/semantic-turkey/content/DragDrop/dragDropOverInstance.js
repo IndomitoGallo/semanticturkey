@@ -42,7 +42,7 @@ window.onload = function() {
 	document.getElementById("Cancel").addEventListener("click",
 			art_semanticturkey.onCancel, true);
 	    		
-	AnnotFunctionList = annComponent.wrappedJSObject.getList();
+	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
 	
 	//get the functions for the selected family for the event drag'n'drop over instance
 	var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");

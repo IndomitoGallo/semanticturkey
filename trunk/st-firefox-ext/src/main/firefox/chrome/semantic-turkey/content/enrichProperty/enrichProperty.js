@@ -27,6 +27,58 @@ if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Property.jsm",art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Cls.jsm",art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
+
+var classHandlers = {};
+classHandlers["*"] = new function() {
+	this.showInstances = function(e) {
+/*
+ 		var ep_tree = document.getElementById("ep_classesTree");
+*/
+		var instanceDeck = document.getElementById("instanceDeck");
+		var ep_list = document.getElementById("ep_IndividualsList");
+		instanceDeck.selectedPanel = ep_list;
+/*
+		var parentWindow = window.arguments[0].parentWindow;
+		art_semanticturkey.classesTreeClick(e,ep_tree,ep_list);
+*/
+	};
+	
+	this.getInstanceName = function(e) {
+		var myList = document.getElementById("ep_IndividualsList");
+		var selItem = myList.selectedItem;
+		return selItem.label;
+	};
+};
+classHandlers["skos:Concept"] = new function() {
+	this.showInstances = function(e) {
+		var selSc = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme").getElementsByTagName("property")[0].getAttribute("value");
+
+		var instanceDeck = document.getElementById("instanceDeck");
+		var conceptTree = document.getElementById("ep_conceptTree");
+		conceptTree.conceptScheme = selSc;
+		instanceDeck.selectedPanel = conceptTree;	
+	};
+	
+	this.getInstanceName = function() {
+		var conceptTree = document.getElementById("ep_conceptTree");
+		return conceptTree.selectedConcept;
+	};
+};
+
+classHandlers.getCurrentHandler = function() {
+	var ep_tree = document.getElementById("ep_classesTree");
+	var currentelement = ep_tree.treeBoxObject.view.getItemAtIndex(ep_tree.currentIndex);
+	var className = currentelement.getAttribute("className");
+	
+	var clsHandl = classHandlers[className];
+	if (typeof clsHandl == "undefined") {
+		return classHandlers["*"];
+	}
+	
+	return clsHandl;
+}
 
 window.onload = function() {
 	art_semanticturkey.setPanel();
@@ -51,10 +103,14 @@ window.onload = function() {
 	art_semanticturkey.showAllClasses();
 };
 art_semanticturkey.ep_classesTreeClick = function(e) {
+	// We always need to perform the following operations, otherwise the class tree gets frozen
 	var ep_tree = document.getElementById("ep_classesTree");
 	var ep_list = document.getElementById("ep_IndividualsList");
 	var parentWindow = window.arguments[0].parentWindow;
-	parentWindow.art_semanticturkey.classesTreeClick(e,ep_tree,ep_list);
+	art_semanticturkey.classesTreeClick(e,ep_tree,ep_list);		
+
+	var clsHandl = classHandlers.getCurrentHandler();
+	clsHandl.showInstances(e);
 };
 /**
  * @author NScarpato 10/03/2008 setPanel
@@ -83,7 +139,9 @@ art_semanticturkey.bind = function() {
 			if(responseXML != null){
 				var mainTree = window.arguments[0].parentWindow.document.getElementById("classesTree");
 				close();
-				window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
+				if (mainTree != null) {
+					window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
+				}
 			}	
 		
 		close();
@@ -92,11 +150,12 @@ art_semanticturkey.bind = function() {
 // selected instance")
 // NScarpato 10/03/2008 add annotate function "addExistingPropValue"
 art_semanticturkey.annotateInst = function(){
-	var myList = document.getElementById("ep_IndividualsList");
-			
-			art_semanticturkey.listDragDropAnnotateInstance(window,myList);
+	var clsHandl = classHandlers.getCurrentHandler();
+	instanceName = clsHandl.getInstanceName();
+	
+	art_semanticturkey.listDragDropAnnotateInstance(window, instanceName);
 		
-		close();
+	close();
 };
 
 art_semanticturkey.showAllClasses = function() {
@@ -202,9 +261,9 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 //NScarpato 28/05/2007 add sole annotate function ("add new annotation for
 //selected instance")
 //NScarpato 10/03/2008 add annotate function "addExistingPropValue"
-art_semanticturkey.listDragDropAnnotateInstance = function(win, myList) {
-	var selItem = myList.selectedItem;
-	var instanceName = selItem.label;
+art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*myList*/) {
+//	var selItem = myList.selectedItem;
+//	var instanceName = selItem.label;
 	try {
 		if (win.arguments[0].action != null) {
 			/*

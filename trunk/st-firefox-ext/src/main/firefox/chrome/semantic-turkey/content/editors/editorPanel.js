@@ -28,6 +28,8 @@ Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Property.jsm",
 		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_SKOS.jsm",
+		art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_ModifyName.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
@@ -54,7 +56,7 @@ window.onload = function() {
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);
 
-	// add all the lister for all the events that trigger the refresh of the
+	// add all the listener for all the events that trigger the refresh of the
 	// panel
 	art_semanticturkey.eventListenerArrayObject = new art_semanticturkey.eventListenerArrayClass();
 	art_semanticturkey.eventListenerArrayObject
@@ -81,6 +83,29 @@ window.onload = function() {
 	art_semanticturkey.eventListenerArrayObject
 			.addEventListenerToArrayAndRegister("addedType",
 					art_semanticturkey.refreshPanel, null);
+	
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("resourceRenamed",
+			art_semanticturkey.refreshPanel, null);
+
+	
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosConceptAdded",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosConceptRemoved",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosBroaderConceptAdded",
+			art_semanticturkey.refreshPanel, null);
+
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosSchemeAdded",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosSchemeRemoved",
+			art_semanticturkey.refreshPanel, null);
+
 	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
 	// null);
 
@@ -248,7 +273,42 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					"chrome://semantic-turkey/skin/images/prop.png");
 		}
 
+	} else if (type == "SkosConcept") {
+		var deleteForbidden;
+		if (isFirstEditor == false) {
+			deleteForbidden = "true";
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this concept, open the editor from the skos panel");
+		} else
+			deleteForbidden = window.arguments[0].deleteForbidden;
+		
+		if (deleteForbidden == "true") {
+			document.getElementById("buttonModify").disabled = true;
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept_imported.png");
+		} else {
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept.png");
+		}
+	} else if (type == "SkosScheme") {
+		var deleteForbidden;
+		if (isFirstEditor == false) {
+			deleteForbidden = "true";
+			document
+					.getElementById("buttonModify")
+					.setAttribute("tooltiptext",
+							"To change the name of this concept scheme, open the editor from the skos panel");
+		} else
+			deleteForbidden = window.arguments[0].deleteForbidden;
+		
+		if (deleteForbidden == "true") {
+			document.getElementById("buttonModify").disabled = true;
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme_imported.png");
+		} else {
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme.png");
+		}
 	}
+
 	var lblName = document.createElement("label");
 	lblName.setAttribute("control", "sourceElementName");
 	lblName.setAttribute("value", "Name:");
@@ -284,6 +344,17 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		} else if (type == "Ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
+			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+		} else if (type == "SkosConcept") {
+			responseXML = art_semanticturkey.STRequests.SKOS.getConceptDescription(sourceElementName, "templateandvalued");
+			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+
+			// add all the web link of this instance
+			responseXML = art_semanticturkey.STRequests.Page
+					.getBookmarks(sourceElementName);
+			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+		} else if (type == "SkosScheme") {
+			responseXML = art_semanticturkey.STRequests.SKOS.getConceptSchemeDescription(sourceElementName);
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 		} else {
 			responseXML = art_semanticturkey.STRequests.Property
@@ -334,6 +405,11 @@ art_semanticturkey.getResourceDescription_RESPONSE = function(responseElement) {
 	if (request == "getClsDescription") {
 		art_semanticturkey.parsingSuperTypes(responseElement, request);
 	}
+
+	if (request == "getConceptDescription") {
+		art_semanticturkey.parsingSuperTypes(responseElement, request);
+	}
+
 	// Parsing property values of class/instance
 	art_semanticturkey.parsingProperties(responseElement);
 };
@@ -392,6 +468,21 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			typeToolbarButton2.containerObj = containerObj;
 			typeToolbarButton2
 					.setAttribute("tooltiptext", "Remove Super Class");
+		} else if (request == "getConceptDescription") { // concept
+			var separator = document.createElement("separator");
+			separator.setAttribute("class", "groove");
+			separator.setAttribute("orient", "orizontal");
+			parentBox.appendChild(separator);
+			typeToolbarButton.setAttribute("image",	"chrome://semantic-turkey/skin/images/skosC_create.png");
+			typeToolbarButton.addEventListener("click",	art_semanticturkey.addBroaderConcept, true);
+			typeToolbarButton.setAttribute("tooltiptext", "Add Broader Concept");
+			typeToolbarButton2.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_delete.png");
+			typeToolbarButton2.addEventListener("click", art_semanticturkey.removeBroaderConcept, true);
+			var containerObj = new Object();
+			containerObj.value = "list";
+			containerObj.isList = true;
+			typeToolbarButton2.containerObj = containerObj;
+			typeToolbarButton2.setAttribute("tooltiptext", "Remove Broader Concept");
 		} else { // Property
 			typeToolbarButton.setAttribute("image",
 					"chrome://semantic-turkey/skin/images/prop_create.png");
@@ -422,6 +513,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		var lbl2 = document.createElement("label");
 		if (request == "getClsDescription") {
 			lbl2.setAttribute("value", "Super Classes:");
+		} else if (request == "getConceptDescription") {
+			lbl2.setAttribute("value", "Broader Concepts:");			
 		} else {
 			lbl2.setAttribute("value", "Super Property:");
 		}
@@ -439,6 +532,10 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 					img
 							.setAttribute("src",
 									"chrome://semantic-turkey/skin/images/class20x20.png");
+				} else if(request == "getConceptDescription") {
+					img
+					.setAttribute("src",
+							"chrome://semantic-turkey/skin/images/skosConcept.png");					
 				} else {
 					img
 							.setAttribute("src",
@@ -491,6 +588,15 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			typeButton2.addEventListener("click",
 					art_semanticturkey.addSuperClass, true);
 			typeButton2.setAttribute("tooltiptext", "Add Super Class");
+		} else if(request == "getConceptDescription") {
+			img2.setAttribute("src",
+			"chrome://semantic-turkey/skin/images/skosConcept.png");
+			img2.setAttribute("flex", "0");
+			lbl2.setAttribute("value", "Broader Concepts:");
+			typeButton2.setAttribute("image",
+			"chrome://semantic-turkey/skin/images/skosC_create.png");
+			typeButton2.addEventListener("click", art_semanticturkey.addBroaderConcept, true);
+			typeButton2.setAttribute("tooltiptext", "Add Broader Concept");						
 		} else {
 			img2.setAttribute("src",
 					"chrome://semantic-turkey/skin/images/prop20x20.png");
@@ -545,6 +651,17 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 					typeButton3
 							.setAttribute("image",
 									"chrome://semantic-turkey/skin/images/class_delete.png");
+				} else if(request == "getConceptDescription") {
+					typeButton3.addEventListener("command",
+							art_semanticturkey.removeBroaderConceptEvent, true);
+					var containerObj = new Object();
+					containerObj.value = value2;
+					containerObj.isList = false;
+					typeButton3.containerObj = containerObj;
+					typeButton3.setAttribute("label", "Remove Broader Concept");
+					typeButton3
+							.setAttribute("image",
+									"chrome://semantic-turkey/skin/images/skosC_delete.png");					
 				} else {
 					typeButton3.addEventListener("command",
 							art_semanticturkey.removeSuperPropertyEvent, true);
@@ -2462,6 +2579,9 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
 	} else {
 		// TODO add event for rename of property (and other stuff)
 		var tree = window.arguments[0].tree;
+		
+		if (typeof tree == "undefined") return;
+		
 		var treecellNodes = tree.getElementsByTagName("treecell");
 		for (var i = 0; i < treecellNodes.length; i++) {
 			if (treecellNodes[i].getAttribute("label") == iconicName) {
@@ -2475,8 +2595,7 @@ art_semanticturkey.rename_RESPONSE = function(responseElement) {
  * 
  */
 art_semanticturkey.refreshPanel = function() {
-	var sourceElementName = document.getElementById("name")
-			.getAttribute("actualValue");
+	var sourceElementName = document.getElementById("name").value;
 	var mytype = window.arguments[0].sourceType;
 	// empty parentBox
 	var parentBox = document.getElementById("parentBoxRows");
@@ -2503,7 +2622,10 @@ art_semanticturkey.refreshPanel = function() {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else { // Property
+		} else if (mytype == "SkosConcept") {
+			responseXML = art_semanticturkey.STRequests.SKOS.getConceptDescription(sourceElementName, "templateandvalued");
+			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+		} else{ // Property
 			responseXML = art_semanticturkey.STRequests.Property
 					.getPropertyDescription(sourceElementName);
 			art_semanticturkey.getPropertyDescription_RESPONSE(responseXML);
@@ -2762,4 +2884,23 @@ art_semanticturkey.copyWebLink = function(event) {
     const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].  
     getService(Components.interfaces.nsIClipboardHelper);  
     gClipboardHelper.copyString(url);  
+};
+
+art_semanticturkey.addBroaderConcept = function(event) {
+	var parameters = {};
+	parameters.conceptScheme = "Schema";
+	parameters.parentWindow = window.arguments[0].parentWindow;
+	window.openDialog("chrome://semantic-turkey/content/skos/editors/concept/conceptTree.xul", 
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
+	
+	if (typeof parameters.out == "undefined" || typeof parameters.out.selectedConcept == "undefined") return;
+	
+	try {
+		conceptName = document.getElementById("name")
+				.getAttribute("actualValue")
+		responseElement = art_semanticturkey.STRequests.SKOS.addBroaderConcept(conceptName, parameters.out.selectedConcept);
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}
 };

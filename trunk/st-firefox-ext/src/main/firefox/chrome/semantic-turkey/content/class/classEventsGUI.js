@@ -745,27 +745,30 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 			.getAttribute("more"); // this can be "1" or "0" or null
 
 	var classTree = document.getElementById("classesTree");
-	var childList = classTree.getElementsByTagName("treeitem");
-	for (var i = 0; i < childList.length; i++) {
-		if (childList[i].getAttribute("className") == parentClassName) {
-			if (hasSubClasses != null) {
-				var isAlreadyContainer = childList[i].getAttribute("container");
-				var isOpen = childList[i].getAttribute("open");
-				if (hasSubClasses == "1") {
-					childList[i].setAttribute("container", true);
-					if (isAlreadyContainer == false)
-						childList[i].setAttribute("open", false);
-				} else { // == 0
-					childList[i].setAttribute("container", false);
+
+	if (classTree != null) {
+		var childList = classTree.getElementsByTagName("treeitem");
+		for (var i = 0; i < childList.length; i++) {
+			if (childList[i].getAttribute("className") == parentClassName) {
+				if (hasSubClasses != null) {
+					var isAlreadyContainer = childList[i].getAttribute("container");
+					var isOpen = childList[i].getAttribute("open");
+					if (hasSubClasses == "1") {
+						childList[i].setAttribute("container", true);
+						if (isAlreadyContainer == false)
+							childList[i].setAttribute("open", false);
+					} else { // == 0
+						childList[i].setAttribute("container", false);
+					}
 				}
+				var treecell = childList[i].getElementsByTagName("treecell")[0];
+				treecell.setAttribute("numInst", numTotInst);
+				if (numTotInst > 0)
+					treecell.setAttribute("label", parentClassName + "("
+									+ numTotInst + ")");
+				else
+					treecell.setAttribute("label", parentClassName);
 			}
-			var treecell = childList[i].getElementsByTagName("treecell")[0];
-			treecell.setAttribute("numInst", numTotInst);
-			if (numTotInst > 0)
-				treecell.setAttribute("label", parentClassName + "("
-								+ numTotInst + ")");
-			else
-				treecell.setAttribute("label", parentClassName);
 		}
 	}
 
@@ -854,6 +857,11 @@ art_semanticturkey.getImgFromType = function(type, explicit) {
 			imgType = "chrome://semantic-turkey/skin/images/prop_imported.png";
 		else
 			imgType = "chrome://semantic-turkey/skin/images/prop.png";
+	} else if(type.indexOf("concept") != -1) {
+		if (explicit == "false")
+			imgType = "chrome://semantic-turkey/skin/images/skosConcept.png";
+		else
+			imgType = "chrome://semantic-turkey/skin/images/skosConcept_imported.png";		
 	} else if (type.indexOf("literal") != -1) {
 		// vedere se mettere img o no
 		imgType = "";

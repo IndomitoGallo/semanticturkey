@@ -219,16 +219,22 @@ STRequests.SPARQL.resolveQueryRequest = "resolveQuery";
 
 // SKOS service request
 STRequests.SKOS.serviceName = "skos";
-STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
-STRequests.SKOS.getConceptsTreeRequest = "getConceptsTree";
+STRequests.SKOS.getTopConceptsRequest = "getTopConcepts";
 STRequests.SKOS.getNarrowerConceptsRequest = "getNarrowerConcepts";
-STRequests.SKOS.addConceptRequest = "addConcept";
-STRequests.SKOS.addSemanticRelationRequest = "addSemanticRelation";
-STRequests.SKOS.createNarrowerConceptRequest ="createNarrowerConcept";
-STRequests.SKOS.createBroaderConceptRequest ="createBroaderConcept";
-STRequests.SKOS.createSchemeRequest ="createScheme";
-STRequests.SKOS.removeConceptRequest = "removeConcept";
- 
+STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
+STRequests.SKOS.getConceptDescriptionRequest = "getConceptDescription";
+STRequests.SKOS.getConceptSchemeDescriptionRequest = "getConceptSchemeDescription";
+
+// ADD REQUESTS
+STRequests.SKOS.addBroaderConceptRequest = "addBroaderConcept";
+
+// CREATE REQUESTS
+STRequests.SKOS.createConceptRequest = "createConcept";
+STRequests.SKOS.createSchemeRequest = "createScheme";
+
+// DELETE REQUESTS
+STRequests.SKOS.deleteConceptRequest = "deleteConcept";
+STRequests.SKOS.deleteSchemeRequest = "deleteScheme";
 
 //projects service request
 STRequests.Projects.serviceName = "projects";
@@ -245,6 +251,8 @@ STRequests.Projects.saveProjectAsRequest = "saveProjectAs";
 STRequests.Projects.saveProjectRequest = "saveProject";
 STRequests.Projects.listProjectsRequest = "listProjects";
 STRequests.Projects.getCurrentProjectRequest = "getCurrentProject";
+STRequests.Projects.getProjectPropertyRequest = "getProjectProperty";
+STRequests.Projects.setProjectPropertyRequest = "setProjectProperty";
 
 //ontManager service request
 STRequests.OntManager.serviceName = "ontManager";
