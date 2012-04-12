@@ -26,7 +26,11 @@
  */
 package it.uniroma2.art.semanticturkey.ontology;
 
-import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.*;
+import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.fromLocalFile;
+import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.fromOntologyMirror;
+import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.fromWeb;
+import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.fromWebToMirror;
+import static it.uniroma2.art.semanticturkey.ontology.ImportMethod.toOntologyMirror;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelCreationException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
@@ -1235,19 +1239,24 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	 * @throws ModelUpdateException
 	 * @throws UnsupportedRDFFormatException
 	 */
-	public void loadOntologyData(File inputFile, String baseURI, RDFFormat format)
+	public void loadOntologyData(File inputFile, String baseURI, RDFFormat format, ARTResource graph)
 			throws FileNotFoundException, IOException, ModelAccessException, ModelUpdateException,
 			UnsupportedRDFFormatException {
-		owlModel.addRDF(inputFile, baseURI, format);
+		owlModel.addRDF(inputFile, baseURI, format, graph);
 		logger.debug("rdf data added from file: " + inputFile);
-		ARTURIResourceIterator it = ((OWLModel) owlModel).listOntologyImports(NodeFilters.ANY,
-				NodeFilters.MAINGRAPH);
+		ARTURIResourceIterator it = ((OWLModel) owlModel).listOntologyImports(NodeFilters.ANY, graph);
 		while (it.streamOpen()) {
 			System.out.println(it.next());
 		}
 		it.close();
 
 		refreshImports(ImportModality.USER);
+	}
+
+	public void loadOntologyData(File inputFile, String baseURI, RDFFormat format)
+			throws FileNotFoundException, IOException, ModelAccessException, ModelUpdateException,
+			UnsupportedRDFFormatException {
+		loadOntologyData(inputFile, baseURI, format, NodeFilters.MAINGRAPH);
 	}
 
 	/**
