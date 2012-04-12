@@ -158,7 +158,7 @@ public class InputOutput extends ServiceAdapter {
 				return logAndSendException("rdf file format cannot be established neither from file extension nor from user preference (if it has been provided)");
 			}
 			ProjectManager.getCurrentProject().getOntologyManager()
-					.loadOntologyData(inputFile, baseURI, rdfFormat);
+					.loadOntologyData(inputFile, baseURI, rdfFormat, getWorkingGraph());
 		} catch (FileNotFoundException e) {
 			return logAndSendException("the file you chose is unavailable: \n" + e.getMessage());
 		} catch (IOException e) {
