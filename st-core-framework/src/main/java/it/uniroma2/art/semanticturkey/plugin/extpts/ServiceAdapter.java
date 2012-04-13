@@ -34,6 +34,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -286,11 +287,11 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException {
 		return userGraphs;
 	}
-	
+
 	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException {
 		RDFModel model = ProjectManager.getCurrentProject().getOntModel();
 		return model.listNamedGraphs();
-	} 
+	}
 
 	protected OWLModel getOWLModel() {
 		return ProjectManager.getCurrentProject().getOWLModel();
@@ -302,7 +303,28 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		if (model.existsResource(res, graphs))
 			return res;
 		throw new NonExistingRDFResourceException(res, graphs);
+	}
 
+	/**
+	 * actually this method should be incorporated inside the OWLART, so that all the addXXX which take a
+	 * string as their element, should be able to check if the resource is at least existing on the checked
+	 * graph. Note that here the resource is only checked against the graphs and then returned as a POJO. it
+	 * is not written in the triple store.
+	 * 
+	 * @param model
+	 * @param qname
+	 * @param graphs
+	 * @return
+	 * @throws NonExistingRDFResourceException
+	 * @throws ModelAccessException
+	 */
+	protected ARTURIResource createNewResource(RDFModel model, String qname, ARTResource[] graphs)
+			throws DuplicatedResourceException, ModelAccessException {
+		ARTURIResource res = model.createURIResource(model.expandQName(qname));
+		if (model.existsResource(res, graphs))
+			throw new DuplicatedResourceException("attempting to create resource: " + res
+					+ " which is already existing in graphs: " + graphs);
+		return res;
 	}
 
 }
