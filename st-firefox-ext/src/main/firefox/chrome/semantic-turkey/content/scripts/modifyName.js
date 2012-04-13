@@ -31,6 +31,7 @@ window.onload = function() {
 	document.getElementById("name").focus();			
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onClose, true);
+	document.getElementById("name").value= window.arguments[0].resourceName;
 };
 
 art_semanticturkey.onAccept = function() {
