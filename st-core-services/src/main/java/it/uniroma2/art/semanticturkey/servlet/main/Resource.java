@@ -208,6 +208,8 @@ public abstract class Resource extends ServiceAdapter {
 
 		bannedPredicatesForResourceDescription = new ArrayList<ARTURIResource>();
 
+		bannedPredicatesForResourceDescription.add(RDF.Res.TYPE);
+		
 		if (restype == RDFResourceRolesEnum.ontology) {
 			bannedPredicatesForResourceDescription.add(OWL.Res.IMPORTS);
 		} else if (restype == RDFResourceRolesEnum.cls) {
