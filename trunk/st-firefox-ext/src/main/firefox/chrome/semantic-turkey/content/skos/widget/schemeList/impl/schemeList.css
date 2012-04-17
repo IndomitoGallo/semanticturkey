@@ -1,1 +1,8 @@
 @CHARSET "UTF-8";
+
+@namespace st url('http://semanticturkey.uniroma2.it/xmlns/widget#');
+@namespace xul url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+
+xul|treecol[type=checkbox] {
+	min-width: 16px;
+}

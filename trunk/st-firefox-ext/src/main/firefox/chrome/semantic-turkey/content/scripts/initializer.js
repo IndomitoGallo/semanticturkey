@@ -1,6 +1,7 @@
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
+
 art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	try {
 		/*
@@ -123,6 +124,7 @@ art_semanticturkey.listDragDropFurtherAnn = function(event, parentWindow) {
 					title = titleNodeChildren[i].nodeValue;
 			}
 		}
+
 		// provare con text/plain
 		if (ses.isDataFlavorSupported("text/unicode")) {
 			var transferObject = Components.classes["@mozilla.org/widget/transferable;1"]
@@ -142,6 +144,7 @@ art_semanticturkey.listDragDropFurtherAnn = function(event, parentWindow) {
 			if (str)
 				str = str.value
 						.QueryInterface(Components.interfaces.nsISupportsString);
+			
 			var parameters = new Object();
 			// TODO vedere quali parametri servono realmente
 			parameters.subjectInstanceName = listItem.getAttribute("label");
@@ -152,6 +155,7 @@ art_semanticturkey.listDragDropFurtherAnn = function(event, parentWindow) {
 			parameters.tree = list;
 			parameters.parentWindow = parentWindow;
 			parameters.panelTree = document.getElementById("classesTree");
+
 			art_semanticturkey.furtherAnnotFunction(parameters);
 		}
 	} else {
@@ -167,6 +171,7 @@ art_semanticturkey.furtherAnnotFunction = function(parameters) {
 	var objectInstanceName = parameters.objectInstanceName;
 	var subjectInstanceName = parameters.subjectInstanceName;
 	var parentWindow = parameters.parentWindow;
+	
 	try {
 		parentWindow.art_semanticturkey.STRequests.Annotation
 			.createFurtherAnnotation(
@@ -235,11 +240,16 @@ art_semanticturkey.listDragDropValueForProp = function(event, parentWindow) {
 			parameters.parentWindow = parentWindow;
 			parameters.panelTree = document.getElementById("classesTree");
 			parameters.functors = {};
-			parameters.functors.addAnnotation = function(p) {
+						
+			if (typeof event.skos != "undefined") {
+				parameters.skos = Object.create(event.skos);
+			}
+
+			parameters.functors.addAnnotation = function(p) {				
 				return parentWindow.art_semanticturkey.STRequests.Annotation.addAnnotation(p.urlPage,p.subjectInstanceName, p.objectInstanceName,p.title);
 			};
 			parameters.functors.relateAndAnnotateBindAnnot = function(p) {
-			
+				
 				return parentWindow.art_semanticturkey.STRequests.Annotation.relateAndAnnotateBindAnnot(
 						p.subjectInstanceName,
 						p.predicatePropertyName,

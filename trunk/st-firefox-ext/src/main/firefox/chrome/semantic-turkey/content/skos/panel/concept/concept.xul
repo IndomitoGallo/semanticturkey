@@ -31,6 +31,5 @@
         xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#">
 	<script type="text/javascript" src="concept.js" />
 	<script type="text/javascript" src="chrome://semantic-turkey/content/event/eventObjects.js" />
-	<st:conceptTree xul:flex="1" hideheading="false" />
-	<st:conceptTree xul:flex="1" hideheading="false" />
+	<st:conceptTree id="conceptTree" xul:flex="1" hideheading="true" />
 </window>

@@ -26,9 +26,16 @@ netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Property.jsm",art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Cls.jsm",art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
+
+/*
+ * An handler is associated with the class qname. If you want to apply an handler either to subclasses, prefix it
+ * with <= (less or equal, i.e. the class or a subsumed class).
+ */
 
 var classHandlers = {};
 classHandlers["*"] = new function() {
@@ -50,11 +57,24 @@ classHandlers["*"] = new function() {
 		var selItem = myList.selectedItem;
 		return selItem.label;
 	};
+	
+	this.createInstance = function(win, tree) {
+		var currentelement = tree.treeBoxObject.view
+			.getItemAtIndex(tree.currentIndex);
+		var selectedObjClsName = currentelement.getAttribute("className");
+
+		var reply = art_semanticturkey.STRequests.Cls.addIndividual(selectedObjClsName, win.arguments[0].objectInstanceName);
+		return reply.getElementsByTagName("Instance")[0].getAttribute("instanceName");
+	}
 };
 classHandlers["skos:Concept"] = new function() {
 	this.showInstances = function(e) {
-		var selSc = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme").getElementsByTagName("property")[0].getAttribute("value");
-
+		var selSc = "*";
+		
+		if (typeof window.arguments[0].skos != "undefined" && typeof window.arguments[0].skos.selectedScheme == "string") {
+			selSc = window.arguments[0].skos.selectedScheme;
+		}
+		
 		var instanceDeck = document.getElementById("instanceDeck");
 		var conceptTree = document.getElementById("ep_conceptTree");
 		conceptTree.conceptScheme = selSc;
@@ -65,14 +85,63 @@ classHandlers["skos:Concept"] = new function() {
 		var conceptTree = document.getElementById("ep_conceptTree");
 		return conceptTree.selectedConcept;
 	};
+	
+	this.createInstance = function(win, tree) {
+		var selSc = "*";
+
+		if (typeof window.arguments[0].skos != "undefined" && typeof window.arguments[0].skos.selectedScheme == "string") {
+			selSc = window.arguments[0].skos.selectedScheme;
+		}
+
+		var parameters = {};
+		parameters.conceptScheme = selSc;
+		
+		window.openDialog(
+				"chrome://semantic-turkey/content/skos/editors/concept/conceptTree.xul",
+				"_blank", "modal=yes,resizable,centerscreen",
+				parameters);
+
+		if (typeof parameters.out != "undefined") {
+			var conceptName = win.arguments[0].objectInstanceName;
+			var broaderConcept = parameters.out.selectedConcept;
+			var scheme = selSc;
+			var prefLabel = win.arguments[0].objectInstanceName;
+			var prefLabelLanguage = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
+			
+			var reply = art_semanticturkey.STRequests.SKOS.createConcept(conceptName, broaderConcept, scheme, prefLabel, prefLabelLanguage);
+			
+			return reply.getElementsByTagName("concept")[0].getAttribute("name");
+		} else {
+			return undefined;
+		}
+	};
 };
 
 classHandlers.getCurrentHandler = function() {
 	var ep_tree = document.getElementById("ep_classesTree");
-	var currentelement = ep_tree.treeBoxObject.view.getItemAtIndex(ep_tree.currentIndex);
-	var className = currentelement.getAttribute("className");
 	
-	var clsHandl = classHandlers[className];
+	var index = ep_tree.currentIndex;
+
+	var currentelement;
+	var className;
+	
+	var clsHandl;
+	
+	var prefix = "";
+	
+	do {
+		currentelement = ep_tree.treeBoxObject.view.getItemAtIndex(index);
+		className = currentelement.getAttribute("className");
+		
+		if (typeof classHandlers[prefix + className] != "undefined") {
+			clsHandl = classHandlers[prefix + className];
+		} else {
+			index = ep_tree.treeBoxObject.view.getParentIndex(index);
+		}
+		
+		prefix = "<=";
+	} while (typeof clsHandl == "undefined" && index != -1);
+
 	if (typeof clsHandl == "undefined") {
 		return classHandlers["*"];
 	}
@@ -143,8 +212,6 @@ art_semanticturkey.bind = function() {
 					window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
 				}
 			}	
-		
-		close();
 };
 // NScarpato 28/05/2007 add sole annotate function ("add new annotation for
 // selected instance")
@@ -168,7 +235,7 @@ art_semanticturkey.showAllClasses = function() {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		try{
-			var responseXML = window.arguments[0].parentWindow.art_semanticturkey.STRequests.Cls.getClassTree();
+			var responseXML = art_semanticturkey.STRequests.Cls.getClassTree();
 			art_semanticturkey.getClassTree_RESPONSE(responseXML,document.getElementById("ep_rootClassTreeChildren"));
 		}
 		catch (e) {
@@ -218,27 +285,38 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 						"Create and add property value");
 				if (propValue != null) {
 					parameters.propValue = propValue;
-					return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+					return art_semanticturkey.STRequests.Property
 							.createAndAddPropValue(
 									win.arguments[0].sourceElementName,
 									win.arguments[0].predicatePropertyName,
 									propValue, selectedObjClsName, type);
 				}
 			} else {
-				close();
-			/*NScarpato 29/11/2010*/
-			 win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					win.arguments[0].subjectInstanceName,
-					win.arguments[0].predicatePropertyName,
-					win.arguments[0].objectInstanceName,
-					selectedObjClsName,
-					type
-			);
+//			/*NScarpato 29/11/2010*/
+//			 win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+//					win.arguments[0].subjectInstanceName,
+//					win.arguments[0].predicatePropertyName,
+//					win.arguments[0].objectInstanceName,
+//					selectedObjClsName,
+//					type
+//			);
+			
+			// Step 1: create the subject
+			var clsHandl = classHandlers.getCurrentHandler();
+			var objectInstanceName = clsHandl.createInstance(win, tree);
+			
+			if (typeof objectInstanceName == "undefined") {
+				return;
+			}
+			
+			// Step 2: Add the property value
+			art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subjectInstanceName, win.arguments[0].predicatePropertyName, objectInstanceName, type);
+			 
+			// Step 3: Add the annotation
 
 			// The annotation has to be applied to the resource, which is the value
 			// of the property assigned before
-			var newParameters = {};
-			newParameters.__proto__ = win.arguments[0];
+			var newParameters = Object.create(win.arguments[0]);
 			newParameters.subjectInstanceName = newParameters.objectInstanceName;
 			 
 			return win.arguments[0].functors.addAnnotation(newParameters);
@@ -255,6 +333,8 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
+		
+		close();
 	}
 };
 
@@ -280,12 +360,12 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 			
 			win.close();
 			if(type =="undetermined"){
-				return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+				return art_semanticturkey.STRequests.Property
 					.addExistingPropValue(win.arguments[0].sourceElementName,
 							win.arguments[0].predicatePropertyName,
 							instanceName, win.arguments[0].rangeType);
 			}else{
-				return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property
+				return art_semanticturkey.STRequests.Property
 					.addExistingPropValue(win.arguments[0].sourceElementName,
 							win.arguments[0].predicatePropertyName,
 							instanceName, type);

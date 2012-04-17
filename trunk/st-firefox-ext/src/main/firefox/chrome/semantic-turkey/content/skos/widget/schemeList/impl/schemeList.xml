@@ -8,9 +8,11 @@
 		<handlers>
 			<handler event="it.uniroma2.art.semanticturkey.event.widget.tree.dblclick">
 			<![CDATA[
-			if (this.selectedScheme == null) return;
+			if (event.detail.rowIndex == -1) return;
 			
 			if (event.detail.col.element.getAttribute("type") == "checkbox") return;
+			
+			if (!this.mutable) return;
 			
 			var parameters = {
 				sourceElement : null,		// elemento contenente i dati della riga corrente
@@ -73,6 +75,14 @@
 				this._view.sourceAdapter.fetchChildren = function(id){
 					return [];
 				};
+
+				this._view.provider.getImageURL = function(row, col) {
+					if (col.id == "name") {
+						return "chrome://semantic-turkey/skin/images/skosScheme.png";
+					} else {
+						return "";
+					}
+				};
 					
 				var parseResponse = function(responseElement) {
 					var result = [];
@@ -125,22 +135,28 @@
 					}
 				}, null);
 
-				
 				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
 				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
-				
-				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme:edit", this, ctxMenu);
-				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
-				
-				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme:edit", this, taxonomyToolbar);
-				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);			
+
+				if (bound.mutable) {				
+					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme*edit", this, ctxMenu);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+					
+					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				}	
 			]]>
 			</constructor>
 			<destructor>
 				this.stEventArray.deregisterAllListener();
+				
+				if (typeof this.ctxMenuTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);			
+				}
 
-				this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);
-				this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);				
+				if (typeof this.toolbarTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);				
+				}
 			</destructor>
 			<property name="selectedScheme">
 				<getter>
@@ -152,6 +168,14 @@
 					
 					return row.id;
 				</getter>
+			</property>
+			<property name="mutable">
+				<getter>
+					return this.getAttribute("mutable") != "false" ? true : false;
+				</getter>
+				<setter>
+					this.setAttribute("mutable", val);
+				</setter>
 			</property>
 		</implementation>
 	</binding>  

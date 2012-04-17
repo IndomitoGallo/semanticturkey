@@ -2269,6 +2269,7 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 	parameters.typeValue = typeValue;
 	parameters.parentWindow = window.arguments[0].parentWindow;
 	parameters.oncancel = false;
+	parameters.skos = window.arguments[0].skos;
 	
 	// NScarpato 20/11/2010
 	var responseXML = art_semanticturkey.STRequests.Property.getRange(

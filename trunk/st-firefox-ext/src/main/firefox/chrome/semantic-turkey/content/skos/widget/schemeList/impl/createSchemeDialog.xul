@@ -14,7 +14,7 @@
 		<columns><column /><column flex="1" /></columns>
 		<rows>
 			<row align="center">
-	    		<label value="Concept name:" control="schemeName"/> <textbox id="schemeName" xul:flex="1"/>
+	    		<label value="Scheme name:" control="schemeName"/> <textbox id="schemeName" xul:flex="1"/>
 	    	</row>
 	    	<row align="center">
 				<label value="skos:prefLabel:" control="prefLabel"/> <st:plainliteral id="prefLabel" xul:flex="1"/>
