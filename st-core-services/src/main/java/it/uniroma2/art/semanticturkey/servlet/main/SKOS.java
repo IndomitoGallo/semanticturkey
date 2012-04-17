@@ -25,6 +25,8 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.filter.ConceptsInSchemePredicate;
+import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
+import it.uniroma2.art.owlart.filter.RootConceptsPredicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
@@ -53,6 +55,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 
 public class SKOS extends Resource {
@@ -153,9 +157,8 @@ public class SKOS extends Resource {
 		} else if (request.equals(Req.getTopConceptsRequest)) {
 			String schemaURI = setHttpPar(Par.scheme);
 			String defaultLanguage = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.scheme);
-			logger.debug("SKOS.getConceptsTreeRequest:" + response);
-			response = getTopConceptsInScheme(schemaURI, defaultLanguage);
+			logger.debug("SKOS.getTopConceptsRequest:" + response);
+			response = getTopConcepts(schemaURI, defaultLanguage);
 
 		} else if (request.equals(Req.getNarrowerConceptsRequest)) {
 			String conceptName = setHttpPar(Par.concept);
@@ -356,19 +359,45 @@ public class SKOS extends Resource {
 		return response;
 	}
 
-	public Response getTopConceptsInScheme(String schemaUri, String defaultLanguage) {
+	public Response getTopConcepts(String schemaUri, String defaultLanguage) {
 		SKOSModel skosModel = getSKOSModel();
-		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		ARTURIResourceIterator it;
 		try {
+			if (schemaUri != null) {
+				ARTURIResource skosScheme = skosModel.createURIResource(skosModel.expandQName(schemaUri));
+				it = skosModel.listTopConceptsInScheme(skosScheme, true, getUserNamedGraphs());
+			} else {
+				// TODO move to OWLART?
+				it = getTopConcepts();
+			}
+
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			ARTURIResource skosScheme = skosModel.createURIResource(skosModel.expandQName(schemaUri));
-			ARTURIResourceIterator it = skosModel.listTopConceptsInScheme(skosScheme, true,
-					getUserNamedGraphs());
 			makeConceptListXML(skosModel, dataElement, it, true, defaultLanguage);
+			return response;
+			
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		}
-		return response;
+
+	}
+
+	// TODO maybe it is the case to move it to OWLART...
+	/**
+	 * 
+	 * 
+	 * @param defaultLanguage
+	 * @return
+	 * @throws ModelAccessException
+	 */
+	public ARTURIResourceIterator getTopConcepts() throws ModelAccessException {
+		SKOSModel skosModel = getSKOSModel();
+		ARTResource[] graphs = getUserNamedGraphs();
+		Predicate<ARTURIResource> rootConceptsPred = new RootConceptsPredicate(skosModel, graphs);
+		ARTURIResourceIterator concepts = skosModel.listConcepts(true, graphs);
+		Iterator<ARTURIResource> filtIt;
+		filtIt = Iterators.filter(concepts, rootConceptsPred);
+		return RDFIterators.createARTURIResourceIterator(filtIt);
 	}
 
 	public Response getConceptDescription(String conceptName, String method) {
