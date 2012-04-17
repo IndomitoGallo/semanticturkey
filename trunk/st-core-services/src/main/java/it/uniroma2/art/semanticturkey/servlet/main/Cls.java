@@ -503,7 +503,7 @@ public class Cls extends Resource {
 	 */
 	public Response getClassSubTreeXML(String clsQName) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
-		ARTURIResource cls;		
+		ARTURIResource cls;
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		try {
@@ -548,7 +548,6 @@ public class Cls extends Resource {
 		else
 			exclusionPredicate = DomainResourcePredicate.domResPredicate;
 
-		
 		// TODO I should have "graphs" in the filter constructor too
 		Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(ontModel),
 				exclusionPredicate);
@@ -853,10 +852,11 @@ public class Cls extends Resource {
 			String newClassURI = ontModel.expandQName(newClassQName);
 			ARTURIResource res = ontModel.createURIResource(newClassURI);
 			boolean exists = ontModel.existsResource(res);
-			if (exists) {				
+			if (exists) {
 				return logAndSendException("there is a resource with the same name!");
 			}
-			ARTResource superClassResource = retrieveExistingResource(ontModel, superClassQName, getUserNamedGraphs());
+			ARTResource superClassResource = retrieveExistingResource(ontModel, superClassQName,
+					getUserNamedGraphs());
 
 			ontModel.addClass(newClassURI);
 			ontModel.addSuperClass(res, superClassResource);

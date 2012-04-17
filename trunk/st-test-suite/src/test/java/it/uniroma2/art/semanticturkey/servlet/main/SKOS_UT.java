@@ -59,7 +59,7 @@ public class SKOS_UT extends ServiceUTFixture {
 						par(SKOS.Par.broaderConcept, broaderConcept), par(SKOS.Par.scheme, scheme),
 						par(SKOS.Par.prefLabel, prefLabel), par(SKOS.Par.langTag, lang));
 	}
-	
+
 	public static void createSampleSKOSData() {
 		addConcept("telecommunicationsTools", null, "mainScheme", "strumenti per le telecomunicazioni", "it");
 		addConcept("smartphones", "telecommunicationsTools", "mainScheme", "Smart Phones", "it");
@@ -76,21 +76,22 @@ public class SKOS_UT extends ServiceUTFixture {
 				par(SKOS.Par.scheme, "mainScheme"));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
-		
+
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.createSchemeRequest,
 				par(SKOS.Par.scheme, "anotherScheme"));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
-	
+
 	@Test
 	public void createConceptTest() {
 
 		createSampleSKOSData();
-		
-		Response resp = addConcept("DBBasedTripleStores", null, "mainScheme", "TripleStores basati su DB", "it");
+
+		Response resp = addConcept("DBBasedTripleStores", null, "mainScheme", "TripleStores basati su DB",
+				"it");
 		assertAffirmativeREPLY(resp);
-		
+
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.createConceptRequest,
 				par(SKOS.Par.concept, "DatabaseSystems"),
 				par(SKOS.Par.broaderConcept, "informationStorageTools"), par(SKOS.Par.scheme, "mainScheme"),
@@ -147,14 +148,21 @@ public class SKOS_UT extends ServiceUTFixture {
 	}
 
 	@Test
-	public void testGetTopConcepts() {
+	public void testGetTopConceptsInScheme() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getTopConceptsRequest,
 				par(SKOS.Par.scheme, "mainScheme"));
 
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
-	
+
+	@Test
+	public void testGetTopConcepts() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getTopConceptsRequest);
+
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
 
 	@Test
 	public void getSKOSSchemeDescriptionTest() {
@@ -171,38 +179,31 @@ public class SKOS_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
-	
+
 	@Test
 	public void getNarrowerConceptsTest() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getNarrowerConceptsRequest,
-				par(SKOS.Par.concept, "telecommunicationsTools")
-		);
+				par(SKOS.Par.concept, "telecommunicationsTools"));
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);		
-		
+		assertAffirmativeREPLY(resp);
+
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.getNarrowerConceptsRequest,
-				par(SKOS.Par.concept, "telecommunicationsTools"),
-				par(SKOS.Par.scheme, "anotherScheme")
-		);
+				par(SKOS.Par.concept, "telecommunicationsTools"), par(SKOS.Par.scheme, "anotherScheme"));
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);		
-		
+		assertAffirmativeREPLY(resp);
+
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.getNarrowerConceptsRequest,
-				par(SKOS.Par.concept, "telecommunicationsTools"),
-				par(SKOS.Par.scheme, "whichScheme?")
-		);
+				par(SKOS.Par.concept, "telecommunicationsTools"), par(SKOS.Par.scheme, "whichScheme?"));
 		System.out.println(resp);
 		assertResponseEXCEPTION(resp);
 	}
-	
+
 	@Test
 	public void getSchemesMatrixPerConceptTest() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getSchemesMatrixPerConceptRequest,
-				par(SKOS.Par.concept, "telecommunicationsTools"),
-				par(SKOS.Par.langTag, "en")
-		);
+				par(SKOS.Par.concept, "telecommunicationsTools"), par(SKOS.Par.langTag, "en"));
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);			
+		assertAffirmativeREPLY(resp);
 	}
 
 }
