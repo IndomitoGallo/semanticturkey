@@ -89,11 +89,6 @@ function MenuPopupTrackerAdapter(topicName, host, menupopup) {
 			newButton.setAttribute("label", command.label);
 		}
 
-/*		
-		if (typeof command.tooltiptext != "undefined") {
-			newButton.setAttribute("tooltiptext", command.description);
-		}
-*/	
 		if (typeof command.image != "undefined") {
 			newButton.setAttribute("image", command.image);
 		}
@@ -150,7 +145,7 @@ function ToolbarTrackerAdapter(topicName, host, toolbar) {
 
 Components.utils.import("resource://stservices/SERVICE_SKOS.jsm");
 
-CommandBroker.offerCommand("skos:concept:edit",
+CommandBroker.offerCommand("skos:concept*edit",
 	{
 		label : "Create Top Concept",
 		tooltiptext : "Create Top Concept",
@@ -176,7 +171,7 @@ CommandBroker.offerCommand("skos:concept:edit",
 	}
 );
 
-CommandBroker.offerCommand("skos:concept:edit",
+CommandBroker.offerCommand("skos:concept*edit",
 	{
 		label : "Create Narrower Concept",
 		tooltiptext : "Create Narrower Concept",
@@ -205,7 +200,7 @@ CommandBroker.offerCommand("skos:concept:edit",
 	}
 );
 
-CommandBroker.offerCommand("skos:concept:edit",
+CommandBroker.offerCommand("skos:concept*edit",
 	{
 		label : "Delete Concept",
 		tooltiptext : "Delete Concept",
@@ -225,29 +220,29 @@ CommandBroker.offerCommand("skos:concept:edit",
 	}
 );
 
-CommandBroker.offerCommand("skos:concept:edit",
-	{
-		label : "Schemes...",
-		tooltiptext : "Manages the concept schemes this concept belongs to",
-		image : "",
-		do : function(host) {
-				var obj = {};
-				obj.wrappedJSObject = obj;
-				
-				var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-				                   .getService(Components.interfaces.nsIWindowWatcher);
-				var win = ww.openWindow(null, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/manageSchemesDialog.xul", "dlg", "modal", obj);
-								
-				if (obj.out == null) return;
-		}
-	}
-);
+//CommandBroker.offerCommand("skos:concept*edit",
+//	{
+//		label : "Schemes...",
+//		tooltiptext : "Manages the concept schemes this concept belongs to",
+//		image : "",
+//		do : function(host) {
+//				var obj = {};
+//				obj.wrappedJSObject = obj;
+//				
+//				var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+//				                   .getService(Components.interfaces.nsIWindowWatcher);
+//				var win = ww.openWindow(null, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/manageSchemesDialog.xul", "dlg", "modal", obj);
+//								
+//				if (obj.out == null) return;
+//		}
+//	}
+//);
 
-CommandBroker.offerCommand("skos:scheme:edit",
+CommandBroker.offerCommand("skos:scheme*edit",
 	{
 		label : "Create Concept Scheme",
 		tooltiptext : "Create Concept Scheme",
-		image : "",
+		image : "chrome://semantic-turkey/skin/images/skosScheme_create.png",
 		do : function(host) {
 
 			try{
@@ -269,11 +264,11 @@ CommandBroker.offerCommand("skos:scheme:edit",
 	}
 );
 
-CommandBroker.offerCommand("skos:scheme:edit",
+CommandBroker.offerCommand("skos:scheme*edit",
 	{
 		label : "Delete Concept Scheme",
 		tooltiptext : "Delete Concept Scheme",
-		image : "",
+		image : "chrome://semantic-turkey/skin/images/skosScheme_delete.png",
 		do : function(host) {
 
 			try{

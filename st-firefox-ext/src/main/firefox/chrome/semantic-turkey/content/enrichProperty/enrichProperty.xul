@@ -23,7 +23,8 @@
 
 <window id="properties" title=""
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="600" height="600"
+	width="800px"
+	height="600px"
     xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#">
 
@@ -33,19 +34,15 @@
 		<script type="application/x-javascript" src="chrome://semantic-turkey/content/utilities/utility.js" />
 		<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEventsGUI.js" />
 	
-		<hbox flex="1" orient="vertical">
-		<rows id="clsTree">
-			<row>
-				<toolbox>
-					<toolbar id="property-toolbar">
-						<checkbox label="Show all classes" id="checkAll" />
-					</toolbar>
-				</toolbox>
-			</row>
-		</rows>
-		<box flex="1" orient="horizontal">
-			<tree hidecolumnpicker="true" id="ep_classesTree" flex="1"
-				seltype="single">
+		<toolbox>
+			<toolbar id="property-toolbar">
+				<checkbox label="Show all classes" id="checkAll" />
+			</toolbar>
+		</toolbox>
+		
+		<hbox flex="1">
+		
+			<tree hidecolumnpicker="true" id="ep_classesTree" flex="1" seltype="single">
 				<treecols>
 					<treecol id="category" label="Classes" primary="true" flex="1">
 					</treecol>
@@ -53,10 +50,12 @@
 				<treechildren id="ep_rootClassTreeChildren">
 				</treechildren>
 			</tree>
+
 			<splitter orient="horizontal" state="open" collapse="after"
 				resizeafter="closest">
 			</splitter>
-			<deck id="instanceDeck">
+		
+			<deck id="instanceDeck" flex="1">
 				<listbox id="ep_IndividualsList">
 					<listhead>
 						<listheader>
@@ -67,21 +66,15 @@
 					</listhead>			
 				</listbox>
 				
-				<st:conceptTree id="ep_conceptTree" hideheading="true" />	
+				<st:conceptTree id="ep_conceptTree" hideheading="false" hidetoolbar="true" mutable="false" />
 			</deck>
-
-		</box>
-	</hbox>
-	<splitter state="open" collapse="after" resizeafter="closest">
-	</splitter>
-	<hbox>
-		<vbox orient="horizontal" flex="1">
+		</hbox>
+		<hbox>
 			<button id="Bind" label="Bind to new individual for selected Class"
 				 disabled="false" />
 			<spacer flex="1" />
 			<button id="cancel" label="Cancel" class="dialog"/>
 			<spacer flex="1" />
 			<button id="Add" label="Add new annotation for selected instance" disabled="false" />
-		</vbox>
-	</hbox>
+		</hbox>
 </window>

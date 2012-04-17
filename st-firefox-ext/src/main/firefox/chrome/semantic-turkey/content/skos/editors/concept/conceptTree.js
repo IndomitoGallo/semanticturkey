@@ -3,6 +3,9 @@ var art_semanticturkey = {};
 art_semanticturkey.init = function(event) {
 	var conceptTree = document.getElementById("conceptTree");
 	conceptTree.conceptScheme = window.arguments[0].conceptScheme;
+	conceptTree.hidetoolbar = typeof window.arguments[0].hidetoolbar == "undefined" ? true : window.arguments[0].hidetoolbar;
+	conceptTree.hideheading = typeof window.arguments[0].hideheading == "undefined" ? true : window.arguments[0].hideheading;
+	conceptTree.mutable = typeof window.arguments[0].mutable == "undefined" ? false : window.arguments[0].mutable;
 };
 
 art_semanticturkey.onAccept = function(event) {

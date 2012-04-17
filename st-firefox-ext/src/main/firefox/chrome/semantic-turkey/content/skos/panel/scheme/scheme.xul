@@ -31,5 +31,5 @@
         xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#">
 	<script type="text/javascript" src="scheme.js" />
 	<script type="text/javascript" src="chrome://semantic-turkey/content/event/eventObjects.js" />
-	<st:schemeList id="schemeList" xul:flex="1" hideheading="false" columns="check[checkbox],name"/>
+	<st:schemeList id="schemeList" xul:flex="1" hideheading="true" hidetoolbar="false" mutable="true" columns="check[checkbox],name"/>
 </window>

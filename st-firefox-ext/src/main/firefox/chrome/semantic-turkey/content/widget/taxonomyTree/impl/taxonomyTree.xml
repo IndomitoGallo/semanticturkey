@@ -1,12 +1,13 @@
 <?xml version="1.0"?>  
 <bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">  
 	<binding id="taxonomyTree">  
 		<resources>
 			<stylesheet src="taxonomyTree.css" />
 		</resources>
 		<content>
-			<xul:toolbar id="taxonomyToolbar" ano_id="taxonomyToolbar" />
+			<xul:toolbar id="taxonomyToolbar" ano_id="taxonomyToolbar" xbl:inherits="hidden=hidetoolbar"/>
 			<xul:tree flex="1" context="_child" hidecolumnpicker="true" ano_id="taxonomyTree" seltype="single">
 				<xul:treecols ano_id="taxonomyHeading" />
 				<xul:treechildren ano_id="taxonomyChildren" flex="1" />
@@ -31,12 +32,24 @@
 			<property name="hideheading">
 				<setter>
 				<![CDATA[
-					this.setAttributeNS("http://semanticturkey.uniroma2.it/xmlns/widget#", "hideheading", val);
+					this.setAttribute("hideheading", val);
 				]]>				
 				</setter>
 				<getter>
 				<![CDATA[
-					return this.getAttributeNS("http://semanticturkey.uniroma2.it/xmlns/widget#", "hideheading");
+					return this.getAttribute("hideheading");
+				]]>
+				</getter>
+			</property>
+			<property name="hidetoolbar">
+				<setter>
+				<![CDATA[
+					this.setAttribute("hidetoolbar", val);
+				]]>				
+				</setter>
+				<getter>
+				<![CDATA[
+					return this.getAttribute("hidetoolbar");
 				]]>
 				</getter>
 			</property>
@@ -545,6 +558,10 @@
 					
 					if (typeof t[2] != "undefined") {
 						colEl.setAttribute("type", t[2]);
+						
+						if (t[2] == "checkbox") {
+							colEl.setAttribute("flex", "0");
+						}
 					}
 					
 					if (empty) {

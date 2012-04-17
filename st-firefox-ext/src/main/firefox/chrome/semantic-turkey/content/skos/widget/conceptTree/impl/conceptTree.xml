@@ -6,7 +6,9 @@
 		<handlers>
 			<handler event="it.uniroma2.art.semanticturkey.event.widget.tree.dblclick">
 			<![CDATA[
-			if (this.selectedConcept == null) return;
+			if (event.detail.rowIndex == -1) return;
+			
+			if (!this.mutable) return;
 			
 			var parameters = {
 				sourceElement : null,		// elemento contenente i dati della riga corrente
@@ -15,7 +17,8 @@
 				sourceParentElementName : "", // nome dell'elemento genitore
 				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
 				deleteForbidden : false, 	 // cancellazione vietata 
-				parentWindow : window		 // finestra da cui viene aperto l'editor
+				parentWindow : window,		 // finestra da cui viene aperto l'editor
+				skos : {selectedScheme : this.conceptScheme}
 			};
 			window.openDialog(
 					"chrome://semantic-turkey/content/editors/editorPanel.xul",
@@ -36,6 +39,8 @@
 				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stservices/SERVICE_Projects.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/PrefUtils.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);				
 			
 				var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 				                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
@@ -97,7 +102,21 @@
 					
 					return result;
 				};
-								
+				
+				this._view.provider.getLabel = function(row, col) {
+					if (col.id != "concept") {
+						return this._view.__proto__.getLabel(row, col);
+					}
+					
+					if (isHumanReadable) {
+						if (row.record["label"].trim() != "") {
+							return row.record["label"];
+						}
+					}								
+					
+					return row.record["concept"];
+				};
+						
 				this._view.provider.getImageURL = function(row, col) {
 						return "chrome://semantic-turkey/skin/images/skosConcept.png";
 				};
@@ -166,6 +185,11 @@
 					
 					bound._view.addRow(broaderConcept, row);
 					
+					/*
+					 * A concept is no more a top concept of a scheme, if it is added below a concept belonging to that
+					 * scheme. Unfortunately, we haven't an adequate event mechanism yet.  However, we can safely assume
+					 * that the conept belongs to the current scheme, because the editor let us modify only a concept scheme
+					 */  
 					var topNoMore = true;
 					
 					if (topNoMore) {
@@ -194,21 +218,47 @@
 						bound.conceptScheme = "";
 					}
 				}, null);
-
+								
+				if (bound.mutable == true) {
+					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept*edit", this, ctxMenu);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+					
+					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept*edit", this, taxonomyToolbar);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				}
 				
-				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept:edit", this, ctxMenu);
-				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+				this.projectType = "SKOS";
 				
-				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept:edit", this, taxonomyToolbar);
-				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				var isHumanReadable	= false;
 				
-				this.projectType = "SKOS";				
+				var setHumanReadable = function(flag) {
+					isHumanReadable = flag;
+					
+					bound._view.invalidate();
+				};
+				
+				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.skos.", function(branch, name){
+					if (name == "humanReadable") {
+						var isReadable = branch.getBoolPref(name);
+						
+						setHumanReadable(isReadable);						
+					}
+				});
+				this.prefListener.register(true);
 			]]>
 			</constructor>
 			<destructor>
 				this.stEventArray.deregisterAllListener();
-				this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);
-				this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);
+				
+				if (typeof this.ctxMenuTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);
+				}
+				
+				if (typeof this.toolbarTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);
+				}
+				
+				this.prefListener.unregister();
 			</destructor>
 			<property name="selectedConcept">
 				<getter>
@@ -234,6 +284,14 @@
 
 					this._view.reload();
 					}
+				</setter>
+			</property>
+			<property name="mutable">
+				<getter>
+					return this.getAttribute("mutable") != "false" ? true : false;
+				</getter>
+				<setter>
+					this.setAttribute("mutable", val);
 				</setter>
 			</property>
 		</implementation>
