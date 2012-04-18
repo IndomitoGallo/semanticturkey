@@ -31,7 +31,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
-import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
+import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -55,7 +55,7 @@ import org.w3c.dom.Element;
  */
 public class Delete extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Delete.class);
-	private static DeletePropagationPropertyTree deletePropertyPropagationTree;
+	private static PropertyChainsTree deletePropertyPropagationTree;
 
 	public final static String removePropertyRequest = "removeProperty";
 	public final static String removeInstanceRequest = "removeInstance";
@@ -70,8 +70,8 @@ public class Delete extends ServiceAdapter {
 	}
 	
 	private void initializeDeletePropertyPropagationTree() {
-		deletePropertyPropagationTree = new DeletePropagationPropertyTree();
-		deletePropertyPropagationTree.addChild(SemAnnotVocab.Res.annotation).addChild(
+		deletePropertyPropagationTree = new PropertyChainsTree();
+		deletePropertyPropagationTree.addChainedProperty(SemAnnotVocab.Res.annotation).addChainedProperty(
 				SemAnnotVocab.Res.location);
 	}
 
@@ -199,7 +199,7 @@ public class Delete extends ServiceAdapter {
 	/**
 	 * @return the deletePropertyPropagationTree
 	 */
-	static DeletePropagationPropertyTree getDeletePropertyPropagationTree() {
+	static PropertyChainsTree getDeletePropertyPropagationTree() {
 		return deletePropertyPropagationTree;
 	}
 
@@ -207,7 +207,7 @@ public class Delete extends ServiceAdapter {
 	 * @param deletePropertyPropagationTree
 	 *            the deletePropertyPropagationTree to set
 	 */
-	static void setDeletePropertyPropagationTree(DeletePropagationPropertyTree deletePropertyPropagationTree) {
+	static void setDeletePropertyPropagationTree(PropertyChainsTree deletePropertyPropagationTree) {
 		Delete.deletePropertyPropagationTree = deletePropertyPropagationTree;
 	}
 
