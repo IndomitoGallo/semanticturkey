@@ -34,7 +34,7 @@ import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
-import it.uniroma2.art.owlart.utilities.DeletePropagationPropertyTree;
+import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.SemanticTurkeyOperations;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -91,7 +91,7 @@ public class Annotation extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Annotation.class);
 
 	protected ServletUtilities servletUtilities;
-	protected DeletePropagationPropertyTree deletePropertyPropagationTreeForAnnotations;
+	protected PropertyChainsTree deletePropertyPropagationTreeForAnnotations;
 
 	/**
 	 * this service is in charge of managing annotation actions over ontology resources
@@ -108,8 +108,8 @@ public class Annotation extends ServiceAdapter {
 	}
 
 	protected void initializeDeletePropertyPropagationTreeForAnnotations() {
-		deletePropertyPropagationTreeForAnnotations = new DeletePropagationPropertyTree();
-		deletePropertyPropagationTreeForAnnotations.addChild(SemAnnotVocab.Res.location);
+		deletePropertyPropagationTreeForAnnotations = new PropertyChainsTree();
+		deletePropertyPropagationTreeForAnnotations.addChainedProperty(SemAnnotVocab.Res.location);
 	}
 
 	/*
