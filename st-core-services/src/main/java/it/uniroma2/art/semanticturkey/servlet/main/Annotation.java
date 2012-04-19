@@ -27,29 +27,36 @@ import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
-import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
-import it.uniroma2.art.semanticturkey.SemanticTurkeyOperations;
+import it.uniroma2.art.owlart.vocabulary.XmlSchema;
+import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Element;
 
 /**
@@ -66,13 +73,16 @@ public class Annotation extends ServiceAdapter {
 	public static final String createAndAnnotateRequest = "createAndAnnotate";
 	public static final String addAnnotationRequest = "addAnnotation";
 	public static final String relateAndAnnotateRequest = "relateAndAnnotate";
+	public static final String bookmarkPageRequest = "bookmarkPage";
+	public static final String getBookmarksByTopic = "getBookmarksByTopic";
+	public static final String getAllBookmarks = "getAllBookmarks";
 
 	// parameters
-	public static final String urlPageString = "urlPage";
-	public static final String titleString = "title";
 	public static final String annotQNameString = "annotQName";
 	public static final String textString = "text";
 	public static final String op = "op";
+	public static final String topic = "topic";
+	public static final String topicsList = "topics";
 
 	public static final String clsQNameField = "clsQName";
 	public static final String instanceQNameField = "instanceQName";
@@ -89,6 +99,8 @@ public class Annotation extends ServiceAdapter {
 	public static final String bindAnnot = "bindAnnot";
 
 	protected static Logger logger = LoggerFactory.getLogger(Annotation.class);
+
+	private static String datePropName = "http://purl.org/dc/terms/date";
 
 	protected ServletUtilities servletUtilities;
 	protected PropertyChainsTree deletePropertyPropagationTreeForAnnotations;
@@ -121,11 +133,23 @@ public class Annotation extends ServiceAdapter {
 		Response response = null;
 
 		if (request.equals(getPageAnnotationsRequest)) {
-			String urlPage = setHttpPar(urlPageString);
+			String urlPage = setHttpPar(urlPageField);
 			response = getPageAnnotations(urlPage);
+		} else if (request.equals(bookmarkPageRequest)) {
+			String pageURL = setHttpPar(urlPageField);
+			String title = setHttpPar(titleField);
+			String topics = setHttpPar(topicsList);
+			checkRequestParametersAllNotNull(urlPageField, titleField, topicsList);
+			response = bookmarkPage(pageURL, title, topics);
+		} else if (request.equals(getBookmarksByTopic)) {
+			String topicName = setHttpPar(topic);
+			checkRequestParametersAllNotNull(topic);
+			response = getBookmarksByTopic(topicName);
+		} else if (request.equals(getAllBookmarks)) {
+			response = getAllBookmarks();
 		} else if (request.equals(chkAnnotationsRequest)) {
-			String urlPage = setHttpPar(urlPageString);
-			checkRequestParametersAllNotNull(urlPageString);
+			String urlPage = setHttpPar(urlPageField);
+			checkRequestParametersAllNotNull(urlPageField);
 			response = chkPageForAnnotations(urlPage);
 		} else if (request.equals(removeAnnotationRequest)) {
 			String annotQName = setHttpPar(annotQNameString);
@@ -133,21 +157,22 @@ public class Annotation extends ServiceAdapter {
 		} else if (request.equals(createAndAnnotateRequest)) {
 
 			String clsQName = setHttpPar(clsQNameField);
-			String instanceNameEncoded = servletUtilities.encodeLabel(setHttpPar(instanceQNameField));
+			String instanceQName = setHttpPar(instanceQNameField);
 
-			String urlPage = setHttpPar(urlPageString);
-			String title = setHttpPar(titleString);
+			String urlPage = setHttpPar(urlPageField);
+			String title = setHttpPar(titleField);
 
-			response = dragDropSelectionOverClass(instanceNameEncoded, clsQName, urlPage, title);
+			response = dragDropSelectionOverClass(instanceQName, clsQName, urlPage, title);
 
 		} else if (request.equals(addAnnotationRequest)) {
-			String urlPage = setHttpPar(urlPageString);
+			String urlPage = setHttpPar(urlPageField);
 			String instanceQName = setHttpPar(instanceQNameField);
 			String text = setHttpPar(textString);
 			String textEncoded = servletUtilities.encodeLabel(text);
-			String title = setHttpPar(titleString);
+			String title = setHttpPar(titleField);
 
 			response = annotateInstanceWithDragAndDrop(instanceQName, textEncoded, urlPage, title);
+
 		} else if (request.equals(relateAndAnnotateRequest)) {
 			String subjectInstanceQName = setHttpPar(instanceQNameField);
 			String predicatePropertyName = setHttpPar(propertyQNameField);
@@ -174,7 +199,7 @@ public class Annotation extends ServiceAdapter {
 						predicatePropertyName, objectInstanceNameEncoded, annotation, urlPage, title);
 			}
 
-			//  
+			//
 
 		} else
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
@@ -197,11 +222,9 @@ public class Annotation extends ServiceAdapter {
 	 * @return
 	 */
 	public Response getPageAnnotations(String urlPage) {
-		OWLModel ontModel = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
-		ServletUtilities servletUtilities = ServletUtilities.getService();
+		OWLModel ontModel = getOWLModel();
 
-		XMLResponseREPLY response = servletUtilities.createReplyResponse(getPageAnnotationsRequest,
-				RepliesStatus.ok);
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 		Element dataElement = response.getDataElement();
 
@@ -210,7 +233,7 @@ public class Annotation extends ServiceAdapter {
 		ARTResource webPage = null;
 		try {
 			collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url, urlPageLiteral,
-					true);
+					true, getUserNamedGraphs());
 			while (collectionIterator.hasNext()) {
 				webPage = (ARTResource) collectionIterator.next();
 			}
@@ -218,33 +241,127 @@ public class Annotation extends ServiceAdapter {
 				return response;
 			}
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(getPageAnnotationsRequest, e);
+			return logAndSendException(e);
 		}
 
 		ARTResourceIterator semanticAnnotationsIterator;
 		try {
 			semanticAnnotationsIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.location,
-					webPage, true);
+					webPage, true, getUserNamedGraphs());
 			while (semanticAnnotationsIterator.streamOpen()) {
 				ARTResource semanticAnnotation = semanticAnnotationsIterator.getNext().asURIResource();
 				ARTLiteralIterator lexicalizationIterator = ontModel.listValuesOfSubjDTypePropertyPair(
-						semanticAnnotation, SemAnnotVocab.Res.text, true);
+						semanticAnnotation, SemAnnotVocab.Res.text, true, getUserNamedGraphs());
 				ARTLiteral lexicalization = lexicalizationIterator.getNext(); // there is at least one and no
 				// more than one lexicalization
 				// for each semantic annotation
 				Element annotationElement = XMLHelp.newElement(dataElement, "Annotation");
-				annotationElement.setAttribute("id", ontModel.getQName(semanticAnnotation.asURIResource()
-						.getURI()));
+				annotationElement.setAttribute("id",
+						ontModel.getQName(semanticAnnotation.asURIResource().getURI()));
 				annotationElement.setAttribute("value", lexicalization.getLabel());
-				ARTURIResource annotatedResource = ontModel.listSubjectsOfPredObjPair(
-						SemAnnotVocab.Res.annotation, semanticAnnotation, true).getNext().asURIResource();
+				ARTURIResource annotatedResource = ontModel
+						.listSubjectsOfPredObjPair(SemAnnotVocab.Res.annotation, semanticAnnotation, true,
+								getUserNamedGraphs()).getNext().asURIResource();
 				// there is at least one and no more than one referenced resource for each semantic annotation
 				annotationElement.setAttribute("resource", ontModel.getQName(annotatedResource.getURI()));
 			}
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(getPageAnnotationsRequest, e);
+			return logAndSendException(e);
 		}
 
+		return response;
+	}
+
+	public Response getBookmarksByTopic(String topicName) {
+		OWLModel ontModel = getOWLModel();
+
+		ARTURIResource dateProp = ontModel.createURIResource(datePropName);
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+
+			ARTURIResource topic = ontModel.retrieveURIResource(ontModel.expandQName(topicName),
+					getUserNamedGraphs());
+			if (topic == null)
+				return logAndSendException("there is no topic called: " + ontModel.expandQName(topicName));
+
+			ARTResourceIterator pageIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.topic,
+					topic, true, getUserNamedGraphs());
+
+			Element dataElement = response.getDataElement();
+
+			while (pageIterator.hasNext()) {
+				ARTResource page = pageIterator.getNext();
+				Element pageElement = XMLHelp.newElement(dataElement, "page");
+
+				ARTLiteralIterator dateIterator = ontModel.listValuesOfSubjDTypePropertyPair(page, dateProp,
+						true, graphs);
+				pageElement.setAttribute("time", dateIterator.getNext().toString());
+				dateIterator.close();
+
+				ARTLiteralIterator urlIterator = ontModel.listValuesOfSubjDTypePropertyPair(page,
+						SemAnnotVocab.Res.url, true, graphs);
+				pageElement.setAttribute("url", urlIterator.getNext().toString());
+				urlIterator.close();
+
+				ARTLiteralIterator titleIterator = ontModel.listValuesOfSubjDTypePropertyPair(page,
+						SemAnnotVocab.Res.title, true, graphs);
+				pageElement.setAttribute("title", titleIterator.getNext().getLabel());
+				titleIterator.close();
+
+			}
+			pageIterator.close();
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+
+	public Response getAllBookmarks() {
+		OWLModel ontModel = getOWLModel();
+
+		ARTURIResource dateProp = ontModel.createURIResource(datePropName);
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+
+			ARTStatementIterator bookmarkRelationsIterator = ontModel.listStatements(NodeFilters.ANY,
+					SemAnnotVocab.Res.topic, NodeFilters.ANY, true, getUserNamedGraphs());
+
+			Element dataElement = response.getDataElement();
+
+			while (bookmarkRelationsIterator.hasNext()) {
+				ARTStatement rel = bookmarkRelationsIterator.getNext();
+				ARTResource page = rel.getSubject();
+				Element pageElement = XMLHelp.newElement(dataElement, "page");
+
+				pageElement
+						.setAttribute("topic", ontModel.getQName(rel.getObject().asURIResource().getURI()));
+
+				ARTLiteralIterator dateIterator = ontModel.listValuesOfSubjDTypePropertyPair(page, dateProp,
+						true, graphs);
+				pageElement.setAttribute("time", dateIterator.getNext().toString());
+				dateIterator.close();
+
+				ARTLiteralIterator urlIterator = ontModel.listValuesOfSubjDTypePropertyPair(page,
+						SemAnnotVocab.Res.url, true, graphs);
+				pageElement.setAttribute("url", urlIterator.getNext().toString());
+				urlIterator.close();
+
+				ARTLiteralIterator titleIterator = ontModel.listValuesOfSubjDTypePropertyPair(page,
+						SemAnnotVocab.Res.title, true, graphs);
+				pageElement.setAttribute("title", titleIterator.getNext().getLabel());
+				titleIterator.close();
+
+			}
+			bookmarkRelationsIterator.close();
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		}
 		return response;
 	}
 
@@ -258,22 +375,22 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response chkPageForAnnotations(String urlPage) {
 		String request = chkAnnotationsRequest;
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 
 		ARTLiteral urlPageLiteral = ontModel.createLiteral(urlPage);
 		ARTResourceIterator collectionIterator;
 		try {
 			collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url, urlPageLiteral,
-					true);
+					true, getUserNamedGraphs());
 			RepliesStatus reply;
 			if (collectionIterator.streamOpen())
 				reply = RepliesStatus.ok;
 			else
 				reply = RepliesStatus.fail;
-			return ServletUtilities.getService().createReplyResponse(request, reply);
+			return servletUtilities.createReplyResponse(request, reply);
 
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(chkAnnotationsRequest, e);
+			return logAndSendException(e);
 		}
 	}
 
@@ -288,7 +405,7 @@ public class Annotation extends ServiceAdapter {
 	public Response removeAnnotation(String annotQName) {
 		String request = removeAnnotationRequest;
 		logger.debug("replying to \"removeAnnotation(" + annotQName + ")\".");
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 
 		ARTURIResource annot;
 
@@ -303,14 +420,15 @@ public class Annotation extends ServiceAdapter {
 
 			logger.debug("removing annotation: " + annot);
 
-			ModelUtilities.deepDeleteIndividual(annot, ontModel, deletePropertyPropagationTreeForAnnotations);
+			ModelUtilities.deepDeleteIndividual(annot, ontModel, deletePropertyPropagationTreeForAnnotations,
+					getWorkingGraph());
 
 			return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 
 		} catch (ModelAccessException mae) {
-			return ServletUtilities.getService().createExceptionResponse(request, mae);
+			return logAndSendException(mae);
 		} catch (ModelUpdateException mue) {
-			return ServletUtilities.getService().createExceptionResponse(request, mue);
+			return logAndSendException(mue);
 		}
 
 	}
@@ -329,38 +447,34 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response dragDropSelectionOverClass(String instanceQName, String clsQName, String urlPage,
 			String title) {
-		ServletUtilities servletUtilities = ServletUtilities.getService();
 		logger.debug("dragged: " + instanceQName + " over class: " + clsQName + " on url: " + urlPage
 				+ " with title: " + title);
 		String handledUrlPage = urlPage.replace(":", "%3A");
 		handledUrlPage = handledUrlPage.replace("/", "%2F");
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 		try {
-			String instanceURI = ontModel.expandQName(instanceQName);
-			ARTURIResource instanceRes = ontModel.retrieveURIResource(instanceURI);
-			if (instanceRes != null)
-				return servletUtilities.createExceptionResponse(createAndAnnotateRequest,
-						"there is another resource with the same name!");
-
-			ARTURIResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
-			ontModel.addInstance(instanceURI, cls);
+			ARTURIResource instance = createNewResource(ontModel, instanceQName, getUserNamedGraphs());
+			String instanceURI = instance.getURI();
+			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs()); 
+			ontModel.addInstance(instanceURI, cls, getWorkingGraph());
 			logger.debug("created new instance: " + instanceURI + " for class: " + cls);
-			SemanticTurkeyOperations.createLexicalization(ontModel, instanceQName, instanceQName, urlPage,
-					title);
+			createLexicalization(ontModel, instance, instanceQName, urlPage, title, getWorkingGraph());
 		} catch (ModelUpdateException e) {
 			logger.error("instance creation error", e);
-			return servletUtilities.createExceptionResponse(createAndAnnotateRequest,
-					"instance creation error: " + e.getMessage());
+			return logAndSendException("instance creation error: " + e.getMessage());
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(createAndAnnotateRequest, e);
+			return logAndSendException(e);
+		} catch (DuplicatedResourceException e) {
+			return logAndSendException("there is another resource with the same name!");
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		try {
 			return updateClassOnTree(clsQName, instanceQName);
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(createAndAnnotateRequest,
-					"annotation created but failed to update the number of instances on class: " + clsQName
-							+ "\n" + e);
+			return logAndSendException("annotation created but failed to update the number of instances on class: "
+					+ clsQName + "\n" + e);
 		}
 	}
 
@@ -377,13 +491,14 @@ public class Annotation extends ServiceAdapter {
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 		Element clsElement = XMLHelp.newElement(dataElement, "Class");
 		clsElement.setAttribute("clsName", clsQName);
 		ARTResource cls = ontModel.createURIResource(ontModel.expandQName(clsQName));
 
 		String numTotInst = ""
-				+ ModelUtilities.getNumberOfClassInstances(((DirectReasoning) ontModel), cls, true);
+				+ ModelUtilities.getNumberOfClassInstances(((DirectReasoning) ontModel), cls, true,
+						getUserNamedGraphs());
 
 		clsElement.setAttribute("numTotInst", numTotInst);
 		Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
@@ -405,22 +520,21 @@ public class Annotation extends ServiceAdapter {
 			String lexicalizationEncoded, String urlPage, String title) {
 		logger.debug("taking annotation for: url" + urlPage + " instanceQName: " + subjectInstanceQName
 				+ " lexicalization: " + lexicalizationEncoded + " title: " + title);
-		ServletUtilities servletUtilities = new ServletUtilities();
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 		try {
-			SemanticTurkeyOperations.createLexicalization(ontModel, subjectInstanceQName,
-					lexicalizationEncoded, urlPage, title);
+			ARTURIResource subjectInstance = retrieveExistingResource(ontModel, subjectInstanceQName,
+					getUserNamedGraphs());
+			createLexicalization(ontModel, subjectInstance, lexicalizationEncoded, urlPage, title,
+					getWorkingGraph());
 		} catch (ModelUpdateException e) {
-			logger.error("lexicalization creation error: ", e);
-			return servletUtilities.createExceptionResponse(addAnnotationRequest,
-					"lexicalization creation error: " + e.getMessage());
+			return logAndSendException("lexicalization creation error: " + e.getMessage());
 		} catch (ModelAccessException e) {
-			logger.error("lexicalization creation error: ", e);
-			return servletUtilities.createExceptionResponse(addAnnotationRequest,
-					"lexicalization creation error: " + e.getMessage());
+			return logAndSendException("lexicalization creation error: " + e.getMessage());
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		logger.debug("annotation taken");
-		return servletUtilities.createReplyResponse(addAnnotationRequest, RepliesStatus.ok);
+		return createReplyResponse(RepliesStatus.ok);
 	}
 
 	// ricordarsi che qui c'è una sola request che gestisce due cose (dipende dall'op)
@@ -443,33 +557,33 @@ public class Annotation extends ServiceAdapter {
 			String predicatePropertyQName, String objectInstanceQName, RDFTypesEnum type,
 			String rangeClsQName, String urlPage, String title, String lang) {
 		ServletUtilities servletUtilities = new ServletUtilities();
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		OWLModel ontModel = getOWLModel();
 		ARTURIResource property;
 
 		try {
 			property = ontModel.createURIResource(ontModel.expandQName(predicatePropertyQName));
 			ARTResource rangeClsRes = null;
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
 
-			if (ontModel.isDatatypeProperty(property) || ontModel.isAnnotationProperty(property)
-					|| type == RDFTypesEnum.literal) {
+			if (ontModel.isDatatypeProperty(property, graphs)
+					|| ontModel.isAnnotationProperty(property, graphs) || type == RDFTypesEnum.literal) {
 				logger.debug("adding value to a literal valued property ");
 				ARTURIResource subjectInstanceEncodedRes = ontModel.createURIResource(ontModel
 						.expandQName(subjectInstanceQName));
 				try {
-					if (ontModel.isAnnotationProperty(property)) {
+					if (ontModel.isAnnotationProperty(property, graphs)) {
 						logger.debug("adding value" + objectInstanceQName
 								+ "to annotation property with lang: ");
 						ontModel.instantiatePropertyWithPlainLiteral(subjectInstanceEncodedRes, property,
-								objectInstanceQName, lang);
+								objectInstanceQName, lang, wgraph);
 					} else { // Datatype or simple property
 						logger.debug("adding value" + objectInstanceQName + "to datatype property");
 						ontModel.instantiatePropertyWithPlainLiteral(subjectInstanceEncodedRes, property,
-								objectInstanceQName);
+								objectInstanceQName, wgraph);
 					}
 				} catch (ModelUpdateException e) {
-					logger.error("literal creation error: " + e.getMessage(), e);
-					return servletUtilities.createExceptionResponse(relateAndAnnotateRequest,
-							"literal creation error: " + e.getMessage());
+					return logAndSendException("literal creation error: " + e.getMessage());
 				}
 			} else {
 				String rangeClsURI = ontModel.expandQName(rangeClsQName);
@@ -482,20 +596,22 @@ public class Annotation extends ServiceAdapter {
 				}
 
 				try {
-					ontModel.addInstance(ontModel.expandQName(objectInstanceQName), rangeClsRes);
-					SemanticTurkeyOperations.createLexicalization(ontModel, objectInstanceQName,
-							objectInstanceQName, urlPage, title);
+					ARTURIResource objectInstance = createNewResource(ontModel, objectInstanceQName, getUserNamedGraphs());
+					ontModel.addInstance(objectInstance.getURI(), rangeClsRes, wgraph);
+					createLexicalization(ontModel, objectInstance, objectInstanceQName, urlPage, title,
+							wgraph);
 					logger.debug("instance: " + objectInstanceQName + " created and lexicalization taken");
 				} catch (ModelUpdateException e) {
-					logger.error("Instance creation error: ", e);
-					return servletUtilities.createExceptionResponse(relateAndAnnotateRequest,
-							"Instance creation error: " + e.getMessage());
+					return logAndSendException("Instance creation error: " + e.getMessage());
+				} catch (DuplicatedResourceException e) {
+					return logAndSendException("there is a resource with the same name of: " + objectInstanceQName);
 				}
 				ARTURIResource subjectInstanceRes = ontModel.createURIResource(ontModel
 						.expandQName(subjectInstanceQName));
 				ARTURIResource objectInstanceRes = ontModel.createURIResource(ontModel
 						.expandQName(objectInstanceQName));
-				ontModel.instantiatePropertyWithResource(subjectInstanceRes, property, objectInstanceRes);
+				ontModel.instantiatePropertyWithResource(subjectInstanceRes, property, objectInstanceRes,
+						wgraph);
 				logger.debug("property: " + property + " istantiated with value: " + objectInstanceRes
 						+ " on subject: " + subjectInstanceRes);
 			}
@@ -509,7 +625,8 @@ public class Annotation extends ServiceAdapter {
 			if (rangeClsRes != null) {
 				Element clsElement = XMLHelp.newElement(dataElement, "Class");
 				clsElement.setAttribute("clsName", rangeClsQName);
-				ARTResourceIterator it = ((DirectReasoning) ontModel).listDirectInstances(rangeClsRes);
+				ARTResourceIterator it = ((DirectReasoning) ontModel)
+						.listDirectInstances(rangeClsRes, graphs);
 				int instCounter = 0;
 				while (it.streamOpen()) {
 					instCounter++;
@@ -522,40 +639,161 @@ public class Annotation extends ServiceAdapter {
 			return response;
 
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(relateAndAnnotateRequest, e);
+			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
-			return ServletUtilities.getService().createExceptionResponse(relateAndAnnotateRequest, e);
+			return logAndSendException(e);
 		}
 	}
 
 	public Response addNewAnnotationForSelectedInstanceAndRelateToDroppedInstance(
 			String subjectInstanceQName, String predicatePropertyQName, String objectInstanceQName,
 			String lexicalization, String urlPage, String title) {
-		ServletUtilities servletUtilities = new ServletUtilities();
-		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
+		RDFModel ontModel = getOWLModel();
 
 		try {
+			ARTResource wgraph = getWorkingGraph();
+
 			ARTURIResource property = ontModel
 					.createURIResource(ontModel.expandQName(predicatePropertyQName));
-			SemanticTurkeyOperations.createLexicalization(ontModel, objectInstanceQName, lexicalization,
-					urlPage, title);
+			ARTURIResource objectInstance = retrieveExistingResource(ontModel, objectInstanceQName, getUserNamedGraphs());
+			createLexicalization(ontModel, objectInstance, lexicalization, urlPage, title, wgraph);
 			ARTResource subjectInstanceRes = ontModel.createURIResource(ontModel
 					.expandQName(subjectInstanceQName));
 			ARTResource objectInstanceRes = ontModel.createURIResource(ontModel
 					.expandQName(objectInstanceQName));
 			ontModel.addTriple(subjectInstanceRes, property, objectInstanceRes);
 		} catch (ModelUpdateException e) {
-			logger.error("Instance creation error: ", e);
-			return servletUtilities.createExceptionResponse(relateAndAnnotateRequest,
-					"Instance creation error: " + e.getMessage());
+			return logAndSendException("Instance creation error: " + e.getMessage());
 		} catch (ModelAccessException e) {
-			logger.error("Ontology Access error: ", e);
-			return servletUtilities.createExceptionResponse(relateAndAnnotateRequest,
-					"Ontology Access error: " + e.getMessage());
+			return logAndSendException("Ontology Access error: " + e.getMessage());
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
-		return servletUtilities.createReplyResponse(relateAndAnnotateRequest, RepliesStatus.ok);
+		return createReplyResponse(RepliesStatus.ok);
 
+	}
+
+	public Response bookmarkPage(String pageURL, String title, String topicsString) {
+		RDFModel ontModel = getOWLModel();
+		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTResource webPageInstance = createWebPage(ontModel, pageURL, title, wgraph);
+			String[] topicsStringArray = topicsString.split("\\|_\\|");
+			ArrayList<ARTURIResource> topics = new ArrayList<ARTURIResource>();
+			for (String topicName : topicsStringArray) {
+				ARTURIResource topic = retrieveExistingResource(ontModel, topicName, graphs);
+				topics.add(topic);
+			}
+			tagPageWithTopics(ontModel, webPageInstance, topics, wgraph);
+
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		return createReplyResponse(RepliesStatus.ok);
+	}
+
+	public void createLexicalization(RDFModel model, ARTURIResource instance, String lexicalization,
+			String pageURL, String title, ARTResource... graphs) throws ModelUpdateException,
+			ModelAccessException {
+		logger.debug("creating lexicalization: " + lexicalization + " for instance: " + instance
+				+ " on url: " + pageURL + " with title: " + title);
+		ARTResource webPageInstance = createWebPage(model, pageURL, title, graphs);
+		logger.debug("creating Semantic Annotation for: instQName: " + instance + " lexicalization: "
+				+ lexicalization + " webPageInstance " + webPageInstance);
+		createSemanticAnnotation(model, instance, lexicalization, webPageInstance, graphs);
+	}
+
+	public ARTResource createWebPage(RDFModel model, String urlPage, String title, ARTResource... graphs)
+			throws ModelUpdateException, ModelAccessException {
+		logger.debug("creating Web Page Instance for page: " + urlPage + " with title: " + title);
+		ARTURIResource webPageInstanceRes = null;
+
+		ARTResourceIterator collectionIterator;
+		try {
+			collectionIterator = model.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url,
+					model.createLiteral(urlPage), true);
+			// iterator();
+			if (collectionIterator.streamOpen()) {
+				webPageInstanceRes = collectionIterator.getNext().asURIResource();
+				logger.debug("found web page: "
+						+ webPageInstanceRes.getLocalName()
+						+ model.listValuesOfSubjPredPair(webPageInstanceRes, SemAnnotVocab.Res.url, true)
+								.getNext());
+			}
+		} catch (ModelAccessException e) {
+			throw new ModelUpdateException(e);
+		}
+
+		if (webPageInstanceRes == null) {
+			logger.debug("web page not found;");
+			String webPageInstanceID = generateNewSemanticAnnotationUUID(model);
+
+			logger.debug("creating WebPage. webPageInstanceId: " + webPageInstanceID + " webPageRes: "
+					+ SemAnnotVocab.Res.WebPage);
+			String webPageURI = model.getDefaultNamespace() + webPageInstanceID;
+			model.addInstance(webPageURI, SemAnnotVocab.Res.WebPage);
+			webPageInstanceRes = model.createURIResource(webPageURI);
+
+			model.addTriple(webPageInstanceRes, SemAnnotVocab.Res.url, model.createLiteral(urlPage), graphs);
+			if (!title.equals("")) {
+				model.addTriple(webPageInstanceRes, SemAnnotVocab.Res.title, model.createLiteral(title),
+						graphs);
+			}
+			model.addTriple(webPageInstanceRes, model.createURIResource(datePropName),
+					model.createLiteral(XmlSchema.formatCurrentUTCDateTime(), XmlSchema.Res.DATETIME), graphs);
+		}
+
+		return webPageInstanceRes;
+
+	}
+
+	public void tagPageWithTopics(RDFModel model, ARTResource webPageInstanceRes,
+			Collection<ARTURIResource> topics, ARTResource... graphs) throws ModelUpdateException,
+			ModelAccessException {
+		for (ARTURIResource topic : topics) {
+			model.addTriple(webPageInstanceRes, SemAnnotVocab.Res.topic, topic, graphs);
+		}
+	}
+
+	public void createSemanticAnnotation(RDFModel model, ARTURIResource individual, String lexicalization,
+			ARTResource webPageInstanceRes, ARTResource... graphs) throws ModelUpdateException,
+			ModelAccessException {
+
+		String semanticAnnotationID = generateNewSemanticAnnotationUUID(model);
+
+		model.addInstance(model.getDefaultNamespace() + semanticAnnotationID,
+				SemAnnotVocab.Res.SemanticAnnotation, graphs);
+
+		ARTResource semanticAnnotationInstanceRes = model.createURIResource(model.getDefaultNamespace()
+				+ semanticAnnotationID);
+		logger.debug("creating lexicalization: semAnnotInstanceRes: " + semanticAnnotationInstanceRes + "");
+		model.addTriple(semanticAnnotationInstanceRes, SemAnnotVocab.Res.text,
+				model.createLiteral(lexicalization), graphs);
+
+		model.addTriple(semanticAnnotationInstanceRes, SemAnnotVocab.Res.location, webPageInstanceRes, graphs);
+
+		model.addTriple(individual, SemAnnotVocab.Res.annotation, semanticAnnotationInstanceRes, graphs);
+	}
+
+	public String generateNewSemanticAnnotationUUID(RDFModel model) throws ModelAccessException {
+		UUID semanticAnnotationInstanceID;
+		ARTResource semanticAnnotationInstance;
+		String defNameSpace;
+		do {
+			semanticAnnotationInstanceID = UUID.randomUUID();
+			defNameSpace = model.getDefaultNamespace();
+			logger.debug("trying to create random name for URIResource with namespace: " + defNameSpace
+					+ " and UUID: " + semanticAnnotationInstanceID);
+			semanticAnnotationInstance = model.retrieveURIResource(model.getDefaultNamespace()
+					+ semanticAnnotationInstanceID.toString());
+		} while (semanticAnnotationInstance != null);
+		return semanticAnnotationInstanceID.toString();
 	}
 
 }
