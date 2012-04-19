@@ -64,8 +64,8 @@ public class UTF8_UT extends ServiceUTFixture {
 
 		Response resp = serviceTester.annotationService.makeRequest(Annotation.createAndAnnotateRequest, par(
 				Annotation.clsQNameField, "st_example:Person"), par(Annotation.instanceQNameField,
-				"τοπογραμματεὺς"), par(Annotation.urlPageString, annotatedPageURL), par(
-				Annotation.titleString, annotatedPageTitle));
+				"τοπογραμματεὺς"), par(Annotation.urlPageField, annotatedPageURL), par(
+				Annotation.titleField, annotatedPageTitle));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
@@ -77,7 +77,7 @@ public class UTF8_UT extends ServiceUTFixture {
 	public void tryAddAnnotationTest() {
 		Response resp = serviceTester.annotationService.makeRequest(Annotation.addAnnotationRequest, par(
 				Annotation.textString, "Αὐνῆς"), par(Annotation.instanceQNameField, "greekWord"), par(
-				Annotation.urlPageString, annotatedPageURL), par(Annotation.titleString, annotatedPageTitle));
+				Annotation.urlPageField, annotatedPageURL), par(Annotation.titleField, annotatedPageTitle));
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}

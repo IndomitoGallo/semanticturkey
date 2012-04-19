@@ -97,8 +97,8 @@ public class ResourceTest extends SystemStartTest {
 		resp = annotationService.makeRequest(Annotation.createAndAnnotateRequest,
 				par(Annotation.clsQNameField, "Person"),
 				par(Annotation.instanceQNameField, "ArmandoStellato"),
-				par(Annotation.urlPageString, "http://art.uniroma2.it/stellato"),
-				par(Annotation.titleString, "Armando Stellato Home Page")
+				par(Annotation.urlPageField, "http://art.uniroma2.it/stellato"),
+				par(Annotation.titleField, "Armando Stellato Home Page")
 		);
 		System.out.println(resp);
 		
