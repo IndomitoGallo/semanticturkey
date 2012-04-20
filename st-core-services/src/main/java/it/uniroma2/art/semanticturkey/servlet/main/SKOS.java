@@ -25,7 +25,6 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.filter.ConceptsInSchemePredicate;
-import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.filter.RootConceptsPredicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -47,6 +46,7 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -56,7 +56,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 
 public class SKOS extends Resource {
@@ -375,7 +374,7 @@ public class SKOS extends Resource {
 			Element dataElement = response.getDataElement();
 			makeConceptListXML(skosModel, dataElement, it, true, defaultLanguage);
 			return response;
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		}
@@ -410,22 +409,24 @@ public class SKOS extends Resource {
 		return getResourceDescription(schemeName, RDFResourceRolesEnum.conceptScheme, method);
 	}
 
-	public Response deleteConcept(String concept) {
+	public Response deleteConcept(String conceptName) {
+		logger.debug("delete concept: " + conceptName);
+
 		ResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-		logger.debug("remove concept");
-		logger.debug("concept: " + concept);
-
 		try {
-
 			SKOSModel skosModel = getSKOSModel();
-			ARTURIResource subject = skosModel.createURIResource(skosModel.expandQName(concept));
-
-			skosModel.deleteConcept(subject, getWorkingGraph());
-
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			if (skosModel.listNarrowerConcepts(concept, false, true, getUserNamedGraphs()).streamOpen()) {
+				return createReplyFAIL("concept: " + conceptName + " has narrower graphs; delete them before");
+			}
+			skosModel.deleteConcept(concept, getWorkingGraph());
 		} catch (ModelAccessException e) {
 			logAndSendException(e);
 		} catch (ModelUpdateException e) {
 			logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			e.printStackTrace();
 		}
 		return response;
 	}
@@ -593,7 +594,13 @@ public class SKOS extends Resource {
 			else
 				superConcept = NodeFilters.NONE;
 
-			ARTURIResource conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource conceptScheme;
+			try {
+				conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			} catch (NonExistingRDFResourceException e) {
+				return logAndSendException("scheme: " + schemeName + "does not exist in graphs: "
+						+ Arrays.toString(graphs));
+			}
 
 			// add new concept...
 			logger.debug("adding concept to graph: " + wrkGraph);
