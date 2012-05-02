@@ -72,8 +72,8 @@ public class SemAnnotVocab {
 	/** http://art.uniroma2.it/ontologies/annotation#location **/
 	public static final String location = NAMESPACE + "location";
 
-	/** http://art.uniroma2.it/ontologies/annotation#topic **/
-	public static final String topic = NAMESPACE + "topic";
+	/** "http://purl.org/dc/terms/subject" **/
+	public static final String topic = "http://purl.org/dc/terms/subject";
 
 	public static class Res {
 		public static ARTURIResource SemanticAnnotation;
