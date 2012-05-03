@@ -47,6 +47,7 @@ public abstract class ServiceTest {
 
 	final static String STExtDirName = "STTest/extensions/extDir";
 	final static String XULResourcesDir = "st-firefox-ext/src/main/firefox";
+	final static String coreBuildResourcesDir = "st-core-framework/src/main/build";
 	final static String dataDirName = "components/data";
 	final static String extensionsDirName = "extensions";
 	protected static Log logger = LogFactory.getLog(ServiceTest.class);
@@ -131,10 +132,13 @@ public abstract class ServiceTest {
 		// this is necessary for FelixFixture since it behaves the same way as the runtime system, and
 		// uses felix to dinamically load services bundled in this directory
 		// we just use it anyway even in non-felix implementation of the test fixture
+		
 		File fakeSTSourceExtensionsDir = new File(STExtDirName, extensionsDirName);
 		Utilities.deleteDir(fakeSTSourceExtensionsDir);
-		Utilities.recursiveCopy(new File(xulResourcesRealDir, extensionsDirName), fakeSTSourceExtensionsDir);
-
+		
+		File coreBuildResourcesRealDir = new File(semturkeyProjectRelativePath, coreBuildResourcesDir);
+		Utilities.recursiveCopy(coreBuildResourcesRealDir, new File(STExtDirName));
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -173,8 +177,7 @@ public abstract class ServiceTest {
 		// then the rest is done normally as of ST initialization, with the data inside test directory being
 		// copied on its own to the SemanticTurkeyDataFolder if it does not exist (i.e. ST first install) or
 		// left as it is it it exists
-		Resources.setExtensionPath(STExtDirName);
-		Resources.initializeUserResources();
+		Resources.initializeUserResources(STExtDirName);
 	}
 
 	public void httpInitialize(String semTurkeyRelPath) throws IOException {

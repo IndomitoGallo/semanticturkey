@@ -40,16 +40,16 @@ import java.util.Properties;
 public class OntologiesMirror {
 
 	private static Properties properties;
-	private static String ontologyMirrorFilePath;
+	private static File ontologyMirrorFile;
 	
-	static void setOntologiesMirrorRegistry(String ontologyMirrorFilePath) throws IOException {
+	static void setOntologiesMirrorRegistry(File ontologyMirrorFile) throws IOException {
 		properties = new Properties();
-		OntologiesMirror.ontologyMirrorFilePath = ontologyMirrorFilePath;
-		properties.load(new FileInputStream(ontologyMirrorFilePath));
+		OntologiesMirror.ontologyMirrorFile = ontologyMirrorFile;
+		properties.load(new FileInputStream(ontologyMirrorFile));
 	}
 	
 	private static void updateOntologiesMirrorRegistry() throws IOException {
-		FileOutputStream os = new FileOutputStream(ontologyMirrorFilePath);
+		FileOutputStream os = new FileOutputStream(ontologyMirrorFile);
 		//properties.storeToXML(os, "local cache references for mirroring remote ontologies");
 		properties.store(os, "local cache references for mirroring remote ontologies");
 		os.close();

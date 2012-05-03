@@ -69,7 +69,7 @@ public class PluginManager {
 
 	private static final String stExtensionsDirName = "extensions";
 	private static final String servletExtensionsDirName = stExtensionsDirName + "/service";
-	private static final String repositoryExtensionsDirName = stExtensionsDirName + "/ontmanager";
+	private static final String ontManagerExtensionsDirName = stExtensionsDirName + "/ontmanager";
 
 	private static boolean directAccessTest = false;
 	private static Class<? extends OntologyManagerFactory<ModelConfiguration>> testOntManagerFactoryCls;
@@ -95,7 +95,7 @@ public class PluginManager {
 	public static void loadOntManagersImpl() {
 		startFelix();
 
-		File dir = getExtensionApplicationsDir();
+		File dir = getFirefoxExtensionsApplicationsDir();
 
 		// problema con gli spazi, converto %20 in spazio
 		dir = new File(dir.getAbsolutePath().replace("%20", " "));
@@ -105,7 +105,7 @@ public class PluginManager {
 			// Analizzo tutte le directory contenenti le estensioni per firefox
 			for (int i = 0; i < filesPath.length; ++i) {
 				findAndInstallPlugin(dir.getAbsolutePath() + "/" + filesPath[i] + "/"
-						+ repositoryExtensionsDirName, jarPresent);
+						+ ontManagerExtensionsDirName, jarPresent);
 			}
 		}
 
@@ -120,9 +120,8 @@ public class PluginManager {
 	 * 
 	 * @return
 	 */
-	private static File getExtensionApplicationsDir() {
-		String semanticTurkeyExtensionDir = Resources.getExtensionPath();
-		return new File(semanticTurkeyExtensionDir).getAbsoluteFile().getParentFile();
+	private static File getFirefoxExtensionsApplicationsDir() {
+		return Resources.getExtensionPath().getAbsoluteFile().getParentFile();
 	}
 
 	/**
@@ -229,7 +228,7 @@ public class PluginManager {
 		// faccio partire la piattaforma felix
 		startFelix();
 
-		File dir = getExtensionApplicationsDir();
+		File dir = getFirefoxExtensionsApplicationsDir();
 
 		// problema con gli spazi, converto %20 in spazio
 		dir = new File(dir.getAbsolutePath().replace("%20", " "));

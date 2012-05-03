@@ -23,6 +23,7 @@
 
 package it.uniroma2.art.semanticturkey.resources;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,7 +45,7 @@ import java.util.Properties;
 public class Config {
 
 	private static Properties stProperties = null;
-	private static String propFile = null;
+	private static File propFile = null;
 	private static String adminStatusPropName = "adminStatus";
 	private static String versionNumberPropName = "version";
 
@@ -68,15 +69,15 @@ public class Config {
 		return stProperties.getProperty("annotationOntologyFileName");
 	}
 
-	static String getOntologiesMirrorLocation() {
+	static File getOntologiesMirrorLocation() {
 		String choice = stProperties.getProperty("ontologiesMirrorLocation");
 		if (choice == null || choice.equals("default"))
 			return Resources.getOntMirrorDirDefaultLocation();
 		else
-			return choice;
+			return new File(choice);
 	}
 
-	public static void initialize(String propFile) throws FileNotFoundException, IOException {
+	public static void initialize(File propFile) throws FileNotFoundException, IOException {
 		Config.propFile = propFile;
 		stProperties = new Properties();
 		stProperties.load(new FileInputStream(propFile));
