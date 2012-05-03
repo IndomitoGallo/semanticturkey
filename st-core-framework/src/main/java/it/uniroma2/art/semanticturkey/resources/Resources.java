@@ -43,63 +43,75 @@ import org.slf4j.LoggerFactory;
  */
 public class Resources {
 
-	private static final String _sourceUserDirectoryRelPath = "/components/data";
-	private static String _sourceUserDirectoryPath;
-	private static final String _userDirectorytRelPath = "/../../SemanticTurkeyData";
-	private static String _userDirectoryPath;
-
-	private static String _extensionPath;
-
-	private static String _OSGiDirName = "OSGi";
-	private static File OSGiPath;
-	
+	private static final String _installConfigurationFilePathName = "install.cfg";
+	private static final String _sourceUserDirectoryRelPathName = "/components/data";
 	private static final String _ontLibraryDirLocalName = "ontlibrary";
 	private static final String _ontTempDirLocalName = "ont-temp";
 	private static final String _ontMirrorDirDefaultLocationLocalName = "ontologiesMirror";
 	private static final String _projectsDirName = "projects";
 
-	private static String _ontLibraryDir;
+	private static File extensionPath;
 
-	private static String _ontTempDir;
+	private static File sourceUserDirectory;
+	private static File userDirectory;
 
-	private static String _ontMirrorDirDefaultLocation;
+	private static String _OSGiDirName = "OSGi";
+	private static File OSGiPath;
 
-	private static String _semTurkeyPropertyFile;
-	private static String _annotOntologyFile;
-	private static String _owlDefinitionFile;
-	private static String _ontologiesMirrorFile;
+	private static File ontLibraryDir;
+	private static File ontTempDir;
+	private static File ontMirrorDirDefaultLocation;
+
+	private static File semTurkeyPropertyFile;
+	private static File annotOntologyFile;
+	private static File owlDefinitionFile;
+	private static File ontologiesMirrorFile;
+	private static File projectsDir;
 
 	protected static Logger logger = LoggerFactory.getLogger(Resources.class);
 
-	public static void initializeUserResources() throws STInitializationException {
+	public static void initializeUserResources(String extensionPathName) throws STInitializationException {
 
-		logger.info("initializing resources");
+		logger.info("initializing resources:");
+
+		setExtensionPath(extensionPathName);
 		logger.info("extension path: " + getExtensionPath());
-		
+
 		OSGiPath = new File(getExtensionPath(), _OSGiDirName);
-		
-		logger.info("OSGi path: " + getExtensionPath());
+		logger.info("OSGi path: " + OSGiPath);
 
-		_sourceUserDirectoryPath = getExtensionPath() + _sourceUserDirectoryRelPath;
-		logger.info("user directory template: " + _sourceUserDirectoryPath);
+		sourceUserDirectory = new File(getExtensionPath(), _sourceUserDirectoryRelPathName);
+		logger.info("user directory template: " + sourceUserDirectory);
 
-		_userDirectoryPath = getExtensionPath() + _userDirectorytRelPath;
-		logger.info("user directory: " + _userDirectoryPath);
+		InstallConfigFile installConfigFileManager; 		
+		try {
+			File installConfig = new File(getExtensionPath(), _installConfigurationFilePathName);
+			installConfigFileManager = new InstallConfigFile(installConfig);
+		} catch (IOException e) {
+			throw new STInitializationException("problems during ST installation with install configuration file: " + e.getMessage());
+		}
 
-		_ontLibraryDir = _userDirectoryPath + "/" + _ontLibraryDirLocalName;
-		_ontTempDir = _userDirectoryPath + "/" + _ontTempDirLocalName;
-		_ontMirrorDirDefaultLocation = _userDirectoryPath + "/" + _ontMirrorDirDefaultLocationLocalName;
-		_owlDefinitionFile = _ontLibraryDir + "/owl.rdfs";
-		_annotOntologyFile = _ontLibraryDir + "/annotation.owl";
-		_ontologiesMirrorFile = _userDirectoryPath + "/" + "OntologiesMirror.xml";
-		_semTurkeyPropertyFile = _userDirectoryPath + "/" + "sturkey.properties";
+		File dataDir = installConfigFileManager.getDataDir();
+		if (dataDir.isAbsolute())
+			userDirectory = dataDir;
+		else
+			userDirectory = new File(getExtensionPath(), dataDir.getPath());
+		logger.info("st data directory: " + getSemTurkeyDataDir());
 
-		File userDirectory = new File(_userDirectoryPath);
+		ontLibraryDir = new File(userDirectory, _ontLibraryDirLocalName);
+		ontTempDir = new File(userDirectory, _ontTempDirLocalName);
+		ontMirrorDirDefaultLocation = new File(userDirectory, _ontMirrorDirDefaultLocationLocalName);
+		owlDefinitionFile = new File(ontLibraryDir, "owl.rdfs");
+		annotOntologyFile = new File(ontLibraryDir, "annotation.owl");
+		ontologiesMirrorFile = new File(userDirectory, "OntologiesMirror.xml");
+		semTurkeyPropertyFile = new File(userDirectory, "sturkey.properties");
+		projectsDir = new File(userDirectory, _projectsDirName);
+
 		if (!userDirectory.exists()) {
 			try {
 				// first Copy Of User Resources
-				Utilities.recursiveCopy(new File(_sourceUserDirectoryPath), new File(_userDirectoryPath));
-				Config.initialize(_semTurkeyPropertyFile);
+				Utilities.recursiveCopy(sourceUserDirectory, userDirectory);
+				Config.initialize(semTurkeyPropertyFile);
 			} catch (IOException e) {
 				throw new STInitializationException(
 						"initial copy of Semantic Turkey resources failed during first install: "
@@ -107,12 +119,12 @@ public class Resources {
 			}
 		} else {
 			try {
-				Config.initialize(_semTurkeyPropertyFile);
+				Config.initialize(semTurkeyPropertyFile);
 				UpdateRoutines.startUpdatesCheckAndRepair();
 			} catch (FileNotFoundException e) {
 				throw new STInitializationException(
 						"Semantic Turkey initilization failed: unable to find Semantic Turkey Configuration File: "
-								+ _semTurkeyPropertyFile);
+								+ semTurkeyPropertyFile);
 			} catch (IOException e) {
 				throw new STInitializationException("Semantic Turkey initilization failed: " + e.getMessage());
 			}
@@ -120,7 +132,7 @@ public class Resources {
 		}
 
 		try {
-			OntologiesMirror.setOntologiesMirrorRegistry(_ontologiesMirrorFile);
+			OntologiesMirror.setOntologiesMirrorRegistry(ontologiesMirrorFile);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
@@ -128,31 +140,23 @@ public class Resources {
 		}
 	}
 
-	public static String getSemTurkeyDataDir() {
-		return _userDirectoryPath;
+	public static File getSemTurkeyDataDir() {
+		return userDirectory;
 	}
 
-	public static String getAnnotOntologyFile() {
-		return _annotOntologyFile;
+	public static File getAnnotOntologyFile() {
+		return annotOntologyFile;
 	}
 
 	public static File getOWLDefinitionFile() {
-		return new File(_owlDefinitionFile);
+		return owlDefinitionFile;
 	}
 
 	/**
 	 * @return the ontLibraryDir
 	 */
-	public static String getOntLibraryDir() {
-		return _ontLibraryDir;
-	}
-
-	/**
-	 * @param ontLibraryDir
-	 *            the ontLibraryDir to set
-	 */
-	public static void setOntLibraryDir(String ontLibraryDir) {
-		Resources._ontLibraryDir = ontLibraryDir;
+	public static File getOntLibraryDir() {
+		return ontLibraryDir;
 	}
 
 	/**
@@ -162,17 +166,17 @@ public class Resources {
 	 * 
 	 * @return
 	 */
-	public static String getOntologiesMirrorDir() {
+	public static File getOntologiesMirrorDir() {
 		return Config.getOntologiesMirrorLocation();
 	}
 
-	public static void setExtensionPath(String userDataPath) {
-		logger.debug("setting extension path to: " + userDataPath);
-		_extensionPath = userDataPath;
+	public static void setExtensionPath(String extensionPathName) {
+		logger.debug("setting extension path to: " + extensionPathName);
+		extensionPath = new File(extensionPathName);
 	}
 
-	public static String getExtensionPath() {
-		return _extensionPath;
+	public static File getExtensionPath() {
+		return extensionPath;
 	}
 
 	public static String getXSLDirectoryPath() {
@@ -180,29 +184,21 @@ public class Resources {
 	}
 
 	/**
-	 * @return the _ontTempDir
+	 * @return the ontTempDir
 	 */
-	public static String getOntTempDir() {
-		return _ontTempDir;
+	public static File getOntTempDir() {
+		return ontTempDir;
 	}
 
 	/**
-	 * @param tempDir
-	 *            the _ontTempDir to set
+	 * @return the ontMirrorDirDefaultLocation
 	 */
-	public static void setOntTempDir(String tempDir) {
-		_ontTempDir = tempDir;
-	}
-
-	/**
-	 * @return the _ontMirrorDirDefaultLocation
-	 */
-	static String getOntMirrorDirDefaultLocation() {
-		return _ontMirrorDirDefaultLocation;
+	static File getOntMirrorDirDefaultLocation() {
+		return ontMirrorDirDefaultLocation;
 	}
 
 	public static File getProjectsDir() {
-		return new File(_userDirectoryPath, _projectsDirName);
+		return projectsDir;
 	}
 
 	/**
@@ -214,12 +210,10 @@ public class Resources {
 	 */
 	public static File createTempDir() throws IOException {
 		UUID uuid;
-		String tempFilePath;
 		File tempDir;
 		do {
 			uuid = UUID.randomUUID();
-			tempFilePath = Resources.getOntTempDir() + "/" + uuid;
-			tempDir = new File(tempFilePath);
+			tempDir = new File(Resources.getOntTempDir(), uuid.toString());
 		} while (tempDir.exists());
 		if (tempDir.mkdir())
 			return tempDir;

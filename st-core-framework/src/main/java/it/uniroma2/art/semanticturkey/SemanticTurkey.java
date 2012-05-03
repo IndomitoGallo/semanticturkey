@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class SemanticTurkey {
-	public final static VersionNumber versionNumber = new VersionNumber(0, 8, 1);
+	public final static VersionNumber versionNumber = new VersionNumber(0, 8, 2);
 	static protected HttpServer s_httpServer;
 	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
 	private final static int port = 1979;
@@ -90,10 +90,8 @@ public class SemanticTurkey {
 
 		logger.debug("initialize...");
 
-		Resources.setExtensionPath(extensionDir.getAbsolutePath());
-
 		try {
-			Resources.initializeUserResources();
+			Resources.initializeUserResources(extensionDir.getAbsolutePath());
 			XMLHelp.initialize();
 		} catch (Exception e) {
 			// TODO catch this error and do something in the client which reports the error
