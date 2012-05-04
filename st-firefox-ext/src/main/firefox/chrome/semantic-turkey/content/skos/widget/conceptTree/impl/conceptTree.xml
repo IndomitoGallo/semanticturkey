@@ -12,7 +12,7 @@
 			
 			var parameters = {
 				sourceElement : null,		// elemento contenente i dati della riga corrente
-				sourceType : "SkosConcept",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
+				sourceType : "concept",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
 				sourceElementName : this.selectedConcept,	// nome dell'elemento corrente (quello usato per identificazione: attualmente il qname)
 				sourceParentElementName : "", // nome dell'elemento genitore
 				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
@@ -64,7 +64,7 @@
 				this._view.sourceAdapter.fetchRoots = function() {						
 						var responseXML = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getTopConcepts(bound.conceptScheme, "en");
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getTopConcepts(bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
@@ -75,7 +75,7 @@
 				this._view.sourceAdapter.fetchChildren = function(id){
 						var responseXML = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(id, bound.conceptScheme, "en");
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(id, bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
@@ -237,11 +237,13 @@
 					bound._view.invalidate();
 				};
 				
-				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.skos.", function(branch, name){
-					if (name == "humanReadable") {
+				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.", function(branch, name){
+					if (name == "skos.humanReadable") {
 						var isReadable = branch.getBoolPref(name);
 						
 						setHumanReadable(isReadable);						
+					} else if (name == "annotprops.defaultlang") {
+						bound._view.reload();
 					}
 				});
 				this.prefListener.register(true);
@@ -278,11 +280,18 @@
 					return this._conceptScheme;
 				</getter>
 				<setter>
-					if (typeof this._conceptScheme == "undefined" ||
-					this._conceptScheme != val) {
-					this._conceptScheme = val;
-
-					this._view.reload();
+					if (typeof this._conceptScheme == "undefined" || this._conceptScheme != val) {
+						this._conceptScheme = val;
+	
+						if (val != "") {
+							if (this._view.isPowered()) {
+								this._view.reload();
+							} else {
+								this._view.powerOn();
+							}
+						} else {
+							this._view.powerOff();
+						}
 					}
 				</setter>
 			</property>

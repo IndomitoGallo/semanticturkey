@@ -17,7 +17,7 @@ var serviceName = service.serviceName;
  */
 function getTopConcepts(scheme,lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getTopConcepts');
-	var scheme_p = "scheme=" + scheme;
+	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var lang_p = "lang=" + lang;
 	return HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p);
 }
@@ -34,7 +34,7 @@ function getTopConcepts(scheme,lang) {
 function getNarrowerConcepts(concept, scheme, lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getNarrowerConcepts');
 	var concept_p = "concept=" + concept;
-	var scheme_p = "scheme=" + scheme;
+	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var treeView_p ="treeView=true";
 	var lang_p = "lang=" + lang;
 	return HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p);
@@ -177,6 +177,20 @@ function deleteScheme(scheme, forceDeleteDanglingConcepts) {
 	return reply;
 }
 
+
+function removeBroaderConcept(concept, broaderConcept) {
+	var concept_p = "concept=" + concept;
+	var broaderConcept_p = "broaderConcept=" + broaderConcept;
+	
+	var reply = HttpMgr.GET(serviceName, service.removeBroaderConceptRequest, concept_p, broaderConcept_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosBroaderConceptRemoved", {});
+	}
+	
+	return reply;
+}
+
 // SKOS SERVICE INITIALIZATION
 service.getTopConcepts = getTopConcepts;
 service.getAllSchemesList = getAllSchemesList;
@@ -191,3 +205,5 @@ service.createScheme = createScheme;
 
 service.deleteConcept = deleteConcept;
 service.deleteScheme = deleteScheme;
+
+service.removeBroaderConcept = removeBroaderConcept;

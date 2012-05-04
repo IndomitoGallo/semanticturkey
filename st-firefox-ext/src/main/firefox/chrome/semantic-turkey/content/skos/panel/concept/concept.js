@@ -32,7 +32,7 @@ art_semanticturkey.init = function() {
 
 		if (AnnotFunctionList[defaultAnnotFun] != null) {
 			//get the function of the selected family for the event drag'n'drop over instance
-			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");
+			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverSkosConcept");
 			var count=0;
 			
 			//check how much function are present and enabled
@@ -45,8 +45,8 @@ art_semanticturkey.init = function() {
                 {
                     tagName : "listitem",
                     getAttribute : function(attrName) {
-                    	if (attrName == "label") {
-                    		return conceptTree._view.visibleRows2[index].id;
+                    	if (attrName == "name" || attrName == "label") {
+                    		return conceptTree._view.visibleRows2[index].record.concept;
                     	}
                     	
                     	return "";
@@ -62,7 +62,7 @@ art_semanticturkey.init = function() {
 				alert("No registered or enabled functions for this event");
 			//if 1 function is present and enabled execute
 			else if (count == 1) {
-				var fun = FunctionOI[index].getfunct();
+				var fun = FunctionOI[0].getfunct();
 				fun(event, window);
 			}
 			//open the choice menu
@@ -72,7 +72,7 @@ art_semanticturkey.init = function() {
 				parameters.parentWindow = window;
 				
 				window.openDialog(
-						"chrome://semantic-turkey/content/DragDrop/dragDropOverInstance.xul",
+						"chrome://semantic-turkey/content/DragDrop/dragDropOverSkosConcept.xul",
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
 			}

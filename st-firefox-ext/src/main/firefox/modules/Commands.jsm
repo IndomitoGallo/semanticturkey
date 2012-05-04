@@ -155,10 +155,14 @@ CommandBroker.offerCommand("skos:concept*edit",
 			try{
 				var obj = {};
 				obj.wrappedJSObject = obj;
+
+				var windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+				                     .getService(Components.interfaces.nsIWindowMediator);                  
+                var pWin = windowMediator.getMostRecentWindow("navigator:browser");
 				
 				var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
 				                   .getService(Components.interfaces.nsIWindowWatcher);
-				var win = ww.openWindow(null, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/createConceptDialog.xul", "dlg", "modal", obj);
+				var win = ww.openWindow(pWin, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/createConceptDialog.xul", "dlg", "modal", obj);
 								
 				if (obj.out == null) return;
 				
@@ -185,9 +189,14 @@ CommandBroker.offerCommand("skos:concept*edit",
 				var obj = {};
 				obj.wrappedJSObject = obj;
 				
+				var windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+				                     .getService(Components.interfaces.nsIWindowMediator);                  
+                var pWin = windowMediator.getMostRecentWindow("navigator:browser");
+				
 				var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
 				                   .getService(Components.interfaces.nsIWindowWatcher);
-				var win = ww.openWindow(null, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/createConceptDialog.xul", "dlg", "modal", obj);				
+                
+				var win = ww.openWindow(pWin, "chrome://semantic-turkey/content/skos/widget/conceptTree/impl/createConceptDialog.xul", "dlg", "modal", obj);				
 				
 				if (obj.out == null) return;
 				
@@ -212,6 +221,11 @@ CommandBroker.offerCommand("skos:concept*edit",
 			
 			try{
 				var responseXML=STRequests.SKOS.deleteConcept(conceptQName);
+				
+				if (responseXML.isFail()) {
+					var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+					prompts.alert(null, "Deletion failed", responseXML.getMsg());
+				}
 			}catch (e) {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
@@ -248,10 +262,14 @@ CommandBroker.offerCommand("skos:scheme*edit",
 			try{
 				var obj = {};
 				obj.wrappedJSObject = obj;
-				
+
+				var windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+				                     .getService(Components.interfaces.nsIWindowMediator);                  
+                var pWin = windowMediator.getMostRecentWindow("navigator:browser");
+                			
 				var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
 				                   .getService(Components.interfaces.nsIWindowWatcher);
-				var win = ww.openWindow(null, "chrome://semantic-turkey/content/skos/widget/schemeList/impl/createSchemeDialog.xul", "dlg", "modal", obj);
+				var win = ww.openWindow(pWin, "chrome://semantic-turkey/content/skos/widget/schemeList/impl/createSchemeDialog.xul", "dlg", "modal", obj);
 								
 				if (obj.out == null) return;
 				

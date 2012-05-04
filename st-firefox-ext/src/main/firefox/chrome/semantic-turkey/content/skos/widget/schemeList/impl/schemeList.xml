@@ -16,7 +16,7 @@
 			
 			var parameters = {
 				sourceElement : null,		// elemento contenente i dati della riga corrente
-				sourceType : "SkosScheme",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
+				sourceType : "conceptScheme",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
 				sourceElementName : this.selectedScheme,	// nome dell'elemento corrente (quello usato per identificazione: attualmente il qname)
 				sourceParentElementName : "", // nome dell'elemento genitore
 				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
@@ -43,6 +43,8 @@
 				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/Logger.jsm");
+				Components.utils.import("resource://stmodules/PrefUtils.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);				
 				
 				var bound = this;
 				
@@ -63,7 +65,7 @@
 				this._view.sourceAdapter.fetchRoots = function() {						
 						var responseXML = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList("en");
+							responseXML=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
@@ -74,6 +76,20 @@
 					
 				this._view.sourceAdapter.fetchChildren = function(id){
 					return [];
+				};
+
+				this._view.provider.getLabel = function(row, col) {
+					if (col.id != "name") {
+						return this._view.__proto__.getLabel(row, col);
+					}
+					
+					if (isHumanReadable) {
+						if (row.record["label"].trim() != "") {
+							return row.record["label"];
+						}
+					}								
+					
+					return row.record["name"];
 				};
 
 				this._view.provider.getImageURL = function(row, col) {
@@ -113,6 +129,16 @@
 				this.projectType = "SKOS";
 
 				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
+
+				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
+							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+
 				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeRemoved", function(eventId, skosSchemeRemovedObj) {
 					bound._view.removeRows(skosSchemeRemovedObj.getSchemeName());
 				}, null);
@@ -125,15 +151,6 @@
 
 					bound._view.addRow(null, row);
 				}, null);
-								
-				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
-					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
-						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
-							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
-							bound._view.invalidateRow(i);
-						}
-					}
-				}, null);
 
 				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
 				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
@@ -144,7 +161,26 @@
 					
 					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar);
 					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
-				}	
+				}
+				
+				var isHumanReadable	= false;
+				
+				var setHumanReadable = function(flag) {
+					isHumanReadable = flag;
+					
+					bound._view.invalidate();
+				};
+				
+				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.", function(branch, name){
+					if (name == "skos.humanReadable") {
+						var isReadable = branch.getBoolPref(name);
+						
+						setHumanReadable(isReadable);						
+					} else if (name == "annotprops.defaultlang") {
+						bound._view.reload();
+					}
+				});
+				this.prefListener.register(true);	
 			]]>
 			</constructor>
 			<destructor>
@@ -157,6 +193,8 @@
 				if (typeof this.toolbarTracker != "undefined") {
 					this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);				
 				}
+				
+				this.prefListener.unregister();
 			</destructor>
 			<property name="selectedScheme">
 				<getter>

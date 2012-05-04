@@ -102,7 +102,7 @@ classHandlers["skos:Concept"] = new function() {
 				parameters);
 
 		if (typeof parameters.out != "undefined") {
-			var conceptName = win.arguments[0].objectInstanceName;
+			var conceptName = win.arguments[0].objectInstanceName;			
 			var broaderConcept = parameters.out.selectedConcept;
 			var scheme = selSc;
 			var prefLabel = win.arguments[0].objectInstanceName;
@@ -195,7 +195,7 @@ art_semanticturkey.setPanel = function() {
 	// NScarpato 24/05/2007 add subtree
 	/*art_semanticturkey.HttpMgr.GETP("http://"+server+":1979/semantic_turkey/resources/stserver/STServer?service=property&request=getRangeClassesTree&propertyQName="
 			+ predicatePropertyName);*/
-	//TODO è stata spostata in utilities e gli vanno passati albero e lista 
+	//TODO e' stata spostata in utilities e gli vanno passati albero e lista 
 	//searchFocus("Class", objectClsName, "", "");
 };
 

@@ -6,6 +6,7 @@ art_semanticturkey.init = function(event) {
 	conceptTree.hidetoolbar = typeof window.arguments[0].hidetoolbar == "undefined" ? true : window.arguments[0].hidetoolbar;
 	conceptTree.hideheading = typeof window.arguments[0].hideheading == "undefined" ? true : window.arguments[0].hideheading;
 	conceptTree.mutable = typeof window.arguments[0].mutable == "undefined" ? false : window.arguments[0].mutable;
+	document.getElementById("conceptTreeDialog").getButton("accept").focus();
 };
 
 art_semanticturkey.onAccept = function(event) {
