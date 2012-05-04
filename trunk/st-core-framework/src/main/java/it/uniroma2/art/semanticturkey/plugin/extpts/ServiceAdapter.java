@@ -277,7 +277,6 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	}
 
 	protected Response logAndSendException(String request, String msg, SerializationType sertype) {
-		e.printStackTrace(System.err);
 		getLogger().error(msg);
 		return servletUtilities.createExceptionResponse(request, msg, sertype);
 	}
