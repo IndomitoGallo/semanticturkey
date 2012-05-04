@@ -235,11 +235,15 @@ HttpMgr = new function() {
 					return (this.getElementsByTagName("reply")[0].getAttribute("status") == "fail");
 				};
 
-				if (!newResponseXML.isReply()) {
-					newResponseXML.getMsg = function() {
-						return (this.getElementsByTagName("reply")[0].textContent);
-					};
-				}
+//				if (!newResponseXML.isReply()) {
+//					newResponseXML.getMsg = function() {
+//						return (this.getElementsByTagName("reply")[0].textContent);
+//					};
+//				}
+				
+				newResponseXML.getMsg = function() {
+					return (this.getElementsByTagName("reply")[0].textContent);
+				};
 			}
 
 			newResponseXML.isException = function() {

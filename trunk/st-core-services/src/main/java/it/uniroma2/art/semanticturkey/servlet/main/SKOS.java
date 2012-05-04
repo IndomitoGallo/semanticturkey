@@ -88,6 +88,7 @@ public class SKOS extends Resource {
 		public static final String removePrefLabelRequest = "removePrefLabel";
 		public static final String removeAltLabelRequest = "removeAltLabel";
 		public static final String removeConceptFromSchemeRequest = "removeConceptFromScheme";
+		public static final String removeBroaderConcept = "removeBroaderConcept";
 
 		// MODIFY REQUESTS
 		public static final String assignHierarchyToSchemeRequest = "assignHierarchyToScheme";
@@ -294,12 +295,38 @@ public class SKOS extends Resource {
 			String schemeName = setHttpPar(Par.scheme);
 			checkRequestParametersAllNotNull(Par.scheme);
 			response = showSKOSConceptsTree(schemeName);
+		} else if (request.equals(Req.removeBroaderConcept)) {
+			String conceptName = setHttpPar(Par.concept);
+			String broaderConceptName = setHttpPar(Par.broaderConcept);
+			checkRequestParametersAllNotNull(Par.concept, Par.broaderConcept);
+			logger.debug(Req.removeBroaderConcept + ":\n" + response);
+			response = removeBroaderConcept(conceptName, broaderConceptName);			
 		}
 
 		else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
+		return response;
+	}
+	
+	private Response removeBroaderConcept(String conceptName,
+			String broaderConceptName) {
+		SKOSModel skosModel = getSKOSModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			ARTURIResource broaderConcept = retrieveExistingResource(skosModel, broaderConceptName, graphs);
+
+			skosModel.removeBroaderConcept(concept, broaderConcept, graphs);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		}
 		return response;
 	}
 

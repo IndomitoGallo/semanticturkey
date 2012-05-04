@@ -58,6 +58,7 @@ window.onload = function() {
 		listbox.appendChild(annListItem);
 		
 		var FunctionOI = AnnotFunctionList[family].getfunctions(eventName);
+		
 		var listbox1 = document.getElementById(eventName);
 		
 		//each funtion is presented as a checkbox

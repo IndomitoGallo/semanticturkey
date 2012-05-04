@@ -70,6 +70,15 @@
 						</listheader>		
 					</listhead>	
 			 </listbox>
+			 <listbox id="dragDropOverSkosConcept" hidden="true" flex="1">
+				<listhead>
+						<listheader>
+							<listitem-iconic>
+								<label value="Functions"/>
+							</listitem-iconic>
+						</listheader>		
+					</listhead>	
+			 </listbox>
 			 <listbox id="highlightAnnotation" hidden="true" flex="1">
 				<listhead>
 						<listheader>

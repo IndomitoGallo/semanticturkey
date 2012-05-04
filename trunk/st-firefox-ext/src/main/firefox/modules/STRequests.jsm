@@ -236,6 +236,9 @@ STRequests.SKOS.createSchemeRequest = "createScheme";
 STRequests.SKOS.deleteConceptRequest = "deleteConcept";
 STRequests.SKOS.deleteSchemeRequest = "deleteScheme";
 
+// REMOVE REQUESTS
+STRequests.SKOS.removeBroaderConceptRequest = "removeBroaderConcept";
+
 //projects service request
 STRequests.Projects.serviceName = "projects";
 STRequests.Projects.openProjectRequest = "openProject";

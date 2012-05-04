@@ -149,8 +149,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this class, open the editor from the class panel");
-		} else
+		} else {
 			deleteForbidden = window.arguments[0].deleteForbidden;
+		}
+		
 		if (deleteForbidden == "true") {
 			document.getElementById("buttonModify").disabled = true;
 			// buttonModify.setAttribute("disabled", "true");
@@ -173,6 +175,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		} else {
 			explicit = sourceElement.getAttribute("explicit");
 		}
+		
 		if (explicit == "false") {
 			buttonModify.setAttribute("disabled", "true");
 			img
@@ -191,8 +194,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this property, open the editor from the property panel");
-		} else
+		} else {
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
+		}
+		
 		if (deleteForbidden == "true") {
 			img
 					.setAttribute("src",
@@ -213,8 +218,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this property, open the editor from the property panel");
-		} else
+		} else {
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
+		}
+		
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
 			img
@@ -235,8 +242,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this property, open the editor from the property panel");
-		} else
+		} else {
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
+		}
+		
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
 			img
@@ -258,8 +267,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this property, open the editor from the property panel");
-		} else
+		} else {
 			deleteForbidden = sourceElement.getAttribute("deleteForbidden");
+		}
+		
 		if (deleteForbidden == "true") {
 			buttonModify.setAttribute("disabled", "true");
 			img
@@ -273,7 +284,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					"chrome://semantic-turkey/skin/images/prop.png");
 		}
 
-	} else if (type == "SkosConcept") {
+	} else if (type == "concept") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -281,16 +292,17 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this concept, open the editor from the skos panel");
-		} else
+		} else {
 			deleteForbidden = window.arguments[0].deleteForbidden;
+		}
 		
 		if (deleteForbidden == "true") {
 			document.getElementById("buttonModify").disabled = true;
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept_imported.png");
 		} else {
-			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept20x20.png");
 		}
-	} else if (type == "SkosScheme") {
+	} else if (type == "conceptScheme") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -298,14 +310,15 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getElementById("buttonModify")
 					.setAttribute("tooltiptext",
 							"To change the name of this concept scheme, open the editor from the skos panel");
-		} else
+		} else {
 			deleteForbidden = window.arguments[0].deleteForbidden;
+		}
 		
 		if (deleteForbidden == "true") {
 			document.getElementById("buttonModify").disabled = true;
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme_imported.png");
 		} else {
-			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme20x20.png");
 		}
 	}
 
@@ -345,7 +358,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else if (type == "SkosConcept") {
+		} else if (type == "concept") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 
@@ -353,7 +366,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			responseXML = art_semanticturkey.STRequests.Page
 					.getBookmarks(sourceElementName);
 			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
-		} else if (type == "SkosScheme") {
+		} else if (type == "conceptScheme") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptSchemeDescription(sourceElementName);
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 		} else {
@@ -408,6 +421,10 @@ art_semanticturkey.getResourceDescription_RESPONSE = function(responseElement) {
 
 	if (request == "getConceptDescription") {
 		art_semanticturkey.parsingSuperTypes(responseElement, request);
+	}
+	
+	if (request == "getConceptSchemeDescription") {
+		art_semanticturkey.parsingTopConcepts(responseElement, request);
 	}
 
 	// Parsing property values of class/instance
@@ -535,7 +552,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				} else if(request == "getConceptDescription") {
 					img
 					.setAttribute("src",
-							"chrome://semantic-turkey/skin/images/skosConcept.png");					
+							"chrome://semantic-turkey/skin/images/skosConcept20x20.png");					
 				} else {
 					img
 							.setAttribute("src",
@@ -590,7 +607,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			typeButton2.setAttribute("tooltiptext", "Add Super Class");
 		} else if(request == "getConceptDescription") {
 			img2.setAttribute("src",
-			"chrome://semantic-turkey/skin/images/skosConcept.png");
+			"chrome://semantic-turkey/skin/images/skosConcept20x20.png");
 			img2.setAttribute("flex", "0");
 			lbl2.setAttribute("value", "Broader Concepts:");
 			typeButton2.setAttribute("image",
@@ -877,6 +894,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 	titleBox.insertBefore(propTitle, typeTitleToolbarButton);
 	rowTitle.appendChild(titleBox);
 	rowsBox.appendChild(rowTitle);
+
 	for (var i = 0; i < propertyList.length; i++) {
 		if (propertyList[i].nodeType == 1) {
 			var nameValue = propertyList[i].getAttribute("name");
@@ -887,6 +905,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 			var lblic = document.createElement("label-iconic");
 			var lbl = document.createElement("label");
 			var img = document.createElement("image");
+						
 			if (typeValue.indexOf("owl:ObjectProperty") != -1) {
 				// typeToolbarButton
 				// .setAttribute("image",
@@ -902,7 +921,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 				img
 						.setAttribute("src",
 								"chrome://semantic-turkey/skin/images/propObject20x20.png");
-				img.setAttribute("flex", "0");
+				img.setAttribute("flex", "0");				
 			} else if (typeValue.indexOf("owl:DatatypeProperty") != -1) {
 				// typeToolbarButton
 				// .setAttribute("image",
@@ -949,22 +968,22 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						.createElement("toolbarbutton");
 				typeToolbarButtonLiteral.addEventListener("click",
 						art_semanticturkey.createAndAddPropValueEvent, true);
-				var containerObj = new Object();
-				containerObj.propertyQName = nameValue;
-				containerObj.typeValue = typeValue;
-				containerObj.isLiteral = "true";
-				typeToolbarButtonLiteral.containerObj = containerObj;
-
-				typeToolbarButtonLiteral
-						.setAttribute("image",
-								"chrome://semantic-turkey/skin/images/Blocnote-32.png");
-				typeToolbarButtonLiteral.setAttribute("tooltiptext",
-						"Add Literal Value");
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/skin/images/prop20x20.png");
-				img.setAttribute("flex", "0");
-				box3.appendChild(typeToolbarButtonLiteral);
+//				var containerObj = new Object();
+//				containerObj.propertyQName = nameValue;
+//				containerObj.typeValue = typeValue;
+//				containerObj.isLiteral = "true";
+//				typeToolbarButtonLiteral.containerObj = containerObj;
+//
+//				typeToolbarButtonLiteral
+//						.setAttribute("image",
+//								"chrome://semantic-turkey/skin/images/Blocnote-32.png");
+//				typeToolbarButtonLiteral.setAttribute("tooltiptext",
+//						"Add Literal Value");
+//				img
+//						.setAttribute("src",
+//								"chrome://semantic-turkey/skin/images/prop20x20.png");
+//				img.setAttribute("flex", "0");
+//				box3.appendChild(typeToolbarButtonLiteral);
 			}
 
 			lbl.setAttribute("value", nameValue);
@@ -973,11 +992,13 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 			typeToolbarButton
 					.setAttribute("image",
 							"chrome://semantic-turkey/skin/images/individual_add.png");
-			if (typeValue.indexOf("rdf:Property") != -1) {
-				box3.insertBefore(typeToolbarButton, typeToolbarButtonLiteral);
-			} else {
+//			if (typeValue.indexOf("rdf:Property") != -1) {
+//				box3.insertBefore(typeToolbarButton, typeToolbarButtonLiteral);
+//			} else {
+			
 				box3.appendChild(typeToolbarButton);
-			}
+				
+//			}
 			lblic.appendChild(img);
 			lblic.appendChild(lbl);
 			box3.insertBefore(lblic, typeToolbarButton);
@@ -1075,6 +1096,18 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 									.setAttribute("src",
 											"chrome://semantic-turkey/skin/images/class20x20.png");
 							lci.appendChild(img);
+						} else if (role == "concept") {
+							var img = document.createElement("image");
+							img
+									.setAttribute("src",
+											"chrome://semantic-turkey/skin/images/skosConcept20x20.png");
+							lci.appendChild(img);
+						} else if (role == "conceptScheme") {
+							var img = document.createElement("image");
+							img
+									.setAttribute("src",
+											"chrome://semantic-turkey/skin/images/skosScheme20x20.png");
+							lci.appendChild(img);
 						}
 						
 
@@ -1086,9 +1119,14 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							containerObjTx.sourceType = "cls";
 						else if (role == "individual")
 							containerObjTx.sourceType = "individual";
+						else if (role == "concept")
+							containerObjTx.sourceType = "concept";							
+						else if (role == "conceptScheme")
+							containerObjTx.sourceType = "conceptScheme";							
 						else
 							// property
 							containerObjTx.sourceType = "property";
+						
 						lsti.containerObj = containerObjTx;
 						lsti.addEventListener("dblclick",
 								art_semanticturkey.resourcedblClickEvent, true);
@@ -1144,7 +1182,86 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 						var resImg = document.createElement("image");
 						if(valueType.indexOf("resource") !=-1 || valueType.indexOf("bnode")!=-1 || valueType.indexOf("uri")!=-1){
 						var role = valueList[j].getAttribute("role");
-						if (role == "individual") {
+						
+						if (role == "conceptScheme") {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/skin/images/skosScheme_delete.png");
+
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/skin/images/skosScheme_imported.png");
+
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/skin/images/skosScheme20x20.png");
+							}
+							txbox.setAttribute("tooltiptext",
+									"Editable Resource");
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
+
+							var containerObj = new Object();
+							containerObj.explicit = explicit;
+							containerObj.sourceElementName = value;
+							containerObj.sourceType = role;
+							containerObj.rangeQName = rangeQName;
+							txbox.containerObj = containerObj;
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
+						} else if (role == "concept") {
+							propButton
+									.setAttribute("image",
+											"chrome://semantic-turkey/skin/images/skosC_delete.png");
+
+							if (explicit == "false") {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/skin/images/skosConcept_imported.png");
+
+							} else {
+								resImg
+										.setAttribute("src",
+												"chrome://semantic-turkey/skin/images/skosConcept20x20.png");
+							}
+							txbox.setAttribute("tooltiptext",
+									"Editable Resource");
+							txbox.addEventListener("dblclick",
+									art_semanticturkey.resourcedblClickEvent,
+									true);
+							txbox.addEventListener("mouseover",
+									art_semanticturkey.setCursorPointerEvent,
+									true);
+							txbox.addEventListener("mouseout",
+									art_semanticturkey.setCursorDefaultEvent,
+									true);
+
+							var containerObj = new Object();
+							containerObj.explicit = explicit;
+							containerObj.sourceElementName = value;
+							containerObj.sourceType = role;
+							containerObj.rangeQName = rangeQName;
+							txbox.containerObj = containerObj;
+							// txbox.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// resImg.addEventListener("mouseover",
+							// art_semanticturkey.setCursorPointerEvent, true);
+							// txbox.addEventListener("mouseout",
+							// art_semanticturkey.setCursorDefaultEvent, true);
+						} else if (role == "individual") {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/skin/images/individual_remove.png");
@@ -1378,6 +1495,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 		}
 	}
 };
+
 art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 	if (domainNodeList.length > 3) {
 		var domainToolbox = document.createElement("toolbox");
@@ -2275,6 +2393,7 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 	var responseXML = art_semanticturkey.STRequests.Property.getRange(
 			propertyQName, "false");
 	var ranges = responseXML.getElementsByTagName("ranges")[0];
+		
 	if (ranges.getAttribute("rngType").indexOf("resource") != -1) {
 		window
 				.openDialog(
@@ -2313,7 +2432,6 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 				}
 			}
 			if(role.indexOf("dataRange")!= -1){
-				alert("role "+role.indexOf("dataRange"));
 				var responseXML = art_semanticturkey.STRequests.Property.parseDataRange(dataRangeBNodeID,nodeType);
 				
 				var dataElement = responseXML.getElementsByTagName("data")[0];
@@ -2623,8 +2741,11 @@ art_semanticturkey.refreshPanel = function() {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else if (mytype == "SkosConcept") {
+		} else if (mytype == "concept") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptDescription(sourceElementName, "templateandvalued");
+			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+		} else if (mytype == "conceptScheme") {
+			responseXML = art_semanticturkey.STRequests.SKOS.getConceptSchemeDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 		} else{ // Property
 			responseXML = art_semanticturkey.STRequests.Property
@@ -2889,7 +3010,7 @@ art_semanticturkey.copyWebLink = function(event) {
 
 art_semanticturkey.addBroaderConcept = function(event) {
 	var parameters = {};
-	parameters.conceptScheme = "Schema";
+	parameters.conceptScheme = art_semanticturkey.getConceptScheme();
 	parameters.parentWindow = window.arguments[0].parentWindow;
 	window.openDialog("chrome://semantic-turkey/content/skos/editors/concept/conceptTree.xul", 
 			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
@@ -2903,5 +3024,104 @@ art_semanticturkey.addBroaderConcept = function(event) {
 		responseElement = art_semanticturkey.STRequests.SKOS.addBroaderConcept(conceptName, parameters.out.selectedConcept);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
+	}
+};
+
+art_semanticturkey.removeBroaderConcept = function() {
+
+}
+
+art_semanticturkey.getConceptScheme = function() {
+	var parameters = window.arguments[0];
+	
+	if (typeof parameters.skos == "undefined") {
+		return "*";
+	} else {
+		if (typeof parameters.skos.selectedScheme == "undefined") {
+			return "*";
+		} else {
+			return parameters.skos.selectedScheme;
+		}
+	}
+};
+
+art_semanticturkey.parsingTopConcepts = function(responseElement, request) {
+	var parentBox = document.getElementById("parentBoxRows");
+	
+	var separator = document.createElement("separator");
+	separator.setAttribute("class", "groove");
+	separator.setAttribute("orient", "orizontal");
+	parentBox.appendChild(separator);
+
+	var topConcepts = responseElement.getElementsByTagName('topConcepts');
+	var topConceptList = topConcepts[0].getElementsByTagName('uri');
+	
+	var topConceptsToolbox = document.createElement("toolbox");
+	var topConceptsToolbar = document.createElement("toolbar");
+	topConceptsToolbox.appendChild(topConceptsToolbar);
+	
+	var addTopConcept = document.createElement("toolbarbutton");
+	addTopConcept.setAttribute("tooltiptext", "Add Top Concept");
+	addTopConcept.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_create.png");
+	
+	
+	topConceptsToolbar.appendChild(addTopConcept);
+	parentBox.appendChild(topConceptsToolbar);
+	
+	var removeTopConcept = document.createElement("toolbarbutton");
+	removeTopConcept.setAttribute("tooltiptext", "Remove Top Concept");
+	removeTopConcept.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_delete.png");
+	
+	
+	topConceptsToolbar.appendChild(removeTopConcept);
+	parentBox.appendChild(topConceptsToolbar);
+	
+	var list = document.createElement("listbox");
+	list.setAttribute("id", "topConceptsList");
+	list.setAttribute("flex", "1");
+	var listhead = document.createElement("listhead");
+	var listheader = document.createElement("listheader");
+	var listitem_iconic = document.createElement("listitem-iconic");
+
+	var lbl2 = document.createElement("label");
+	lbl2.setAttribute("value", "Top Concepts:");
+	listitem_iconic.appendChild(lbl2);
+	listheader.appendChild(listitem_iconic);
+	listhead.appendChild(listheader);
+	list.appendChild(listhead);
+	parentBox.appendChild(list);
+	
+	for (var i = 0 ; i < topConceptList.length ; i++) {
+		var conceptName = topConceptList[i].textContent;
+		
+		var lsti = document.createElement("listitem");
+		var lci = document.createElement("listitem-iconic");
+		var img = document.createElement("image");
+		img.setAttribute("src",
+				"chrome://semantic-turkey/skin/images/skosConcept20x20.png");
+		lci.appendChild(img);
+
+		var lbl = document.createElement("label");
+		lbl.setAttribute("value", topConceptList[i].textContent.trim());
+		lci.appendChild(lbl);
+		
+		lsti.appendChild(lci);
+				
+		var containerObjTx = {};
+		containerObjTx.explicit = "true";
+		containerObjTx.sourceElementName = conceptName;
+		containerObjTx.sourceType = "concept";
+		
+		lsti.containerObj = containerObjTx;
+		
+		lsti.addEventListener("dblclick",
+				art_semanticturkey.resourcedblClickEvent, true);
+		lsti.addEventListener("mouseover",
+				art_semanticturkey.setCursorPointerEvent, true);
+		lsti.addEventListener("mouseout",
+				art_semanticturkey.setCursorDefaultEvent, true);
+
+		list.appendChild(lsti);
+		
 	}
 };

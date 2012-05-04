@@ -549,6 +549,7 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		else{
 			document.getElementById("SKOSToolBarButton").hidden = true;
 			document.getElementById("key_openSTSKOSSidebar").hidden = true;
+			document.getElementById("key_openSTSKOSSidebar").disabled = true;
 		}
 	}
 	else if(eventId == "projectClosed"){

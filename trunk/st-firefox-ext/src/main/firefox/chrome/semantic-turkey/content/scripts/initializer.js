@@ -1,6 +1,9 @@
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
 
 art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	try {
@@ -55,12 +58,16 @@ art_semanticturkey.annotationRegister = function() {
 		var valueForProp = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.listDragDropValueForProp,"value for property");
 		var createInstance = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.treeDragDrop,"Create instance");
 		var highlightfunction = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnFunction,"Highlight function");
-		
+		var createConcept = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.createConcept,"Create concept");
+
 		// add function to family
 		family.addfunction("dragDropOverClass",createInstance);
 		family.addfunction("dragDropOverInstance",furtherAnn);
 		family.addfunction("dragDropOverInstance",valueForProp);
 		family.addfunction("highlightAnnotation",highlightfunction);
+		family.addfunction("dragDropOverSkosConcept",furtherAnn);
+		family.addfunction("dragDropOverSkosConcept",valueForProp);
+		family.addfunction("dragDropOverSkosConcept",createConcept);
 		
 		// register bookmarking annotation family
 		annComponent.wrappedJSObject.register(family);
@@ -171,7 +178,7 @@ art_semanticturkey.furtherAnnotFunction = function(parameters) {
 	var objectInstanceName = parameters.objectInstanceName;
 	var subjectInstanceName = parameters.subjectInstanceName;
 	var parentWindow = parameters.parentWindow;
-	
+
 	try {
 		parentWindow.art_semanticturkey.STRequests.Annotation
 			.createFurtherAnnotation(
@@ -521,6 +528,80 @@ art_semanticturkey.treeDragDrop = function(event, parentWindow) {
 			}
 		}
 	}
+};
+
+art_semanticturkey.createConcept = function(event, parentWindow) {
+	// TODO check wchich part of this code is it really necessary
+	var parameters = {};
+	
+	var elementName = event.target.tagName;
+	if (elementName == "listitem") {
+		var listItem = event.target;
+		parameters.broaderConcept = listItem.getAttribute("name");
+	} else {
+		parameters.broaderConcept = null;
+	}
+	
+	var ds = Components.classes["@mozilla.org/widget/dragservice;1"]
+	.getService(Components.interfaces.nsIDragService);	
+	var ses = ds.getCurrentSession();
+	var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
+	.getService(Components.interfaces.nsIWindowMediator);
+	var topWindowOfType = windowManager
+		.getMostRecentWindow("navigator:browser");
+	var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;
+	// tabWin = tabWin.replace(/&/g, "%26");
+	var contentDocument = topWindowOfType.gBrowser.selectedBrowser.contentDocument;
+	var titleNodes = contentDocument.getElementsByTagName('title');
+	var title = "";
+	if (titleNodes != null) {
+		var titleNodeChildren = titleNodes[0].childNodes;
+		for (var i = 0; i < titleNodeChildren.length; i++) {
+			if (titleNodeChildren[i].nodeType == 3)
+				title = titleNodeChildren[i].nodeValue;
+		}
+	}
+
+	// provare con text/plain
+	if (ses.isDataFlavorSupported("text/unicode")) {
+		var transferObject = Components.classes["@mozilla.org/widget/transferable;1"]
+				.createInstance();
+		transferObject = transferObject
+				.QueryInterface(Components.interfaces.nsITransferable);
+		transferObject.addDataFlavor("text/unicode");
+		var numItems = ds.numDropItems;
+
+		for (var i = 0; i < numItems; i++) {
+			ds.getData(transferObject, i);
+		}
+
+		var str = new Object();
+		var strLength = new Object();
+		transferObject.getTransferData("text/unicode", str, strLength);
+		if (str)
+			str = str.value
+					.QueryInterface(Components.interfaces.nsISupportsString);
+		
+		parameters.concept = str;
+		parameters.urlPage = tabWin;
+		parameters.title = title;
+		parameters.parentWindow = parentWindow;
+		parameters.scheme = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme", null).getElementsByTagName("property")[0].getAttribute("value");
+		parameters.language = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en");
+		
+		try {
+			art_semanticturkey.STRequests.SKOS.createConcept(parameters.concept, parameters.broaderConcept, parameters.scheme, str, parameters.language);
+			
+			art_semanticturkey.STRequests.Annotation
+				.createFurtherAnnotation(
+					parameters.concept,
+					str,
+					parameters.urlPage,
+					parameters.title);		
+		} catch(e) {
+			alert(e.name + ": " + e.message);
+		}
+	}	
 };
 
 art_semanticturkey.annotationRegister();

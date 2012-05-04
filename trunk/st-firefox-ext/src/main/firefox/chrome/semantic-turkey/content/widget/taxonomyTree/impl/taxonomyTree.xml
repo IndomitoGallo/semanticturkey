@@ -290,6 +290,8 @@
 						visibleRows = [];
 						treeBoxObject.rowCountChanged(0, -delta);						
 					}
+					
+					treeBoxObject.view.selection.clearSelection();					
 				}
 				
 				this.invalidateRow = function(rowIndex) {
@@ -374,7 +376,12 @@
 					visibleRows = roots;
 						
 					treeBoxObject.rowCountChanged(0, delta);
-					treeBoxObject.invalidate();				
+					treeBoxObject.invalidate();	
+					treeBoxObject.view.selection.clearSelection();			
+				};
+				
+				this.isPowered = function() {
+					return powered;
 				};
 				
 				this.powerOff = function() {
@@ -384,6 +391,7 @@
 					visibleRows = [];
 					
 					treeBoxObject.rowCountChanged(0, -delta);
+					treeBoxObject.view.selection.clearSelection();
 				};
 				
 				this.canDrop = function(index, orientation, dataTransfer) {
@@ -586,7 +594,7 @@
 			
 			this.stEventArray2 = new this.art_semanticturkey.eventListenerArrayClass();
 			this.stEventArray2.addEventListenerToArrayAndRegister("projectOpened", function(eventId, projectOpenedObj) {
-				if (projectOpenedObj.getType() == bound.projectType) {
+				if (projectOpenedObj.getType().match(bound.projectType) != null) {
 					bound._view.powerOn();
 				}
 			}, null);
