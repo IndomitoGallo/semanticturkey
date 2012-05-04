@@ -271,13 +271,15 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 * @return
 	 */
 	protected Response logAndSendException(String request, Exception e, String msg) {
+		e.printStackTrace(System.err);
 		getLogger().error(e.toString());
-		return ServletUtilities.getService().createExceptionResponse(request, msg);
+		return servletUtilities.createExceptionResponse(request, msg);
 	}
 
 	protected Response logAndSendException(String request, String msg, SerializationType sertype) {
+		e.printStackTrace(System.err);
 		getLogger().error(msg);
-		return ServletUtilities.getService().createExceptionResponse(request, msg, sertype);
+		return servletUtilities.createExceptionResponse(request, msg, sertype);
 	}
 
 	protected ARTResource getWorkingGraph() throws ModelAccessException {
