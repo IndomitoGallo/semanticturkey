@@ -80,7 +80,8 @@ art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
 		var resType = foundList[0].getAttribute("type");
 		var resName = foundList[0].getAttribute("name");
 		var typeName = "";
-		if (resType == "owl:Individual") {
+		//if (resType == "owl:Individual") {
+		if (resType == "individual") {
 			try {
 				var responseXML = art_semanticturkey.STRequests.Individual
 						.get_directNamedTypes(resName);
@@ -114,7 +115,8 @@ art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
  */
 art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 		typeName) {
-	if (resType == "owl:Individual") {
+	//if (resType == "owl:Individual") {
+	if (resType == "individual") {
 		art_semanticturkey.selectElementClass(myTree, typeName);
 		try {
 			var responseXML = art_semanticturkey.STRequests.Cls
@@ -132,7 +134,7 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 			}
 			index++;
 		}
-	} else if (resType == "Class") {
+	} else if (resType == "cls") {
 		art_semanticturkey.selectElementClass(myTree, resName);
 		var responseXML = art_semanticturkey.STRequests.Cls
 				.getClassAndInstancesInfo(resName);

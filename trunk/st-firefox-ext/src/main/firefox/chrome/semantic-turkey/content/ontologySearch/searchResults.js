@@ -28,6 +28,8 @@ window.onload = function() {
 			art_semanticturkey.selectResult, true);
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onClose, true);
+	document.getElementById("SearchList").addEventListener("dblclick",
+			art_semanticturkey.selectResult, true);
 	var foundList = window.arguments[0].foundList;
 	art_semanticturkey.initList(foundList);
 };
@@ -46,7 +48,8 @@ art_semanticturkey.selectResult = function() {
 	var resType = sourceElement.getAttribute("resType");
 	var types = window.arguments[0].types;
 	var typeName = "";
-	if(resType == "owl:Individual"){
+	//if(resType == "owl:Individual"){
+	if(resType == "individual"){
 			try {
 				var responseXML = parentWindow.art_semanticturkey.STRequests.Individual.get_directNamedTypes(resName);
 				typeName = responseXML.getElementsByTagName("Type")[0].getAttribute("qname");
@@ -88,7 +91,8 @@ art_semanticturkey.initList = function(foundList) {
 		var lci = document.createElement("listitem-iconic");
 		var img = document.createElement("image");
 		var lbl = document.createElement("label");
-		if (type == "owl:Individual") {
+		//if (type == "owl:Individual") {
+		if (type == "individual") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/individual20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
@@ -97,7 +101,8 @@ art_semanticturkey.initList = function(foundList) {
 			lci.appendChild(lbl);
 			lsti.appendChild(lci);
 			myList.appendChild(lsti);
-		} else if (type == "Class") {
+		//} else if (type == "Class") {
+		} else if (type == "cls") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/class20x20.png");
 			name = type + " " + foundList[i].getAttribute("name");
 			lsti.setAttribute("label", foundList[i].getAttribute("name"));
