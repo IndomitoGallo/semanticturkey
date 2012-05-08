@@ -113,11 +113,11 @@ art_semanticturkey.initList = function(foundList) {
 			myList.appendChild(lsti);
 		} else if (type == "annotation") {
 			// TODO Mancano le annotation nella ricerca
-		}else if (type == "owl:ObjectProperty") {
+		}else if (type == "objectProperty") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propObject20x20.png");
-		} else if (type == "owl:DatatypeProperty") {
+		} else if (type == "datatypeProperty") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propDatatype20x20.png");
-		} else if (type == "owl:AnnotationProperty") {
+		} else if (type == "annotationProperty") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 		} else {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/prop20x20.png");
