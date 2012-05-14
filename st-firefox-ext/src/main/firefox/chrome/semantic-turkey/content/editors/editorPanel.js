@@ -491,15 +491,15 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			separator.setAttribute("orient", "orizontal");
 			parentBox.appendChild(separator);
 			typeToolbarButton.setAttribute("image",	"chrome://semantic-turkey/skin/images/skosC_create.png");
-			typeToolbarButton.addEventListener("click",	art_semanticturkey.addBroaderConcept, true);
+			typeToolbarButton.addEventListener("click",	art_semanticturkey.addBroaderConceptEvent, true);
 			typeToolbarButton.setAttribute("tooltiptext", "Add Broader Concept");
 			typeToolbarButton2.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_delete.png");
-			typeToolbarButton2.addEventListener("click", art_semanticturkey.removeBroaderConcept, true);
+			typeToolbarButton2.addEventListener("click", art_semanticturkey.removeBroaderConceptEvent, true);
+			typeToolbarButton2.setAttribute("tooltiptext", "Remove Broader Concept");
 			var containerObj = new Object();
 			containerObj.value = "list";
 			containerObj.isList = true;
 			typeToolbarButton2.containerObj = containerObj;
-			typeToolbarButton2.setAttribute("tooltiptext", "Remove Broader Concept");
 		} else { // Property
 			typeToolbarButton.setAttribute("image",
 					"chrome://semantic-turkey/skin/images/prop_create.png");
@@ -572,8 +572,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 						art_semanticturkey.setCursorDefaultEvent, true);
 
 				var containerObjTx = new Object();
-				containerObjTx.explicit = superTypeList[i][i]
-						.getAttribute("explicit");
+				containerObjTx.explicit = superTypeList[i].getAttribute("explicit");
 				containerObjTx.sourceElementName = value;
 				if (request == "getClsDescription") // Class
 					containerObjTx.sourceType = "cls";
@@ -3008,7 +3007,58 @@ art_semanticturkey.copyWebLink = function(event) {
     gClipboardHelper.copyString(url);  
 };
 
-art_semanticturkey.addBroaderConcept = function(event) {
+art_semanticturkey.addBroaderConceptEvent = function(event) {
+	art_semanticturkey.addBroaderConcept();
+};
+
+art_semanticturkey.removeBroaderConceptEvent = function(event) {
+	var containerObj = event.target.containerObj;
+	
+	if (containerObj.isList) {
+		var list = document.getElementById("superTypesList");
+		var selItem = list.selectedItem;
+		
+		if (selItem == null) {
+			alert("Please select a broader concept");
+			return;
+		}
+		
+		var broaderConcept = selItem.getAttribute("label");
+		
+		art_semanticturkey.removeBroaderConcept(broaderConcept);
+	} else {
+		var broaderConcept = containerObj.value;
+		
+		art_semanticturkey.removeBroaderConcept(broaderConcept);
+		
+	}
+};
+
+art_semanticturkey.addTopConceptEvent = function(event) {
+	art_semanticturkey.addTopConcept();
+};
+
+art_semanticturkey.removeTopConceptEvent = function(event) {
+	var containerObj = event.target.containerObj;
+	
+	if (containerObj.isList) {
+		var list = document.getElementById("topConceptsList");
+		var selItem = list.selectedItem;
+		
+		if (selItem == null) {
+			alert("Please select a top concept");
+			return;
+		}
+		
+		var topConcept = selItem.containerObj.sourceElementName;
+		
+		art_semanticturkey.removeTopConcept(topConcept);
+	} else {
+		alert("Unsupported: top concept should be represented as a list");
+	}
+};
+
+art_semanticturkey.addBroaderConcept = function() {
 	var parameters = {};
 	parameters.conceptScheme = art_semanticturkey.getConceptScheme();
 	parameters.parentWindow = window.arguments[0].parentWindow;
@@ -3019,17 +3069,33 @@ art_semanticturkey.addBroaderConcept = function(event) {
 	if (typeof parameters.out == "undefined" || typeof parameters.out.selectedConcept == "undefined") return;
 	
 	try {
-		conceptName = document.getElementById("name")
-				.getAttribute("actualValue")
+		conceptName = document.getElementById("name").getAttribute("actualValue");
 		responseElement = art_semanticturkey.STRequests.SKOS.addBroaderConcept(conceptName, parameters.out.selectedConcept);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
 };
 
-art_semanticturkey.removeBroaderConcept = function() {
+art_semanticturkey.removeBroaderConcept = function(broaderConcept) {
+	alert("Remove broader concept: " + broaderConcept);
+};
 
-}
+art_semanticturkey.addTopConcept = function() {
+	var parameters = {};
+	parameters.conceptScheme = art_semanticturkey.getConceptScheme();
+	parameters.parentWindow = window.arguments[0].parentWindow;
+	window.openDialog("chrome://semantic-turkey/content/skos/editors/concept/conceptTree.xul", 
+			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
+			parameters);
+	
+	if (typeof parameters.out == "undefined" || typeof parameters.out.selectedConcept == "undefined") return;
+
+	alert("Add top concept: " + parameters.out.selectedConcept);
+};
+
+art_semanticturkey.removeTopConcept = function(topConcept) {
+	alert("Remove top concept:" + topConcept);
+};
 
 art_semanticturkey.getConceptScheme = function() {
 	var parameters = window.arguments[0];
@@ -3063,7 +3129,13 @@ art_semanticturkey.parsingTopConcepts = function(responseElement, request) {
 	var addTopConcept = document.createElement("toolbarbutton");
 	addTopConcept.setAttribute("tooltiptext", "Add Top Concept");
 	addTopConcept.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_create.png");
+	addTopConcept.addEventListener("click", art_semanticturkey.addTopConceptEvent, true);
+
+	var containerObj = {};
+	containerObj.isList = true;
 	
+	addTopConcept.containerObj = containerObj;
+
 	
 	topConceptsToolbar.appendChild(addTopConcept);
 	parentBox.appendChild(topConceptsToolbar);
@@ -3071,7 +3143,12 @@ art_semanticturkey.parsingTopConcepts = function(responseElement, request) {
 	var removeTopConcept = document.createElement("toolbarbutton");
 	removeTopConcept.setAttribute("tooltiptext", "Remove Top Concept");
 	removeTopConcept.setAttribute("image", "chrome://semantic-turkey/skin/images/skosC_delete.png");
+	removeTopConcept.addEventListener("click", art_semanticturkey.removeTopConceptEvent, true);
 	
+	var containerObj2 = {};
+	containerObj2.isList = true;
+	
+	removeTopConcept.containerObj = containerObj2;
 	
 	topConceptsToolbar.appendChild(removeTopConcept);
 	parentBox.appendChild(topConceptsToolbar);
@@ -3122,6 +3199,5 @@ art_semanticturkey.parsingTopConcepts = function(responseElement, request) {
 				art_semanticturkey.setCursorDefaultEvent, true);
 
 		list.appendChild(lsti);
-		
 	}
 };
