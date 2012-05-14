@@ -59,9 +59,11 @@ art_semanticturkey.annotationRegister = function() {
 		var createInstance = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.treeDragDrop,"Create instance");
 		var highlightfunction = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnFunction,"Highlight function");
 		var createConcept = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.createConcept,"Create concept");
-
+		var furtherAnnToClass = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.treeDragDropFurtherAnn,"further annotation");
+		
 		// add function to family
 		family.addfunction("dragDropOverClass",createInstance);
+		family.addfunction("dragDropOverClass",furtherAnnToClass);
 		family.addfunction("dragDropOverInstance",furtherAnn);
 		family.addfunction("dragDropOverInstance",valueForProp);
 		family.addfunction("highlightAnnotation",highlightfunction);
@@ -526,6 +528,240 @@ art_semanticturkey.treeDragDrop = function(event, parentWindow) {
 				var tree = parentWindow.document.getElementById("classesTree");
 				parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,tree,true,event);
 			}
+		}
+	}
+};
+
+art_semanticturkey.treeDragDropFurtherAnn = function(event, parentWindow) {
+	var stloader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+			.getService(Components.interfaces.mozIJSSubScriptLoader);
+	stloader.loadSubScript('chrome://global/content/nsDragAndDrop.js');
+	stloader.loadSubScript('chrome://global/content/nsTransferable.js');
+	// stloader.loadSubScript('chrome://semantic-turkey/content/class/dragDrop.js');
+	event.stopPropagation(); // This line was in an example, will test if
+	// we
+	// need it later...
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+
+	var ds = Components.classes["@mozilla.org/widget/dragservice;1"]
+			.getService(Components.interfaces.nsIDragService);
+	var ses = ds.getCurrentSession();
+
+	var sourceNode = ses.sourceNode;
+	var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1']
+			.getService(Components.interfaces.nsIWindowMediator);
+	var topWindowOfType = windowManager
+			.getMostRecentWindow("navigator:browser");
+	var tabWin = topWindowOfType.gBrowser.selectedBrowser.currentURI.spec;
+	if (sourceNode.nodeName == "treeitem") {
+
+		var tree = parentWindow.document.getElementById("classesTree");
+		// We'll just get the node id from the source element
+		var nodeId = sourceNode.firstChild.getAttribute('_exe_nodeid');
+		// Get the new parent node
+		var row = {};
+		var col = {};
+		var child = {};
+		tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, col, child);
+		// CRAPINESS ALERT!
+		// If they're moving, (without ctrl down) the target node becomes our
+		// sibling
+		// above us. If copying, the source node becomes the first child of the
+		// target node
+		var targetNode = parentWindow.art_semanticturkey.getOutlineItem(tree,
+				row.value);
+
+		var treerow = targetNode.getElementsByTagName('treerow')[0];
+		var treecell = treerow.getElementsByTagName('treecell')[0];
+
+		if (treecell.getAttribute('properties') == "instance") {
+			return;
+		}
+
+		if (ses.dragAction && ses.DRAGDROP_ACTION_COPY) {
+			// Target node is our parent, sourceNode becomes first child
+			var parentItem = targetNode;
+			var sibling = null; // Must be worked out after we get 'container'
+			// (treeitems)
+			var before = true;
+		} else {
+			// Target node is our sibling, we'll be inserted below (vertically)
+			// it on the same tree level
+			var parentItem = targetNode.parentNode.parentNode;
+			var sibling = targetNode;
+			var before = false;
+		}
+
+		// Do some sanity checking
+		if ((sourceNode == parentItem) || (sourceNode == targetNode))
+			return;
+		var parentItemId = parentItem.firstChild.getAttribute('_exe_nodeid');
+		if (sibling && (tree.view.getIndexOfItem(sibling) <= 1)) {
+			return
+		} // Can't drag to top level
+		try {
+			if ((parentItem.getElementsByTagName('treechildren')[0].firstChild == sourceNode)
+					&& before) {
+				return
+			} // Can't drag into same position
+		} catch (e) {
+		} // Ignore when parentItem has no treechildren node
+		// Check for recursion
+		var node = targetNode.parentNode;
+		while (node) {
+			if (node == sourceNode) {
+				return
+			} // Can't drag into own children
+			node = node.parentNode;
+		}
+		// Re-organise the tree...
+		// See if parent is a container
+		var isContainer = parentItem.getAttribute('container');
+		if ((!isContainer) || (isContainer == 'false')) {
+			// Make it one
+			var container = parentItem.appendChild(document
+					.createElement('treechildren'));
+			parentItem.setAttribute('container', 'true');
+			parentItem.setAttribute('open', 'true');
+		} else {
+			var container = parentItem.getElementsByTagName('treechildren')[0];
+			// If still haven't got a 'treechildren' node, then make one
+			if (!container) {
+				var container = parentItem.appendChild(document
+						.createElement('treechildren'));
+			}
+		}
+		// Now we can work out our sibling if we don't already have it
+		if (before) {
+			sibling = container.firstChild;
+		}
+		// Move the node
+		var oldContainer = sourceNode.parentNode;
+		try {
+			oldContainer.removeChild(sourceNode);
+		} catch (e) {
+		} // For some reason works, but still raises exception!
+		if (sibling) { // If the container has children
+			// Insert either before or after the sibling
+			if (before) {
+				if (sibling) {
+					container.insertBefore(sourceNode, sibling);
+				} else {
+					container.appendChild(sourceNode);
+				}
+			} else {
+				// Append after target node
+				if (sibling.nextSibling) {
+					container.insertBefore(sourceNode, sibling.nextSibling);
+				} else {
+					container.appendChild(sourceNode);
+				}
+			}
+		} else {
+			// Otherwise, just make it be the only child
+			container.appendChild(sourceNode);
+		}
+		// See if the old parent node is no longer a container
+		if (oldContainer.childNodes.length == 0) {
+			// alert("oldContainer: " + oldContainer.nodeName);
+			oldContainer.parentNode.setAttribute('open', 'false');// controlla
+			// se da
+			// problemi
+			oldContainer.parentNode.setAttribute('container', 'false');
+			oldContainer.parentNode.removeChild(oldContainer); // Remove the
+			// treechildren
+			// node
+		}
+		// Tell the server what happened
+		var nextSiblingNodeId = null;
+		var sibling = sourceNode.nextSibling;
+		if (sibling) {
+			nextSiblingNodeId = sibling.firstChild.getAttribute('_exe_nodeid');
+		}
+		nevow_clientToServerEvent('outlinePane.handleDrop', this, '',
+				sourceNode.firstChild.getAttribute('_exe_nodeid'),
+				parentItemId, nextSiblingNodeId);
+	}// END If nodeName = treeitem
+	else {
+
+		var contentDocument = topWindowOfType.gBrowser.selectedBrowser.contentDocument;
+		var titleNodes = contentDocument.getElementsByTagName('title');
+		var title = "";
+		if (titleNodes != null) {
+			var titleNodeChildren = titleNodes[0].childNodes;
+			for (var i = 0; i < titleNodeChildren.length; i++) {
+				if (titleNodeChildren[i].nodeType == 3)
+					title = titleNodeChildren[i].nodeValue;
+			}
+		}
+		// alert("tabWin" + tabWin); INFO IMPORTANTE
+		if (ses.isDataFlavorSupported("text/unicode")) {
+			var transferObject = Components.classes["@mozilla.org/widget/transferable;1"]
+					.createInstance();
+			transferObject = transferObject
+					.QueryInterface(Components.interfaces.nsITransferable);
+			transferObject.addDataFlavor("text/unicode");
+			var numItems = ds.numDropItems;
+
+			for (var i = 0; i < numItems; i++) {
+				ds.getData(transferObject, i);
+			}
+
+			var str = new Object();
+			var strLength = new Object();
+			transferObject.getTransferData("text/unicode", str, strLength);
+			// TODO here the clipboard is copied to the string str. It has
+			// problems with URLs. See
+			// http://www.xulplanet.com/tutorials/mozsdk/clipboard.php
+			// see also:
+			// http://straxus.javadevelopersjournal.com/creating_a_mozillafirefox_drag_and_drop_file_upload_script_p.htm
+			if (str)
+				str = str.value
+						.QueryInterface(Components.interfaces.nsISupportsString);
+
+			var tree = parentWindow.document.getElementById("classesTree");
+			// Get the new parent node
+			var row = {};
+			var col = {};
+			var child = {};
+			tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, col,
+					child);
+			// CRAPINESS ALERT!
+			// If they're moving, (without ctrl down) the target node becomes
+			// our sibling
+			// above us. If copying, the source node becomes the first child of
+			// the target node
+
+			var targetNode = parentWindow.art_semanticturkey.getOutlineItem(
+					tree, row.value);
+
+			var trecell = targetNode.getElementsByTagName("treecell")[0];
+			var attr = trecell.getAttribute("properties");
+
+			var temp = trecell.parentNode.parentNode.parentNode.parentNode;
+			temp = temp.getElementsByTagName("treerow")[0];
+			var parentcell = temp.getElementsByTagName("treecell")[0];
+
+			// tabWin = tabWin.replace(/&/g, "%26");
+			var parameters = {};
+			parameters.subjectInstanceName = trecell.parentNode.parentNode
+			.getAttribute("className");//trecell.getAttribute("label");
+			parameters.objectInstanceName = str;
+			parameters.urlPage = tabWin;
+			parameters.title = title;
+			parameters.parentWindow = parentWindow;
+
+			try {
+				var responseXML = parentWindow.art_semanticturkey.STRequests.Annotation
+						.createFurtherAnnotation(parameters.subjectInstanceName, parameters.objectInstanceName, parameters.urlPage, parameters.title);
+			} catch (e) {
+				alert(e.name + ": " + e.message);
+			}
+						
+//			if(responseXML != null){
+//				var tree = parentWindow.document.getElementById("classesTree");
+//				parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,tree,true,event);
+//			}
 		}
 	}
 };

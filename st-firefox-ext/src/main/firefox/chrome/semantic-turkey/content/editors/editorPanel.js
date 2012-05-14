@@ -344,6 +344,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			responseXML = art_semanticturkey.STRequests.Cls
 					.getClassDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
+			// add all the web link of this class
+			responseXML = art_semanticturkey.STRequests.Page
+					.getBookmarks(sourceElementName);
+			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
 		} else if (type == "individual") {
 			responseXML = art_semanticturkey.STRequests.Individual
 					.getIndividualDescription(sourceElementName,
