@@ -587,7 +587,7 @@
 			window.addEventListener("load", function(event) {
 				if (typeof bound.art_semanticturkey.CurrentProject == "undefined") return; // I don't know why the load event appers to be invoked multiple times
 
-				if (bound.art_semanticturkey.CurrentProject.isNull() == false /*&& bound.art_semanticturkey.CurrentProject.getType() == bound.projectType */) {
+				if (bound.art_semanticturkey.CurrentProject.isNull() == false && bound.art_semanticturkey.CurrentProject.getType().match(bound.projectType)) {
 					bound._view.powerOn();
 				}
 			}, false);
