@@ -30,4 +30,8 @@ public class ARTURIResourceTestImpl extends ARTResourceTestImpl implements ARTUR
 		return content;
 	}
 
+	public String getNominalValue() {
+		return content;
+	}
+
 }

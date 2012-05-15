@@ -26,6 +26,8 @@
   */
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
+import java.util.Map;
+
 import it.uniroma2.art.owlart.model.ARTNode;
 
 public interface STRDFNode {
@@ -47,4 +49,16 @@ public interface STRDFNode {
 	public void setRendering(String show);
 	
 	public String getRendering();
+	
+	/**
+	 * allows to set additional information which will be serialized with the node
+	 * 
+	 * @param propName
+	 * @param propValue
+	 */
+	public void setInfo(String propName, String propValue);
+	
+	public String getInfo(String propName);
+	
+	public Map<String, String> getInfo();
 }

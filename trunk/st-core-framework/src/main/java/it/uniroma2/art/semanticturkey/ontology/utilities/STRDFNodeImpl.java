@@ -26,10 +26,14 @@
  */
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import it.uniroma2.art.owlart.model.ARTNode;
 
 public abstract class STRDFNodeImpl implements STRDFNode {
 
+	protected HashMap<String, String> info;
 	protected ARTNode node;
 	boolean explicit;
 	String show;
@@ -38,6 +42,7 @@ public abstract class STRDFNodeImpl implements STRDFNode {
 		this.node = node;
 		this.explicit = explicit;
 		this.show = show;
+		info = null;
 	}
 
 	protected STRDFNodeImpl(ARTNode node, boolean explicit) {
@@ -78,6 +83,22 @@ public abstract class STRDFNodeImpl implements STRDFNode {
 	
 	public String getRendering() {
 		return show;
+	}
+
+	public void setInfo(String propName, String propValue) {
+		if (info==null)
+			info = new HashMap<String, String>();
+		info.put(propName, propValue);		
+	}
+	
+	public String getInfo(String propName) {
+		if (info==null)
+			throw new IllegalAccessError("no additional info has been specified for rdf node: " + this);
+		return info.get(propName);		
+	}
+	
+	public Map<String, String> getInfo() {
+		return info;
 	}
 	
 }

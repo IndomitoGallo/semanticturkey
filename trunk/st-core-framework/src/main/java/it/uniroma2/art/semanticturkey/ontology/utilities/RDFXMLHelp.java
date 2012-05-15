@@ -24,6 +24,8 @@
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTLiteral;
@@ -136,6 +138,8 @@ public class RDFXMLHelp {
 		return addRDFNodeXMLElement(parent, null, node, false, false);
 	}
 
+	
+	
 	public static Element addRDFNodeXMLElement(Element parent, STRDFNode node) throws DOMException {
 		if (node.isResource())
 			return addRDFResourceXMLElement(parent, (STRDFResource) node);
@@ -160,6 +164,8 @@ public class RDFXMLHelp {
 		if (rendering!=null)
 			nodeElement.setAttribute("show", rendering);
 		
+		serializeMap(nodeElement, node);
+		
 		return nodeElement;
 	}
 
@@ -183,6 +189,8 @@ public class RDFXMLHelp {
 		}
 		nodeElement.setTextContent(node.getLabel());	
 		
+		serializeMap(nodeElement, node);
+		
 		return nodeElement;
 	}
 	
@@ -198,7 +206,7 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element serializeRDFNodesCollection(Element parent, RDFModel model,
+	public static Element addRDFNodesCollection(Element parent, RDFModel model,
 			RDFIterator<ARTNode> nodes, boolean role, boolean rendering) throws DOMException,
 			ModelAccessException {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
@@ -209,11 +217,20 @@ public class RDFXMLHelp {
 		return collectionElement;
 	}
 
-	public static Element serializeRDFNodesCollection(Element parent, Collection<STRDFNode> nodes) {
+	public static Element addRDFNodesCollection(Element parent, Collection<STRDFNode> nodes) {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
 		for (STRDFNode node : nodes) {
 			addRDFNodeXMLElement(collectionElement, node);
 		}
 		return collectionElement;
+	}
+			
+	
+	private static void serializeMap(Element rdfNodeXMLElement, STRDFNode node) {
+		Map<String, String> info = node.getInfo();
+		if (info!=null)
+			for (Entry<String, String> entry : info.entrySet()) {
+				rdfNodeXMLElement.setAttribute(entry.getKey(), entry.getValue());
+			}
 	}
 }
