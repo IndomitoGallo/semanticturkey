@@ -46,7 +46,7 @@ public class RDFUtilities {
 
 	protected static Logger logger = LoggerFactory.getLogger(RDFUtilities.class);
 
-
+	
 	/**
 	 * returns one of:
 	 * <ul>
