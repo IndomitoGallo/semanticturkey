@@ -8,22 +8,26 @@
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
  * the specific language governing rights and limitations under the License.
  *
- * The Original Code is Semantic Turkey.
+ * The Original Code is st-core-framework.
  *
  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
- * Portions created by University of Roma Tor Vergata are Copyright (C) 2010.
+ * Portions created by University of Roma Tor Vergata are Copyright (C) 2012.
  * All Rights Reserved.
  *
- * Semantic Turkey was developed by the Artificial Intelligence Research Group
- * (art.uniroma2.it) at the University of Roma Tor Vergata
- * Current information about Semantic Turkey can be obtained at 
- * http://semanticturkey.uniroma2.it
+ * st-core-framework was developed by the Artificial Intelligence Research Group
+ * (ai-nlp.info.uniroma2.it) at the University of Roma Tor Vergata
+ * Current information about st-core-framework can be obtained at 
+ * http//ai-nlp.info.uniroma2.it/software/...
  *
  */
 
-package it.uniroma2.art.semanticturkey.utilities;
+/*
+ * Contributor(s): Armando Stellato stellato@info.uniroma2.it
+ */
+package it.uniroma2.art.semanticturkey.ontology.utilities;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.ARTBNode;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTURIResource;
@@ -34,19 +38,45 @@ import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 
-/**
- * 
- * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a>
- * 
- */
-public class RDFXMLHelp {
+public class STRDFNodeFactory {
+
+	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit) {
+		return new STRDFLiteralImpl(node, explicit, null);
+	}
+
+	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit, String show) {
+		return new STRDFLiteralImpl(node, explicit, show);
+	}
+
+	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit, String show,
+			String dtQName) {
+		return new STRDFLiteralImpl(node, explicit, show, dtQName);
+	}
+
+	public static STRDFURIImpl createSTRDFURI(ARTURIResource node, RDFResourceRolesEnum role,
+			boolean explicit, String show) {
+		return new STRDFURIImpl(node, role, explicit, show);
+	}
+
+	public static STRDFURIImpl createSTRDFURI(ARTURIResource node, boolean explicit) {
+		return new STRDFURIImpl(node, null, explicit, null);
+	}
+
+	public static STRDFBNodeImpl createSTRDFBNode(ARTBNode node, RDFResourceRolesEnum role, boolean explicit,
+			String show) {
+		return new STRDFBNodeImpl(node, role, explicit, show);
+	}
+
+	public static STRDFBNodeImpl createSTRDFBNode(ARTBNode node, boolean explicit) {
+		return new STRDFBNodeImpl(node, null, explicit, null);
+	}
 
 	/**
-	 * This method has nothing to do with the RDFXML standard for serializing RDF graphs.<br/>
+	 * This method has nothing to do with an enhanced POJO which can be used to serialize RDF nodes and
+	 * accompanying information.<br/>
 	 * 
-	 * It simply renders the description of a RDF node under a single XML Element, and additional information
+	 * It simply renders the description of a RDF node under a an appropriate POJO, and additional information
 	 * that needs to be presented can be defined in the request. <br/>
 	 * First, the nature ({@link RDFTypesEnum}) of the node is revealed, among:
 	 * <ul>
@@ -61,7 +91,8 @@ public class RDFXMLHelp {
 	 * <br/>
 	 * <em>Note: of the above options, only the <code>role</code> requires further retrieval operations. For this
 	 * reason, it should be used with care, only when the nature of the resource is known to be variable and
-	 * the user is interested in knowing it</em><br/><br/>
+	 * the user is interested in knowing it</em><br/>
+	 * <br/>
 	 * 
 	 * 
 	 * @param parent
@@ -84,50 +115,41 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element addRDFNodeXMLElement(Element parent, RDFModel model, ARTNode node, boolean role,
+	public static STRDFNode createSTRDFNode(RDFModel model, ARTNode node, boolean role, boolean explicit,
 			boolean rendering) throws DOMException, ModelAccessException {
-		Element nodeElement;
 		if (node.isResource()) {
+
+			STRDFResource stRes;
+
 			if (node.isURIResource()) {
-				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.uri.toString());
-				String uri = node.asURIResource().getURI();
-				nodeElement.setTextContent(uri);
-			} else { // (node.isBlank())
-				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.bnode.toString());
-				nodeElement.setTextContent(node.asBNode().getID());
+				// uri
+				stRes = createSTRDFURI(node.asURIResource(), explicit);
+				if (rendering)
+					stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asURIResource()));
+			} else {
+				// bnode
+				stRes = createSTRDFBNode(node.asBNode(), explicit);
+				if (rendering)
+					stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asBNode()));
 			}
+
 			if (role)
-				nodeElement.setAttribute("role", ModelUtilities.getResourceRole(node.asResource(), model)
-						.toString());
+				stRes.setRole(ModelUtilities.getResourceRole(node.asResource(), model));
+
+			return stRes;
+
 		} else {
 			// literal
 			ARTLiteral lit = node.asLiteral();
-			ARTURIResource dt = lit.getDatatype();
-			if (dt != null) {
-				// typed literal
-				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.typedLiteral.toString());
-				nodeElement.setAttribute("type", dt.getURI());
-				if (rendering)
-					nodeElement.setAttribute("typeQName", model.getQName(dt.getURI()));
-			} else {
-				// plain literal
-				nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.plainLiteral.toString());
-				String lang = lit.getLanguage();
-				if (lang != null)
-					nodeElement.setAttribute("lang", lang);
+			STRDFLiteral stLit = createSTRDFLiteral(lit, explicit);
+			if (rendering) {
+				ARTURIResource dt = lit.getDatatype();
+				if (dt!=null)
+					stLit.setDatatypeQName(model.getQName(dt.getURI()));
 			}
-			nodeElement.setTextContent(lit.getLabel());
+			
+			return stLit;
 		}
-
-		if (rendering) {
-			nodeElement.setAttribute("show", RDFRenderer.renderRDFNode(model, node));
-		}
-
-		return nodeElement;
 	}
 
-	public static Element addRDFNodeXMLElement(Element parent, ARTNode node) throws DOMException,
-			ModelAccessException {
-		return addRDFNodeXMLElement(parent, null, node, false, false);
-	}
 }
