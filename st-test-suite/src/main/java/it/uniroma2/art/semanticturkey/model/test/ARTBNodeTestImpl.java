@@ -11,6 +11,10 @@ public class ARTBNodeTestImpl extends ARTResourceTestImpl implements ARTBNode {
 	public String getID() {
 		return content;
 	}
+
+	public String getNominalValue() {
+		return getID();
+	}
 	
 	
 }

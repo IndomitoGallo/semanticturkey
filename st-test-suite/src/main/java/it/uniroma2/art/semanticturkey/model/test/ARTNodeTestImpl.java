@@ -6,7 +6,7 @@ import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 
-public class ARTNodeTestImpl implements ARTNode {
+public abstract class ARTNodeTestImpl implements ARTNode {
 
 	protected String content;
 	

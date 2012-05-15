@@ -300,7 +300,7 @@ public class SKOS extends Resource {
 			String broaderConceptName = setHttpPar(Par.broaderConcept);
 			checkRequestParametersAllNotNull(Par.concept, Par.broaderConcept);
 			logger.debug(Req.removeBroaderConcept + ":\n" + response);
-			response = removeBroaderConcept(conceptName, broaderConceptName);			
+			response = removeBroaderConcept(conceptName, broaderConceptName);
 		}
 
 		else
@@ -309,9 +309,8 @@ public class SKOS extends Resource {
 		this.fireServletEvent();
 		return response;
 	}
-	
-	private Response removeBroaderConcept(String conceptName,
-			String broaderConceptName) {
+
+	private Response removeBroaderConcept(String conceptName, String broaderConceptName) {
 		SKOSModel skosModel = getSKOSModel();
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
@@ -390,7 +389,8 @@ public class SKOS extends Resource {
 		ARTURIResourceIterator it;
 		try {
 			if (schemaUri != null) {
-				ARTURIResource skosScheme = skosModel.createURIResource(skosModel.expandQName(schemaUri));
+				ARTURIResource skosScheme = retrieveExistingResource(skosModel, schemaUri,
+						getUserNamedGraphs());
 				it = skosModel.listTopConceptsInScheme(skosScheme, true, getUserNamedGraphs());
 			} else {
 				// TODO move to OWLART?
@@ -403,6 +403,8 @@ public class SKOS extends Resource {
 			return response;
 
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 

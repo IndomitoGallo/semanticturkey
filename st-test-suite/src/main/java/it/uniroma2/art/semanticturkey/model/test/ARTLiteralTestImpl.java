@@ -29,4 +29,8 @@ public class ARTLiteralTestImpl extends ARTNodeTestImpl implements ARTLiteral {
 			return null;
 	}
 
+	public String getNominalValue() {
+		return getLabel();
+	}
+
 }
