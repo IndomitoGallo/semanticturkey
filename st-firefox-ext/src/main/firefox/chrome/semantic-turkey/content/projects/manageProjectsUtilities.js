@@ -26,7 +26,7 @@ art_semanticturkey.closeProject = function(){
 			if(parameters.save)
 				parentWindow.art_semanticturkey.save_project();
 		}
-		art_semanticturkey.CurrentProject.setCurrentProjet("no project currently active", true, "nullProject");
+		art_semanticturkey.CurrentProject.setCurrentProjet("no project currently active", true, "nullProject", "nullModel");
 		var responseXML = art_semanticturkey.STRequests.Projects.closeProject();
 		art_semanticturkey.closeProject_RESPONSE(responseXML, currentProectName);
 	}

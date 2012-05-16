@@ -37,9 +37,10 @@ art_semanticturkey.onAccept = function() {
 				var oldProjectName = art_semanticturkey.CurrentProject.getProjectName();
 				//var oldProjectIsMain = art_semanticturkey.CurrentProject.isMainProject();
 				var oldProjectType = art_semanticturkey.CurrentProject.getType();
+				var oldProjectOntoType = art_semanticturkey.CurrentProject.getOntoType();
 				var responseXML = art_semanticturkey.STRequests.Projects.openProject(
 					projectName);
-				art_semanticturkey.openProject_RESPONSE(responseXML, oldProjectName, oldProjectIsMain, oldProjectType);
+				art_semanticturkey.openProject_RESPONSE(responseXML, oldProjectName, oldProjectIsMain, oldProjectType, oldProjectOntoType);
 				
 			}
 		}
@@ -52,8 +53,8 @@ art_semanticturkey.onAccept = function() {
 	}
 };
 
-art_semanticturkey.openProject_RESPONSE = function(responseElement, projectName, type){
-	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type);
+art_semanticturkey.openProject_RESPONSE = function(responseElement, projectName, type, ontoType){
+	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type, ontoType);
 };
 
 art_semanticturkey.saveAsProject_RESPONSE = function(responseElement, newProjectName){
