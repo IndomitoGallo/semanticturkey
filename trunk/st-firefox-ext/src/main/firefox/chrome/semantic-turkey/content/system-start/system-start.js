@@ -54,7 +54,7 @@ art_semanticturkey.chose_a_projects = function() {
 
 art_semanticturkey.openDefProject_RESPONSE = function(responseElement, projectName, ontoType) {
 	var type =responseElement.getElementsByTagName("type")[0].textContent;
-	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type);
+	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type, ontoType);
 	art_semanticturkey.projectOpened(projectName, ontoType);
 };
 

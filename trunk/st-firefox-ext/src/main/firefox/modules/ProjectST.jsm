@@ -9,8 +9,9 @@ CurrentProject = new function(){
 	var isNull = true; // boolean value
 	var isContinuosEditing = true; // boolean value
 	var type;
+	var ontoType;
 	
-	this.setCurrentProjet = function(projectName, isNullProject, projectType){
+	this.setCurrentProjet = function(projectName, isNullProject, projectType, ontologyType){
 		id = projectName;
 		isNull = isNullProject;
 		type = projectType;
@@ -18,6 +19,8 @@ CurrentProject = new function(){
 			isContinuosEditing = true;
 		else
 			isContinuosEditing = false;
+			
+		ontoType = ontologyType;
 	};
 	
 	this.setCurrentNameProject = function(projectName){
@@ -41,5 +44,9 @@ CurrentProject = new function(){
 	
 	this.getType = function(){
 		return type;
+	};
+	
+	this.getOntoType = function(){
+		return ontoType;
 	};
 };

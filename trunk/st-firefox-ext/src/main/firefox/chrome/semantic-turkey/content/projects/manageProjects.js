@@ -268,7 +268,7 @@ art_semanticturkey.openMainProject = function() {
 };*/
 
 art_semanticturkey.openProject_RESPONSE = function(responseElement, projectName, type, ontoType) {
-	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type);
+	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type, ontoType);
 	art_semanticturkey.projectOpened(projectName, ontoType);
 	art_semanticturkey.properClose();
 };
@@ -307,7 +307,7 @@ art_semanticturkey.importProject = function() {
 		var newProjectName = parameters.newProjectName;
 		var newProjectType = parameters.newProjectType;
 		var newProjectOntoType = art_semanticturkey.OntManager.getRDFModelPrettyPrint(parameters.newProjectOntoType);
-		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType);
+		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType, newProjectOntoType);
 		art_semanticturkey.properClose();
 		art_semanticturkey.projectOpened(newProjectName, newProjectOntoType);
 	}
@@ -333,8 +333,8 @@ art_semanticturkey.newProject = function() {
 	if (parameters.newProject == true) {
 		var newProjectName = parameters.newProjectName;
 		var newProjectType = parameters.newProjectType;
-		var newProjectOntoType = parameters.newProjectOntoType;
-		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType);
+		var newProjectOntoType = art_semanticturkey.OntManager.getRDFModelPrettyPrint(parameters.newProjectOntoType);
+		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType, newProjectOntoType);
 		art_semanticturkey.properClose();
 		art_semanticturkey.projectOpened(newProjectName, newProjectOntoType);
 	}
@@ -359,7 +359,8 @@ art_semanticturkey.newProjectFromFile = function() {
 	if (parameters.newProject == true) {
 		var newProjectName = parameters.newProjectName;
 		var newProjectType = parameters.newProjectType;
-		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType);
+		var newProjectOntoType = art_semanticturkey.OntManager.getRDFModelPrettyPrint(parameters.newProjectOntoType);
+		art_semanticturkey.CurrentProject.setCurrentProjet(newProjectName, false, newProjectType, newProjectOntoType);
 		art_semanticturkey.properClose();
 		art_semanticturkey.projectOpened(newProjectName);
 	}
