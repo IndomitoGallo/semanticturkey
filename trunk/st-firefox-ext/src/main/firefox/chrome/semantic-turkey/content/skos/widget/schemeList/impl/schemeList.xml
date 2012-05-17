@@ -126,7 +126,7 @@
 					buildHeading();
 				}
 				
-				this.projectType = "SKOS";
+				this.projectType = "^.*SKOS.*$";
 
 				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
 
@@ -155,13 +155,11 @@
 				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
 				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
 
-				if (bound.mutable) {				
 					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme*edit", this, ctxMenu);
 					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
 					
 					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar);
 					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
-				}
 				
 				var isHumanReadable	= false;
 				
@@ -180,7 +178,7 @@
 						bound._view.reload();
 					}
 				});
-				this.prefListener.register(true);	
+				this.prefListener.register(true);
 			]]>
 			</constructor>
 			<destructor>
@@ -206,14 +204,6 @@
 					
 					return row.id;
 				</getter>
-			</property>
-			<property name="mutable">
-				<getter>
-					return this.getAttribute("mutable") != "false" ? true : false;
-				</getter>
-				<setter>
-					this.setAttribute("mutable", val);
-				</setter>
 			</property>
 		</implementation>
 	</binding>  

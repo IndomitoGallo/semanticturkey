@@ -100,6 +100,27 @@ function MenuPopupTrackerAdapter(topicName, host, menupopup) {
 		}
 		
 		menupopup.appendChild(newButton);
+		
+		var l = function (state) {
+		        	if (state.indexOf("powerOn") != -1) {
+					newButton.setAttribute("disabled" ,"false");
+				} else {
+					newButton.setAttribute("disabled" ,"true");
+				}
+				
+				if (topicName.lastIndexOf("*edit") + "*edit".length == topicName.length) {
+			        	if (state.indexOf("mutable") != -1) {
+						newButton.setAttribute("disabled" ,"false");
+					} else {
+						newButton.setAttribute("disabled" ,"true");
+					}					
+				}
+			};
+			
+		if (typeof host._addStateChangedListener != "undefined") {
+			host._addStateChangedListener(l);
+			l(host._getState());
+		}
 	};
 	
 	this.commandWithdrawed = function(command) {
@@ -135,6 +156,27 @@ function ToolbarTrackerAdapter(topicName, host, toolbar) {
 		}
 		
 		toolbar.appendChild(newButton);
+		
+		var l = function (state) {
+		        	if (state.indexOf("powerOn") != -1) {
+					newButton.setAttribute("disabled" ,"false");
+				} else {
+					newButton.setAttribute("disabled" ,"true");
+				}
+				
+				if (topicName.lastIndexOf("*edit") + "*edit".length == topicName.length) {
+			        	if (state.indexOf("mutable") != -1) {
+						newButton.setAttribute("disabled" ,"false");
+					} else {
+						newButton.setAttribute("disabled" ,"true");
+					}					
+				}
+			};
+			
+		if (typeof host._addStateChangedListener != "undefined") {
+			host._addStateChangedListener(l);
+			l(host._getState());
+		}		
 	};
 	
 	this.commandWithdrawed = function(command) {
@@ -290,8 +332,10 @@ CommandBroker.offerCommand("skos:scheme*edit",
 		do : function(host) {
 
 			try{
+				var scheme = host.selectedScheme;
+				
 				// First try. If the operation produced dangling concepts, it would be aborted.
-				var responseXML=STRequests.SKOS.deleteScheme(host.selectedScheme);
+				var responseXML=STRequests.SKOS.deleteScheme(scheme);
 								
 				if (responseXML.isFail()) {
  					var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
@@ -303,9 +347,15 @@ CommandBroker.offerCommand("skos:scheme*edit",
 					var button = prompts.confirmEx(null, "User confirmation", "The operation could produce dangling concepts, because the scheme is not empty.\nWhat do you want to do?",  
                                flags, "Cancel", "Delete dandling concepts", "Retain dangling concepts", null, {value : false});
                                
-                    if (button == 0) return;
+                    			if (button == 0) return;
                     
- 					var responseXML=STRequests.SKOS.deleteScheme(host.selectedScheme, (button == 1));                   
+ 					var responseXML=STRequests.SKOS.deleteScheme(scheme, (button == 1));                   
+  				}
+  				
+  				Logger.debug("@@@" + Preferences.get("extensions.semturkey.skos.selected_scheme", ""));
+  				if (Preferences.get("extensions.semturkey.skos.selected_scheme", "").trim() == scheme.trim()) {
+  					Preferences.set("extensions.semturkey.skos.selected_scheme", "");
+  					Logger.debug("Removed selected scheme: " + scheme + "now: \"" + Preferences.get("extensions.semturkey.skos.selected_scheme", "").trim() +"\"");
   				}
 			}catch (e) {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);

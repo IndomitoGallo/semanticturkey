@@ -219,15 +219,13 @@
 					}
 				}, null);
 								
-				if (bound.mutable == true) {
-					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept*edit", this, ctxMenu);
-					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
-					
-					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept*edit", this, taxonomyToolbar);
-					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
-				}
+				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept*edit", this, ctxMenu);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
 				
-				this.projectType = "SKOS";
+				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept*edit", this, taxonomyToolbar);
+				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				
+				this.projectType = "^.*SKOS.*$";
 				
 				var isHumanReadable	= false;
 				
@@ -293,14 +291,6 @@
 							this._view.powerOff();
 						}
 					}
-				</setter>
-			</property>
-			<property name="mutable">
-				<getter>
-					return this.getAttribute("mutable") != "false" ? true : false;
-				</getter>
-				<setter>
-					this.setAttribute("mutable", val);
 				</setter>
 			</property>
 		</implementation>

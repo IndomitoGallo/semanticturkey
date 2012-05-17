@@ -69,7 +69,8 @@
 			var taxonomyTree = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyTree");
 			
 			var taxonomyHeading = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyHeading");
-			
+			var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
+			var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
 			var bound = this;
 			
 			taxonomyTree.view = this._view = new function() {
@@ -377,7 +378,11 @@
 						
 					treeBoxObject.rowCountChanged(0, delta);
 					treeBoxObject.invalidate();	
-					treeBoxObject.view.selection.clearSelection();			
+					treeBoxObject.view.selection.clearSelection();
+					
+					if (typeof bound._onStateChanged != "undefined") {
+						bound._onStateChanged("powerOn");
+					}
 				};
 				
 				this.isPowered = function() {
@@ -392,6 +397,10 @@
 					
 					treeBoxObject.rowCountChanged(0, -delta);
 					treeBoxObject.view.selection.clearSelection();
+					
+					if (typeof bound._onStateChanged != "undefined") {
+						bound._onStateChanged("powerOn!");
+					}
 				};
 				
 				this.canDrop = function(index, orientation, dataTransfer) {
@@ -519,7 +528,21 @@
 						var index = taxonomyTree.currentIndex;
 					}
 					
+					var children = ctxMenu.children;
 					
+					var allDisabled = true;
+					for (var i = 0 ; i < children.length ; i++) {
+						var c = children[i];
+						
+						if (c.getAttribute("disabled") == "false") {
+							allDisabled = false;
+							break;
+						}
+					}
+					
+					if (allDisabled) {
+						event.preventDefault();
+					}
 				}
 					
 				taxonomyTree.addEventListener("contextmenu", this.contextmenu, true);
@@ -529,6 +552,8 @@
 						headingHideShow();
 					} else if (e.attrName == "columns") {
 						buildHeading();
+					} else if (e.attrName == "mutable") {
+						bound._onStateChanged(bound.mutable ? "mutable" : "mutable!");
 					}
 				}, true);
 			};
@@ -587,7 +612,7 @@
 			window.addEventListener("load", function(event) {
 				if (typeof bound.art_semanticturkey.CurrentProject == "undefined") return; // I don't know why the load event appers to be invoked multiple times
 
-				if (bound.art_semanticturkey.CurrentProject.isNull() == false && bound.art_semanticturkey.CurrentProject.getType().match(bound.projectType)) {
+				if (bound.art_semanticturkey.CurrentProject.isNull() == false && bound.art_semanticturkey.CurrentProject.getOntoType().match(bound.projectType) != null) {
 					bound._view.powerOn();
 				}
 			}, false);
@@ -601,12 +626,54 @@
 			this.stEventArray2.addEventListenerToArrayAndRegister("projectClosed", function(eventId, projectClosedObj) {
 				bound._view.powerOff();
 			}, null);
+			
+			var state = [];
+			
+			if (bound.mutable) {
+				state.push("mutable");
+			}
+			var stateListeners = [];
+			
+			bound._onStateChanged = function(msg) {
+				state = state.filter(function(e) {
+					return e + "!" != msg && e != msg + "!";
+				});
+				
+
+				if (msg.substring(msg.length - 1) != "!") {
+					state.push(msg);
+				}
+				
+				
+				for (var i = 0 ; i < stateListeners.length ; i++) {
+					var l = stateListeners[i];
 					
+					if (l) {
+						l(state);
+					}
+				}
+			};
+			
+			bound._addStateChangedListener = function(l) {
+				stateListeners.push(l);
+			};
+			
+			bound._getState = function() {
+				return state;
+			};
 			]]>
 			</constructor>
 			<destructor>
 				this.stEventArray2.deregisterAllListener();
 			</destructor>
+				<property name="mutable">
+				<getter>
+					return this.getAttribute("mutable") != "false" ? true : false;
+				</getter>
+				<setter>
+					this.setAttribute("mutable", val);
+				</setter>
+			</property>
 		</implementation>
 	</binding>  
 </bindings>
