@@ -98,12 +98,21 @@ window.onload = function() {
 	art_semanticturkey.eventListenerArrayObject
 	.addEventListenerToArrayAndRegister("skosBroaderConceptAdded",
 			art_semanticturkey.refreshPanel, null);
-
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosBroaderConceptRemoved",
+			art_semanticturkey.skosBroaderConceptRemovedHandler, null);
+	
 	art_semanticturkey.eventListenerArrayObject
 	.addEventListenerToArrayAndRegister("skosSchemeAdded",
 			art_semanticturkey.refreshPanel, null);
 	art_semanticturkey.eventListenerArrayObject
 	.addEventListenerToArrayAndRegister("skosSchemeRemoved",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosTopConceptAdded",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosTopConceptRemoved",
 			art_semanticturkey.refreshPanel, null);
 
 	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
@@ -532,10 +541,11 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		var listheader = document.createElement("listheader");
 		var listitem_iconic = document.createElement("listitem-iconic");
 		var lbl2 = document.createElement("label");
+		
 		if (request == "getClsDescription") {
 			lbl2.setAttribute("value", "Super Classes:");
 		} else if (request == "getConceptDescription") {
-			lbl2.setAttribute("value", "Broader Concepts:");			
+			lbl2.setAttribute("value", "Broader Concepts:");
 		} else {
 			lbl2.setAttribute("value", "Super Property:");
 		}
@@ -591,6 +601,16 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 			}
 		}
 	} else {// superTypeList.length <= 3
+		var superT = "";
+		
+		if (request == "getClsDescription") {
+			superT = "superClass";
+		} else if(request == "getConceptDescription") {
+			superT = "broaderConcept";
+		} else {
+			superT = "superType";
+		}
+
 		var lbl2 = document.createElement("label");
 		var img2 = document.createElement("image");
 		var row3 = document.createElement("row");
@@ -699,6 +719,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 				}
 				var row4 = document.createElement("row");
 				row4.setAttribute("id", value2);
+				row4.setAttribute("type", superT);
 				row4.appendChild(typeButton3);
 				row4.insertBefore(txbox2, typeButton3);
 
@@ -3081,8 +3102,12 @@ art_semanticturkey.addBroaderConcept = function() {
 };
 
 art_semanticturkey.removeBroaderConcept = function(broaderConcept) {
-	alert("Remove broader concept: " + broaderConcept);
-};
+	try {
+		conceptName = document.getElementById("name").getAttribute("actualValue");
+		responseElement = art_semanticturkey.STRequests.SKOS.removeBroaderConcept(conceptName, broaderConcept);
+	} catch (e) {
+		alert(e.name + ": " + e.message);
+	}};
 
 art_semanticturkey.addTopConcept = function() {
 	var parameters = {};
@@ -3094,11 +3119,23 @@ art_semanticturkey.addTopConcept = function() {
 	
 	if (typeof parameters.out == "undefined" || typeof parameters.out.selectedConcept == "undefined") return;
 
-	alert("Add top concept: " + parameters.out.selectedConcept);
+	var scheme = document.getElementById("name").value;
+
+	try {
+		var responseXML = art_semanticturkey.STRequests.SKOS.addTopConcept(scheme, parameters.out.selectedConcept);
+	} catch(e) {
+		alert(e.name + ": " + e.message);		
+	}
 };
 
 art_semanticturkey.removeTopConcept = function(topConcept) {
-	alert("Remove top concept:" + topConcept);
+	var scheme = document.getElementById("name").value;
+
+	try {
+		var responseXML = art_semanticturkey.STRequests.SKOS.removeTopConcept(scheme, topConcept);
+	} catch(e) {
+		alert(e.name + ": " + e.message);		
+	}
 };
 
 art_semanticturkey.getConceptScheme = function() {
@@ -3204,4 +3241,47 @@ art_semanticturkey.parsingTopConcepts = function(responseElement, request) {
 
 		list.appendChild(lsti);
 	}
+};
+
+art_semanticturkey.skosBroaderConceptRemovedHandler = function(eventId, skosBroaderConceptRemovedObj) {
+	var superTypesOldCount = 0;
+	
+	var superTypesList = document.getElementById("superTypesList");
+	
+	if (superTypesList != null) {
+		superTypesOldCount = superTypesList.itemCount;
+	} else {
+	    var nsResolver = document.createNSResolver(document.documentElement);
+	    var xpathResult = document.evaluate('count(id("parentBoxRows")/xul:row[@type="broaderConcept"])', document, nsResolver, XPathResult.NUMBER_TYPE, null);
+	    superTypesOldCount = xpathResult.numberValue;
+	}
+	
+	if (superTypesOldCount == 1) {
+			var scheme = art_semanticturkey.getConceptScheme();
+			
+			if (scheme == "*") {
+				alert("The concept has no broaders.")
+			} else {
+				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+				
+				var flags = prompts.BUTTON_POS_0 * prompts.BUTTON_TITLE_IS_STRING +  
+	    		            prompts.BUTTON_POS_1 * prompts.BUTTON_TITLE_IS_STRING;
+				var button = prompts.confirmEx(null, "User confirmation", "The concept has no broaders.\nWhat do you want to do?",  
+	                       flags, "Make top concept of the current scheme", "Nothing", "", null, {value : false});
+				
+				if (button == 0) {
+					window.setTimeout(  
+						    function() {  
+						    	try {
+						    		var responseXML = art_semanticturkey.STRequests.SKOS.addTopConcept(scheme, skosBroaderConceptRemovedObj.getConceptName());
+						    	} catch(e) {
+						    		alert(e.name + ": " + e.message);		
+						    	}					    	
+						    },  
+						    0);
+				}	
+			}
+	}
+
+	art_semanticturkey.refreshPanel();
 };

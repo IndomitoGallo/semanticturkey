@@ -73,6 +73,7 @@ public class SKOS extends Resource {
 		public static final String getSchemesMatrixPerConceptRequest = "getSchemesMatrixPerConceptRequest";
 
 		// ADD REQUESTS
+		public static final String addTopConceptRequest = "addTopConcept";
 		public static final String addBroaderConceptRequest = "addBroaderConcept";
 		public static final String addConceptToSchemeRequest = "addConceptToScheme";
 		public static final String setPrefLabelRequest = "setPrefLabel";
@@ -83,6 +84,7 @@ public class SKOS extends Resource {
 		public static final String createSchemeRequest = "createScheme";
 
 		// REMOVE REQUESTS
+		public static final String removeTopConceptRequest = "removeTopConcept";
 		public static final String deleteConceptRequest = "deleteConcept";
 		public static final String deleteSchemeRequest = "deleteScheme";
 		public static final String removePrefLabelRequest = "removePrefLabel";
@@ -205,6 +207,18 @@ public class SKOS extends Resource {
 			logger.debug("SKOS.deleteSchemeRequest:" + response);
 			response = deleteScheme(scheme, setForceDeleteDanglingConcepts, forceDeleteDanglingConcepts);
 
+		} else if(request.equals(Req.addTopConceptRequest)) {
+			String scheme = setHttpPar(Par.scheme);
+			String concept = setHttpPar(Par.concept);
+			checkRequestParametersAllNotNull(Par.scheme, Par.concept);
+			logger.debug("SKOS." + Req.addTopConceptRequest + ":\n" + response);
+			response = addTopConcept(scheme, concept);
+		} else if(request.equals(Req.removeTopConceptRequest)) {
+			String scheme = setHttpPar(Par.scheme);
+			String concept = setHttpPar(Par.concept);
+			checkRequestParametersAllNotNull(Par.scheme, Par.concept);
+			logger.debug("SKOS." + Req.removeTopConceptRequest + ":\n" + response);
+			response = removeTopConcept(scheme, concept);
 		} else if (request.equals(Req.removePrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String lang = setHttpPar(Par.langTag);
@@ -212,7 +226,6 @@ public class SKOS extends Resource {
 			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
 			logger.debug("SKOS." + Req.removePrefLabelRequest + ":\n" + response);
 			response = removePrefLabel(skosConceptName, label, lang);
-
 		} else if (request.equals(Req.removeAltLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String lang = setHttpPar(Par.langTag);
@@ -307,6 +320,48 @@ public class SKOS extends Resource {
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
+		return response;
+	}
+
+	private Response removeTopConcept(String schemeName, String conceptName) {
+		SKOSModel skosModel = getSKOSModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+
+			skosModel.setTopConcept(concept, scheme, false, getWorkingGraph());
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+
+	private Response addTopConcept(String schemeName, String conceptName) {
+		SKOSModel skosModel = getSKOSModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		try {
+			ARTResource[] graphs = getUserNamedGraphs();
+			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+
+			skosModel.setTopConcept(concept, scheme, true, getWorkingGraph());
+			
+			Element dataElement = response.getDataElement();
+			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
+			makeConceptXML(skosModel, concept, conceptElement, true, "en");
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		}
 		return response;
 	}
 

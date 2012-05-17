@@ -21,6 +21,7 @@
 
 <window id="editorPanel" title="Editor Panel" changed="false"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	width="600" height="600">
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/editors/editorPanel.js" />

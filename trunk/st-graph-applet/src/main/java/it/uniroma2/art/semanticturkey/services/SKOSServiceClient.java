@@ -15,37 +15,77 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 {
 	//private static final String CMD_GET_NARROWERSOF = "service=skos&request=getNarrowerConcepts&conceptName=%s";
 	//private static final String CMD_GET_ROOTS = "service=cls&request=getClassesInfoAsRootsForTree&clsesqnames=%s&instNum=true";
-	private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&method=templateandvalued";
-	private static final String SUBCLASS_LABEL = "subclass-of";
+	private static final String CMD_GET_PROJECT_PROPERTY = "service=projects&request=getProjectProperty&propNames=%s";
+	private static final String CMD_GET_ROOT_CONCEPTS = "service=skos&request=getTopConcepts&scheme=%s";
+	private static final String CMD_GET_NARROWER_CONCEPTS = "service=skos&request=getNarrowerConcepts&concept=%s&scheme=%s";
 
+	private String selectedScheme;
+	
 	public Vertex getRootVertex() 
 	{
-		return new OWLVertex("owl:Thing", OWLVertex.OWL_NODE_TYPE.CLASS);
-	}
-
-	public Vector<Pair<Vertex, Edge>> getChildrenOf(Vertex v) 
-	{
-		return getSubClassesOf(v.getName());
-	}
-
-	private Vector<Pair<Vertex, Edge>> getSubClassesOf(String parentNodeName)
-	{
-		String cmd = String.format(CMD_GET_SUBCLASSESOF, parentNodeName);
+		String cmd = String.format(CMD_GET_PROJECT_PROPERTY, "skos.selected_scheme");
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
 		
-		//System.out.print(response); 
-		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
 		Document doc = response.getResponseObject();
-		NodeList nl = doc.getElementsByTagName("class");
-		for (int i = 0; i < nl.getLength(); ++i)
-		{
-			Node n = nl.item(i);
-			Node attr = n.getAttributes().getNamedItem("name");
-			v.add(new Pair<Vertex, Edge>(new OWLVertex(attr.getNodeValue(), OWLVertex.OWL_NODE_TYPE.CLASS), new Edge(SUBCLASS_LABEL)));
+		selectedScheme = doc.getElementsByTagName("property").item(0).getAttributes().getNamedItem("value").getNodeValue();
+	
+		return new SKOSConceptSchemeVertex(selectedScheme);
+	}
+	
+	public Vector<Pair<Vertex, Edge>> getChildrenOf(Vertex v) 
+	{
+		if (v instanceof SKOSConceptVertex) {
+			return getNarrowerConceptsOf(v.getName());		
+		} else if (v instanceof SKOSConceptSchemeVertex) {
+			return getTopConceptsOf(v.getName());
 		}
 		
-		return v;
+		return null;
+	}
+
+	private Vector<Pair<Vertex, Edge>> getTopConceptsOf(String parentNodeName) {
+		String cmd = String.format(CMD_GET_ROOT_CONCEPTS, parentNodeName);
+		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
+		if (response == null)
+			return null;
+		
+		Document doc = response.getResponseObject();
+		
+		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
+		
+		NodeList nodes = doc.getElementsByTagName("concept");
+		
+		for (int i = 0 ; i < nodes.getLength() ; i++) {
+			Node n = nodes.item(i);
+
+			result.add(new Pair<Vertex, Edge>(new SKOSConceptVertex(n.getAttributes().getNamedItem("name").getNodeValue()), new Edge("skos:hasTopConcept")));
+		}
+
+		
+		return result;
+	}
+	
+	private Vector<Pair<Vertex, Edge>> getNarrowerConceptsOf(String parentNodeName) {
+		String cmd = String.format(CMD_GET_NARROWER_CONCEPTS, parentNodeName, selectedScheme);
+		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
+		if (response == null)
+			return null;
+		
+		Document doc = response.getResponseObject();
+		
+		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
+		
+		NodeList nodes = doc.getElementsByTagName("concept");
+		
+		for (int i = 0 ; i < nodes.getLength() ; i++) {
+			Node n = nodes.item(i);
+
+			result.add(new Pair<Vertex, Edge>(new SKOSConceptVertex(n.getAttributes().getNamedItem("name").getNodeValue()), new Edge("skos:narrower")));
+		}
+
+		
+		return result;
 	}
 }

@@ -82,6 +82,32 @@ function addBroaderConcept(concept, broaderConcept) {
 	return reply;
 }
 
+function addTopConcept(scheme, concept) {
+	var scheme_p = "scheme=" + scheme;
+	var concept_p = "concept=" + concept;
+	
+	var reply = HttpMgr.GET(serviceName, service.addTopConceptRequest, scheme_p, concept_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosTopConceptAdded", {getConceptName : function(){return concept;}, hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, getSchemeName : function(){return scheme}});
+	}
+	
+	return reply;
+}
+
+function removeTopConcept(scheme, concept) {
+	var scheme_p = "scheme=" + scheme;
+	var concept_p = "concept=" + concept;
+	
+	var reply = HttpMgr.GET(serviceName, service.removeTopConceptRequest, scheme_p, concept_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosTopConceptRemoved", {getConceptName : function(){return concept;}, getSchemeName : function(){return scheme}});
+	}
+	
+	return reply;
+}
+
 /**
  * Creates a concept in a concept scheme.
  * 
@@ -185,7 +211,7 @@ function removeBroaderConcept(concept, broaderConcept) {
 	var reply = HttpMgr.GET(serviceName, service.removeBroaderConceptRequest, concept_p, broaderConcept_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosBroaderConceptRemoved", {});
+		evtMgr.fireEvent("skosBroaderConceptRemoved", {getConceptName : function(){return concept;}, getBroaderConceptName : function(){return broaderConcept;}});
 	}
 	
 	return reply;
@@ -199,6 +225,7 @@ service.getConceptDescription = getConceptDescription;
 service.getConceptSchemeDescription = getConceptSchemeDescription;
 
 service.addBroaderConcept = addBroaderConcept;
+service.addTopConcept = addTopConcept;
 
 service.createConcept = createConcept;
 service.createScheme = createScheme;
@@ -207,3 +234,4 @@ service.deleteConcept = deleteConcept;
 service.deleteScheme = deleteScheme;
 
 service.removeBroaderConcept = removeBroaderConcept;
+service.removeTopConcept = removeTopConcept;
