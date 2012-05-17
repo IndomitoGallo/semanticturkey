@@ -59,6 +59,10 @@
 					this.level = 0;
 					this.isContainerOpen = false;
 					this.cache = {};
+					
+					this.matches = function(id) {
+						return this.id == id || this.record.uri == id;
+					};
 				}
 				
 				this._view.sourceAdapter.fetchRoots = function() {						
@@ -195,6 +199,34 @@
 					if (topNoMore) {
 						bound._view.removeRows(narrowerConcept, 0);					
 					}
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosBroaderConceptRemoved", function(eventId, skosBroaderConceptRemovedObj) {
+					var conceptName = skosBroaderConceptRemovedObj.getConceptName();
+					var broaderConceptName = skosBroaderConceptRemovedObj.getBroaderConceptName();
+					bound._view.removeRows(conceptName, broaderConceptName);
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosTopConceptAdded", function(eventId, skosTopConceptAddedObj) {
+					if (skosTopConceptAddedObj.getSchemeName() != bound.conceptScheme) {
+						return;
+					}
+					
+					var concept = skosTopConceptAddedObj.getConceptName();
+					var u = skosTopConceptAddedObj.getURI();
+					var hs = skosTopConceptAddedObj.hasSubsumees();
+					var l = skosTopConceptAddedObj.getLabel();
+								
+					var row = new DataRow({concept : concept, more : hs ? "1" : "0", label : l, uri : u});
+					
+					bound._view.addRow(null, row);
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosTopConceptRemoved", function(eventId, skosTopConceptRemovedObj) {
+					if (skosTopConceptRemovedObj.getSchemeName() != bound.conceptScheme) {
+						return;
+					}
+					
+					var concept = skosTopConceptRemovedObj.getConceptName();
+
+					bound._view.removeRows(concept, 0);
 				}, null);
 
 				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {

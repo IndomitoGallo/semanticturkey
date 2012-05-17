@@ -10,6 +10,7 @@ public class ProjectServiceClient extends HttpServiceClient
 {
 	public static final String OWL_MODEL_TYPE = "it.uniroma2.art.owlart.models.OWLModel";
 	public static final String SKOS_MODEL_TYPE = "it.uniroma2.art.owlart.models.SKOSModel";
+	public static final Object SKOSXL_MODEL_TYPE = "it.uniroma2.art.owlart.models.SKOSXLModel";
 	
 	//private static final String CMD_GET_CURRENT = "service=projects&request=getCurrentProject";
 	private static final String CMD_GET_PROPERTY = "service=projects&request=getProjectProperty&propNames=%s";

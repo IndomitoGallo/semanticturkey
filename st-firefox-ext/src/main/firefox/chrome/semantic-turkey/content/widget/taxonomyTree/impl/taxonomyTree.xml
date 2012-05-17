@@ -413,10 +413,48 @@
                 
                 this.removeRows = function(id, level) {
                 	treeBoxObject.beginUpdateBatch();
-                	
+                	                	
                 	for (var i = 0 ; i < visibleRows.length ; ) {
-                		if (visibleRows[i].id == id) {
-                			if (typeof level != "undefined" && visibleRows[i].level != level) {
+                		var matches = false;
+                		
+                		if (typeof visibleRows[i].matches != "undefined") {
+                			matches = visibleRows[i].matches(id);
+                		} else {
+                			matches = visibleRows[i].id == id;
+                		}
+                		
+                		if (matches) {
+	                		var parent = null;
+	                		
+	                		var parentIndex = this.getParentIndex(i);
+	                		
+	                		if (parentIndex != -1) {
+	                			parent = visibleRows[parentIndex];
+	                		}
+	                		
+	                		if (parent == null) {
+	                			if (typeof level == "string") {
+	                				i++;
+	                				continue;
+	                			}
+	                		} else {
+	                			if (typeof level == "string") {
+	                				var pMatches = false;
+	                				
+				                	if (typeof parent.matches != "undefined") {
+			                			pMatches = parent.matches(level);
+			                		} else {
+			                			pMatches = parent.id == level;
+			                		}
+			                		
+			                		if (!pMatches) {
+			                			i++;
+			                			continue;
+			                		}
+	                			}
+	                		}
+	                		
+                			if (typeof level == "number" && visibleRows[i].level != level) {
                 				i++;
                 				continue;
                 			}

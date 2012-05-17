@@ -4,6 +4,9 @@ import it.uniroma2.art.semanticturkey.services.OWLServiceClient;
 import it.uniroma2.art.semanticturkey.services.OWLVertex;
 import it.uniroma2.art.semanticturkey.services.ProjectServiceClient;
 import it.uniroma2.art.semanticturkey.services.RepositoryServiceClient;
+import it.uniroma2.art.semanticturkey.services.SKOSServiceClient;
+import it.uniroma2.art.semanticturkey.services.SKOSVertex;
+import it.uniroma2.art.semanticturkey.services.SKOSXLServiceClient;
 //import it.uniroma2.art.semanticturkey.services.SKOSServiceClient;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -259,13 +262,15 @@ public class SimpleViewer extends JApplet
 		{
 			e.printStackTrace();
 		}
-
+		
 		ProjectServiceClient psc = new ProjectServiceClient();
         String model = psc.getModelType();
         if (model.equals(ProjectServiceClient.OWL_MODEL_TYPE))
         	sc = new OWLServiceClient();
         else if (model.equals(ProjectServiceClient.SKOS_MODEL_TYPE))
-        	sc = new OWLServiceClient();
+        	sc = new SKOSServiceClient();
+        else if (model.equals(ProjectServiceClient.SKOSXL_MODEL_TYPE))
+        	sc = new SKOSXLServiceClient();
         else
         {
             JOptionPane.showMessageDialog(this,
@@ -298,6 +303,9 @@ public class SimpleViewer extends JApplet
     		
             icon = loadIcon("/it/uniroma2/art/semanticturkey/images/prop20x20.png");
             icons.put(OWLVertex.OWL_ICON_GENERIC, icon);
+            
+            icon = loadIcon("/it/uniroma2/art/semanticturkey/images/concept20x20.png");
+            icons.put(SKOSVertex.SKOS_ICON_CONCEPT, icon);
     	}
     	
     	private Icon loadIcon(String iconName)

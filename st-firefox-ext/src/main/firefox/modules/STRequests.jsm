@@ -227,6 +227,7 @@ STRequests.SKOS.getConceptSchemeDescriptionRequest = "getConceptSchemeDescriptio
 
 // ADD REQUESTS
 STRequests.SKOS.addBroaderConceptRequest = "addBroaderConcept";
+STRequests.SKOS.addTopConceptRequest = "addTopConcept";
 
 // CREATE REQUESTS
 STRequests.SKOS.createConceptRequest = "createConcept";
@@ -238,6 +239,7 @@ STRequests.SKOS.deleteSchemeRequest = "deleteScheme";
 
 // REMOVE REQUESTS
 STRequests.SKOS.removeBroaderConceptRequest = "removeBroaderConcept";
+STRequests.SKOS.removeTopConceptRequest = "removeTopConcept";
 
 //projects service request
 STRequests.Projects.serviceName = "projects";
