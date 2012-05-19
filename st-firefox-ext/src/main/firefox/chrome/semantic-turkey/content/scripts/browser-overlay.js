@@ -31,6 +31,10 @@ Components.utils.import("resource://stservices/SERVICE_Projects.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stmodules/Preferences.jsm", 
 		art_semanticturkey);
+Components.utils.import("resource://stmodules/PrefUtils.jsm", 
+		art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Annotation.jsm", 
+		art_semanticturkey);
 
 art_semanticturkey.JavaFirefoxSTBridge = new Object();
 
@@ -454,6 +458,18 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	document.getElementById("SPARQLToolBarButton").addEventListener("command",art_semanticturkey.SPARQL,true);
 	document.getElementById("SKOSToolBarButton").addEventListener("command",art_semanticturkey.toggleSidebar3,true);
 	document.getElementById("graphBarButton").addEventListener("command",art_semanticturkey.semnavigation,true);
+	
+	document.getElementById("humanReadableButton").addEventListener("command",art_semanticturkey.humanReadableButtonClick,true);
+	document.getElementById("humanReadableButton").prefListener = new art_semanticturkey.PrefListener("extensions.semturkey.skos.", function(branch, name) {
+		if (name == "humanReadable") {
+			var isReadable = branch.getBoolPref(name);
+			
+			document.getElementById("humanReadableButton").checked = isReadable;
+		}
+	}); // The listener is prevented from being garbage collected, by attaching it to the button
+	document.getElementById("humanReadableButton").prefListener.register(true); // true causes the callback to be invoked on registration	
+
+	
 	var stIsStarted = art_semanticturkey.ST_started.getStatus();
 	
 	art_semanticturkey.eventListenerBrowserOverlayArrayObject = new art_semanticturkey.eventListenerArrayClass();
@@ -545,11 +561,13 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 			document.getElementById("SKOSToolBarButton").hidden = false;
 			document.getElementById("key_openSTSKOSSidebar").hidden = false;
 			document.getElementById("key_openSTSKOSSidebar").disabled = false;
+			document.getElementById("humanReadableButton").hidden = false;
 		}
 		else{
 			document.getElementById("SKOSToolBarButton").hidden = true;
 			document.getElementById("key_openSTSKOSSidebar").hidden = true;
 			document.getElementById("key_openSTSKOSSidebar").disabled = true;
+			document.getElementById("humanReadableButton").hidden = true;
 		}
 	}
 	else if(eventId == "projectClosed"){
@@ -606,3 +624,9 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 
 window.addEventListener("load",
 		art_semanticturkey.associateEventsOnBrowserGraphicElements, true);
+
+
+art_semanticturkey.humanReadableButtonClick = function(event) {
+	var oldState = art_semanticturkey.Preferences.get("extensions.semturkey.skos.humanReadable", false);
+	var newState = art_semanticturkey.Preferences.set("extensions.semturkey.skos.humanReadable", !oldState);
+};
