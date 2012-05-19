@@ -272,6 +272,31 @@ function addAnnotation(urlPage,instanceQName,text,title){
 	var title="title="+title;
 	return HttpMgr.GET(serviceName, service.addAnnotationRequest,urlPage,instanceQName,text,title);
 }
+
+/**
+ * @member STRequests.Annotation
+ * @param urlPage
+ * @param title
+ * @param topics
+ * @return
+ */
+function bookmarkPage(urlPage, title, topics){
+	var urlPage_p="urlPage="+urlPage;
+	var title_p="title="+title;
+	var topics_p = "topics=";
+	
+	for (var i = 0 ; i < topics.length ; i++) {
+		topics_p += topics[i];
+	}
+	
+	return HttpMgr.GET(serviceName, service.bookmarkPageRequest,urlPage_p,title_p,topics_p);
+}
+
+function getBookmarksByTopic(topic) {
+	var topic_p= "topic="+topic;
+	return HttpMgr.GET(serviceName, service.getBookmarksByTopicRequest,topic_p);
+}
+
 // Annotation SERVICE INITIALIZATION
 service.chkAnnotation = chkAnnotation;
 service.getPageAnnotations = getPageAnnotations;
@@ -280,3 +305,6 @@ service.relateAndAnnotateBindAnnot = relateAndAnnotateBindAnnot;
 service.relateAndAnnotateBindCreate = relateAndAnnotateBindCreate;
 service.createFurtherAnnotation = createFurtherAnnotation;
 service.addAnnotation=addAnnotation;
+service.bookmarkPage=bookmarkPage;
+service.getBookmarksByTopic=getBookmarksByTopic;
+
