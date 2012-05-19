@@ -89,6 +89,9 @@
 			<toolbarbutton id="graphBarButton"
 				image="chrome://semantic-turkey/skin/images/graph_20x20.png"
 				tooltiptext="Open Graph View of the Ontology" hidden="true" />
+			<toolbarbutton id="humanReadableButton"
+				image="chrome://semantic-turkey/skin/images/user.png"
+				tooltiptext="Human readable labels" hidden="true" type="checkbox" autocheck="false" />
 		</toolbar>
 	</toolbox>
 
