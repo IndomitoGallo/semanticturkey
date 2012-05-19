@@ -3,6 +3,7 @@ if (typeof art_semanticturkey == "undefined") {
 }
 
 Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 
 art_semanticturkey.init = function() {
@@ -12,12 +13,42 @@ art_semanticturkey.init = function() {
 	
 	conceptTree._view.canDrop = function(index, orientation, dataTransfer) {
 		if (index != -1 && orientation == 0) {
+			if (dataTransfer.types.contains("application/skos.concept")) {
+					var droppedConcept = dataTransfer.getData("application/skos.concept");
+					var targetNode = conceptTree._view.getRow(index).id;
+					
+					if (droppedConcept == targetNode) {
+						return false;
+					}
+			}
+			
 			return true;
 		}
 	};
-		
+	
+	conceptTree.addEventListener("dragstart", function(event){
+		event.dataTransfer.setData("application/skos.concept", conceptTree.selectedConcept);
+	}, false);
+	
 	conceptTree._view.drop = function(index, orientation, dataTransfer) {
 		if (index == -1 || orientation != 0) {
+			return;
+		}
+		
+		if (dataTransfer.types.contains("application/skos.concept")) {
+			try {
+				var droppedConcept = dataTransfer.getData("application/skos.concept");
+				var targetNode = conceptTree._view.getRow(index).id;
+				
+//				if (droppedConcept == targetNode) {
+//					return;
+//				}
+				
+				art_semanticturkey.STRequests.SKOS.addBroaderConcept(droppedConcept, targetNode);
+			} catch (e) {
+				alert(e.name + ": " + e.message);
+			}
+			
 			return;
 		}
 		

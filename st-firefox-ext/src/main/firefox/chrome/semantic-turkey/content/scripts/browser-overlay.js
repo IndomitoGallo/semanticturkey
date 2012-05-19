@@ -485,6 +485,10 @@ art_semanticturkey.associateEventsOnBrowserGraphicElements = function() {
 	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectClosed", art_semanticturkey.changeProjectObj, null);
 	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectChangedName", art_semanticturkey.changeProjectObj, null);
 	
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectOpened", art_semanticturkey.enableDropOnBrowser, null);
+	art_semanticturkey.eventListenerBrowserOverlayArrayObject.addEventListenerToArrayAndRegister("projectClosed", art_semanticturkey.disableDropOnBrowser, null);
+
+	
 	/*var projectOpened = new art_semanticturkey.changeProjectObj();
 	art_semanticturkey.evtMgr.registerForEvent("projectOpened",projectOpened);
 	var projectClosed = new art_semanticturkey.changeProjectObj();
@@ -625,6 +629,39 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 window.addEventListener("load",
 		art_semanticturkey.associateEventsOnBrowserGraphicElements, true);
 
+art_semanticturkey.enableDropOnBrowser = function(eventId, projectOpenedObj) {
+	gBrowser.addEventListener("drop", art_semanticturkey.dropOnBrowser, true);
+	gBrowser.addEventListener("dragover", art_semanticturkey.dragOverBrowser, true);
+};
+
+art_semanticturkey.disableDropOnBrowser = function(eventId, projectOpenedObj) {
+	gBrowser.removeEventListener("drop", art_semanticturkey.dropOnBrowser, true);
+	gBrowser.removeEventListener("dragover", art_semanticturkey.dragOverBrowser, true);
+};
+
+art_semanticturkey.dragOverBrowser = function(event){
+	if (event.dataTransfer.types.contains("application/skos.concept")) {
+		event.preventDefault();
+	}
+};
+
+art_semanticturkey.dropOnBrowser = function(event){
+	if (event.dataTransfer.types.contains("application/skos.concept")) {
+		event.preventDefault();
+		
+		try{
+			var doc = event.target.ownerDocument;
+			var urlPage = doc.documentURI;
+			var title = doc.title;
+			var topics = [event.dataTransfer.getData("application/skos.concept")];
+
+			art_semanticturkey.STRequests.Annotation.bookmarkPage(urlPage, title, topics);
+		}
+		catch (e) {
+			alert(e.name + ": " + e.message);
+		}
+	}
+};
 
 art_semanticturkey.humanReadableButtonClick = function(event) {
 	var oldState = art_semanticturkey.Preferences.get("extensions.semturkey.skos.humanReadable", false);

@@ -397,6 +397,9 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			responseXML = art_semanticturkey.STRequests.Page
 					.getBookmarks(sourceElementName);
 			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+			
+			responseXML = art_semanticturkey.STRequests.Annotation.getBookmarksByTopic(sourceElementName);
+			art_semanticturkey.getBookmarksByTopic_RESPONSE(responseXML);
 		} else if (type == "conceptScheme") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptSchemeDescription(sourceElementName);
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
@@ -444,6 +447,33 @@ art_semanticturkey.getWebLinks_RESPONSE = function(responseElement) {
 
 		rowsBox.appendChild(row);
 	}
+};
+
+/**
+ * Populate editor panel with the web links whose topic is the current SKOS concept
+ * 
+ * @param {}
+ *            responseElement
+ */
+art_semanticturkey.getBookmarksByTopic_RESPONSE = function(responseElement) {
+	document.getElementById("bookmarksByTopic").hidden = false;
+	var bookmarksList = responseElement.getElementsByTagName("page");
+	var rowsBox = document.getElementById("rowsBookmarksByTopic");
+	for (var i = 0; i < bookmarksList.length; i++) {
+		var linkTitle = bookmarksList[i].getAttribute("title");
+		var linkUrl = bookmarksList[i].getAttribute("url").substring(1, bookmarksList[i].getAttribute("url").length - 1);
+		var row = document.createElement("row");
+
+		var label = document.createElement("label");
+		label.setAttribute("value", linkTitle);
+		label.setAttribute("href", linkUrl);
+		label.setAttribute("class", "text-link");
+		label.setAttribute("context", "web-link-context-menu");
+
+		row.appendChild(label);
+
+		rowsBox.appendChild(row);
+	}	
 };
 
 /**

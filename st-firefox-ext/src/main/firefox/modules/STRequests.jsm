@@ -165,6 +165,8 @@ STRequests.Annotation.createAndAnnotateRequest = "createAndAnnotate";
 STRequests.Annotation.createFurtherAnnotationRequest = "addAnnotation";
 STRequests.Annotation.relateAndAnnotateRequest = "relateAndAnnotate";
 STRequests.Annotation.addAnnotationRequest = "addAnnotation";
+STRequests.Annotation.bookmarkPageRequest = "bookmarkPage";
+STRequests.Annotation.getBookmarksByTopicRequest = "getBookmarksByTopic";
 
 // individual service request
 STRequests.Individual.serviceName = "individual";
