@@ -13,7 +13,7 @@ pref("extensions.semturkey.defaultProjectOntType", "null");
 pref("extensions.semturkey.version", "0.7.2");
 pref("extensions.semturkey.hints.defaultProject", true);
 pref("extensions.semturkey.skos.humanReadable", false);
-pref("extensions.semturkey.skos.enabled", false);
+pref("extensions.semturkey.skos.enabled", true);
 pref("extensions.semturkey.annotation.checkAnnotation", true);
 
 
