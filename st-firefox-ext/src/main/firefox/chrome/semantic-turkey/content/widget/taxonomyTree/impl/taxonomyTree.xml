@@ -364,6 +364,8 @@
 				};
 
 				this.powerOn = function() {
+					if (powered) return;
+					
 					powered = true;
 					
 					if (treeBoxObject == null) {
@@ -390,6 +392,8 @@
 				};
 				
 				this.powerOff = function() {
+					if (!powered) return;
+					
 					powered = false;
 					var delta = visibleRows.length;
 					
@@ -673,18 +677,18 @@
 				if (typeof bound.art_semanticturkey.CurrentProject == "undefined") return; // I don't know why the load event appers to be invoked multiple times
 
 				if (bound.art_semanticturkey.CurrentProject.isNull() == false && bound.art_semanticturkey.CurrentProject.getOntoType().match(bound.projectType) != null) {
-					bound._view.powerOn();
+					bound._onStateChanged("project");
 				}
 			}, false);
 			
 			this.stEventArray2 = new this.art_semanticturkey.eventListenerArrayClass();
 			this.stEventArray2.addEventListenerToArrayAndRegister("projectOpened", function(eventId, projectOpenedObj) {
 				if (projectOpenedObj.getType().match(bound.projectType) != null) {
-					bound._view.powerOn();
+					bound._onStateChanged("project");
 				}
 			}, null);
 			this.stEventArray2.addEventListenerToArrayAndRegister("projectClosed", function(eventId, projectClosedObj) {
-				bound._view.powerOff();
+				bound._onStateChanged("project!");
 			}, null);
 			
 			var state = [];
@@ -721,6 +725,16 @@
 			bound._getState = function() {
 				return state;
 			};
+			
+			bound._powerManager = function(state) {
+				if (state.indexOf("project") != -1) {
+					bound._view.powerOn();
+				} else {
+					bound._view.powerOff();
+				}
+			};
+			
+			bound._addStateChangedListener(function(state){bound._powerManager(state);});
 			
 			taxonomyTree.addEventListener("select", function(event) {
 				if (taxonomyTree.currentIndex == -1) {

@@ -277,6 +277,14 @@
 					}
 				});
 				this.prefListener.register(true);
+				
+				bound._powerManager = function(state) {
+					if (state.indexOf("project") != -1 && state.indexOf("conceptSchemeSelected") != -1) {
+						bound._view.powerOn();
+					} else {
+						bound._view.powerOff();
+					}
+				};
 			]]>
 			</constructor>
 			<destructor>
@@ -316,11 +324,11 @@
 						if (val != "") {
 							if (this._view.isPowered()) {
 								this._view.reload();
-							} else {
-								this._view.powerOn();
 							}
+							this._onStateChanged("conceptSchemeSelected");
 						} else {
 							this._view.powerOff();
+							this._onStateChanged("conceptSchemeSelected!");
 						}
 					}
 				</setter>
