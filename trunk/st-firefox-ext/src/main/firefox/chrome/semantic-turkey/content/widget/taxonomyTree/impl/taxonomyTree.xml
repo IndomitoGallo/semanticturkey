@@ -563,7 +563,16 @@
 							index = row.value;
 						}								
 					} else if(targetName == "xul:tree") {	// keyboard event
-						var index = taxonomyTree.currentIndex;
+						index = taxonomyTree.currentIndex;
+					}
+					
+					var selectionRemoved = false;
+					if (index == -1) {
+						selectionRemoved = bound._getState().indexOf("itemSelected") != -1;
+						
+						if (selectionRemoved) {
+							bound._onStateChanged("itemSelected!");
+						}
 					}
 					
 					var children = ctxMenu.children;
@@ -580,6 +589,19 @@
 					
 					if (allDisabled) {
 						event.preventDefault();
+						
+						if (selectionRemoved) {
+							bound._onStateChanged("itemSelected");
+						}
+					} else {	
+						if (selectionRemoved) {
+							function l(event) {
+								bound._onStateChanged("itemSelected");
+								bound.removeEventListener("popuphidden", l, true);
+							}
+							
+							bound.addEventListener("popuphidden", l, true);
+						}
 					}
 				}
 					
@@ -699,6 +721,14 @@
 			bound._getState = function() {
 				return state;
 			};
+			
+			taxonomyTree.addEventListener("select", function(event) {
+				if (taxonomyTree.currentIndex == -1) {
+					bound._onStateChanged("itemSelected!");
+				} else {
+					bound._onStateChanged("itemSelected");
+				}
+			}, false);
 			]]>
 			</constructor>
 			<destructor>

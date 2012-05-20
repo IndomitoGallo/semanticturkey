@@ -250,11 +250,11 @@
 						bound.conceptScheme = "";
 					}
 				}, null);
-								
+
 				this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:concept*edit", this, ctxMenu);
 				this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
 				
-				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept*edit", this, taxonomyToolbar);
+				this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:concept*edit", this, taxonomyToolbar, true);
 				this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
 				
 				this.projectType = "^.*SKOS.*$";
