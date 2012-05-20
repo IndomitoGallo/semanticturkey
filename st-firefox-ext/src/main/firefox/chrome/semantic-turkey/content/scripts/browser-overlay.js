@@ -338,10 +338,12 @@ art_semanticturkey.SPARQL = function() {
 };
 
 art_semanticturkey.semnavigation = function() {
+	var isHumanReadable = art_semanticturkey.Preferences.get("extensions.semturkey.skos.humanReadable", false);
+	
 	var serverip = art_semanticturkey.Preferences.get("extensions.semturkey.server.ip", "127.0.0.1");
 	var serverport = art_semanticturkey.Preferences.get("extensions.semturkey.server.port", "1979");
 	//art_semanticturkey.openUrl("http://127.0.0.1:1979/semantic_turkey/resources/graph.html");
-	var graphURL = "http://" + serverip + ":" + serverport + "/semantic_turkey/resources/graph.html";
+	var graphURL = "http://" + serverip + ":" + serverport + "/semantic_turkey/resources/graph.html?humanReadable=" + isHumanReadable + "&lang=" + encodeURIComponent(art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 	art_semanticturkey.Logger.debug("opening graph url: " + graphURL);
 	art_semanticturkey.openUrl(graphURL);
 };
