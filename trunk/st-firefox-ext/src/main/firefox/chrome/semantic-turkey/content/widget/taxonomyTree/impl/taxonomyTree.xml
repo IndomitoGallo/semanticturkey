@@ -690,6 +690,10 @@
 			this.stEventArray2.addEventListenerToArrayAndRegister("projectClosed", function(eventId, projectClosedObj) {
 				bound._onStateChanged("project!");
 			}, null);
+
+			this.stEventArray2.addEventListenerToArrayAndRegister("rdfLoaded", function(eventId, projectClosedObj) {
+				bound._view.reload();
+			}, null);
 			
 			var state = [];
 			
