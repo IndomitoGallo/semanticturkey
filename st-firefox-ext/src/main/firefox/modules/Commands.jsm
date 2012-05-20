@@ -451,7 +451,6 @@ CommandBroker.offerCommand("skos:scheme*edit",
  					var responseXML=STRequests.SKOS.deleteScheme(scheme, (button == 1));                   
   				}
   				
-  				Logger.debug("@@@" + Preferences.get("extensions.semturkey.skos.selected_scheme", ""));
   				if (Preferences.get("extensions.semturkey.skos.selected_scheme", "").trim() == scheme.trim()) {
   					Preferences.set("extensions.semturkey.skos.selected_scheme", "");
   					Logger.debug("Removed selected scheme: " + scheme + "now: \"" + Preferences.get("extensions.semturkey.skos.selected_scheme", "").trim() +"\"");

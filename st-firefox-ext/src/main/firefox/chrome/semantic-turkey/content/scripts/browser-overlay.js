@@ -35,6 +35,7 @@ Components.utils.import("resource://stmodules/PrefUtils.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Annotation.jsm", 
 		art_semanticturkey);
+Components.utils.import("resource://stmodules/stEvtMgr.jsm", this.art_semanticturkey);
 
 art_semanticturkey.JavaFirefoxSTBridge = new Object();
 
@@ -568,6 +569,20 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 			document.getElementById("key_openSTSKOSSidebar").hidden = false;
 			document.getElementById("key_openSTSKOSSidebar").disabled = false;
 			document.getElementById("humanReadableButton").hidden = false;
+			
+			if (typeof art_semanticturkey.skosStateManagemenet.stEventArray != "undefined") {
+				art_semanticturkey.skosStateManagemenet.stEventArray.unregister();	
+			}
+
+			art_semanticturkey.skosStateManagemenet.selectedScheme = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme", null).getElementsByTagName("property")[0].getAttribute("value");		
+
+			art_semanticturkey.skosStateManagemenet.stEventArray = new art_semanticturkey.eventListenerArrayClass();
+			art_semanticturkey.skosStateManagemenet.stEventArray
+				.addEventListenerToArrayAndRegister("resourceRenamed", art_semanticturkey.skosStateManagemenet.resourceRenamed);
+			art_semanticturkey.skosStateManagemenet.stEventArray
+				.addEventListenerToArrayAndRegister("skosSchemeRemoved", art_semanticturkey.skosStateManagemenet.schemeRemoved);
+			art_semanticturkey.skosStateManagemenet.stEventArray
+				.addEventListenerToArrayAndRegister("projectPropertySet", art_semanticturkey.skosStateManagemenet.projectPropertySet);
 		}
 		else{
 			document.getElementById("SKOSToolBarButton").hidden = true;
@@ -607,7 +622,10 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		document.getElementById("graphBarButton").disabled = true;
 		document.getElementById("SKOSToolBarButton").disabled = true;
 		
-		
+		if (typeof art_semanticturkey.skosStateManagemenet.stEventArray != "undefined") {
+			art_semanticturkey.skosStateManagemenet.stEventArray.unregister();
+			art_semanticturkey.skosStateManagemenet.stEventArray = undefined;
+		}		
 	}
 	else if(eventId == "projectChangedName"){
 		var projectName = projectInfo.projectName;
@@ -668,4 +686,27 @@ art_semanticturkey.dropOnBrowser = function(event){
 art_semanticturkey.humanReadableButtonClick = function(event) {
 	var oldState = art_semanticturkey.Preferences.get("extensions.semturkey.skos.humanReadable", false);
 	var newState = art_semanticturkey.Preferences.set("extensions.semturkey.skos.humanReadable", !oldState);
+};
+
+art_semanticturkey.skosStateManagemenet = {};
+art_semanticturkey.skosStateManagemenet.selectedScheme = "";
+art_semanticturkey.skosStateManagemenet.resourceRenamed = function(eventId, resourceRenamedObj) {
+	var oldName = resourceRenamedObj.getOldName();
+	var newName = resourceRenamedObj.getNewName();
+	
+	if (oldName == art_semanticturkey.skosStateManagemenet.selectedScheme) {
+		art_semanticturkey.STRequests.Projects.setProjectProperty("skos.selected_scheme", newName);
+	}
+};
+art_semanticturkey.skosStateManagemenet.schemeRemoved = function(eventId, skosSchemeRemovedObj) {
+	var name = skosSchemeRemovedObj.getSchemeName();
+	
+	if (name == art_semanticturkey.skosStateManagemenet.selectedScheme) {
+		art_semanticturkey.STRequests.Projects.setProjectProperty("skos.selected_scheme", "");
+	}
+};
+art_semanticturkey.skosStateManagemenet.projectPropertySet = function(eventId, projectPropertySetObj) {
+	if (projectPropertySetObj.getPropName() == "skos.selected_scheme") {
+		art_semanticturkey.skosStateManagemenet.selectedScheme = projectPropertySetObj.getPropValue();
+	}
 };
