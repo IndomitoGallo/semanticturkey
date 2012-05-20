@@ -8,7 +8,7 @@ var CommandBroker = (function(){
 	
 	var topics = {};
 	
-	broker.offerCommand = function(topicName, command) {
+	broker.offerCommand = function(topicName, command) {		
 		if (typeof topics[topicName] == "undefined") {
 			topics[topicName] = {commands : [], trackers : []};
 		}
@@ -30,7 +30,7 @@ var CommandBroker = (function(){
 			var topic = topics[topicName];
 			
 			if (topic.commands.indexOf(command) != -1) {
-				topic.trackers.commandWithdrawed(command);
+				topic.trackers.commandWithdrawn(command);
 				topic.commands = topic.commands.filter(function(e){return e != command;});
 			}
 		}
@@ -76,10 +76,38 @@ var CommandBroker = (function(){
  */
  
 
-function MenuPopupTrackerAdapter(topicName, host, menupopup) {
+function MenuPopupTrackerAdapter(topicName, host, menupopup, isGlobalScope) {
 	this.topicName = topicName;
-	
+		
 	var document = menupopup.ownerDocument;
+	
+	var listeners = [];
+	
+	if (typeof isGlobalScope == "undefined") {
+		isGlobalScope = false;
+	}
+		
+	this.notifyStateChanged = function(state) {
+		for (var i = 0 ; i < listeners.length ; i++) {		
+			var l = listeners[i];
+			
+			var enabled = l(state);
+			
+			if (!enabled && state.indexOf("itemSelected") != -1 && isGlobalScope) {
+				var state2 = state.filter(function(e){return e != "itemSelected";});
+				
+				var enabled2 = l(state2);
+				
+				if (!enabled2) {
+					l(state);
+				}
+			}
+		}
+	};
+	
+	if (typeof host._addStateChangedListener != "undefined") {
+		host._addStateChangedListener(this.notifyStateChanged);	
+	}
 	
 	this.commandOffered = function(command) {
 		
@@ -102,36 +130,64 @@ function MenuPopupTrackerAdapter(topicName, host, menupopup) {
 		menupopup.appendChild(newButton);
 		
 		var l = function (state) {
-		        	if (state.indexOf("powerOn") != -1) {
-					newButton.setAttribute("disabled" ,"false");
-				} else {
-					newButton.setAttribute("disabled" ,"true");
+				var enabled = true;
+				
+				enabled = enabled && (state.indexOf("powerOn") != -1);
+
+				if (typeof command.checkEnabled != "undefined") {
+					enabled = enabled && command.checkEnabled(state);
 				}
 				
-				if (topicName.lastIndexOf("*edit") + "*edit".length == topicName.length) {
-			        	if (state.indexOf("mutable") != -1) {
-						newButton.setAttribute("disabled" ,"false");
-					} else {
-						newButton.setAttribute("disabled" ,"true");
-					}					
-				}
+				newButton.setAttribute("disabled", enabled ? "false" : "true");	
+				
+				return enabled;		
 			};
-			
-		if (typeof host._addStateChangedListener != "undefined") {
-			host._addStateChangedListener(l);
+		
+		
+		listeners.push(l);
+		
+		if (typeof host._getState != "undefined") {
 			l(host._getState());
 		}
 	};
 	
-	this.commandWithdrawed = function(command) {
+	this.commandWithdrawn = function(command) {
 	
 	};
 };
 
-function ToolbarTrackerAdapter(topicName, host, toolbar) {
+function ToolbarTrackerAdapter(topicName, host, toolbar, isGlobalScope) {
 	this.topicName = topicName;
 	
 	var document = toolbar.ownerDocument;
+
+	var listeners = [];
+
+	if (typeof isGlobalScope == "undefined") {
+		isGlobalScope = false;
+	}
+
+	this.notifyStateChanged = function(state) {
+		for (var i = 0 ; i < listeners.length ; i++) {
+			var l = listeners[i];
+			
+			var enabled = l(state);
+			
+			if (!enabled && state.indexOf("itemSelected") != -1 && isGlobalScope) {
+				var state2 = state.filter(function(e){return e != "itemSelected";});
+				
+				var enabled2 = l(state2);
+				
+				if (!enabled2) {
+					l(state);
+				}
+			}
+		}
+	};
+	
+	if (typeof host._addStateChangedListener != "undefined") {
+		host._addStateChangedListener(this.notifyStateChanged);	
+	}
 	
 	this.commandOffered = function(command) {
 		
@@ -158,28 +214,27 @@ function ToolbarTrackerAdapter(topicName, host, toolbar) {
 		toolbar.appendChild(newButton);
 		
 		var l = function (state) {
-		        	if (state.indexOf("powerOn") != -1) {
-					newButton.setAttribute("disabled" ,"false");
-				} else {
-					newButton.setAttribute("disabled" ,"true");
+				var enabled = true;
+				
+				enabled = enabled && (state.indexOf("powerOn") != -1);
+
+				if (typeof command.checkEnabled != "undefined") {
+					enabled = enabled && command.checkEnabled(state);
 				}
 				
-				if (topicName.lastIndexOf("*edit") + "*edit".length == topicName.length) {
-			        	if (state.indexOf("mutable") != -1) {
-						newButton.setAttribute("disabled" ,"false");
-					} else {
-						newButton.setAttribute("disabled" ,"true");
-					}					
-				}
+				newButton.disabled =  !enabled;
+				
+				return enabled;		
 			};
+		
+		listeners.push(l);
 			
-		if (typeof host._addStateChangedListener != "undefined") {
-			host._addStateChangedListener(l);
+		if (typeof host._getState != "undefined") {
 			l(host._getState());
-		}		
+		}	
 	};
 	
-	this.commandWithdrawed = function(command) {
+	this.commandWithdrawn = function(command) {
 	
 	};
 };
@@ -213,6 +268,17 @@ CommandBroker.offerCommand("skos:concept*edit",
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
 			}
+		},
+		checkEnabled : function(state) {
+	        	if (state.indexOf("mutable") == -1) {
+				return false;
+			}
+			
+			if (state.indexOf("itemSelected") != -1) {
+				return false;
+			}
+			
+			return true;
 		}
 	}
 );
@@ -247,6 +313,17 @@ CommandBroker.offerCommand("skos:concept*edit",
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
 			}
+		},
+		checkEnabled : function(state) {
+	        	if (state.indexOf("mutable") == -1) {
+				return false;
+			}
+			
+			if (state.indexOf("itemSelected") == -1) {
+				return false;
+			}
+			
+			return true;
 		}
 	}
 );
@@ -272,6 +349,17 @@ CommandBroker.offerCommand("skos:concept*edit",
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
 			}
+		},
+		checkEnabled : function(state) {
+	        	if (state.indexOf("mutable") == -1) {
+				return false;
+			}
+			
+			if (state.indexOf("itemSelected") == -1) {
+				return false;
+			}
+			
+			return true;
 		}
 	}
 );
@@ -320,6 +408,17 @@ CommandBroker.offerCommand("skos:scheme*edit",
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
 			}
+		},
+		checkEnabled : function(state) {
+	        	if (state.indexOf("mutable") == -1) {
+				return false;
+			}
+			
+			if (state.indexOf("itemSelected") != -1) {
+				return false;
+			}
+			
+			return true;
 		}
 	}
 );
@@ -361,6 +460,17 @@ CommandBroker.offerCommand("skos:scheme*edit",
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
 			}
+		},
+		checkEnabled : function(state) {
+	        	if (state.indexOf("mutable") == -1) {
+				return false;
+			}
+			
+			if (state.indexOf("itemSelected") == -1) {
+				return false;
+			}
+			
+			return true;
 		}
 	}
 );

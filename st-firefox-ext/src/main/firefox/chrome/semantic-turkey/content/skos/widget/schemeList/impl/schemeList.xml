@@ -158,7 +158,7 @@
 					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme*edit", this, ctxMenu);
 					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
 					
-					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar);
+					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar, true);
 					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
 				
 				var isHumanReadable	= false;
