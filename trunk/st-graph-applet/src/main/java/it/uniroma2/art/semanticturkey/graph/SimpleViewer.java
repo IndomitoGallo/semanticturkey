@@ -23,7 +23,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JApplet;
@@ -99,6 +104,8 @@ public class SimpleViewer extends JApplet
     protected static int graph_index;
     private RepositoryServiceClient sc = null; 
     private JComboBox jcb;
+	private boolean humanReadable = false;
+	private String lang;
     
     public SimpleViewer()
     {
@@ -250,8 +257,57 @@ public class SimpleViewer extends JApplet
         bottomControls.add(modeBox);
         //bottomControls.add(hyperView);
         getContentPane().add(jp);
+        
+        URL documentBase = getDocumentBase();
+
+        String query = documentBase.getQuery();
+        
+        Map<String, String> args = decodeQueryString(query);
+        
+        if (args.containsKey("humanReadable")) {
+        	if (args.get("humanReadable").equals("true")) {
+        		this.humanReadable = true;
+        	}
+        }
+        
+        if (args.containsKey("lang")) {
+        	this.lang = args.get("lang");
+        	System.err.println("lang = " + getLang());
+        } else {
+        	this.lang = "en";
+        }
+        
+        if (query != null) {
+        	if (query.indexOf("humanReadable=true") != -1) {
+        		this.humanReadable = true;
+        	}
+        }
 	}
 	
+	private Map<String, String> decodeQueryString(String query) {
+		Map<String, String> args = new HashMap<String, String>();
+		
+		Pattern queryPattern = Pattern.compile("([^&=]+)=([^&=]+)");
+		
+		Matcher m = queryPattern.matcher(query);
+		
+		while (m.find()) {
+			String left = m.group(1);
+			String right = m.group(2);
+			
+			try {
+				left = URLDecoder.decode(left, "UTF-8");
+				right = URLDecoder.decode(right, "UTF-8");
+				
+				args.put(left, right);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return args;
+	}
+
 	public void start()
 	{
 		try 
@@ -268,9 +324,9 @@ public class SimpleViewer extends JApplet
         if (model.equals(ProjectServiceClient.OWL_MODEL_TYPE))
         	sc = new OWLServiceClient();
         else if (model.equals(ProjectServiceClient.SKOS_MODEL_TYPE))
-        	sc = new SKOSServiceClient();
+        	sc = new SKOSServiceClient(isHumanReadable(), getLang());
         else if (model.equals(ProjectServiceClient.SKOSXL_MODEL_TYPE))
-        	sc = new SKOSXLServiceClient();
+        	sc = new SKOSXLServiceClient(isHumanReadable(), getLang());
         else
         {
             JOptionPane.showMessageDialog(this,
@@ -287,7 +343,15 @@ public class SimpleViewer extends JApplet
 		g.addVertex(v);
 	}
 	
-    class STVertexIconTransformer<V> extends DefaultVertexIconTransformer<Vertex> implements Transformer<Vertex,Icon> 
+    private String getLang() {
+		return this.lang;
+	}
+
+	private boolean isHumanReadable() {
+		return this.humanReadable ;
+	}
+
+	class STVertexIconTransformer<V> extends DefaultVertexIconTransformer<Vertex> implements Transformer<Vertex,Icon> 
     {
         private Map<String, Icon> icons = new HashMap<String, Icon>();
         
