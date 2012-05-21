@@ -571,7 +571,7 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 			document.getElementById("humanReadableButton").hidden = false;
 			
 			if (typeof art_semanticturkey.skosStateManagemenet.stEventArray != "undefined") {
-				art_semanticturkey.skosStateManagemenet.stEventArray.unregister();	
+				art_semanticturkey.skosStateManagemenet.stEventArray.deregisterAllListener();	
 			}
 
 			art_semanticturkey.skosStateManagemenet.selectedScheme = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme", null).getElementsByTagName("property")[0].getAttribute("value");		
