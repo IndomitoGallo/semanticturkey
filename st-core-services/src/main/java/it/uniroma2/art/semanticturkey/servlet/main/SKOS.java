@@ -502,7 +502,7 @@ public class SKOS extends Resource {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
 			if (skosModel.listNarrowerConcepts(concept, false, true, getUserNamedGraphs()).streamOpen()) {
-				return createReplyFAIL("concept: " + conceptName + " has narrower graphs; delete them before");
+				return createReplyFAIL("concept: " + conceptName + " has narrower concepts; delete them before");
 			}
 			skosModel.deleteConcept(concept, getWorkingGraph());
 		} catch (ModelAccessException e) {
