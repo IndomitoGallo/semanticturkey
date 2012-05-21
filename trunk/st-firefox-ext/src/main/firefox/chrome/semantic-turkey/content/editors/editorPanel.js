@@ -434,7 +434,11 @@ art_semanticturkey.getWebLinks_RESPONSE = function(responseElement) {
 	var rowsBox = document.getElementById("rowsBoxWebLink");
 	for (var i = 0; i < bookmarksList.length; i++) {
 		var linkTitle = bookmarksList[i].getAttribute("title");
+		linkTitle = linkTitle.substring(1, linkTitle.length - 1);	// strip surrounding quotes
+
 		var linkUrl = bookmarksList[i].getAttribute("value");
+		linkUrl = linkUrl.substring(1, linkUrl.length - 1);	// strip surrounding quotes
+
 		var row = document.createElement("row");
 
 		var label = document.createElement("label");
@@ -461,7 +465,10 @@ art_semanticturkey.getBookmarksByTopic_RESPONSE = function(responseElement) {
 	var rowsBox = document.getElementById("rowsBookmarksByTopic");
 	for (var i = 0; i < bookmarksList.length; i++) {
 		var linkTitle = bookmarksList[i].getAttribute("title");
-		var linkUrl = bookmarksList[i].getAttribute("url").substring(1, bookmarksList[i].getAttribute("url").length - 1);
+		
+		var linkUrl = bookmarksList[i].getAttribute("url");
+		linkUrl = linkUrl.substring(1, linkUrl.length - 1);	// strip surrounding quotes
+		
 		var row = document.createElement("row");
 
 		var label = document.createElement("label");
