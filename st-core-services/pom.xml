@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-core-framework</artifactId>
-			<version>0.8.1-SNAPSHOT</version>
+			<version>0.8.5</version>
 		</dependency>
 	</dependencies>
 
