@@ -1,3 +1,7 @@
+version 0.8.5
+date: 22-05-2012
+  * SKOS(-XL) officially supported
+
 version 0.8.1-SNAPSHOT
 date: XX-XX-2011
   * completely refactored all ST projects to generate one single project as a maven multi-module project

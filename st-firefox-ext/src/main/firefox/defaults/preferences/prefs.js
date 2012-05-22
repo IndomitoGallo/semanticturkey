@@ -10,7 +10,7 @@ pref("extensions.semturkey.server.path", "/semantic_turkey/resources/stserver/ST
 pref("extensions.semturkey.isDefaultSet", false);
 pref("extensions.semturkey.defaultProjectName", "null");
 pref("extensions.semturkey.defaultProjectOntType", "null");
-pref("extensions.semturkey.version", "0.7.2");
+pref("extensions.semturkey.version", "0.8.5");
 pref("extensions.semturkey.hints.defaultProject", true);
 pref("extensions.semturkey.skos.humanReadable", false);
 pref("extensions.semturkey.skos.enabled", true);
