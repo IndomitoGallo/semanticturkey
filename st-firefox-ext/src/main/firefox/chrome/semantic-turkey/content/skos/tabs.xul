@@ -26,6 +26,10 @@
 <window title="SKOS Sidebar"
         id="skos-sidebar"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript"
+		src="tabs.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/event/eventObjects.js" />
 	<hbox flex="1">
 		<splitter collapse="before" resizebefore="closest" resizeafter="grow">
 			<grippy />
