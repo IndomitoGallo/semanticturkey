@@ -513,7 +513,7 @@ art_semanticturkey.myObserverFirefoxClosed = function(){
 		var sidebarWindow = document.getElementById("sidebar").contentWindow;
 		var locHref = sidebarWindow.location.href;
 		if((locHref == "chrome://semantic-turkey/content/metadata/imports.xul") || 
-			(locHref == "chrome://semantic-turkey/content/tabs.xul")){
+			(locHref == "chrome://semantic-turkey/content/tabs.xul") || ("chrome://semantic-turkey/content/skos/tabs.xul")){
 				toggleSidebar();
 		}
 		var isContinuosEditing = art_semanticturkey.CurrentProject.isContinuosEditing();
