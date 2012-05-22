@@ -26,6 +26,7 @@ netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Property.jsm",art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Cls.jsm",art_semanticturkey);
@@ -39,6 +40,10 @@ Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semantictu
 
 var classHandlers = {};
 classHandlers["*"] = new function() {
+	this.isEnabled = function() {
+		return true;
+	};
+	
 	this.showInstances = function(e) {
 /*
  		var ep_tree = document.getElementById("ep_classesTree");
@@ -68,6 +73,10 @@ classHandlers["*"] = new function() {
 	}
 };
 classHandlers["skos:Concept"] = new function() {
+	this.isEnabled = function() {
+		return !art_semanticturkey.CurrentProject.isNull() && art_semanticturkey.CurrentProject.getOntoType().indexOf("SKOS") != -1;
+	};
+	
 	this.showInstances = function(e) {
 		var selSc = "*";
 		
@@ -127,19 +136,31 @@ classHandlers.getCurrentHandler = function() {
 	
 	var clsHandl;
 	
-	var prefix = "";
+	var bubbling = false;
 	
 	do {
 		currentelement = ep_tree.treeBoxObject.view.getItemAtIndex(index);
 		className = currentelement.getAttribute("className");
 		
-		if (typeof classHandlers[prefix + className] != "undefined") {
-			clsHandl = classHandlers[prefix + className];
+		if (bubbling) {
+			if (typeof classHandlers["<=" + className] != "undefined" && classHandlers["<=" + className].isEnabled()) {
+				clsHandl = classHandlers["<=" + className];
+				break;
+			}
 		} else {
-			index = ep_tree.treeBoxObject.view.getParentIndex(index);
+			if (typeof classHandlers[className] != "undefined" && classHandlers[className].isEnabled()) {
+				clsHandl = classHandlers[className];
+				break;
+			}
+			
+			if (typeof classHandlers["<=" + className] != "undefined" && classHandlers["<=" + className].isEnabled()) {
+				clsHandl = classHandlers["<=" + className];
+				break;
+			}
 		}
-		
-		prefix = "<=";
+
+		index = ep_tree.treeBoxObject.view.getParentIndex(index);
+		bubbling = true;
 	} while (typeof clsHandl == "undefined" && index != -1);
 
 	if (typeof clsHandl == "undefined") {
