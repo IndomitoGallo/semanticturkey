@@ -1,9 +1,0 @@
-@CHARSET "UTF-8";
-
-@namespace st url('http://semanticturkey.uniroma2.it/xmlns/widget#');
-
-st|plainliteral {
-	-moz-binding: url('impl/plainLiteral.xml#plainLiteral');
-	display: -moz-box;
-	-moz-box-sizing: border-box;
-}
