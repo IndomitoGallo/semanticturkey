@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="editorPanel.css" type="text/css"?>
+	<!--
+		/* * The contents of this file are subject to the Mozilla Public
+		License * Version 1.1 (the "License"); you may not use this file
+		except in compliance * with the License. You may obtain a copy of the
+		License at * http://www.mozilla.org/MPL/ * * Software distributed
+		under the License is distributed on an "AS IS" basis, * WITHOUT
+		WARRANTY OF ANY KIND, either express or implied. See the License for *
+		the specific language governing rights and limitations under the
+		License. * * The Original Code is SemanticTurkey. * * The Initial
+		Developer of the Original Code is University of Roma Tor Vergata. *
+		Portions created by University of Roma Tor Vergata are Copyright (C)
+		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
+		Artificial Intelligence Research Group * (art.uniroma2.it) at the
+		University of Roma Tor Vergata (ART) * Current information about
+		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
+		* */
+	-->
+
+<window id="editorPanel" title="Editor Panel" changed="false"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="600" height="600">
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/editors/editorPanel.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/instanceEvents.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/classTree.js" />
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+	<!--<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/ontName.js" />-->
+	<script type="application/x-javascript"
+				src="chrome://semantic-turkey/content/utilities/utilities.js"/>
+
+	<popupset>
+		<menupopup id="web-link-context-menu">
+			<menuitem label="Copy URL" id="web-link-copy"/>
+		</menupopup>
+	</popupset>
+	
+	<vbox id="myPanelScroll" style="overflow:auto" collapsed="false"
+		orient="vertical" flex="1">
+		<hbox id="titleBox">
+		</hbox>
+		<separator orient="orizontal" class="groove">
+		</separator>
+		<hbox id="myPanel">
+			<button id="buttonModify" label="Rename" flex="0" />
+		</hbox>
+		<separator orient="orizontal" class="groove">
+		</separator>
+		<scrollbox id="parentBox" style="overflow:auto" collapsed="false"
+			minwidth="550" minheight="100">
+			<grid flex="1" style="overflow:auto">
+				<columns flex="1" style="overflow:auto">
+					<column flex="1" style="overflow:auto" />
+				</columns>
+				<rows id="parentBoxRows" style="overflow:auto">
+				</rows>
+			</grid>
+		</scrollbox>
+		<separator orient="orizontal" class="groove" id="propSep">
+		</separator>
+		<scrollbox id="property" style="overflow:auto" collapsed="false"
+			minwidth="550" minheight="100">
+			<grid flex="1" style="overflow:auto">
+				<columns flex="5" style="overflow:auto">
+					<column flex="5" style="overflow:auto" />
+				</columns>
+				<rows id="rowsBox" flex="1" style="overflow:auto" minwidth="550"
+					minheight="100">
+				</rows>
+			</grid>
+		</scrollbox>
+		<separator orient="orizontal" style="groove" id="lastSep">
+		</separator>
+		<scrollbox id="webLink" style="overflow:auto" collapsed="false"
+			minwidth="550" minheight="100" hidden="true">
+			<vbox>
+				<label value = "WebLinks:"/>
+				<grid flex="1" style="overflow:auto">
+					<columns flex="5" style="overflow:auto">
+						<column flex="5" style="overflow:auto" />
+					</columns>
+					<rows id="rowsBoxWebLink" flex="1" style="overflow:auto" minwidth="550"
+						minheight="100">
+					</rows>
+				</grid>
+			</vbox>
+		</scrollbox>
+		<scrollbox id="bookmarksByTopic" style="overflow:auto" collapsed="false"
+			minwidth="550" minheight="100" hidden="true">
+			<vbox>
+				<label value = "Web documents in topic:"/>
+				<grid flex="1" style="overflow:auto">
+					<columns flex="5" style="overflow:auto">
+						<column flex="5" style="overflow:auto" />
+					</columns>
+					<rows id="rowsBookmarksByTopic" flex="1" style="overflow:auto" minwidth="550"
+						minheight="100">
+					</rows>
+				</grid>
+			</vbox>
+		</scrollbox>
+	</vbox>
+	<vbox id="buttonBox" flex="0"  align = "right"> 
+		<button id="close" label="Close"/>
+	</vbox>
+</window>

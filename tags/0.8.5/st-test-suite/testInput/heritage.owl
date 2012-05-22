@@ -1,0 +1,1849 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:geo="http://ai-nlp.info.uniroma2.it/ontologies/geographic#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://ai-nlp.info.uniroma2.it/ontologies/heritage#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:crm="http://cidoc.ics.forth.gr/cidoc_crm#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xml:base="http://ai-nlp.info.uniroma2.it/ontologies/heritage">
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic"/>
+    <owl:imports rdf:resource="http://cidoc.ics.forth.gr/cidoc_crm"/>
+  </owl:Ontology>
+  <owl:Class rdf:ID="gallery">
+    <rdfs:label xml:lang="it">Galleria d'arte</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Stanza o serie di stanze in cui le opere d'arte sono esibite</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="cultural"/>
+    </rdfs:subClassOf>
+    <d_short xml:lang="it">Galleria artistica</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="emergency">
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <d_short xml:lang="it">Centri per le emergenze</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Emergenza</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Locali a cui rivolgersi in casi di emergenza (furti, malattie, etc...)</description>
+  </owl:Class>
+  <owl:Class rdf:ID="youth_hostel">
+    <rdfs:label xml:lang="it">Ostello della gioventù</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="accomodation"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzione situata nella città, dove i viaggiatori possono avere alloggio, pasti ed altri servizi a prezzi relativamente bassi</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Ostello della gioventù</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="metro_station_entrance">
+    <rdfs:label xml:lang="it">entrata della stazione della metro</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Transportation"/>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#point"/>
+  </owl:Class>
+  <owl:Class rdf:ID="motel">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#accomodation"/>
+    </rdfs:subClassOf>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Motel</rdfs:label>
+    <d_short xml:lang="it">Motel</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzione distante dalla città, dove i viaggiatori possono avere alloggio, pasti ed altri servizi</description>
+  </owl:Class>
+  <owl:Class rdf:ID="bus_station">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#Transportation"/>
+    </rdfs:subClassOf>
+    <d_short xml:lang="it">Stazione degli autobus</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Complesso degli edifici e degli impianti presso i quali si svolgono le operazioni di arrivo e partenza dei passeggeri che utilizzano gli autobus</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Stazione autobus</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+  </owl:Class>
+  <owl:Class rdf:about="#accomodation">
+    <rdfs:label xml:lang="en">Accomodation</rdfs:label>
+    <rdfs:subClassOf>
+      <rdf:Description rdf:about="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI">
+        <rdfs:subClassOf rdf:resource="http://cidoc.ics.forth.gr/cidoc_crm#E53.Place"/>
+      </rdf:Description>
+    </rdfs:subClassOf>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Sistemazioni per il pernottamento</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzioni per il vitto e l'alloggio dei turisti</description>
+    <rdfs:label xml:lang="it">Alloggio</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="ricreativo">
+    <rdfs:label xml:lang="it">ricreativo</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="archeological_site"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="concert_place">
+    <rdfs:label xml:lang="en">Concert Place</rdfs:label>
+    <rdfs:label xml:lang="it">Sito per concerti</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#cultural"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Sito dove hanno luogo esibizioni musicali</description>
+    <d_short xml:lang="it">Sito per concerti</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="embassy">
+    <rdfs:label xml:lang="it">Ambasciata</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="local_authority"/>
+    </rdfs:subClassOf>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Ambasciata</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Rappresentanza diplomatica di uno stato verso un altro</description>
+  </owl:Class>
+  <owl:Class rdf:ID="police_station">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="#emergency"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >La più piccola unità operativa territoriale della polizia</description>
+    <rdfs:label xml:lang="it">Stazione di polizia</rdfs:label>
+    <d_short xml:lang="it">Stazione di polizia</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="zoo">
+    <rdfs:label xml:lang="it">Zoo</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Giardino zoologico</d_short>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="natural_place"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Recinto in cui vivono in cattività e sono esposti al pubblico animali esotici, selvatici o rari</description>
+  </owl:Class>
+  <owl:Class rdf:about="#Transportation">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Complesso degli edifici e degli impianti presso i quali si svolgono le operazioni di arrivo e partenza dei passeggeri che utilizzano i mezzi di trasporto</description>
+    <rdfs:label xml:lang="it">Trasporti</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Edifici adibiti ai trasporti</d_short>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+  </owl:Class>
+  <owl:Class rdf:ID="PublicService">
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+  </owl:Class>
+  <owl:Class rdf:ID="sea_side">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#natural_place"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Striscia pianeggiante ghiaiosa o sabbiosa che costeggia il mare</description>
+    <rdfs:label xml:lang="it">Spiaggia</rdfs:label>
+    <d_short xml:lang="it">Lido</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="park">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#natural_place"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Zona di terra conservata nel suo stato naturale e dichiarata come proprietà pubblica</description>
+    <d_short xml:lang="it">Villa</d_short>
+    <rdfs:label xml:lang="it">Parco</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="stadium">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="athletics"/>
+    </rdfs:subClassOf>
+    <d_short xml:lang="it">Campo sportivo</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Campo all'aperto attrezzato per lo svolgimento di manifestazioni sportive provvisto di gradinate per accogliere il pubblico</description>
+    <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:comment>
+    <rdfs:label xml:lang="it">Stadio</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="#archeological_site">
+    <rdfs:label xml:lang="it">Sito archeologico</rdfs:label>
+    <d_short xml:lang="it">Sito archeologico</d_short>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+    <rdfs:label xml:lang="en">Archeological site</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Sito nel quale sono stati effettuati studi riguardanti l'archeologia</description>
+    <semanticLabel xml:lang="en">archeology</semanticLabel>
+    <semanticLabel xml:lang="en">ancient</semanticLabel>
+  </owl:Class>
+  <owl:Class rdf:ID="hospital">
+    <rdfs:label xml:lang="it">Ospedale</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Istituto pubblico nel quale si ricoverano e curano i malati</description>
+    <d_short xml:lang="it">Centro ospedaliero</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="#emergency"/>
+  </owl:Class>
+  <owl:Class rdf:ID="tempio">
+    <rdfs:subClassOf rdf:resource="#archeological_site"/>
+  </owl:Class>
+  <owl:Class rdf:ID="exchange">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Cambio valute</d_short>
+    <rdfs:label xml:lang="it">Cambio</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="MoneyService"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Servizio adibito al cambio valute</description>
+  </owl:Class>
+  <owl:Class rdf:ID="bus_stop">
+    <rdfs:label xml:lang="it">fermata dell'autobus</rdfs:label>
+    <rdfs:subClassOf rdf:resource="#Transportation"/>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#point"/>
+  </owl:Class>
+  <owl:Class rdf:ID="old_city_information">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Informazioni storiche di primaria importanza riguardanti il territorio</description>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#point"/>
+    <rdfs:label xml:lang="it">Informazioni storiche</rdfs:label>
+    <d_short xml:lang="it">Informazioni principali sull'area di interesse</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="Toilet">
+    <rdfs:label xml:lang="it">Bagno</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="LocalService"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="tram_stop">
+    <rdfs:label xml:lang="it">fermata del tram</rdfs:label>
+    <rdfs:subClassOf rdf:resource="#Transportation"/>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#point"/>
+  </owl:Class>
+  <owl:Class rdf:about="#cultural">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Sito artistico/storico</d_short>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <rdfs:label xml:lang="it">Sito culturale</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Sito culturale di interesse storico o artistico</description>
+  </owl:Class>
+  <owl:Class rdf:ID="pedestrian_street">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Zona verde, accessibile esclusivamente ai pedoni</description>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Zona pedonale</d_short>
+    <rdfs:label xml:lang="it">Strada pedonale</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="TicketOffice">
+    <rdfs:label xml:lang="it">Biglietteria</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#LocalService"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="Finance">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Centro adibito ad operazioni finanziarie</description>
+    <d_short xml:lang="it">Centro finanziario</d_short>
+    <rdfs:label xml:lang="it">Finanza</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#LocalService"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:ID="museum">
+    <d_short xml:lang="it">Museo artistico/storico/scientifico</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Sito per la raccolta e la visualizzazione degli oggetti che hanno valore scientifico o storico o artistico</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <rdfs:label xml:lang="it">Museo</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="historical_building">
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Accademie, università, biblioteche, chiese, etc...</d_short>
+    <rdfs:label xml:lang="it">Costruzione storica</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzioni rappresentative della città e della sua evoluzione storica</description>
+  </owl:Class>
+  <owl:Class rdf:ID="pharmacy">
+    <d_short xml:lang="it">Farmacia</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="#emergency"/>
+    <rdfs:label xml:lang="it">Farmacia</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Locale destinato alla vendita di farmaci</description>
+  </owl:Class>
+  <owl:Class rdf:ID="lake">
+    <rdfs:label xml:lang="it">Lago</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#natural_place"/>
+    </rdfs:subClassOf>
+    <d_short xml:lang="it">Lago</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Corpo d'acqua circondato da terra</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:Class>
+  <owl:Class rdf:ID="garden">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Terreno nel quale vengono coltivate piante</description>
+    <d_short xml:lang="it">Giardino pubblico</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#natural_place"/>
+    </rdfs:subClassOf>
+    <rdfs:label xml:lang="it">Giardino</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:about="#natural_place">
+    <rdfs:label xml:lang="it">Ambiente naturale</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Territorio naturale</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Riserve naturali, parchi, ville, laghi, fiumi, etc...</description>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+  </owl:Class>
+  <owl:Class rdf:ID="bridge">
+    <rdfs:label xml:lang="it">Ponte</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Strutturare che permette che la gente o veicoli attraversi un ostacolo quali un fiume o un canale o una ferrovia ecc.</description>
+    <d_short xml:lang="it">Ponte</d_short>
+    <rdfs:subClassOf rdf:resource="#natural_place"/>
+  </owl:Class>
+  <owl:Class rdf:ID="restaurant">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Food"/>
+    </rdfs:subClassOf>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Locale pubblico nel quale si servono pasti</description>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <d_short xml:lang="it">Ristorante</d_short>
+    <rdfs:label xml:lang="it">Ristorante</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:Class>
+  <owl:Class rdf:about="#Food">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Impianti e costruzioni adibiti alla ristorazione</description>
+    <rdfs:label xml:lang="it">Ristorazione</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Ristorazione</d_short>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+  </owl:Class>
+  <owl:Class rdf:ID="bancomat">
+    <rdfs:label xml:lang="it">Bancomat</rdfs:label>
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#MoneyService"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="#athletics">
+    <rdfs:label xml:lang="en">Athletics</rdfs:label>
+    <rdfs:label xml:lang="it">Sito sportivo</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Sito dedicato alle manifestazioni sportive</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Impianti e costruzioni volte allo svolgimento di manifestazioni sportive</description>
+  </owl:Class>
+  <owl:Class rdf:ID="metro_station">
+    <rdfs:subClassOf rdf:resource="#Transportation"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <rdfs:label xml:lang="it">Stazione metropolitana</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Complesso degli edifici e degli impianti presso i quali si svolgono le operazioni di arrivo e partenza dei passeggeri che utilizzano la metropolitana</description>
+    <d_short xml:lang="it">Stazione della metropolitana</d_short>
+  </owl:Class>
+  <owl:Class rdf:ID="teatro">
+    <rdfs:label xml:lang="it">teatro</rdfs:label>
+    <rdfs:subClassOf rdf:resource="#ricreativo"/>
+  </owl:Class>
+  <owl:Class rdf:ID="biblioteca">
+    <rdfs:label xml:lang="it">biblioteca</rdfs:label>
+    <rdfs:subClassOf rdf:resource="#archeological_site"/>
+  </owl:Class>
+  <owl:Class rdf:about="#LocalService">
+    <rdfs:label xml:lang="it">Servizio locali</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#POI"/>
+  </owl:Class>
+  <owl:Class rdf:ID="bank">
+    <rdfs:label xml:lang="it">Banca</rdfs:label>
+    <d_short xml:lang="it">Centro bancario</d_short>
+    <rdfs:subClassOf rdf:resource="#Finance"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzione in cui è trattato il commercio di operazioni bancarie</description>
+  </owl:Class>
+  <owl:Class rdf:ID="entertainment">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzioni adibite all'intrattenimento</description>
+    <rdfs:label xml:lang="it">Intrattenimento</rdfs:label>
+    <d_short xml:lang="it">Intrattenimento</d_short>
+  </owl:Class>
+  <owl:Class rdf:about="#local_authority">
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Ente a cui spettano le funzioni di governo e controllo</description>
+    <d_short xml:lang="it">Autorità locale</d_short>
+    <rdfs:label xml:lang="it">Autorità locale</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:Class>
+  <owl:Class rdf:ID="river">
+    <d_short xml:lang="it">Fiume</d_short>
+    <rdfs:label xml:lang="it">Fiume</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Corso d'acqua che sbocca in un lago o in un mare</description>
+    <rdfs:subClassOf rdf:resource="#natural_place"/>
+  </owl:Class>
+  <owl:Class rdf:about="#MoneyService">
+    <rdfs:label xml:lang="it">Servizi monetari</rdfs:label>
+    <rdfs:subClassOf rdf:resource="#Finance"/>
+  </owl:Class>
+  <owl:Class rdf:ID="hotel">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Costruzione situata nella città, dove i viaggiatori possono avere alloggio, pasti ed altri servizi</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Hotel</d_short>
+    <rdfs:subClassOf rdf:resource="#accomodation"/>
+    <rdfs:label xml:lang="it">Hotel</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="shopping">
+    <rdfs:label xml:lang="it">Negozio</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Locale per la vendita di merci al minuto</description>
+    <d_short xml:lang="it">Negozio, centro commerciale</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:Class>
+  <owl:Class rdf:ID="tram_station">
+    <rdfs:subClassOf rdf:resource="#Transportation"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Complesso degli edifici e degli impianti presso i quali si svolgono le operazioni di arrivo e partenza dei passeggeri che utilizzano il tram</description>
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#area"/>
+    <d_short xml:lang="it">Stazione del tram</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Stazione del tram</rdfs:label>
+  </owl:Class>
+  <owl:Class rdf:ID="theater">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Sito per prestazioni teatrali o le esposizioni cinematografiche</description>
+    <rdfs:label xml:lang="it">Teatro</rdfs:label>
+    <d_short xml:lang="it">Arena</d_short>
+    <rdfs:subClassOf rdf:resource="#cultural"/>
+  </owl:Class>
+  <owl:ObjectProperty rdf:ID="entrances">
+    <rdfs:label xml:lang="it">ingressi</rdfs:label>
+    <rdfs:range rdf:resource="#metro_station_entrance"/>
+    <rdfs:domain rdf:resource="#metro_station"/>
+    <rdfs:label xml:lang="it">entrate</rdfs:label>
+    <rdf:type>
+      <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#FunctionalProperty">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></rdfs:label>
+        <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></d_short>
+        <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></description>
+        <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></dshort>
+      </rdf:Description>
+    </rdf:type>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:ID="Interests">
+    <d_short xml:lang="it">Interessi dell'utante</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >L'utente registrato può inserire qui i suoi interessi</description>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:label xml:lang="it">Interessi</rdfs:label>
+  </owl:ObjectProperty>
+  <rdf:Property rdf:ID="dshort"/>
+  <owl:DatatypeProperty rdf:ID="tel_for_info">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Telefono</rdfs:label>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:domain>
+      <owl:Class>
+        <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="#archeological_site"/>
+          <owl:Class rdf:about="#museum"/>
+          <owl:Class rdf:about="#cultural"/>
+          <owl:Class rdf:about="#Finance"/>
+          <owl:Class rdf:about="#emergency"/>
+          <owl:Class rdf:about="#local_authority"/>
+          <owl:Class rdf:about="#accomodation"/>
+        </owl:unionOf>
+      </owl:Class>
+    </rdfs:domain>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Numero di telefono del quale può servirsi l'utente per accedere ad informazioni specifiche</description>
+    <d_short xml:lang="it">Numero di telefono</d_short>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="username">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Nome che, unitamente alla password, identificherà l'utente</description>
+    <d_short xml:lang="it">Nome utente</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Nome utente</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="opening_hours">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Fascia oraria durante la quale è possibile accedere al sito turistico</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="it">Orario</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:domain>
+      <owl:Class>
+        <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="#archeological_site"/>
+          <owl:Class rdf:about="#museum"/>
+          <owl:Class rdf:about="#cultural"/>
+          <owl:Class rdf:about="#emergency"/>
+        </owl:unionOf>
+      </owl:Class>
+    </rdfs:domain>
+    <d_short xml:lang="it">Orario di apertura</d_short>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="data_classification">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="it">Categoria</rdfs:label>
+    <d_short xml:lang="it">Categoria nella quale è incluso il frame</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >L'attributo si occuperò di classificare il frame all'interno di un argomento [storia, arte, sport, etc...]</description>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="short_description">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <d_short xml:lang="it">Breve descrizione</d_short>
+    <rdfs:label xml:lang="it">Breve descrizione</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Breve descrizione contenente le informazioni di base</description>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="Art">
+    <rdfs:label xml:lang="it">Arte</rdfs:label>
+    <d_short xml:lang="it">Interesse per l'arte</d_short>
+    <rdfs:subPropertyOf rdf:resource="#Interests"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Vero se l'utente registrato è interessato all'arte</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="id">
+    <d_short xml:lang="it">Identificatore</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Codice che identifica un sito turistico o un monumento</description>
+    <rdfs:label xml:lang="it">ID</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="opening_days">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:label xml:lang="it">Giorni di apertura</rdfs:label>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Giorni durante i quali è possibile accedere al sito turistico</description>
+    <d_short xml:lang="it">Giorni di apertura</d_short>
+    <rdfs:domain>
+      <owl:Class>
+        <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="#archeological_site"/>
+          <owl:Class rdf:about="#museum"/>
+          <owl:Class rdf:about="#cultural"/>
+          <owl:Class rdf:about="#emergency"/>
+        </owl:unionOf>
+      </owl:Class>
+    </rdfs:domain>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="semanticLabel">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type>
+      <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#AnnotationProperty">
+        <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></d_short>
+        <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></dshort>
+        <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></description>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        ></rdfs:label>
+      </rdf:Description>
+    </rdf:type>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="name_of_the_place">
+    <owl:equivalentProperty>
+      <owl:DatatypeProperty rdf:ID="name"/>
+    </owl:equivalentProperty>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Nome della costruzione o del monumento</description>
+    <d_short xml:lang="it">Nome del luogo</d_short>
+    <rdfs:label xml:lang="it">Nome del sito</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="link_to_photo">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Link tramite il quale si possono vedere foto del sito turistico</description>
+    <rdfs:label xml:lang="it">Link alla foto</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Link per accedere alle foto</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="Sport">
+    <rdfs:subPropertyOf rdf:resource="#Interests"/>
+    <rdfs:label xml:lang="it">Sport</rdfs:label>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <d_short xml:lang="it">Interesse per lo sport</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Vero se l'utente registrato è interessato allo sport</description>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="#name">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Nome del sito turistico</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Nome della costruzione o del monumento, l'attributo riguarda esclusivamente strutture turistiche</description>
+    <rdfs:label xml:lang="it">Nome</rdfs:label>
+    <owl:equivalentProperty rdf:resource="#name_of_the_place"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="address">
+    <d_short xml:lang="it">Indirizzo del sito turistico</d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Indirizzo tramite il quale è possibile raggiungere il sito turistico</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="#archeological_site"/>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:label xml:lang="it">Indirizzo</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="History">
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <d_short xml:lang="it">Interesse per la storia</d_short>
+    <rdfs:label xml:lang="it">Storia</rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Vero se l'utente registrato è interessato alla storia</description>
+    <rdfs:subPropertyOf rdf:resource="#Interests"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="date_built">
+    <rdfs:label xml:lang="it">Data di costruizione</rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:domain rdf:resource="#historical_building"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Vi viene indicata la data nella quale l'edificio o il monumento in questione è stato edificato</description>
+    <d_short xml:lang="it">Data di edificazione</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="links_to_home_page">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Link che permetterà di accedere ad un sito internet contente informazioni utili all'utente</description>
+    <d_short xml:lang="it">Link alla homepage</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:domain rdf:resource="#archeological_site"/>
+    <rdfs:label xml:lang="it">Link alla homepage</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="historical_info">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Informazioni riguardanti la storia del sito turistico</description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label xml:lang="it">Informazioni storiche</rdfs:label>
+    <rdfs:domain>
+      <owl:Class>
+        <owl:unionOf rdf:parseType="Collection">
+          <owl:Class rdf:about="#old_city_information"/>
+          <owl:Class rdf:about="#historical_building"/>
+        </owl:unionOf>
+      </owl:Class>
+    </rdfs:domain>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <d_short xml:lang="it">Informazioni storiche</d_short>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="password">
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Permette all'utente di accedere ad un servizio personalizzato ed inaccessibile agli altri</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <d_short xml:lang="it">Parola chiave</d_short>
+    <rdfs:label xml:lang="it">Password</rdfs:label>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="d_short">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="link_to_map">
+    <rdfs:label xml:lang="it">Link alla mappa</rdfs:label>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Link che identificherà il sito turistico con un punto specifico della mappa geografica</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short xml:lang="it">Link alla mappa</d_short>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="id_user">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >Codice identificativo dell'utente assegnato al momento dell'accesso al servizio o dell'iscrizione</description>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <Flag rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean"
+    >false</Flag>
+    <rdfs:label xml:lang="it">ID utente</rdfs:label>
+    <d_short xml:lang="it">Codice identificativo dell'utente</d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </owl:DatatypeProperty>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#ObjectProperty">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+  </rdf:Description>
+
+  <geo:Coordinates rdf:ID="VA_SalaFilosofiI_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94224414856643</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77526972387031</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_VillaImperiale_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94251698668838</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77684612958979</geo:longitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#MaxCardinalityRestriction">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#CardinalityRestriction">
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="VA_VistaTerme_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94032019510682</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77576151898919</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_Hospitalia">
+    <rdfs:label xml:lang="it">Hospita
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_Hospitalia_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94288762764644</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77673657053058</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_TeatroGreco_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94566476071268</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77275387665939</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_IngressoImperiale_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94128846968222</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.7738642852481</geo:longitude>
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94024388729052</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77478886776462</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_PiccoleTermeI">
+    <rdfs:label xml:lang="it">Piccole Terme
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_PiccoleTermeI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94061827644777</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77545248721863</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="VA_SalaFilosofi_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94224414856643</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77526972387031</geo:longitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/2000/01/rdf-schema#Container">
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_MuseoI">
+    <rdfs:label xml:lang="it">Museo
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_MuseoI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93935916850564</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77528255655801</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:POI rdf:ID="VA_IngressoCarrabile">
+    <rdfs:label xml:lang="it">Ingresso Carrabile</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_IngressoCarrabile_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94596317878413</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77222911511909</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </geo:POI>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#SymmetricProperty">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_EdificioConPeschieraP">
+    <rdfs:label xml:lang="it">Edificio con Peschiera
+Ingresso al sotterraneo</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_EdificioConPeschieraP_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94132626383036</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77669967677133</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_SerapeoO">
+    <rdfs:label xml:lang="it">Serapeo
+Vista da Ovest</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_SerapeoO_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93796147011472</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77631722704606</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_VillaImperialePeristilio_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94243496223382</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77672395790972</geo:longitude>
+  </geo:Coordinates>
+  <geo:POI rdf:ID="VA_IngressoTuristi">
+    <rdfs:label xml:lang="it">Ingresso Turisti</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_IngressoTuristi_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94600745196103</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77218942751721</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </geo:POI>
+  <archeological_site rdf:ID="VA_Triclinio">
+    <rdfs:label xml:lang="it">Triclinio Imperiale
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_Triclinio_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94310998215975</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77707114632642</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_HeliocaminusI">
+    <rdfs:label xml:lang="it">Heliocaminus
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_HeliocaminusI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94194346514313</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77627028539385</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_VistaTerme">
+    <rdfs:label xml:lang="it">Terme Grandi e Piccole
+Vista sul piazzale</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_VistaTerme_coords"/>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_TreEsedreP_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94122158052212</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77511762590841</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_PilastriDorici_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94165786341277</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77744182315814</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_PiazzaDOroI">
+    <rdfs:label xml:lang="it">Piazza D'Oro 
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_PiazzaDOroI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.9415081331454</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77808262684424</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_VistaTermeA_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94007073127977</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77612318803485</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_Pretorio">
+    <rdfs:label xml:lang="it">Pretorio
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_Pretorio_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93976181248453</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77614555870002</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_SalaFilosofi">
+    <rdfs:label xml:lang="it">Sale dei Filosofi
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_SalaFilosofi_coords"/>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_PretorioAlto">
+    <rdfs:label xml:lang="it">Pretorio
+Vista panoramica su Canopo</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_PretorioAlto_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93952946582791</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77589042391645</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_VistaValleDiTempe">
+    <rdfs:label xml:lang="it">Valle di Tempe
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_VistaValleDiTempe_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94319513308128</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77709285863023</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_VistaTreEsedre">
+    <rdfs:label xml:lang="it">Tre Esedre e Stadio
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_VistaTreEsedre_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94113139991204</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.7761083369725</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#Thing">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_RoccabrunaI">
+    <rdfs:label xml:lang="it">Roccabruna
+Vista dell'ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_RoccabrunaI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93804027124715</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77310909908796</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_Cariatidi_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.93852221867357</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77600010636756</geo:longitude>
+  </geo:Coordinates>
+  <teatro rdf:ID="VA_TeatroGreco">
+    <rdfs:label xml:lang="it">Teatro Greco
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TeatroGreco_coords"/>
+  </teatro>
+  <geo:Coordinates rdf:ID="VA_TeatroMarittimo_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94236158183615</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77589057918895</geo:longitude>
+  </geo:Coordinates>
+  <geo:POI rdf:ID="VA_IngressoImperiale">
+    <rdfs:label xml:lang="it">Ingresso Imperiale</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_IngressoImperiale_coords"/>
+    <rdfs:label xml:lang="it">Ingresso Imperiale
+Vista sud e accesso</rdfs:label>
+  </geo:POI>
+  <archeological_site rdf:ID="VA_GrandiTermeV">
+    <rdfs:label xml:lang="it">Grandi Terme
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_GrandiTermeV_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.9394801457839</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77548729768472</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#DeprecatedClass">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="VA_Heliocaminus_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94194346514313</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77627028539385</geo:longitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq">
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_SalaFilosofiI">
+    <rdfs:label xml:lang="it">Sala dei Filosofi	
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_SalaFilosofiI_coords"/>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_RoccabrunaV_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.93804027124715</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77310909908796</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_GrandiTerme_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.93994933452527</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77599413840759</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_SerapeoE">
+    <rdfs:label xml:lang="it">Serapeo
+Vista da Est</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_SerapeoE_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93796147011472</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77631722704606</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_EdificioConPeschieraI">
+    <rdfs:label xml:lang="it">Edificio con Peschiera
+Ingresso sud</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_EdificioConPeschieraI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94112707937809</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77648021008297</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <owl:AnnotationProperty rdf:ID="description">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </owl:AnnotationProperty>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Alt">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_Vestibolo">
+    <rdfs:label xml:lang="it">Vestibolo
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_Vestibolo_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93970223082746</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77512121489327</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_PecileV2">
+    <rdfs:label xml:lang="it">Pecile
+Vista piscina da Est</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_PecileV2_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94191838884102</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77448603582102</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement">
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="VA_VistaCanopo_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.93892398052353</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77566016195658</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_Plastico_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94237030861532</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77400651386516</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_PecileV1_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94206875599326</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77438634342491</geo:longitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="VA_BibliotecaGreca_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94275251744941</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77613837667755</geo:longitude>
+  </geo:Coordinates>
+  <PublicService rdf:ID="VA_CasermaVigili">
+    <rdfs:label xml:lang="it">Caserma dei Vigili
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_CasermaVigili_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94135593498902</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.7768471214031</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </PublicService>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#Ontology">
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_Plastico">
+    <rdfs:label xml:lang="it">Plastico
+Ingresso dal viale</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_Plastico_coords"/>
+    <rdfs:label xml:lang="it">Plastico
+Ingresso principale</rdfs:label>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_IngressoNinfeoImperiale_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94197375368194</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77723224224508</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_TeatroMarittimoI_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.9425107369178</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77584784840538</geo:longitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="VA_TreEsedreC_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94122158052212</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77511762590841</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_CanopoVistaCariatidi">
+    <rdfs:label xml:lang="it">Canopo
+Vista sulle Cariatidi</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_CanopoVistaCariatidi_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93851916509886</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77592057956155</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_CentoCamerelle_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94115434652969</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.7731245740765</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_SostruzioniOvestCanopo">
+    <rdfs:label xml:lang="it">Sostruzioni Ovest Canopo</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_SostruzioniOvestCanopo_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.93880047083383</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77561989774498</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <PublicService rdf:ID="VA_CasermaVigili1">
+    <rdfs:label xml:lang="it">Caserma Vigili
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_CasermaVigili1_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.9414612107448</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77669048304868</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </PublicService>
+  <geo:Coordinates rdf:ID="VA_TreEsedreI_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94127200532082</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77513125170674</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_TreEsedreI">
+    <rdfs:label xml:lang="it">Tre Esedre
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TreEsedreI_coords"/>
+  </archeological_site>
+  <hotel rdf:ID="VA_AlbergoAdriano">
+    <rdfs:label xml:lang="it">Albergo Adriano</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_AlbergoAdriano_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94600745196103</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77218942751721</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </hotel>
+  <TicketOffice rdf:ID="VA_Biglietteria">
+    <rdfs:label xml:lang="it">Biglietteria</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_Biglietteria_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94600745196103</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77218942751721</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </TicketOffice>
+  <teatro rdf:ID="VA_TeatroMarittimoI">
+    <rdfs:label xml:lang="it">Teatro Marittimo
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TeatroMarittimoI_coords"/>
+  </teatro>
+  <archeological_site rdf:ID="VA_GrandiTerme">
+    <rdfs:label xml:lang="it">Grandi Terme - Interno</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_GrandiTerme_coords"/>
+  </archeological_site>
+  <biblioteca rdf:ID="VA_BibliotecaLatina">
+    <rdfs:label xml:lang="it">Biblioteca Latina
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_BibliotecaLatina_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94271279555912</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77621826325341</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </biblioteca>
+  <owl:AnnotationProperty rdf:ID="Flag">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </owl:AnnotationProperty>
+  <archeological_site rdf:ID="VA_TreEsedreC">
+    <rdfs:label xml:lang="it">Tre Esedre
+Camera</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TreEsedreC_coords"/>
+  </archeological_site>
+  <biblioteca rdf:ID="VA_BibliotecaGreca">
+    <rdfs:label xml:lang="it">Biblioteca Greca
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_BibliotecaGreca_coords"/>
+  </biblioteca>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#ComplementClass">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#DataRange">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_VillaImperialePeristilio">
+    <rdfs:label xml:lang="it">Peristilio Villa Imperiale
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_VillaImperialePeristilio_coords"/>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#DeprecatedProperty">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_Heliocaminus">
+    <rdfs:label xml:lang="it">Heliocaminus
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_Heliocaminus_coords"/>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_PecileI_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94237030861532</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77400651386516</geo:longitude>
+  </geo:Coordinates>
+  <archeological_site rdf:ID="VA_RoccabrunaV">
+    <rdfs:label xml:lang="it">Roccabruna
+Piano superiore, vista di Roma e della Villa</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_RoccabrunaV_coords"/>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_CentoCamerelle">
+    <rdfs:label xml:lang="it">Cento Camerelle
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_CentoCamerelle_coords"/>
+  </archeological_site>
+  <rdf:Description rdf:about="http://cidoc.ics.forth.gr/cidoc_crm#E24.Physical_Man-Made_Stuff">
+    <rdfs:subClassOf rdf:resource="http://ai-nlp.info.uniroma2.it/ontologies/geographic#object"/>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_PilastriDorici">
+    <rdfs:label xml:lang="it">Pilastri Dorici
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_PilastriDorici_coords"/>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_VistaTermeA">
+    <rdfs:label xml:lang="it">Terme
+Vista dall'alto e discesa</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_VistaTermeA_coords"/>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#AllDifferent">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+  </rdf:Description>
+  <geo:Coordinates rdf:ID="ttrgrk_coords">
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.77388889</geo:longitude>
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94527778</geo:latitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/2000/01/rdf-schema#Datatype">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_GrandiTermeI">
+    <rdfs:label xml:lang="it">Grandi Terme
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="VA_GrandiTermeI_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94032019510682</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77576151898919</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#Restriction">
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_VistaCanopo">
+    <rdfs:label xml:lang="it">Canopo
+Vista principale, a sinistra Statua Tevere</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_VistaCanopo_coords"/>
+  </archeological_site>
+  <restaurant rdf:ID="Adrianeo">
+    <rdfs:label xml:lang="en">Adrianeo</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="adrianeo_coords">
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.947369</geo:latitude>
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77354</geo:longitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+    <rdfs:label xml:lang="it">Ristorante Adrianeo</rdfs:label>
+  </restaurant>
+  <archeological_site rdf:ID="VA_TreEsedreP">
+    <rdfs:label xml:lang="it">Tre Esedre
+Piazza</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TreEsedreP_coords"/>
+  </archeological_site>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#HasValueRestriction">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_VillaImperiale">
+    <rdfs:label xml:lang="it">Villa Imperiale
+Vista</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_VillaImperiale_coords"/>
+  </archeological_site>
+  <rdf:Description rdf:about="http://ai-nlp.info.uniroma2.it/ontologies/geographic#Coordinates">
+    <rdfs:subClassOf rdf:resource="http://cidoc.ics.forth.gr/cidoc_crm#E47.Spatial_Coordinates"/>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_Cariatidi">
+    <rdfs:label xml:lang="it">Cariatidi
+Statua dei Sileni Canefori</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_Cariatidi_coords"/>
+  </archeological_site>
+  <geo:Coordinates rdf:ID="VA_TempioDiAntinoo_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.94128846968222</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.7738642852481</geo:longitude>
+  </geo:Coordinates>
+  <rdf:Description rdf:about="http://www.w3.org/2002/07/owl#InverseFunctionalProperty">
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+  </rdf:Description>
+  <archeological_site rdf:ID="VA_PecileI">
+    <rdfs:label xml:lang="it">Pecile
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_PecileI_coords"/>
+  </archeological_site>
+  <archeological_site rdf:ID="VA_PecileV1">
+    <rdfs:label xml:lang="it">Pecile
+Vista sulla piscina</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_PecileV1_coords"/>
+  </archeological_site>
+  <geo:POI rdf:ID="VA_IngressoNinfeoImperiale">
+    <rdfs:label xml:lang="it">Ninfeo Imperiale
+Ingresso</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_IngressoNinfeoImperiale_coords"/>
+  </geo:POI>
+  <rdf:Description rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#List">
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></rdfs:label>
+    <d_short rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></d_short>
+    <dshort rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></dshort>
+    <description rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    ></description>
+  </rdf:Description>
+  <teatro rdf:ID="VA_TeatroMarittimo">
+    <rdfs:label xml:lang="it">Teatro Marittimo
+Cortile</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TeatroMarittimo_coords"/>
+  </teatro>
+  <tempio rdf:ID="VA_TempioDiAntinoo">
+    <rdfs:label xml:lang="it">Tempio di Antinoo</rdfs:label>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <geo:geo_coord rdf:resource="#VA_TempioDiAntinoo_coords"/>
+  </tempio>
+  <stadium rdf:ID="arena_dei_gladiatori">
+    <geo:geo_coord rdf:resource="#glad_coords"/>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >20</geo:radius>
+    <geo:contains>
+      <geo:object rdf:ID="gladiator_armour">
+        <rdfs:label xml:lang="en">gladiator armour</rdfs:label>
+        <rdfs:label xml:lang="it">armatura del gladiatore</rdfs:label>
+      </geo:object>
+    </geo:contains>
+    <geo:contains>
+      <geo:object rdf:ID="gladiator_weapons">
+        <rdfs:label xml:lang="it">armidel gladiatore</rdfs:label>
+        <rdfs:label xml:lang="en">gladiator weapons</rdfs:label>
+      </geo:object>
+    </geo:contains>
+    <rdfs:label xml:lang="en">gladiators arena</rdfs:label>
+    <rdfs:label xml:lang="it">arena dei gladiatori</rdfs:label>
+  </stadium>
+  <restaurant rdf:ID="RistoranteAdriano">
+    <geo:geo_coord>
+      <geo:Coordinates rdf:ID="RestAdr_coord">
+        <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >12.77056</geo:longitude>
+        <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >41.94417</geo:latitude>
+      </geo:Coordinates>
+    </geo:geo_coord>
+    <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+    >15</geo:radius>
+    <rdfs:label xml:lang="it">Ristorante Adriano</rdfs:label>
+    <rdfs:label xml:lang="en">Adriano Restaurant</rdfs:label>
+  </restaurant>
+  <geo:Coordinates rdf:ID="Odeon_coord">
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.779475</geo:longitude>
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.935318</geo:latitude>
+  </geo:Coordinates>
+  <geo:Coordinates rdf:ID="glad_coords">
+    <geo:latitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >41.941467</geo:latitude>
+    <geo:longitude rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+    >12.779254</geo:longitude>
+  </geo:Coordinates>
+  
+  <geo:Route rdf:ID="VillaAdriana_Route_1">
+    <geo:route rdf:resource="#POI_List_1"/>
+  </geo:Route>
+    <geo:POI_List rdf:ID="POI_List_1">
+    <rdf:first rdf:resource="#arena_dei_gladiatori"/>
+    <rdf:rest rdf:resource="#POI_List_2"/>
+  </geo:POI_List>
+  <geo:POI_List rdf:ID="POI_List_2">
+    <rdf:first>
+      <ricreativo rdf:ID="Odeon">
+        <rdfs:label xml:lang="it">Odeon</rdfs:label>
+        <rdfs:label xml:lang="en">Odeon</rdfs:label>
+        <geo:radius rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >32</geo:radius>
+        <geo:geo_coord rdf:resource="#Odeon_coord"/>
+      </ricreativo>
+    </rdf:first>
+    <rdf:rest rdf:resource="#POI_List_3"/>
+  </geo:POI_List> 
+  <geo:POI_List rdf:ID="POI_List_3">
+    <rdf:first rdf:resource="#RistoranteAdriano"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </geo:POI_List>  
+  
+</rdf:RDF>
+
+<!-- Created with TopBraid Composer 1.2.3 -->

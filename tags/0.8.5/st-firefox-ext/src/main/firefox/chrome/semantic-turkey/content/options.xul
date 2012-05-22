@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<prefwindow id="STPreferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+title="Semantic Turkey Options" width="600" height="300" onload="populatePreferecesPanel()" ondialogaccept="changeDefaultAnnotation();">
+<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/options.js"/>
+    
+    
+   <!-- <label value="The extensions of semantic Turkey will provide other options of annotation"/> -->
+    <preferences id="preferences_list">
+      <preference id="annotate" name="extensions.semturkey.extpt.annotate" type="string"/>
+      <preference id="default_language" name="extensions.semturkey.annotprops.defaultlang" type="string"/>
+      <preference id="languages_list" name="extensions.semturkey.annotprops.langs" type="string"/>
+    </preferences>
+    <prefpane id="pane1" label="Annotation">
+    <label value='Selected Annotation Type' class="head-1"/>
+    <hbox id="default_ann_box">
+  <!-- <button id="changeDefaultAnn" label="Change Selected Annotation Type" onclick="changeDefaultAnnotation();"/>-->
+   </hbox>
+   <separator orient="orizontal" class="groove"/>
+    <box>
+    <label value='Annotation Options' class="title"/>
+   </box>
+   <listbox id="annotationOptions">
+   </listbox>
+   </prefpane>
+  <prefpane id="pane2" label="Labels Languages">
+     <label value='Default Language' class="head-1"/>
+   <hbox id="default_language_box">
+   <button id="changeDefault" label="Change Default Language" onclick="changeDefaultLanguage();"/>
+   </hbox>
+   <separator orient="orizontal" class="groove"/>
+   <box>
+   <label value='Available Languages list' class="title"/>
+   <toolbarbutton label="+" onclick="addLanguage();"/>
+    <toolbarbutton label="-" onclick="removeLanguage();"/>
+   </box>
+   <listbox id="languagesOption" rows="5">
+	</listbox>
+ </prefpane>
+ 
+   
+</prefwindow>

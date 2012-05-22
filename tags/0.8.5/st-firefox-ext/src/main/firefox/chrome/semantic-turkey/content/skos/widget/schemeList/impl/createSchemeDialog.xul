@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://semantic-turkey/content/widget/resource/plainLiteral/plainLiteral.css" type="text/css"?>
+<dialog id="createSchemeDialog" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+                                 xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+                                 xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#"
+        title="Create Scheme"
+        buttons="accept,cancel"
+        buttonlabelcancel="Cancel"
+        buttonlabelaccept="Create scheme"
+        >
+    <script type="application/x-javascript" src="createSchemeDialog.js" />
+	<grid>
+		<columns><column /><column flex="1" /></columns>
+		<rows>
+			<row align="center">
+	    		<label value="Scheme name:" control="schemeName"/> <textbox id="schemeName" xul:flex="1"/>
+	    	</row>
+	    	<row align="center">
+				<label value="skos:prefLabel:" control="prefLabel"/> <st:plainliteral id="prefLabel" xul:flex="1"/>
+			</row>
+		</rows>
+	</grid>
+</dialog>
