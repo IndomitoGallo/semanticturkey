@@ -244,6 +244,31 @@
 						}
 					}
 				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosPrefLabelSet", function(eventId, skosPrefLabelSetObj) {
+					if (skosPrefLabelSetObj.getLang() != bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en")) {
+						return;
+					}
+					
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == skosPrefLabelSetObj.getConceptName()) {
+							bound._view.visibleRows2[i].record.label = skosPrefLabelSetObj.getLabel();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosPrefLabelRemoved", function(eventId, skosPrefLabelRemovedObj) {
+					if (skosPrefLabelRemovedObj.getLang() != bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en")) {
+						return;
+					}
+					
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == skosPrefLabelRemovedObj.getConceptName()) {
+							bound._view.visibleRows2[i].record.label = "";
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+
 				
 				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeRemoved", function(eventId, skosSchemeRemovedObj) {
 					if (skosSchemeRemovedObj.getSchemeName() == bound.conceptScheme) {

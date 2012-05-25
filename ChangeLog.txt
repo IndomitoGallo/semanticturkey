@@ -1,3 +1,7 @@
+version 0.8.5.1
+date: 22-05-2012
+  * Bug fix release (see issue #84 and issue #85)
+
 version 0.8.5
 date: 22-05-2012
   * SKOS(-XL) officially supported

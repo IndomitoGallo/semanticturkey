@@ -221,15 +221,21 @@ STRequests.SPARQL.resolveQueryRequest = "resolveQuery";
 
 // SKOS service request
 STRequests.SKOS.serviceName = "skos";
+
+// GET REQUESTS
 STRequests.SKOS.getTopConceptsRequest = "getTopConcepts";
 STRequests.SKOS.getNarrowerConceptsRequest = "getNarrowerConcepts";
 STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
 STRequests.SKOS.getConceptDescriptionRequest = "getConceptDescription";
 STRequests.SKOS.getConceptSchemeDescriptionRequest = "getConceptSchemeDescription";
+STRequests.SKOS.getPrefLabelRequest = "getPrefLabel";
 
 // ADD REQUESTS
 STRequests.SKOS.addBroaderConceptRequest = "addBroaderConcept";
 STRequests.SKOS.addTopConceptRequest = "addTopConcept";
+
+// SET REQUESTS
+STRequests.SKOS.setPrefLabelRequest = "setPrefLabel";
 
 // CREATE REQUESTS
 STRequests.SKOS.createConceptRequest = "createConcept";
@@ -242,6 +248,7 @@ STRequests.SKOS.deleteSchemeRequest = "deleteScheme";
 // REMOVE REQUESTS
 STRequests.SKOS.removeBroaderConceptRequest = "removeBroaderConcept";
 STRequests.SKOS.removeTopConceptRequest = "removeTopConcept";
+STRequests.SKOS.removePrefLabelRequest = "removePrefLabel";
 
 //projects service request
 STRequests.Projects.serviceName = "projects";
