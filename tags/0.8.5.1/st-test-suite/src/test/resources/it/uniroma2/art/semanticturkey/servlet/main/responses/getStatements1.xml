@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stresponse request="getStatements" type="reply">
+  <reply status="ok"/>
+  <data>
+    <stm>
+      <subj type="uri">st_example:worksIn</subj>
+      <pred type="uri">rdf:type</pred>
+      <obj type="uri">owl:ObjectProperty</obj>
+    </stm>
+    <stm>
+      <subj type="uri">st_example:worksIn</subj>
+      <pred type="uri">rdfs:range</pred>
+      <obj type="uri">st_example:Organization</obj>
+    </stm>
+    <stm>
+      <subj type="uri">st_example:worksIn</subj>
+      <pred type="uri">rdfs:domain</pred>
+      <obj type="uri">st_example:Person</obj>
+    </stm>
+  </data>
+</stresponse>
