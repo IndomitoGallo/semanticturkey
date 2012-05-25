@@ -115,6 +115,13 @@ window.onload = function() {
 	.addEventListenerToArrayAndRegister("skosTopConceptRemoved",
 			art_semanticturkey.refreshPanel, null);
 
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosPrefLabelSet",
+			art_semanticturkey.refreshPanel, null);
+	art_semanticturkey.eventListenerArrayObject
+	.addEventListenerToArrayAndRegister("skosPrefLabelRemoved",
+			art_semanticturkey.refreshPanel, null);
+
 	// art_semanticturkey.eventListenerArrayObject.addEventListenerToArrayAndRegister("",art_semanticturkey.refreshPanel,
 	// null);
 
@@ -498,10 +505,12 @@ art_semanticturkey.getResourceDescription_RESPONSE = function(responseElement) {
 
 	if (request == "getConceptDescription") {
 		art_semanticturkey.parsingSuperTypes(responseElement, request);
+		art_semanticturkey.parsingPrefLabels(responseElement, request);
 	}
 	
 	if (request == "getConceptSchemeDescription") {
 		art_semanticturkey.parsingTopConcepts(responseElement, request);
+		art_semanticturkey.parsingPrefLabels(responseElement, request);
 	}
 
 	// Parsing property values of class/instance
@@ -3399,4 +3408,184 @@ art_semanticturkey.skosBroaderConceptRemovedHandler = function(eventId, skosBroa
 	}
 
 	art_semanticturkey.refreshPanel();
+};
+
+art_semanticturkey.parsingPrefLabels = function(responseElement, request) {
+	var prefLabels = [];
+	
+
+	var it = responseElement.evaluate("/stresponse/data/prefLabels/plainLiteral", responseElement.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null );  
+	
+	var lit = it.iterateNext();
+	
+	while (lit) {
+		prefLabels.push(lit);
+		
+		lit = it.iterateNext();
+	}
+	
+	var parentBox = document.getElementById("parentBoxRows");
+
+	var separator = document.createElement("separator");
+	separator.setAttribute("class", "groove");
+	separator.setAttribute("orient", "orizontal");
+	parentBox.appendChild(separator);
+	
+	var rowTitle = document.createElement("row");
+//	rowTitle.setAttribute("align", "center");
+//	rowTitle.setAttribute("pack", "center");
+//	rowTitle.setAttribute("flex", "0");
+
+	var addPrefLabelButton = document.createElement("toolbarbutton");
+	addPrefLabelButton.setAttribute("tooltiptext", "Add New Preferred Label");
+	addPrefLabelButton.setAttribute("image", "chrome://semantic-turkey/skin/images/individual_add.png");
+	addPrefLabelButton.addEventListener("command", art_semanticturkey.addPrefLabelEvent, true);
+
+	var removePrefLabelButton = document.createElement("toolbarbutton");
+	removePrefLabelButton.setAttribute("tooltiptext", "Remove Preferred Label");
+	removePrefLabelButton.setAttribute("image", "chrome://semantic-turkey/skin/images/individual_delete.png");
+	removePrefLabelButton.addEventListener("command", art_semanticturkey.removePrefLabelEvent, true);
+
+	var prefLabelsTitle = document.createElement("label");
+	prefLabelsTitle.setAttribute("value", "Preferred Labels:");
+
+	parentBox.appendChild(rowTitle);
+
+	if (prefLabels.length > 10) {
+		var containerObj = {};
+		containerObj.isList = true;
+		removePrefLabelButton.containerObj = containerObj;
+
+		var toolbox = document.createElement("toolbox");
+		var toolbar = document.createElement("toolbar");
+		
+		toolbar.appendChild(addPrefLabelButton);		
+		toolbar.appendChild(removePrefLabelButton);
+		toolbox.appendChild(toolbar);
+		rowTitle.appendChild(toolbox);
+		
+		var list = document.createElement("listbox");
+		list.setAttribute("id", "prefLabelsList");
+		list.setAttribute("flex", "1");
+		var listhead = document.createElement("listhead");
+		var listheader = document.createElement("listheader");
+		var listitem_iconic = document.createElement("listitem-iconic");
+
+		var lbl2 = document.createElement("label");
+		lbl2.setAttribute("value", "Preferred Labels:");
+		listitem_iconic.appendChild(lbl2);
+		listheader.appendChild(listitem_iconic);
+		listhead.appendChild(listheader);
+		list.appendChild(listhead);
+		parentBox.appendChild(list);
+		
+		for (var i = 0 ; i < prefLabels.length ; i++) {
+			var lsti = document.createElement("listitem");
+			var lci = document.createElement("listitem-iconic");
+			
+			var lbl = document.createElement("label");
+			lbl.setAttribute("value", prefLabels[i].textContent + " (language: " + prefLabels[i].getAttribute("lang") + ")");
+			lci.appendChild(lbl);
+			
+			lsti.appendChild(lci);
+			
+			var containerObj = {};
+			containerObj.label = prefLabels[i].textContent;
+			containerObj.lang = prefLabels[i].getAttribute("lang");
+			lsti.containerObj = containerObj;
+			
+			list.appendChild(lsti);
+		}
+	} else { // prefLabels.length <= 10	
+		var titleBox = document.createElement("box");
+		
+		titleBox.appendChild(prefLabelsTitle);
+		titleBox.appendChild(addPrefLabelButton);
+		rowTitle.appendChild(titleBox);
+		
+		for (var i = 0 ; i < prefLabels.length ; i++) {
+			var row = document.createElement("row");
+			var tbox = document.createElement("textbox");
+			tbox.setAttribute("value", prefLabels[i].textContent + " (language: " + prefLabels[i].getAttribute("lang") + ")");
+			tbox.setAttribute("readonly", "true");
+
+			removeButton = document.createElement("button");
+			removeButton.setAttribute("flex", "0");
+			removeButton.setAttribute("label", "Remove");
+			removeButton.addEventListener("command", art_semanticturkey.removePrefLabelEvent, true);
+
+			var containerObj = {};
+			containerObj.isList = false;
+			containerObj.label = prefLabels[i].textContent;
+			containerObj.lang = prefLabels[i].getAttribute("lang");
+			
+			removeButton.containerObj = containerObj;
+
+			row.appendChild(tbox);
+			row.appendChild(removeButton);
+			
+			parentBox.appendChild(row);
+		}
+	}
+};
+
+art_semanticturkey.addPrefLabelEvent = function(event) {
+	var parameters = {};
+	
+	parameters.winTitle = "Add Preferred Label";
+	parameters.action = function(label, lang) {
+		var conceptName = document.getElementById("name").getAttribute("actualValue");
+
+		try {
+			var responseXML = art_semanticturkey.STRequests.SKOS.setPrefLabel(conceptName, label, lang);
+			
+			if (responseXML.isFail()) {
+				alert(responseXML.getMsg());
+			}
+		} catch(e) {
+			alert(e.name + ":" + e.message);
+		}
+	};
+	parameters.oncancel = false;
+	parameters.skos = window.arguments[0].skos;
+
+	window.openDialog(
+			"chrome://semantic-turkey/content/enrichProperty/enrichPlainLiteralRangedProperty.xul",
+			"_blank", "modal=yes,resizable,centerscreen", parameters);
+};
+
+art_semanticturkey.removePrefLabelEvent = function(event) {
+	var containerObj = event.target.containerObj;
+	var isList = containerObj.isList;
+	
+	var conceptName = document.getElementById("name").getAttribute("actualValue");
+	var label = "";
+	var lang = "";
+	
+	if (isList) {
+		var list = document.getElementById("prefLabelsList");
+		
+		var selItem = list.selectedItem;
+		
+		if (selItem == null) {
+			alert("Please select a preferred label");
+			return;
+		}
+		
+		label = selItem.containerObj.label;
+		lang = selItem.containerObj.lang;
+	} else {
+		label = containerObj.label;
+		lang = containerObj.lang;
+	}
+	
+	try {
+		var responseXML = art_semanticturkey.STRequests.SKOS.removePrefLabel(conceptName, label, lang);
+		
+		if (responseXML.isFail()) {
+			alert(responseXML.getMsg());
+		}
+	} catch(e) {
+		alert(e.name + ":" + e.message);
+	}
 };

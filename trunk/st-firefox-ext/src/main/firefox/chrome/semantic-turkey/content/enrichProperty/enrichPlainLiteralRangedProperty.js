@@ -86,18 +86,28 @@ art_semanticturkey.setPanel = function() {
 };
 
 art_semanticturkey.onAccept = function() {
-	var range=null;
-	var type = "plainLiteral";
-	var propValue = document.getElementById("newValue").value;
-	try {
+	if (typeof window.arguments[0].action != "function") {
+		var range=null;
+		var type = "plainLiteral";
+		var propValue = document.getElementById("newValue").value;
+		try {
+			var menu = document.getElementById("langMenu");
+			var lang = menu.selectedItem.id;
+			window.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(window.arguments[0].sourceElementName,
+							window.arguments[0].predicatePropertyName, propValue,
+							range, type, lang);
+			close();
+		} catch (e) {
+			alert(e.name + ": " + e.message);
+		}
+	} else {
+		var label = document.getElementById("newValue").value;
+
 		var menu = document.getElementById("langMenu");
 		var lang = menu.selectedItem.id;
-		window.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(window.arguments[0].sourceElementName,
-						window.arguments[0].predicatePropertyName, propValue,
-						range, type, lang);
+		
+		window.arguments[0].action(label, lang);
 		close();
-	} catch (e) {
-		alert(e.name + ": " + e.message);
 	}
 };
 

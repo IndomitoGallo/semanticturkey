@@ -69,6 +69,14 @@ function getConceptSchemeDescription(scheme) {
 	return HttpMgr.GET(serviceName, service.getConceptSchemeDescriptionRequest,scheme_p, method_p);	
 }
 
+function getPrefLabel(concept, lang) {
+	Logger.debug('[SERVICE_SKOS.jsm] getPrefLabel');
+	var concept_p = "concept=" + concept;
+	var lang_p = "lang=" + lang;
+	
+	return HttpMgr.GET(serviceName, service.getPrefLabelRequest,concept_p, lang_p);	
+}
+
 function addBroaderConcept(concept, broaderConcept) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = "broaderConcept=" + broaderConcept;
@@ -93,6 +101,21 @@ function addTopConcept(scheme, concept) {
 	}
 	
 	return reply;
+}
+
+function setPrefLabel(concept, label, lang) {
+	var concept_p = "concept=" + concept;
+	var label_p = "label=" + label;
+	var lang_p = "lang=" + lang;
+	
+	var reply = HttpMgr.GET(serviceName, service.setPrefLabelRequest, concept_p, label_p, lang_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosPrefLabelSet", {getConceptName : function(){return concept;}, getLabel : function(){return label;}, getLang : function(){return lang;}});	
+	}
+	
+	return reply;
+	
 }
 
 function removeTopConcept(scheme, concept) {
@@ -217,15 +240,32 @@ function removeBroaderConcept(concept, broaderConcept) {
 	return reply;
 }
 
+function removePrefLabel(concept, label, lang) {
+	var concept_p = "concept=" + concept;
+	var label_p = "label=" + label;
+	var lang_p = "lang=" + lang;
+	
+	var reply = HttpMgr.GET(serviceName, service.removePrefLabelRequest, concept_p, label_p, lang_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosPrefLabelRemoved", {getConceptName : function(){return concept;}, getLabel : function(){return label;}, getLang : function(){return lang;}});
+	}
+	
+	return reply;
+}
+
 // SKOS SERVICE INITIALIZATION
 service.getTopConcepts = getTopConcepts;
 service.getAllSchemesList = getAllSchemesList;
 service.getNarrowerConcepts = getNarrowerConcepts;
 service.getConceptDescription = getConceptDescription;
 service.getConceptSchemeDescription = getConceptSchemeDescription;
+service.getPrefLabel = getPrefLabel;
 
 service.addBroaderConcept = addBroaderConcept;
 service.addTopConcept = addTopConcept;
+
+service.setPrefLabel = setPrefLabel;
 
 service.createConcept = createConcept;
 service.createScheme = createScheme;
@@ -235,3 +275,4 @@ service.deleteScheme = deleteScheme;
 
 service.removeBroaderConcept = removeBroaderConcept;
 service.removeTopConcept = removeTopConcept;
+service.removePrefLabel = removePrefLabel;
