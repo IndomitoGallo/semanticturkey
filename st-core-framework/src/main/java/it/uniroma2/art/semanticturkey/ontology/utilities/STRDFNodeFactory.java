@@ -26,10 +26,14 @@
  */
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTBNode;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
+import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
@@ -118,38 +122,70 @@ public class STRDFNodeFactory {
 	public static STRDFNode createSTRDFNode(RDFModel model, ARTNode node, boolean role, boolean explicit,
 			boolean rendering) throws DOMException, ModelAccessException {
 		if (node.isResource()) {
-
-			STRDFResource stRes;
-
-			if (node.isURIResource()) {
-				// uri
-				stRes = createSTRDFURI(node.asURIResource(), explicit);
-				if (rendering)
-					stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asURIResource()));
-			} else {
-				// bnode
-				stRes = createSTRDFBNode(node.asBNode(), explicit);
-				if (rendering)
-					stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asBNode()));
-			}
-
-			if (role)
-				stRes.setRole(ModelUtilities.getResourceRole(node.asResource(), model));
-
-			return stRes;
-
+			return createSTRDFResource(model, node.asResource(), role, explicit, rendering);
 		} else {
 			// literal
 			ARTLiteral lit = node.asLiteral();
 			STRDFLiteral stLit = createSTRDFLiteral(lit, explicit);
 			if (rendering) {
 				ARTURIResource dt = lit.getDatatype();
-				if (dt!=null)
+				if (dt != null)
 					stLit.setDatatypeQName(model.getQName(dt.getURI()));
 			}
-			
+
 			return stLit;
 		}
 	}
+
+	public static STRDFResource createSTRDFResource(RDFModel model, ARTResource node, boolean role,
+			boolean explicit, boolean rendering) throws DOMException, ModelAccessException {
+
+		if (role)
+			return createSTRDFResource(model, node, ModelUtilities.getResourceRole(node.asResource(), model),
+					explicit, rendering);
+
+		return createSTRDFResource(model, node, null, explicit, rendering);
+	}
+
+	public static STRDFResource createSTRDFResource(RDFModel model, ARTResource node,
+			RDFResourceRolesEnum role, boolean explicit, boolean rendering) throws DOMException,
+			ModelAccessException {
+		STRDFResource stRes;
+		if (node.isURIResource()) {
+			// uri
+			stRes = createSTRDFURI(node.asURIResource(), explicit);
+			if (rendering)
+				stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asURIResource()));
+		} else {
+			// bnode
+			stRes = createSTRDFBNode(node.asBNode(), explicit);
+			if (rendering)
+				stRes.setRendering(RDFRenderer.renderRDFNode(model, node.asBNode()));
+		}
+
+		if (role != null)
+			stRes.setRole(role);
+
+		return stRes;
+	}
+
+	public static Collection<STRDFResource> createEmptyResourceCollection() {
+		return new ArrayList<STRDFResource>();
+	}
+
+	/*
+	 * public static Collection<STRDFURIImpl> createSTRDFURICollection(RDFModel model, ARTURIResourceIterator
+	 * it, RDFResourceRolesEnum role, boolean explicit) { Collection<STRDFURIImpl> uris = new
+	 * ArrayList<STRDFURIImpl>(); while (it.streamOpen()) { uris.add(createSTRDFURI(it.getNext(), role,
+	 * explicit)); } it.close(); return uris; }
+	 * 
+	 * public static STRDFURIImpl createSTRDFURICollection(RDFModel model, ARTURIResourceIterator it, boolean
+	 * explicit) { return new STRDFURIImpl(node, null, explicit, null); }
+	 * 
+	 * public static void createSTRDFNodeCollection(RDFModel model, RDFIterator<? extends ARTNode> node,
+	 * boolean role, boolean explicit, boolean rendering) {
+	 * 
+	 * }
+	 */
 
 }

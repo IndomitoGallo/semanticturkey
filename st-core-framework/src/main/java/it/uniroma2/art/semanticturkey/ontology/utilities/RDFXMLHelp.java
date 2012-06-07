@@ -23,10 +23,6 @@
 
 package it.uniroma2.art.semanticturkey.ontology.utilities;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
@@ -37,7 +33,12 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFRenderer;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -133,22 +134,7 @@ public class RDFXMLHelp {
 		return nodeElement;
 	}
 
-	public static Element addRDFNodeXMLElement(Element parent, ARTNode node) throws DOMException,
-			ModelAccessException {
-		return addRDFNodeXMLElement(parent, null, node, false, false);
-	}
-
-	
-	
-	public static Element addRDFNodeXMLElement(Element parent, STRDFNode node) throws DOMException {
-		if (node.isResource())
-			return addRDFResourceXMLElement(parent, (STRDFResource) node);
-		else
-			return addRDFResourceXMLElement(parent, (STRDFLiteral) node);
-		
-	}
-
-	public static Element addRDFResourceXMLElement(Element parent, STRDFResource node) throws DOMException {
+	public static Element addRDFNodeXMLElement(Element parent, STRDFResource node) throws DOMException {
 		Element nodeElement;
 		if (node.isURIResource()) {
 			nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.uri.toString());
@@ -157,20 +143,21 @@ public class RDFXMLHelp {
 		}
 		nodeElement.setTextContent(node.getARTNode().getNominalValue());
 		RDFResourceRolesEnum role = node.getRole();
-		if (role!=null)
+		if (role != null)
 			nodeElement.setAttribute("role", role.toString());
-		
+
 		String rendering = node.getRendering();
-		if (rendering!=null)
+		if (rendering != null)
 			nodeElement.setAttribute("show", rendering);
 		
+		nodeElement.setAttribute("explicit", Boolean.toString(node.isExplicit()));		
+
 		serializeMap(nodeElement, node);
-		
+
 		return nodeElement;
 	}
 
-	
-	public static Element addRDFResourceXMLElement(Element parent, STRDFLiteral node)  throws DOMException {
+	public static Element addRDFNodeXMLElement(Element parent, STRDFLiteral node) throws DOMException {
 		Element nodeElement;
 
 		if (node.isTypedLiteral()) {
@@ -178,7 +165,7 @@ public class RDFXMLHelp {
 			nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.typedLiteral.toString());
 			nodeElement.setAttribute("type", node.getDatatypeURI());
 			String dtQName = node.getDatatypeQName();
-			if (dtQName!=null)
+			if (dtQName != null)
 				nodeElement.setAttribute("typeQName", dtQName);
 		} else {
 			// plain literal
@@ -187,13 +174,32 @@ public class RDFXMLHelp {
 			if (lang != null)
 				nodeElement.setAttribute("lang", lang);
 		}
-		nodeElement.setTextContent(node.getLabel());	
-		
+		nodeElement.setTextContent(node.getLabel());
+
 		serializeMap(nodeElement, node);
-		
+
 		return nodeElement;
 	}
-	
+
+	public static Element addRDFNodeXMLElement(Element parent, ARTNode node) throws DOMException,
+			ModelAccessException {
+		return addRDFNodeXMLElement(parent, null, node, false, false);
+	}
+
+	public static Element addRDFNodeXMLElement(Element parent, STRDFNode node) throws DOMException {
+		if (node.isResource())
+			return addRDFNodeXMLElement(parent, (STRDFResource) node);
+		else
+			return addRDFNodeXMLElement(parent, (STRDFLiteral) node);
+
+	}
+
+	public static Element attachRDFNodeToResponse(XMLResponseREPLY resp, STRDFNode node)
+			throws DOMException {
+		Element dataElement = resp.getDataElement();
+		return addRDFNodeXMLElement(dataElement, node);
+	}
+
 	/**
 	 * this method closes the iterator
 	 * 
@@ -206,9 +212,8 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element addRDFNodesCollection(Element parent, RDFModel model,
-			RDFIterator<ARTNode> nodes, boolean role, boolean rendering) throws DOMException,
-			ModelAccessException {
+	public static Element addRDFNodesCollection(Element parent, RDFModel model, RDFIterator<ARTNode> nodes,
+			boolean role, boolean rendering) throws DOMException, ModelAccessException {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
 		while (nodes.streamOpen()) {
 			addRDFNodeXMLElement(collectionElement, model, nodes.getNext(), role, rendering);
@@ -217,20 +222,31 @@ public class RDFXMLHelp {
 		return collectionElement;
 	}
 
-	public static Element addRDFNodesCollection(Element parent, Collection<STRDFNode> nodes) {
+	public static <RDFType extends STRDFNode> Element addRDFNodesCollection(Element parent,
+			Collection<RDFType> nodes) {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
-		for (STRDFNode node : nodes) {
+		for (RDFType node : nodes) {
 			addRDFNodeXMLElement(collectionElement, node);
 		}
 		return collectionElement;
 	}
-			
-	
+
+	public static <RDFType extends STRDFNode> Element attachRDFCollectionToResponse(XMLResponseREPLY resp,
+			Collection<RDFType> nodes) {
+		Element dataElement = resp.getDataElement();
+		Element collectionElement = XMLHelp.newElement(dataElement, "collection");
+		for (RDFType node : nodes) {
+			addRDFNodeXMLElement(collectionElement, node);
+		}
+		return collectionElement;
+	}
+
 	private static void serializeMap(Element rdfNodeXMLElement, STRDFNode node) {
 		Map<String, String> info = node.getInfo();
-		if (info!=null)
+		if (info != null)
 			for (Entry<String, String> entry : info.entrySet()) {
 				rdfNodeXMLElement.setAttribute(entry.getKey(), entry.getValue());
 			}
 	}
+	
 }

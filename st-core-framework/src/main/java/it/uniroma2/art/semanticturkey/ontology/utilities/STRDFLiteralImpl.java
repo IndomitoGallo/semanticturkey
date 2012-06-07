@@ -60,6 +60,16 @@ public class STRDFLiteralImpl extends STRDFNodeImpl implements STRDFLiteral {
 		}
 	}
 	
+	STRDFLiteralImpl(ARTLiteral node, boolean explicit) {
+		super(node, explicit);		
+		ARTURIResource dt = node.getDatatype();
+		if (dt!=null) {
+			dtURI = dt.getURI();
+			isTypedLiteral = true;
+		} 
+		setRendering(node.getNominalValue());
+	}
+	
 	public String getLabel() {
 		return ((ARTLiteral)node).getLabel();
 	}

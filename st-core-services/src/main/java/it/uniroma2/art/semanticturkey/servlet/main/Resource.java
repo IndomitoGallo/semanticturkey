@@ -42,7 +42,6 @@ import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
-import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -56,6 +55,8 @@ import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -73,7 +74,6 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
@@ -270,6 +270,7 @@ public abstract class Resource extends ServiceAdapter {
 		if (method.equals(templateandvalued)) {
 			try {
 
+				// **********
 				// TYPES
 				Element typesElement = XMLHelp.newElement(dataElement, "Types");
 
@@ -281,20 +282,16 @@ public abstract class Resource extends ServiceAdapter {
 				Collection<ARTResource> directExplicitTypes = RDFIterators.getCollectionFromIterator(ontModel
 						.listTypes(resource, false, getWorkingGraph()));
 
+				Collection<STRDFResource> stTypes = STRDFNodeFactory.createEmptyResourceCollection();
 				for (ARTResource type : directTypes) {
 					// TODO remove when unnamed types are supported
-					if (type.isURIResource()) {
-						Element typeElem = XMLHelp.newElement(typesElement, "Type");
-						typeElem.setAttribute("class", ontModel.getQName(type.asURIResource().getURI()));
-						String explicit;
-						if (directExplicitTypes.contains(type))
-							explicit = "true";
-						else
-							explicit = "false";
-						typeElem.setAttribute("explicit", explicit);
-					}
+					stTypes.add(STRDFNodeFactory.createSTRDFResource(ontModel, type, true,
+							directExplicitTypes.contains(type), true));
 				}
 
+				RDFXMLHelp.addRDFNodesCollection(typesElement, stTypes);
+
+				// **********
 				// SUPERTYPES
 				if (restype == RDFResourceRolesEnum.cls || restype == RDFResourceRolesEnum.property
 						|| restype == RDFResourceRolesEnum.concept) {
@@ -544,19 +541,13 @@ public abstract class Resource extends ServiceAdapter {
 			// them are explicit
 		}
 
+		Collection<STRDFResource> superTypes = STRDFNodeFactory.createEmptyResourceCollection();
 		for (ARTResource superType : directSuperTypes) {
-			if (superType.isURIResource()) // TODO STARRED: improve to add support for restrictions...
-			{
-				Element superTypeElem = XMLHelp.newElement(superTypesElem, "SuperType");
-				superTypeElem.setAttribute("resource", ontModel.getQName(superType.asURIResource().getURI()));
-				String explicit;
-				if (directExplicitSuperTypes.contains(superType))
-					explicit = "true";
-				else
-					explicit = "false";
-				superTypeElem.setAttribute("explicit", explicit);
-			}
+			superTypes.add(STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
+					directExplicitSuperTypes.contains(superType), true));
 		}
+
+		RDFXMLHelp.addRDFNodesCollection(superTypesElem, superTypes);
 	}
 
 	protected void collectPrefLabels(SKOSModel ontModel,
@@ -580,11 +571,15 @@ public abstract class Resource extends ServiceAdapter {
 
 		topConcepts = ontModel.listTopConceptsInScheme(resource, true, graphs);
 
+		Collection<STRDFResource> topSTConcepts = STRDFNodeFactory.createEmptyResourceCollection();
 		while (topConcepts.streamOpen()) {
 			ARTURIResource topConcept = topConcepts.getNext();
-			RDFXMLHelp.addRDFNodeXMLElement(topConceptsElem, topConcept);
+			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, topConcept,
+					RDFResourceRolesEnum.concept, true, true));
 		}
 		topConcepts.close();
+
+		RDFXMLHelp.addRDFNodesCollection(topConceptsElem, topSTConcepts);
 	}
 
 	protected void collectImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem,
@@ -594,9 +589,14 @@ public abstract class Resource extends ServiceAdapter {
 
 		imports = RDFIterators.getCollectionFromIterator(ontModel.listOntologyImports(ontology, graphs));
 
+		Collection<STRDFResource> topSTConcepts = STRDFNodeFactory.createEmptyResourceCollection();
 		for (ARTURIResource importedOntology : imports) {
-			RDFXMLHelp.addRDFNodeXMLElement(importsElem, ontModel, importedOntology, false, false);
+			
+			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, importedOntology,
+					RDFResourceRolesEnum.ontology, true, true));
+		
 		}
+		RDFXMLHelp.addRDFNodesCollection(importsElem, topSTConcepts);
 	}
 
 	protected String getLanguagePref() {
