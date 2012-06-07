@@ -337,12 +337,10 @@ public class SKOS extends Resource {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
 			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
-
-			skosModel.setTopConcept(concept, scheme, true, getWorkingGraph());
+			skosModel.setTopConcept(concept, scheme, true, getWorkingGraph());			
 			
-			Element dataElement = response.getDataElement();
-			Element conceptElement = XMLHelp.newElement(dataElement, "concept");
-			makeConceptXML(skosModel, concept, conceptElement, true, "en");
+			RDFXMLHelp.attachRDFNodeToResponse(response, createSTConcept(skosModel, concept, true, null));
+			
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {

@@ -42,6 +42,7 @@ import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
+import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -74,6 +75,7 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
@@ -211,7 +213,7 @@ public abstract class Resource extends ServiceAdapter {
 		bannedPredicatesForResourceDescription = new ArrayList<ARTURIResource>();
 
 		bannedPredicatesForResourceDescription.add(RDF.Res.TYPE);
-		
+
 		if (restype == RDFResourceRolesEnum.ontology) {
 			bannedPredicatesForResourceDescription.add(OWL.Res.IMPORTS);
 		} else if (restype == RDFResourceRolesEnum.cls) {
@@ -226,10 +228,11 @@ public abstract class Resource extends ServiceAdapter {
 			bannedPredicatesForResourceDescription
 					.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.BROADERTRANSITIVE);
 			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.PREFLABEL);
-//			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.ALTLABEL);
+			// bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.ALTLABEL);
 		} else if (restype == RDFResourceRolesEnum.conceptScheme) {
 			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.PREFLABEL);
-			bannedPredicatesForResourceDescription.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.HASTOPCONCEPT);			
+			bannedPredicatesForResourceDescription
+					.add(it.uniroma2.art.owlart.vocabulary.SKOS.Res.HASTOPCONCEPT);
 		}
 
 		boolean bnodeFilter = setHttpBooleanPar("bnodeFilter");
@@ -301,8 +304,9 @@ public abstract class Resource extends ServiceAdapter {
 
 				// LABELS
 				if (restype == RDFResourceRolesEnum.concept || restype == RDFResourceRolesEnum.conceptScheme) {
-						Element prefLabelsElem = XMLHelp.newElement(dataElement, "prefLabels");
-						collectPrefLabels((SKOSModel) ontModel, resource.asURIResource(), restype, prefLabelsElem, graphs);
+					Element prefLabelsElem = XMLHelp.newElement(dataElement, "prefLabels");
+					collectPrefLabels((SKOSModel) ontModel, resource.asURIResource(), restype,
+							prefLabelsElem, graphs);
 				}
 
 				// TOPCONCEPTS
@@ -550,13 +554,13 @@ public abstract class Resource extends ServiceAdapter {
 		RDFXMLHelp.addRDFNodesCollection(superTypesElem, superTypes);
 	}
 
-	protected void collectPrefLabels(SKOSModel ontModel,
-			ARTURIResource resource, RDFResourceRolesEnum restype,
-			Element prefLabelsElem, ARTResource... graphs) throws DOMException, ModelAccessException {
+	protected void collectPrefLabels(SKOSModel ontModel, ARTURIResource resource,
+			RDFResourceRolesEnum restype, Element prefLabelsElem, ARTResource... graphs) throws DOMException,
+			ModelAccessException {
 		ARTLiteralIterator prefLabels;
-		
+
 		prefLabels = ontModel.listPrefLabels(resource, true, graphs);
-		
+
 		while (prefLabels.streamOpen()) {
 			ARTLiteral prefLabel = prefLabels.getNext();
 			RDFXMLHelp.addRDFNodeXMLElement(prefLabelsElem, prefLabel);
@@ -591,10 +595,10 @@ public abstract class Resource extends ServiceAdapter {
 
 		Collection<STRDFResource> topSTConcepts = STRDFNodeFactory.createEmptyResourceCollection();
 		for (ARTURIResource importedOntology : imports) {
-			
+
 			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, importedOntology,
 					RDFResourceRolesEnum.ontology, true, true));
-		
+
 		}
 		RDFXMLHelp.addRDFNodesCollection(importsElem, topSTConcepts);
 	}
