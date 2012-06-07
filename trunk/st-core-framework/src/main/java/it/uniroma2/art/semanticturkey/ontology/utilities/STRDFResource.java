@@ -33,6 +33,6 @@ public interface STRDFResource extends STRDFNode {
 
 	RDFResourceRolesEnum getRole();
 	
-	void setRole(RDFResourceRolesEnum role);
+	void setRole(RDFResourceRolesEnum role);	
 	
 }

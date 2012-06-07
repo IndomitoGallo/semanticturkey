@@ -73,7 +73,10 @@ public class SKOS_UT extends ServiceUTFixture {
 	@Test
 	public void testCreateScheme() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.createSchemeRequest,
-				par(SKOS.Par.scheme, "mainScheme"));
+				par(SKOS.Par.scheme, "mainScheme"),
+				par(SKOS.Par.prefLabel, "schema principale"),
+				par(SKOS.Par.langTag, "it")
+		);
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 
@@ -116,6 +119,7 @@ public class SKOS_UT extends ServiceUTFixture {
 				par(SKOS.Par.broaderConcept, "informationStorageTools"));
 
 		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
 
 		resp = serviceTester.statementService.makeRequest(Statement.Req.getStatementsRequest,
 				par(Statement.Par.subjectPar, "any"), par(Statement.Par.predicatePar, "any"),
@@ -150,7 +154,7 @@ public class SKOS_UT extends ServiceUTFixture {
 	@Test
 	public void testGetTopConceptsInScheme() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getTopConceptsRequest,
-				par(SKOS.Par.scheme, "mainScheme"));
+				par(SKOS.Par.scheme, "mainScheme"), par(SKOS.Par.langTag, "it"));
 
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
@@ -199,6 +203,14 @@ public class SKOS_UT extends ServiceUTFixture {
 	}
 
 	@Test
+	public void getAllSchemesListTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getAllSchemesListRequest,
+				par(SKOS.Par.langTag, "it"));
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+
+	@Test
 	public void getSchemesMatrixPerConceptTest() {
 		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getSchemesMatrixPerConceptRequest,
 				par(SKOS.Par.concept, "telecommunicationsTools"), par(SKOS.Par.langTag, "en"));
@@ -206,4 +218,36 @@ public class SKOS_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 	}
 
+	@Test
+	public void getPrefLabelTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getPrefLabelRequest,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.langTag, "it")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+	
+	@Test
+	public void getAddAltLabelTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.addAltLabelRequest,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.label, "dispositivi per le telecomunicazioni"),
+				par(SKOS.Par.langTag, "it")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+	
+	@Test
+	public void getAltLabelsTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getAltLabelsRequest,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.langTag, "it")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+
+	
 }
