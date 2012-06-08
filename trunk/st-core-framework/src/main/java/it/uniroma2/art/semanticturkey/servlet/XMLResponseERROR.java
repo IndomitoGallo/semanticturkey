@@ -29,7 +29,7 @@ package it.uniroma2.art.semanticturkey.servlet;
 import org.w3c.dom.Document;
 
 //Ramon Orrù (2010) : modifica per introduzione nuova gerarchia Response
-public class XMLResponseERROR extends XMLResponseProblem{
+public class XMLResponseERROR extends XMLResponseProblem {
 
 	XMLResponseERROR(Document xml, String request) {
 		super(xml, request);

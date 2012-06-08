@@ -24,10 +24,13 @@
 package it.uniroma2.art.semanticturkey.servlet.utils;
 
 import static org.junit.Assert.fail;
+import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseProblem;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.IOException;
@@ -35,12 +38,79 @@ import java.io.InputStream;
 import java.util.Collection;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class AssertResponses {
 
+	static public void assertBooleanReply(XMLResponse response, boolean expected) {
+		if (!isBooleanReply(response)) {
+			throw new AssertionError(response + " is not a boolean reply");
+		} else {
+			boolean result = Boolean.parseBoolean(getValue(response));
+			if (result != expected)
+				throw new AssertionError("expected values is: " + expected + " while response is: " + result);
+		}
+	}
+
+	static public void assertTrue(XMLResponse response) {
+		assertBooleanReply(response, true);
+	}
+
+	static public void assertFalse(XMLResponse response) {
+		assertBooleanReply(response, false);
+	}
+	
+	static private boolean isBooleanReply(XMLResponse response) {
+		return isReplyOfType(response, XmlSchema.BOOLEAN);
+	}
+
+	static private boolean isReplyOfType(XMLResponse response, String type) {
+		if (isValuedReply(response)) {
+			Element value = getValueElement(response);
+			if (value.getAttribute(ServiceVocabulary.responseType).equals(type))
+				return true;
+		}
+		return false;
+	}
+
+	static private boolean isValuedReply(XMLResponse response) {
+		if (response.isAffirmative()) {
+			return XMLHelp.hasChildElements(((XMLResponseREPLY) response).getDataElement(),
+					ServiceVocabulary.value);
+		}
+		return false;
+	}
+
+	static private Element getValueElement(XMLResponse response) throws IncompatibleResponseException {
+		Collection<Element> values = XMLHelp.getChildElements(((XMLResponseREPLY) response).getDataElement(),
+				ServiceVocabulary.value);
+		if (values.size() > 0) {
+			return values.iterator().next();
+		}
+		throw new IncompatibleResponseException("containing a single value", response);
+	}
+
+	static private String getValue(XMLResponse response) throws IncompatibleResponseException {
+		Element value = getValueElement(response);
+		return value.getTextContent();
+	}
+
+	public static class IncompatibleResponseException extends RuntimeException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8772462887787339353L;
+
+		public IncompatibleResponseException(String expectedResponse, Response response) {
+			super("expected a response: " + expectedResponse + ", found: " + response.toString());
+		}
+
+	}
+
 	/**
-	 * checks that the Response is Affirmative
+	 * checks that the Response is Affirmative (a reply of status OK or with WARNING)
 	 */
 	static public void assertAffirmativeREPLY(Response response) {
 		if (!response.isAffirmative()) {
@@ -151,8 +221,8 @@ public class AssertResponses {
 	}
 
 	/**
-	 * TODO: this does not work because parsStatements produces a collection of statements, and not of strings, so
-	 * the check is if the statement equals a string...
+	 * TODO: this does not work because parsStatements produces a collection of statements, and not of
+	 * strings, so the check is if the statement equals a string...
 	 * 
 	 * @param msg
 	 * @param condition

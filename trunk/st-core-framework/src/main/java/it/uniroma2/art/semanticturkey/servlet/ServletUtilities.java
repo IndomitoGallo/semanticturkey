@@ -29,12 +29,15 @@ import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
+import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.vocabulary.RDF;
+import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
@@ -367,14 +370,33 @@ public class ServletUtilities {
 		return null;
 	}
 
+	/**
+	 * creates a response with a single boolean value returned
+	 * 
+	 * @param request
+	 * @param resp
+	 * @return
+	 */
 	public XMLResponseREPLY createBooleanResponse(String request, boolean resp) {
 		XMLResponseREPLY response = (XMLResponseREPLY) createReplyResponse(request, RepliesStatus.ok,
 				SerializationType.xml);
-		Element dataElem = response.getDataElement();
-		Element booleanResp = XMLHelp.newElement(dataElem, "BooleanValue");
-		booleanResp.setTextContent(Boolean.toString(resp));
+		Element booleanValueElement = createValueElement(response, XmlSchema.BOOLEAN);
+		booleanValueElement.setTextContent(Boolean.toString(resp));
 		return response;
-		
+	}
+
+	/**
+	 * creates an element to host a single typed value in a response
+	 * 
+	 * @param response
+	 * @param type
+	 * @return
+	 */
+	public Element createValueElement(XMLResponseREPLY response, String type) {
+		Element dataElem = response.getDataElement();
+		Element valueElem = XMLHelp.newElement(dataElem, ServiceVocabulary.value);
+		valueElem.setAttribute(ServiceVocabulary.valueType, type);
+		return valueElem;
 	}
 
 	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status) {
@@ -528,10 +550,22 @@ public class ServletUtilities {
 	}
 
 	// TODO I should change this!!!
-	public boolean checkWriteOnly(ARTURIResource res) {
+	public boolean checkReadOnly(ARTURIResource res) {
 		return (
 		// if other namespace than default one, then it is imported, thus write only
-		!(res.getNamespace().equals(ProjectManager.getCurrentProject().getDefaultNamespace())));
+		!(checkWritable(res)));
 	}
+
+	// TODO I should change this!!!
+	public boolean checkWritable(ARTURIResource res) {
+		return (
+		// if other namespace than default one, then it is imported, thus write only
+		res.getNamespace().equals(ProjectManager.getCurrentProject().getDefaultNamespace()));
+	}
+	
+	public boolean checkWritable(RDFModel model, ARTResource res, ARTResource graph) throws ModelAccessException {
+		return model.hasTriple(res, NodeFilters.ANY, NodeFilters.ANY, false, graph);
+	}
+
 
 }

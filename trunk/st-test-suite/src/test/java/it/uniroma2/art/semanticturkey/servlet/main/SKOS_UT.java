@@ -29,6 +29,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import static it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses.*;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 import it.uniroma2.art.semanticturkey.servlet.fixture.ServiceUTFixture;
 import it.uniroma2.art.semanticturkey.servlet.fixture.TestInitializationFailed;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
@@ -274,21 +275,21 @@ public class SKOS_UT extends ServiceUTFixture {
 				par(SKOS.Par.scheme, "anotherScheme")
 		);
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);
+		assertFalse(((XMLResponse)resp));
 		
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.isTopConceptRequest,
 				par(SKOS.Par.concept, "DatabaseSystems"),
 				par(SKOS.Par.scheme, "mainScheme")
 		);
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);
+		assertFalse(((XMLResponse)resp));
 		
 		resp = serviceTester.skosService.makeRequest(SKOS.Req.isTopConceptRequest,
 				par(SKOS.Par.concept, "telecommunicationsTools"),
 				par(SKOS.Par.scheme, "mainScheme")
 		);
 		System.out.println(resp);
-		assertAffirmativeREPLY(resp);
+		assertTrue(((XMLResponse)resp));
 	}
 	
 

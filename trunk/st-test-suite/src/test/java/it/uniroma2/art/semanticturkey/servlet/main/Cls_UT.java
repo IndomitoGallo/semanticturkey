@@ -59,8 +59,8 @@ public class Cls_UT extends ServiceUTFixture {
 
 	@Test
 	public void getClassDescriptionTest() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.classDescriptionRequest, par(
-				Cls.clsQNameField, "heritage:concert_place"), par("method", Cls.templateandvalued));
+		Response resp = serviceTester.clsService.makeRequest(Cls.classDescriptionRequest,
+				par(Cls.clsQNameField, "heritage:concert_place"), par("method", Cls.templateandvalued));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
@@ -69,9 +69,7 @@ public class Cls_UT extends ServiceUTFixture {
 	public void getClassAndInstancesInfoTest() {
 
 		Response resp = serviceTester.clsService.makeRequest(Cls.getClassAndInstancesInfoRequest,
-				par(Cls.clsQNameField, "st_example:Organization"),
-				par(Cls.hasSubClassesPar, "true")				
-		);
+				par(Cls.clsQNameField, "st_example:Organization"), par(Cls.hasSubClassesPar, "true"));
 
 		assertAffirmativeREPLY(resp);
 
@@ -86,16 +84,16 @@ public class Cls_UT extends ServiceUTFixture {
 	@Test
 	public void getClassesInfoAsRootsForTreeTest() {
 
-		Response resp = serviceTester.clsService.makeRequest(Cls.getClassesInfoAsRootsForTreeRequest, par(
-				Cls.clsesQNamesPar, "owl:Thing|_|st_example:Person"));
+		Response resp = serviceTester.clsService.makeRequest(Cls.getClassesInfoAsRootsForTreeRequest,
+				par(Cls.clsesQNamesPar, "owl:Thing|_|st_example:Person"));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}
 
 	@Test
 	public void getSubClassesUsingEnglishLabelsTest() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest, par(Cls.clsQNameField,
-				"heritage:cultural"), par(Cls.treePar, "true"),
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
+				par(Cls.clsQNameField, "heritage:cultural"), par(Cls.treePar, "true"),
 				par(Cls.labelQueryPar, "prop:rdfs:label###en"));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
@@ -103,9 +101,18 @@ public class Cls_UT extends ServiceUTFixture {
 
 	@Test
 	public void getSubClassesUsingItalianLabelsTest() {
-		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest, par(Cls.clsQNameField,
-				"heritage:cultural"), par(Cls.treePar, "true"),
-				par(Cls.labelQueryPar, "prop:rdfs:label###it"));
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSubClassesRequest,
+				par(Cls.clsQNameField, "heritage:cultural"), par(Cls.treePar, "true"),
+				par(Cls.labelQueryPar, "prop:rdfs:label###it")
+		);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	}
+
+	@Test
+	public void getSuperClassesTest() {
+		Response resp = serviceTester.clsService.makeRequest(Cls.getSuperClassesRequest,
+				par(Cls.clsQNameField, "heritage:concert_place"));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
 	}

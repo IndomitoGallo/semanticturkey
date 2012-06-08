@@ -269,6 +269,20 @@ public class XMLHelp {
 	}
 
 	/**
+	 * tells if <code>parent</code> element has at least a child with name equals to <code>tagName</code>
+	 * 
+	 * @param parent
+	 * @param tagName
+	 * @return
+	 */
+	public static boolean hasChildElements(Element parent, String tagName) {
+		NodeList nl = parent.getElementsByTagName(tagName);
+		if (nl.getLength() != 0)
+			return true;
+		return false;
+	}
+
+	/**
 	 * simplifies XML querying/casting/etc.. by returning a collection of all Elements which are child of
 	 * <code>parent</code> and have their name equal to <code>tagName</code>
 	 * 

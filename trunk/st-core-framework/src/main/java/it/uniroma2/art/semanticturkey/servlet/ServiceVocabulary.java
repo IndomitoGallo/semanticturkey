@@ -42,6 +42,16 @@ public class ServiceVocabulary {
     public final static String type_error = "error";    
     public final static String type_reply = "reply";
     
+    public final static String value = "value";
+    public final static String valueType = "type";
+    
+    public final static String booleanType = "boolean";
+    public final static String integerType = "integer";
+    public final static String stringType = "string";
+    public final static String charType = "char";
+    public final static String nonNegativeIntegerType = "nonNegativeInteger";
+    
+    
     //possible replies
     public static enum RepliesStatus { ok, fail, warning }
     //Ramon Orrù(2010): possible response serialization
