@@ -29,8 +29,8 @@ import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.DirectReasoning;
+import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
@@ -46,10 +46,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,295 +87,10 @@ public class ServletUtilities {
 			ARTResource instance = (ARTResource) IteratorInstances.getNext();
 			Element instanceElement = XMLHelp.newElement(instances, "Instance");
 			if (instance.isURIResource()) {
-				instanceElement.setAttribute("name", this
-						.decodeLabel(instance.asURIResource().getLocalName()));
+				instanceElement.setAttribute("name",
+						this.decodeLabel(instance.asURIResource().getLocalName()));
 			}
 		}
-	}
-
-	/**
-	 * Crea il grafico inserendo ricorsivamente la lista di archi e nodi in due strutture Element
-	 * 
-	 * @param SesameOWLModelImpl
-	 *            repository
-	 * @param String
-	 *            id
-	 * @param Map
-	 *            map
-	 * @param Set
-	 *            set
-	 * @param Resource
-	 *            resource
-	 * @param Element
-	 *            nodeset: lista dei nodi del grafo
-	 * @param Element
-	 *            edgeset: lista degli archi del grafo
-	 * @throws ModelAccessException
-	 */
-	public void createXMLGraph(OWLModel repository, ARTResource cls, Map<String, String> map, String id,
-			Set<String> set, Element nodeset, Element edgeset) throws ModelAccessException {
-		ARTResourceIterator subClassesIterator = ((DirectReasoning) repository).listDirectSubClasses(cls);
-		ARTResourceIterator instancesIterator = ((DirectReasoning) repository).listDirectInstances(cls);
-
-		while (subClassesIterator.streamOpen()) {
-			ARTResource subClass = subClassesIterator.getNext();
-			if (subClass.isURIResource()) {
-				String classID = createXMLElementClassGraph(repository.getQName(subClass.asURIResource()
-						.getURI()), id, set, nodeset, edgeset);
-				createXMLGraph(repository, subClass, map, classID, set, nodeset, edgeset);
-			}
-		}
-		while (instancesIterator.streamOpen()) {
-			ARTResource instance = instancesIterator.getNext();
-			if (instance.isURIResource())
-				createXMLElementIstanceGraph(repository, instance.asURIResource(), map, set, id, nodeset,
-						edgeset);
-			/*
-			 * //FRA repository.getQName(istance.getURI()) Francesca Fallucchi STStatementIterator stit =
-			 * repository.getStatements(instance, null, null); while (stit.hasNext()) { STStatement st =
-			 * stit.next(); STResource valuedProperty = st.getPredicate();
-			 * 
-			 * if(repository.isObjectProperty(valuedProperty)){ //FRA propertyName WorksInCompany String
-			 * propertyName = repository.getQName( valuedProperty.getURI()); //FRA ranges Organization
-			 * Iterator<STResource> ranges = repository.getPropertyRanges(valuedProperty); //FRA valueProperty
-			 * Univertity String valueProperty = repository.getQName( st.getObject().toString() ); } }
-			 */
-		}
-	}
-
-	public void createXMLRootElementGraph(String id, Element nodeset) {
-		Element node = XMLHelp.newElement(nodeset, "NODE");
-		node.setAttribute("nodeID", "AutoID " + id);
-
-		Element node_location = XMLHelp.newElement(node, "NODE_LOCATION");
-		node_location.setAttribute("x", "384");
-		node_location.setAttribute("y", "70");
-		node_location.setAttribute("visible", "true");
-
-		Element node_label = XMLHelp.newElement(node, "NODE_LABEL");
-		node_label.setAttribute("label", null);
-		node_label.setAttribute("classIcon",
-				"http://127.0.0.1:1979/semantic_turkey/resources/applet/turkeyCircle.gif");
-
-	}
-
-	public String createXMLElementClassGraph(String cls, String id, Set<String> set, Element nodeset,
-			Element edgeset) {
-
-		Element node = XMLHelp.newElement(nodeset, "NODE");
-		UUID uuid = null;
-		do {
-			uuid = UUID.randomUUID();
-		} while (set.add(uuid.toString()) == false);
-
-		String classID = uuid.toString();
-
-		node.setAttribute("nodeID", "AutoID " + uuid.toString());
-
-		Element node_location = XMLHelp.newElement(node, "NODE_LOCATION");
-		node_location.setAttribute("x", "384");
-		node_location.setAttribute("y", "70");
-		node_location.setAttribute("visible", "true");
-
-		Element node_label = XMLHelp.newElement(node, "NODE_LABEL");
-		node_label.setAttribute("label", cls);
-		node_label.setAttribute("shape", "4");
-		node_label.setAttribute("backColor", "cc9f2a");
-		node_label.setAttribute("textColor", "000000");
-		node_label.setAttribute("fontSize", "15");
-		node_label.setAttribute("font", "Times");
-		node_label.setAttribute("fontStyle", "1");
-		node_label.setAttribute("imageURL", null);
-		node_label.setAttribute("classIcon",
-				"http://127.0.0.1:1979/semantic_turkey/resources/applet/turkeyCircle.gif");
-
-		Element node_url = XMLHelp.newElement(node, "NODE_URL");
-		node_url.setAttribute("url", "");
-		node_url.setAttribute("urlIsLocal", "false");
-		node_url.setAttribute("urlIsXML", "false");
-
-		Element node_hint = XMLHelp.newElement(node, "NODE_HINT");
-		node_hint.setAttribute("hint", "");
-		node_hint.setAttribute("width", "150");
-		node_hint.setAttribute("height", "-1");
-		node_hint.setAttribute("isHTML", "true");
-
-		Element edge = XMLHelp.newElement(edgeset, "EDGE");
-		edge.setAttribute("fromID", "AutoID " + id);
-		edge.setAttribute("toID", "AutoID " + classID);
-		edge.setAttribute("type", "1");
-		edge.setAttribute("length", "30");
-		edge.setAttribute("visible", "true");
-		edge.setAttribute("color", "A0A0A0");
-
-		return classID;
-	}
-
-	void createXMLElementIstanceGraph(OWLModel repository, ARTURIResource instance, Map<String, String> map,
-			Set<String> set, String id, Element nodeset, Element edgeset) throws ModelAccessException {
-		Element node = XMLHelp.newElement(nodeset, "NODE");
-		UUID uuid = null;
-		do {
-			uuid = UUID.randomUUID();
-		} while (set.add(uuid.toString()) == false);
-
-		map.put(repository.getQName(instance.getURI()), uuid.toString());
-
-		node.setAttribute("nodeID", "AutoID " + uuid.toString());
-		Element node_location = XMLHelp.newElement(node, "NODE_LOCATION");
-		node_location.setAttribute("x", "384");
-		node_location.setAttribute("y", "70");
-		node_location.setAttribute("visible", "true");
-
-		Element node_label = XMLHelp.newElement(node, "NODE_LABEL");
-		node_label.setAttribute("label", repository.getQName(instance.getURI()));
-		node_label.setAttribute("shape", "2");
-		node_label.setAttribute("backColor", "531852");
-		node_label.setAttribute("textColor", "FFFFFF");
-		node_label.setAttribute("fontSize", "14");
-		node_label.setAttribute("font", "Comics");
-		node_label.setAttribute("fontStyle", "2");
-		node_label.setAttribute("imageURL", null);
-		// node_label.setAttribute("iconPath",null);
-
-		Element node_url = XMLHelp.newElement(node, "NODE_URL");
-		node_url.setAttribute("url", "");
-		node_url.setAttribute("urlIsLocal", "false");
-		node_url.setAttribute("urlIsXML", "false");
-
-		Element node_hint = XMLHelp.newElement(node, "NODE_HINT");
-
-		Iterator<String[]> it = this.getUrlPageTitle(repository, instance).iterator();
-		String hintDescription = new String("Urls:\n");
-		while (it.hasNext()) {
-			String[] strings = (String[]) it.next();
-			hintDescription = hintDescription.concat("<a href=\"" + strings[0] + "\">" + strings[1]
-					+ "</a>\n");
-		}
-		node_hint.setAttribute("hint", hintDescription);
-		node_hint.setAttribute("width", "200");
-		node_hint.setAttribute("height", "-1");
-		node_hint.setAttribute("isHTML", "true");
-
-		Element edge = XMLHelp.newElement(edgeset, "EDGE");
-		edge.setAttribute("fromID", "AutoID " + id);
-		edge.setAttribute("toID", "AutoID " + uuid.toString());
-		edge.setAttribute("type", "1");
-		edge.setAttribute("length", "50");
-		edge.setAttribute("visible", "true");
-		edge.setAttribute("color", "A0A0A0");
-
-	}
-
-	public void createXMLElementPropertyGraph(OWLModel repository, Map<String, String> map, Set<String> set,
-			Element nodeset, Element edgeset) throws ModelAccessException {
-		Set<String> entrySet = map.keySet();
-		Iterator<String> it = entrySet.iterator();
-		while (it.hasNext()) {
-			String instanceQName = (String) it.next();
-			String id = (String) map.get(instanceQName);
-			Map<String, ArrayList<String>> propertyMap = this.getInstanceProperties(repository, repository
-					.createURIResource(repository.expandQName(instanceQName)));
-			Set<String> propertyMapEntrySet = propertyMap.keySet();
-			Iterator<String> it2 = propertyMapEntrySet.iterator();
-			while (it2.hasNext()) {
-				String propertyName = (String) it2.next();
-				logger.debug("propertyName = " + propertyName);
-				UUID uuid = null;
-				do {
-					uuid = UUID.randomUUID();
-				} while (set.add(uuid.toString()) == false);
-
-				Collection<String> collection = propertyMap.get(propertyName);
-				Iterator<String> it3 = collection.iterator();
-				String id2 = null;
-				int i = 0;
-				while (it3.hasNext()) {
-					id2 = (String) map.get(it3.next());
-					logger.debug("id2 = " + id2);
-					if (id2 != null)
-						break;
-					i++;
-				}
-				if (i == collection.size()) {
-					continue;
-				}
-
-				Element node = XMLHelp.newElement(nodeset, "NODE");
-				node.setAttribute("nodeID", "AutoID " + uuid.toString());
-
-				Element node_location = XMLHelp.newElement(node, "NODE_LOCATION");
-				node_location.setAttribute("x", "384");
-				node_location.setAttribute("y", "70");
-				node_location.setAttribute("visible", "true");
-
-				Element node_label = XMLHelp.newElement(node, "NODE_LABEL");
-				node_label.setAttribute("label", propertyName);
-				node_label.setAttribute("shape", "1");
-				node_label.setAttribute("backColor", "2977a7");
-				node_label.setAttribute("textColor", "FFFFFF");
-				node_label.setAttribute("fontSize", "14");
-				node_label.setAttribute("font", "Arial");
-				node_label.setAttribute("fontStyle", "2");
-				node_label.setAttribute("imageURL", null);
-				// node_label.setAttribute("iconPath",null);
-
-				Element node_url = XMLHelp.newElement(node, "NODE_URL");
-				node_url.setAttribute("url", "");
-				node_url.setAttribute("urlIsLocal", "false");
-				node_url.setAttribute("urlIsXML", "false");
-
-				Element node_hint = XMLHelp.newElement(node, "NODE_HINT");
-				node_hint.setAttribute("hint", "");
-				node_hint.setAttribute("width", "150");
-				node_hint.setAttribute("height", "-1");
-				node_hint.setAttribute("isHTML", "true");
-
-				for (;;) {
-					Element edge = XMLHelp.newElement(edgeset, "EDGE");
-					edge.setAttribute("fromID", "AutoID " + id);
-					edge.setAttribute("toID", "AutoID " + uuid.toString());
-					edge.setAttribute("type", "1");
-					edge.setAttribute("length", "30");
-					edge.setAttribute("visible", "true");
-					edge.setAttribute("color", "A0A0A0");
-
-					edge = XMLHelp.newElement(edgeset, "EDGE");
-					edge.setAttribute("fromID", "AutoID " + uuid.toString());
-					edge.setAttribute("toID", "AutoID " + id2);
-					edge.setAttribute("type", "1");
-					edge.setAttribute("length", "30");
-					edge.setAttribute("visible", "true");
-					edge.setAttribute("color", "A0A0A0");
-					if (it3.hasNext()) {
-						id2 = (String) map.get(it3.next());
-						if (id2 == null)
-							continue;
-					} else
-						break;
-				}
-			}
-		}
-	}
-
-	public void setXMLParametersGraph(Element touchgraph) {
-		Element parameters = XMLHelp.newElement(touchgraph, "PARAMETERS");
-		Element param = XMLHelp.newElement(parameters, "PARAM");
-		param.setAttribute("name", "offsetX");
-		param.setAttribute("value", "627");
-
-		param = XMLHelp.newElement(parameters, "PARAM");
-		param.setAttribute("name", "rotateSB");
-		param.setAttribute("value", "0");
-
-		param = XMLHelp.newElement(parameters, "PARAM");
-		param.setAttribute("name", "zoomSB");
-		param.setAttribute("value", "-7");
-
-		param = XMLHelp.newElement(parameters, "PARAM");
-		param.setAttribute("name", "offsetY");
-		param.setAttribute("value", "19");
-
 	}
 
 	/**
@@ -385,7 +98,7 @@ public class ServletUtilities {
 	 * 
 	 * @param SesameOWLModelImpl
 	 *            repository
-	 *@param Resource
+	 * @param Resource
 	 *            instanceRes
 	 * @throws ModelAccessException
 	 */
@@ -443,9 +156,9 @@ public class ServletUtilities {
 	 * 
 	 * @param SesameOWLModelImpl
 	 *            repository
-	 *@param Resource
+	 * @param Resource
 	 *            instance
-	 *@return Map map
+	 * @return Map map
 	 * @throws ModelAccessException
 	 */
 
@@ -493,7 +206,7 @@ public class ServletUtilities {
 	 * 
 	 * @param String
 	 *            s
-	 *@return String t
+	 * @return String t
 	 */
 	String trim(String s) {
 		// pre: s!=null
@@ -551,7 +264,7 @@ public class ServletUtilities {
 	 * 
 	 * @param String
 	 *            label
-	 *@return String label
+	 * @return String label
 	 */
 	public String encodeLabel(String label) {
 		label = trim(label);
@@ -565,7 +278,7 @@ public class ServletUtilities {
 	 * 
 	 * @param String
 	 *            label
-	 *@return String label
+	 * @return String label
 	 */
 	public String decodeLabel(String label) {
 		label = label.replace("%3A", ":");
@@ -578,7 +291,7 @@ public class ServletUtilities {
 	 * 
 	 * @param String
 	 *            label
-	 *@return String label
+	 * @return String label
 	 */
 	public String removeInstNumberParentheses(String label) {
 		int indexOfParenthesis = label.indexOf("(");
@@ -593,7 +306,7 @@ public class ServletUtilities {
 	 * 
 	 * @param String
 	 *            string
-	 *@return String string
+	 * @return String string
 	 */
 	String normalize(String string) {
 		int index = string.lastIndexOf("%");
@@ -652,6 +365,16 @@ public class ServletUtilities {
 			}
 		}
 		return null;
+	}
+
+	public XMLResponseREPLY createBooleanResponse(String request, boolean resp) {
+		XMLResponseREPLY response = (XMLResponseREPLY) createReplyResponse(request, RepliesStatus.ok,
+				SerializationType.xml);
+		Element dataElem = response.getDataElement();
+		Element booleanResp = XMLHelp.newElement(dataElem, "BooleanValue");
+		booleanResp.setTextContent(Boolean.toString(resp));
+		return response;
+		
 	}
 
 	public XMLResponseREPLY createReplyResponse(String request, RepliesStatus status) {

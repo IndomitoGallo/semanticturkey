@@ -44,6 +44,10 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 /**
+ * This class has nothing to do with the RDFXML standard for serializing RDF graphs.<br/>
+ * 
+ * It contains instead facility methods for rendering the description of RDF nodes in XML, according to the
+ * syntax used in Semantic Turkey's service's response<br/>
  * 
  * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a>
  * 
@@ -51,10 +55,8 @@ import org.w3c.dom.Element;
 public class RDFXMLHelp {
 
 	/**
-	 * This method has nothing to do with the RDFXML standard for serializing RDF graphs.<br/>
-	 * 
-	 * It simply renders the description of a RDF node under a single XML Element, and additional information
-	 * that needs to be presented can be defined in the request. <br/>
+	 * This method renders the description of a RDF node under a single XML Element, and additional
+	 * information that needs to be presented can be defined in the request. <br/>
 	 * First, the nature ({@link RDFTypesEnum}) of the node is revealed, among:
 	 * <ul>
 	 * <li>uri</li>
@@ -92,7 +94,7 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element addRDFNodeXMLElement(Element parent, RDFModel model, ARTNode node, boolean role,
+	public static Element addRDFNode(Element parent, RDFModel model, ARTNode node, boolean role,
 			boolean rendering) throws DOMException, ModelAccessException {
 		Element nodeElement;
 		if (node.isResource()) {
@@ -134,7 +136,15 @@ public class RDFXMLHelp {
 		return nodeElement;
 	}
 
-	public static Element addRDFNodeXMLElement(Element parent, STRDFResource node) throws DOMException {
+	/**
+	 * serializes an STRDFResource under <code>parent</code> XML element
+	 * 
+	 * @param parent
+	 * @param node
+	 * @return
+	 * @throws DOMException
+	 */
+	public static Element addRDFResource(Element parent, STRDFResource node) throws DOMException {
 		Element nodeElement;
 		if (node.isURIResource()) {
 			nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.uri.toString());
@@ -149,15 +159,23 @@ public class RDFXMLHelp {
 		String rendering = node.getRendering();
 		if (rendering != null)
 			nodeElement.setAttribute("show", rendering);
-		
-		nodeElement.setAttribute("explicit", Boolean.toString(node.isExplicit()));		
+
+		nodeElement.setAttribute("explicit", Boolean.toString(node.isExplicit()));
 
 		serializeMap(nodeElement, node);
 
 		return nodeElement;
 	}
 
-	public static Element addRDFNodeXMLElement(Element parent, STRDFLiteral node) throws DOMException {
+	/**
+	 * serializes an STRDFLiteral under <code>parent</code> XML element
+	 * 
+	 * @param parent
+	 * @param node
+	 * @return
+	 * @throws DOMException
+	 */
+	public static Element addRDFLiteral(Element parent, STRDFLiteral node) throws DOMException {
 		Element nodeElement;
 
 		if (node.isTypedLiteral()) {
@@ -181,26 +199,51 @@ public class RDFXMLHelp {
 		return nodeElement;
 	}
 
-	public static Element addRDFNodeXMLElement(Element parent, ARTNode node) throws DOMException,
-			ModelAccessException {
-		return addRDFNodeXMLElement(parent, null, node, false, false);
-	}
-
-	public static Element addRDFNodeXMLElement(Element parent, STRDFNode node) throws DOMException {
-		if (node.isResource())
-			return addRDFNodeXMLElement(parent, (STRDFResource) node);
-		else
-			return addRDFNodeXMLElement(parent, (STRDFLiteral) node);
-
-	}
-
-	public static Element attachRDFNodeToResponse(XMLResponseREPLY resp, STRDFNode node)
-			throws DOMException {
-		Element dataElement = resp.getDataElement();
-		return addRDFNodeXMLElement(dataElement, node);
+	/**
+	 * serializes an ARTNode under an XML Element
+	 * 
+	 * @param parent
+	 * @param node
+	 * @return
+	 * @throws DOMException
+	 * @throws ModelAccessException
+	 */
+	public static Element addRDFNode(Element parent, ARTNode node) throws DOMException, ModelAccessException {
+		return addRDFNode(parent, null, node, false, false);
 	}
 
 	/**
+	 * serializes a STRDFNode under an XML Element
+	 * 
+	 * @param parent
+	 * @param node
+	 * @return
+	 * @throws DOMException
+	 */
+	public static Element addRDFNode(Element parent, STRDFNode node) throws DOMException {
+		if (node.isResource())
+			return addRDFResource(parent, (STRDFResource) node);
+		else
+			return addRDFLiteral(parent, (STRDFLiteral) node);
+
+	}
+
+	/**
+	 * serializes an STRDFNode into a response
+	 * 
+	 * @param resp
+	 * @param node
+	 * @return
+	 * @throws DOMException
+	 */
+	public static <RDFType extends STRDFNode> Element addRDFNode(XMLResponseREPLY resp, RDFType node)
+			throws DOMException {
+		Element dataElement = resp.getDataElement();
+		return addRDFNode(dataElement, node);
+	}
+
+	/**
+	 * serializes the iterator under a specific XML Element<br/>
 	 * this method closes the iterator
 	 * 
 	 * @param parent
@@ -212,34 +255,71 @@ public class RDFXMLHelp {
 	 * @throws DOMException
 	 * @throws ModelAccessException
 	 */
-	public static Element addRDFNodesCollection(Element parent, RDFModel model, RDFIterator<ARTNode> nodes,
-			boolean role, boolean rendering) throws DOMException, ModelAccessException {
+	public static <RDFType extends ARTNode> Element addRDFNodes(Element parent, RDFModel model,
+			RDFIterator<RDFType> nodes, boolean role, boolean rendering) throws DOMException,
+			ModelAccessException {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
 		while (nodes.streamOpen()) {
-			addRDFNodeXMLElement(collectionElement, model, nodes.getNext(), role, rendering);
+			addRDFNode(collectionElement, model, nodes.getNext(), role, rendering);
 		}
 		nodes.close();
 		return collectionElement;
 	}
 
-	public static <RDFType extends STRDFNode> Element addRDFNodesCollection(Element parent,
-			Collection<RDFType> nodes) {
+	/**
+	 * serializes the collection under a specific XML Element
+	 * 
+	 * @param parent
+	 * @param nodes
+	 * @return
+	 */
+	public static <RDFType extends STRDFNode> Element addRDFNodes(Element parent, Collection<RDFType> nodes) {
 		Element collectionElement = XMLHelp.newElement(parent, "collection");
 		for (RDFType node : nodes) {
-			addRDFNodeXMLElement(collectionElement, node);
+			addRDFNode(collectionElement, node);
 		}
 		return collectionElement;
 	}
 
-	public static <RDFType extends STRDFNode> Element attachRDFCollectionToResponse(XMLResponseREPLY resp,
+	/**
+	 * serializes the collection in a response
+	 * 
+	 * @param resp
+	 * @param nodes
+	 * @return
+	 */
+	public static <RDFType extends STRDFNode> Element addRDFNodes(XMLResponseREPLY resp,
 			Collection<RDFType> nodes) {
 		Element dataElement = resp.getDataElement();
 		Element collectionElement = XMLHelp.newElement(dataElement, "collection");
 		for (RDFType node : nodes) {
-			addRDFNodeXMLElement(collectionElement, node);
+			addRDFNode(collectionElement, node);
 		}
 		return collectionElement;
 	}
+
+	/**
+	 * serializes the collection in a response under a given identifier named after argument
+	 * <code>collectionName</code>
+	 * 
+	 * @param resp
+	 * @param collectionName
+	 * @param nodes
+	 * @return the XML element created after <code>collectionName</code> and wrapping the serialized
+	 *         collection
+	 */
+	public static <RDFType extends STRDFNode> Element addRDFNodes(XMLResponseREPLY resp,
+			String collectionName, Collection<RDFType> nodes) {
+		Element dataElement = resp.getDataElement();
+		Element collectionNameElem = XMLHelp.newElement(dataElement, collectionName);
+		addRDFNodes(collectionNameElem, nodes);
+		return collectionNameElem;
+	}
+	
+	
+	
+	
+	
 
 	private static void serializeMap(Element rdfNodeXMLElement, STRDFNode node) {
 		Map<String, String> info = node.getInfo();
@@ -248,5 +328,5 @@ public class RDFXMLHelp {
 				rdfNodeXMLElement.setAttribute(entry.getKey(), entry.getValue());
 			}
 	}
-	
+
 }

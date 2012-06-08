@@ -47,7 +47,6 @@ public class ServletBundle implements BundleActivator {
 		context.registerService(ServiceInterface.class.getName(), new Annotation("annotation"), null);
 		context.registerService(ServiceInterface.class.getName(), new Cls("cls"), null);
 		context.registerService(ServiceInterface.class.getName(), new Delete("delete"), null);
-		context.registerService(ServiceInterface.class.getName(), new Graph("graph"), null);
 		context.registerService(ServiceInterface.class.getName(), new Individual("individual"), null);
 		context.registerService(ServiceInterface.class.getName(), new InputOutput("inputOutput"), null);
 		context.registerService(ServiceInterface.class.getName(), new Metadata("metadata"), null);

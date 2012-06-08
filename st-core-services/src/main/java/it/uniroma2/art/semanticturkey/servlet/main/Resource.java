@@ -292,7 +292,7 @@ public abstract class Resource extends ServiceAdapter {
 							directExplicitTypes.contains(type), true));
 				}
 
-				RDFXMLHelp.addRDFNodesCollection(typesElement, stTypes);
+				RDFXMLHelp.addRDFNodes(typesElement, stTypes);
 
 				// **********
 				// SUPERTYPES
@@ -361,7 +361,7 @@ public abstract class Resource extends ServiceAdapter {
 					for (ARTNode value : (Collection<ARTNode>) propertyValuesMap.get(prop)) {
 						logger.debug("resource viewer: writing value: " + value + " for property: " + prop);
 
-						Element valueElem = RDFXMLHelp.addRDFNodeXMLElement(propertyElem, ontModel, value,
+						Element valueElem = RDFXMLHelp.addRDFNode(propertyElem, ontModel, value,
 								true, true);
 
 						// EXPLICIT-STATUS ASSIGNMENT
@@ -423,7 +423,7 @@ public abstract class Resource extends ServiceAdapter {
 		while (ranges.hasNext()) {
 			ARTResource nextRange = ranges.next();
 			rangesSet.add(nextRange);
-			Element rangeElement = RDFXMLHelp.addRDFNodeXMLElement(rangesElement, ontModel, nextRange, true,
+			Element rangeElement = RDFXMLHelp.addRDFNode(rangesElement, ontModel, nextRange, true,
 					visualization);
 			if (explicitRanges.contains(nextRange))
 				rangeElement.setAttribute("explicit", "true");
@@ -551,7 +551,7 @@ public abstract class Resource extends ServiceAdapter {
 					directExplicitSuperTypes.contains(superType), true));
 		}
 
-		RDFXMLHelp.addRDFNodesCollection(superTypesElem, superTypes);
+		RDFXMLHelp.addRDFNodes(superTypesElem, superTypes);
 	}
 
 	protected void collectPrefLabels(SKOSModel ontModel, ARTURIResource resource,
@@ -563,7 +563,7 @@ public abstract class Resource extends ServiceAdapter {
 
 		while (prefLabels.streamOpen()) {
 			ARTLiteral prefLabel = prefLabels.getNext();
-			RDFXMLHelp.addRDFNodeXMLElement(prefLabelsElem, prefLabel);
+			RDFXMLHelp.addRDFNode(prefLabelsElem, prefLabel);
 		}
 	}
 
@@ -583,7 +583,7 @@ public abstract class Resource extends ServiceAdapter {
 		}
 		topConcepts.close();
 
-		RDFXMLHelp.addRDFNodesCollection(topConceptsElem, topSTConcepts);
+		RDFXMLHelp.addRDFNodes(topConceptsElem, topSTConcepts);
 	}
 
 	protected void collectImports(OWLModel ontModel, ARTURIResource ontology, Element importsElem,
@@ -600,7 +600,7 @@ public abstract class Resource extends ServiceAdapter {
 					RDFResourceRolesEnum.ontology, true, true));
 
 		}
-		RDFXMLHelp.addRDFNodesCollection(importsElem, topSTConcepts);
+		RDFXMLHelp.addRDFNodes(importsElem, topSTConcepts);
 	}
 
 	protected String getLanguagePref() {
