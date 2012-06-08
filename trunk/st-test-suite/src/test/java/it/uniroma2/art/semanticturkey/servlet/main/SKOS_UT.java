@@ -248,6 +248,49 @@ public class SKOS_UT extends ServiceUTFixture {
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
 	}
+	
+	@Test
+	public void getBroaderConceptsTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.getBroaderConceptsRequest,
+				par(SKOS.Par.concept, "DatabaseSystems"));
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+
+		resp = serviceTester.skosService.makeRequest(SKOS.Req.getBroaderConceptsRequest,
+				par(SKOS.Par.concept, "DatabaseSystems"), par(SKOS.Par.scheme, "anotherScheme"));
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+
+		resp = serviceTester.skosService.makeRequest(SKOS.Req.getBroaderConceptsRequest,
+				par(SKOS.Par.concept, "DatabaseSystems"), par(SKOS.Par.scheme, "whichScheme?"));
+		System.out.println(resp);
+		assertResponseEXCEPTION(resp);
+	}
+	
+	@Test
+	public void isTopConceptTest() {
+		Response resp = serviceTester.skosService.makeRequest(SKOS.Req.isTopConceptRequest,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.scheme, "anotherScheme")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.skosService.makeRequest(SKOS.Req.isTopConceptRequest,
+				par(SKOS.Par.concept, "DatabaseSystems"),
+				par(SKOS.Par.scheme, "mainScheme")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.skosService.makeRequest(SKOS.Req.isTopConceptRequest,
+				par(SKOS.Par.concept, "telecommunicationsTools"),
+				par(SKOS.Par.scheme, "mainScheme")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+	
 
 	
 }

@@ -201,6 +201,10 @@ public abstract class ServiceAdapter implements ServiceInterface {
 
 	// RESPONSE PACKAGING
 
+	protected XMLResponseREPLY createBooleanResponse(boolean resp) {
+		return servletUtilities.createBooleanResponse(httpParameters.get("request"), resp);
+	}
+	
 	protected XMLResponseREPLY createReplyResponse(RepliesStatus status) {
 		return servletUtilities.createReplyResponse(httpParameters.get("request"), status);
 	}

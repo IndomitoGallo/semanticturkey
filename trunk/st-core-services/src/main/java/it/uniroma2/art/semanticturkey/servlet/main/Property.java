@@ -752,7 +752,7 @@ public class Property extends Resource {
 			Element dataElement = response.getDataElement();
 			ARTLiteralIterator it = ontModel.parseDataRange(dataRange, NodeFilters.MAINGRAPH);
 			while (it.streamOpen()) {
-				RDFXMLHelp.addRDFNodeXMLElement(dataElement, ontModel, it.getNext(), false, true);
+				RDFXMLHelp.addRDFNode(dataElement, ontModel, it.getNext(), false, true);
 			}
 			it.close();
 			return response;
