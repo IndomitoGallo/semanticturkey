@@ -407,7 +407,7 @@ public class Property extends Resource {
 		logger.trace("\t" + property);
 		ServletUtilities servletUtilities = new ServletUtilities();
 		Element propElement = XMLHelp.newElement(element, "Property");
-		boolean deleteForbidden = servletUtilities.checkWriteOnly(property);
+		boolean deleteForbidden = servletUtilities.checkReadOnly(property);
 		propElement.setAttribute("name", ontModel.getQName(property.getURI()));
 
 		propElement.setAttribute("type", type);

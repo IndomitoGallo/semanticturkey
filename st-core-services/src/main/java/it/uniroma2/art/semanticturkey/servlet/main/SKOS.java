@@ -794,7 +794,7 @@ public class SKOS extends Resource {
 				it = unfilteredIt;
 			}
 
-			Collection<STRDFResource> concepts = new ArrayList<STRDFResource>();
+			Collection<STRDFResource> concepts = STRDFNodeFactory.createEmptyResourceCollection();
 
 			// I would prefer to have some mappable operation, so to include the call to decorateForTreeView,
 			// to a general method for creating collections of STNodes starting from iterators over ARTNodes

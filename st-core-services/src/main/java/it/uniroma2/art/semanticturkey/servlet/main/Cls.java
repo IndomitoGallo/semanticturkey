@@ -28,12 +28,14 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.filter.URIResourcePredicate;
+import it.uniroma2.art.owlart.io.RDFNodeSerializer;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
@@ -47,6 +49,9 @@ import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -234,110 +239,48 @@ public class Cls extends Resource {
 
 		try {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-			Element dataElement = response.getDataElement();
 
 			ARTResource[] graphs = getUserNamedGraphs();
+			ARTResource wgraph = getWorkingGraph();
 			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
 
+			// THIS IS DONE HERE AS THIS DATA IS CALCULATED ONCE, while each single rendering is calculated
+			// per class
 			// TODO I would replace this with a general check attached to the idea of creating representation
-			// of resources
+			// of resources. I would create a class for describing "representation makers" with an interface
+			// method for getting the representation. I would also create a factory which returns the
+			// appropriate "repmaker" depending on the passed labelQuery
 			ARTURIResource labelProp = null;
 			String requestedISOLang = null;
-			if (labelQuery != null) {
-				if (labelQuery.startsWith("prop:")) {
-					String queryString = labelQuery.substring(5); // remove the "prop:"
-					String[] propStringElements = queryString.split("###");
-					String propertyQName = propStringElements[0];
-					if (propStringElements.length > 1)
-						requestedISOLang = propStringElements[1];
-
-					String propURI = ontModel.expandQName(propertyQName);
-					labelProp = ontModel.retrieveURIResource(propURI);
-					if (labelProp == null)
-						response.setReplyStatusWARNING("label query msg: " + queryString
-								+ " returned no valid property in the ontology");
-				}
+			LabelProcessor lblProc = elaborateLabelQuery(ontModel, labelQuery);
+			if (lblProc!=null) {
+				labelProp = lblProc.getLabelProp();
+				requestedISOLang = lblProc.getRequestedISOLang();
 			}
 
-			logger.debug("labelProp: " + labelProp);
-
+			System.err.println("labelProp3: " + labelProp);
 			// creating named subclasses iterator
-			RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
+			RDFIterator<ARTResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
 
+			Collection<STRDFResource> classes = STRDFNodeFactory.createEmptyResourceCollection();
 			while (subClassesIterator.streamOpen()) {
-				ARTURIResource subClass = subClassesIterator.getNext();
-				Element classElement = XMLHelp.newElement(dataElement, "class");
-
-				boolean deleteForbidden = servletUtilities.checkWriteOnly(subClass);
-				classElement.setAttribute("deleteForbidden", Boolean.toString(deleteForbidden));
-
-				classElement.setAttribute("name", ontModel.getQName(subClass.getURI()));
-
+				ARTResource subClass = subClassesIterator.getNext();
+				STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, subClass,
+						RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, subClass, wgraph),
+						false);
+				if (forTree)
+					decorateForTreeView(ontModel, stClass);
 				if (instNum) {
-					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel,
-							subClass, true, graphs);
-					if (numInst > 0)
-						classElement.setAttribute("numInst", "(" + numInst + ")");
-					else
-						classElement.setAttribute("numInst", "0");
+					decorateWithNumberOfIstances(ontModel, stClass);
 				}
+				setRendering(ontModel, stClass, labelProp, requestedISOLang, graphs);
 
-				if (forTree) {
-					RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel,
-							subClass);
-					if (subSubClassesIterator.hasNext())
-						classElement.setAttribute("more", "1"); // the subclass has further subclasses
-					else
-						classElement.setAttribute("more", "0"); // the subclass has no subclasses itself
-					subSubClassesIterator.close();
-				}
-
-				// TODO I would replace this with a general check attached to the idea of creating
-				// representation
-				// of resources
-				if (labelProp != null) {
-					ARTNodeIterator it = ontModel
-							.listValuesOfSubjPredPair(subClass, labelProp, false, graphs);
-
-					if (it.streamOpen()) {
-						String label = null;
-						ARTNode nodeLabel = it.getNext();
-						logger.debug("nodeLabel: " + nodeLabel);
-						// if node is not a Literal, then get its String representation as the label for the
-						// class, else if there is no specified iso-language code, get the label from the
-						// literal else get the first value whose language matches the specified iso-language
-						if (nodeLabel.isLiteral()) {
-							if (requestedISOLang == null) {
-								label = nodeLabel.asLiteral().getLabel();
-								logger.debug("no preferred ISO language, getting first available label: "
-										+ label);
-							} else {
-								// the rationale behind this odd nested loop is to avoid all other checks
-								// (such as the availability of the requestedISOLang or checking the nature of
-								// the nodeLabel) to be repeated for each value of the label property
-								while (label == null) {
-									ARTLiteral literalLabel = nodeLabel.asLiteral();
-									String gotISOLang = literalLabel.getLanguage();
-									logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
-									if (gotISOLang.equals(requestedISOLang)) {
-										label = literalLabel.getLabel();
-									}
-									if (it.streamOpen())
-										nodeLabel = it.getNext();
-									else
-										break;
-								}
-							}
-						} else
-							label = nodeLabel.toString();
-
-						if (label != null)
-							classElement.setAttribute("label", label);
-					}
-				}
-
+				classes.add(stClass);
 			}
 			subClassesIterator.close();
+
+			RDFXMLHelp.addRDFNodes(response, classes);
+
 			return response;
 
 		} catch (ModelAccessException e) {
@@ -346,6 +289,121 @@ public class Cls extends Resource {
 			return logAndSendException(e);
 		}
 
+	}
+	
+	private LabelProcessor elaborateLabelQuery(RDFModel ontModel, String labelQuery) throws ModelAccessException {
+		if (labelQuery != null) {
+			if (labelQuery.startsWith("prop:")) {
+				ARTURIResource labelProp = null;
+				String requestedISOLang = null;
+
+				String queryString = labelQuery.substring(5); // remove the "prop:"
+				String[] propStringElements = queryString.split("###");
+				String propertyQName = propStringElements[0];
+				if (propStringElements.length > 1)
+					requestedISOLang = propStringElements[1];
+
+				String propURI = ontModel.expandQName(propertyQName);
+				labelProp = ontModel.retrieveURIResource(propURI);
+				
+				return new LabelProcessor(labelProp, requestedISOLang);
+			}
+		}
+		return null;
+	}
+			
+	public class LabelProcessor {
+		private ARTURIResource labelProp;
+		private String requestedISOLang;
+		
+		public LabelProcessor(ARTURIResource labelProp, String requestedISOLang) {
+			this.labelProp = labelProp;
+			this.requestedISOLang = requestedISOLang;  
+		}
+		
+		public ARTURIResource getLabelProp() {
+			return labelProp;
+		}
+		public String getRequestedISOLang() {
+			return requestedISOLang;
+		}
+		
+	}
+
+
+	// TODO I would replace this with a general check attached to the idea of creating representation
+	// of resources. I would create a class for describing "representation makers" with an interface
+	// method for getting the representation. I would also create a factory which returns the
+	// appropriate "repmaker" depending on the passed labelQuery
+	private void setRendering(RDFSModel model, STRDFResource subClass, ARTURIResource labelProp,
+			String requestedISOLang, ARTResource[] graphs) throws ModelAccessException {
+
+		String label = null;
+		if (labelProp != null) {
+			ARTNodeIterator it = model.listValuesOfSubjPredPair((ARTResource) subClass.getARTNode(),
+					labelProp, false, graphs);
+
+			if (it.streamOpen()) {				
+				ARTNode nodeLabel = it.getNext();
+				logger.debug("nodeLabel: " + nodeLabel);
+				// if node is not a Literal, then get its String representation as the label for the
+				// class, else if there is no specified iso-language code, get the label from the
+				// literal else get the first value whose language matches the specified iso-language
+				if (nodeLabel.isLiteral()) {
+					if (requestedISOLang == null) {
+						label = nodeLabel.asLiteral().getLabel();
+						logger.debug("no preferred ISO language, getting first available label: " + label);
+					} else {
+						// the rationale behind this odd nested loop is to avoid all other checks
+						// (such as the availability of the requestedISOLang or checking the nature of
+						// the nodeLabel) to be repeated for each value of the label property
+						while (label == null) {
+							ARTLiteral literalLabel = nodeLabel.asLiteral();
+							String gotISOLang = literalLabel.getLanguage();
+							logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
+							if (gotISOLang.equals(requestedISOLang)) {
+								label = literalLabel.getLabel();
+							}
+							if (it.streamOpen())
+								nodeLabel = it.getNext();
+							else
+								break;
+						}
+					}
+				} else
+					label = nodeLabel.toString();
+			}
+		}
+		String rendering = null;
+		if (label != null)
+			rendering = label;
+		else {
+			// isn't that some facility for getting this automatically?
+			if (subClass.isBlank())
+				rendering = subClass.toNT();
+			else
+				rendering = model.getQName(subClass.getARTNode().asURIResource().getURI());
+		}
+			
+		subClass.setRendering(rendering);
+	}
+
+	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException {
+		ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
+				getUserNamedGraphs());
+		if (it.streamOpen()) {
+			subClass.setInfo("more", "1");
+
+		} else
+			subClass.setInfo("more", "0");
+		it.close();
+	}
+
+	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
+			throws ModelAccessException {
+		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
+				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
+		subClass.setInfo("numInst", Integer.toString(numInst));
 	}
 
 	/**
@@ -373,11 +431,10 @@ public class Cls extends Resource {
 			Element root = XMLHelp.newElement(dataElement, "Class");
 			root.setAttribute("name", clsQName);
 
-			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkWriteOnly(cls)));
+			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkReadOnly(cls)));
 
 			if (hasSubClassesRequest) {
-				RDFIterator<ARTURIResource> subSubClassesIterator = new subClassesIterator(ontModel, cls,
-						graphs);
+				RDFIterator<ARTResource> subSubClassesIterator = new subClassesIterator(ontModel, cls, graphs);
 				if (subSubClassesIterator.hasNext())
 					root.setAttribute("more", "1"); // the subclass has further subclasses
 				else
@@ -593,7 +650,7 @@ public class Cls extends Resource {
 	void recursiveCreateClassesXMLTree(RDFSModel ontModel, ARTURIResource cls, Element element,
 			ARTResource... graphs) throws DOMException, ModelAccessException {
 		Element classElement = XMLHelp.newElement(element, "Class");
-		boolean deleteForbidden = servletUtilities.checkWriteOnly(cls);
+		boolean deleteForbidden = servletUtilities.checkReadOnly(cls);
 		classElement.setAttribute("name", ontModel.getQName(cls.getURI()));
 
 		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true, graphs);
@@ -616,7 +673,7 @@ public class Cls extends Resource {
 		subClassesIterator.close();
 	}
 
-	private class subClassesIterator implements RDFIterator<ARTURIResource> {
+	private class subClassesIterator implements RDFIterator<ARTResource> {
 
 		RDFIterator<? extends ARTResource> subClassesIterator;
 		Iterator<? extends ARTResource> finalIterator;
@@ -636,12 +693,12 @@ public class Cls extends Resource {
 				Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(
 						ontModel), exclusionPredicate);
 
-				subClassesIterator = ontModel.listNamedClasses(true, graphs);
+				subClassesIterator = ontModel.listClasses(true, graphs);
 				finalIterator = Iterators.filter(subClassesIterator, rootUserClsPred);
 
 			} else {
 				subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(superCls, graphs);
-				finalIterator = Iterators.filter(subClassesIterator, URIResourcePredicate.uriFilter);
+				finalIterator = subClassesIterator;
 			}
 		}
 
@@ -700,9 +757,9 @@ public class Cls extends Resource {
 				classElement.setAttribute("name", ontModel.getQName(cls.getURI()));
 				// class deletable?
 				classElement.setAttribute("deleteForbidden",
-						Boolean.toString(servletUtilities.checkWriteOnly(cls)));
+						Boolean.toString(servletUtilities.checkReadOnly(cls)));
 				// class has children?
-				RDFIterator<ARTURIResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
+				RDFIterator<ARTResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
 				if (subClassesIterator.hasNext())
 					classElement.setAttribute("more", "1"); // the subclass has further subclasses
 				else
