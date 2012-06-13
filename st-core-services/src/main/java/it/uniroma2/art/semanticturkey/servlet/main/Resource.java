@@ -318,6 +318,8 @@ public abstract class Resource extends ServiceAdapter {
 
 			} catch (ModelAccessException e) {
 				return logAndSendException(e);
+			} catch (NonExistingRDFResourceException e) {
+				return logAndSendException(e);
 			}
 		}
 
@@ -361,8 +363,7 @@ public abstract class Resource extends ServiceAdapter {
 					for (ARTNode value : (Collection<ARTNode>) propertyValuesMap.get(prop)) {
 						logger.debug("resource viewer: writing value: " + value + " for property: " + prop);
 
-						Element valueElem = RDFXMLHelp.addRDFNode(propertyElem, ontModel, value,
-								true, true);
+						Element valueElem = RDFXMLHelp.addRDFNode(propertyElem, ontModel, value, true, true);
 
 						// EXPLICIT-STATUS ASSIGNMENT
 						valueElem.setAttribute("explicit", checkExplicit(owlModel, resource, prop, value));
@@ -371,13 +372,17 @@ public abstract class Resource extends ServiceAdapter {
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (DOMException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 
 	}
 
 	private String checkExplicit(OWLModel ontModel, ARTResource subj, ARTURIResource pred, ARTNode obj)
-			throws ModelAccessException {
+			throws ModelAccessException, NonExistingRDFResourceException {
 		if (ontModel.hasTriple(subj, pred, obj, false, getWorkingGraph()))
 			return "true";
 		else
@@ -385,7 +390,7 @@ public abstract class Resource extends ServiceAdapter {
 	}
 
 	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
-			throws ModelAccessException {
+			throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
 		// TODO clearly reasoning=true requires the sole main graph (which contains reasoned triples too) but,
@@ -411,7 +416,7 @@ public abstract class Resource extends ServiceAdapter {
 	}
 
 	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
-			boolean visualization) throws ModelAccessException {
+			boolean visualization) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element rangesElement = XMLHelp.newElement(treeElement, "ranges");
 		// TODO check todo when wgraph!=MAINGRAPH
@@ -441,7 +446,7 @@ public abstract class Resource extends ServiceAdapter {
 	}
 
 	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement,
-			ARTResource... graphs) throws ModelAccessException {
+			ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 
 		ARTResource wgraph = getWorkingGraph();
 		// DOMAIN AND RANGES
@@ -519,7 +524,8 @@ public abstract class Resource extends ServiceAdapter {
 	}
 
 	protected void collectParents(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
-			Element superTypesElem, ARTResource... graphs) throws ModelAccessException {
+			Element superTypesElem, ARTResource... graphs) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		// TODO filter on admin also here
 		Collection<? extends ARTResource> directSuperTypes;
 		Collection<? extends ARTResource> directExplicitSuperTypes;

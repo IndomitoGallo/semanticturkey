@@ -39,6 +39,7 @@ import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
@@ -268,6 +269,8 @@ public class Property extends Resource {
 
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 
@@ -293,6 +296,8 @@ public class Property extends Resource {
 
 		} catch (ModelAccessException e) {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 

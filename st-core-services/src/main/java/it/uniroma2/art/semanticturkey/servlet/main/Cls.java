@@ -28,7 +28,6 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.filter.URIResourcePredicate;
-import it.uniroma2.art.owlart.io.RDFNodeSerializer;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -253,7 +252,7 @@ public class Cls extends Resource {
 			ARTURIResource labelProp = null;
 			String requestedISOLang = null;
 			LabelProcessor lblProc = elaborateLabelQuery(ontModel, labelQuery);
-			if (lblProc!=null) {
+			if (lblProc != null) {
 				labelProp = lblProc.getLabelProp();
 				requestedISOLang = lblProc.getRequestedISOLang();
 			}
@@ -290,8 +289,9 @@ public class Cls extends Resource {
 		}
 
 	}
-	
-	private LabelProcessor elaborateLabelQuery(RDFModel ontModel, String labelQuery) throws ModelAccessException {
+
+	private LabelProcessor elaborateLabelQuery(RDFModel ontModel, String labelQuery)
+			throws ModelAccessException {
 		if (labelQuery != null) {
 			if (labelQuery.startsWith("prop:")) {
 				ARTURIResource labelProp = null;
@@ -305,31 +305,31 @@ public class Cls extends Resource {
 
 				String propURI = ontModel.expandQName(propertyQName);
 				labelProp = ontModel.retrieveURIResource(propURI);
-				
+
 				return new LabelProcessor(labelProp, requestedISOLang);
 			}
 		}
 		return null;
 	}
-			
+
 	public class LabelProcessor {
 		private ARTURIResource labelProp;
 		private String requestedISOLang;
-		
+
 		public LabelProcessor(ARTURIResource labelProp, String requestedISOLang) {
 			this.labelProp = labelProp;
-			this.requestedISOLang = requestedISOLang;  
+			this.requestedISOLang = requestedISOLang;
 		}
-		
+
 		public ARTURIResource getLabelProp() {
 			return labelProp;
 		}
+
 		public String getRequestedISOLang() {
 			return requestedISOLang;
 		}
-		
-	}
 
+	}
 
 	// TODO I would replace this with a general check attached to the idea of creating representation
 	// of resources. I would create a class for describing "representation makers" with an interface
@@ -343,7 +343,7 @@ public class Cls extends Resource {
 			ARTNodeIterator it = model.listValuesOfSubjPredPair((ARTResource) subClass.getARTNode(),
 					labelProp, false, graphs);
 
-			if (it.streamOpen()) {				
+			if (it.streamOpen()) {
 				ARTNode nodeLabel = it.getNext();
 				logger.debug("nodeLabel: " + nodeLabel);
 				// if node is not a Literal, then get its String representation as the label for the
@@ -384,11 +384,12 @@ public class Cls extends Resource {
 			else
 				rendering = model.getQName(subClass.getARTNode().asURIResource().getURI());
 		}
-			
+
 		subClass.setRendering(rendering);
 	}
 
-	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException {
+	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
 				getUserNamedGraphs());
 		if (it.streamOpen()) {
@@ -400,7 +401,7 @@ public class Cls extends Resource {
 	}
 
 	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
-			throws ModelAccessException {
+			throws ModelAccessException, NonExistingRDFResourceException {
 		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
 				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
 		subClass.setInfo("numInst", Integer.toString(numInst));
@@ -462,7 +463,7 @@ public class Cls extends Resource {
 	}
 
 	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element element,
-			ARTResource... graphs) throws ModelAccessException {
+			ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		Element instancesElement = XMLHelp.newElement(element, "Instances");
 
 		// TODO filter on admin also here
@@ -525,7 +526,8 @@ public class Cls extends Resource {
 		}
 	}
 
-	public Response updateClassOnTree(String clsQName, String instanceName) {
+	public Response updateClassOnTree(String clsQName, String instanceName)
+			throws NonExistingRDFResourceException {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		try {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
@@ -569,6 +571,8 @@ public class Cls extends Resource {
 		} catch (DOMException e) {
 			return logAndSendException("exception raised in building the classes tree: " + e.getMessage());
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 		return response;
@@ -619,6 +623,8 @@ public class Cls extends Resource {
 			}
 			namedClassesIt.close();
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 

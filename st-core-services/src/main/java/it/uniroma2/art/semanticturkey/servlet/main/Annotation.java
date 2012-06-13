@@ -242,6 +242,8 @@ public class Annotation extends ServiceAdapter {
 			}
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		ARTResourceIterator semanticAnnotationsIterator;
@@ -266,6 +268,8 @@ public class Annotation extends ServiceAdapter {
 				annotationElement.setAttribute("resource", ontModel.getQName(annotatedResource.getURI()));
 			}
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 
@@ -315,6 +319,8 @@ public class Annotation extends ServiceAdapter {
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -361,6 +367,8 @@ public class Annotation extends ServiceAdapter {
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -390,6 +398,8 @@ public class Annotation extends ServiceAdapter {
 			return servletUtilities.createReplyResponse(request, reply);
 
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 	}
@@ -429,6 +439,8 @@ public class Annotation extends ServiceAdapter {
 			return logAndSendException(mae);
 		} catch (ModelUpdateException mue) {
 			return logAndSendException(mue);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 	}
@@ -455,7 +467,7 @@ public class Annotation extends ServiceAdapter {
 		try {
 			ARTURIResource instance = createNewResource(ontModel, instanceQName, getUserNamedGraphs());
 			String instanceURI = instance.getURI();
-			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs()); 
+			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs());
 			ontModel.addInstance(instanceURI, cls, getWorkingGraph());
 			logger.debug("created new instance: " + instanceURI + " for class: " + cls);
 			createLexicalization(ontModel, instance, instanceQName, urlPage, title, getWorkingGraph());
@@ -475,6 +487,8 @@ public class Annotation extends ServiceAdapter {
 		} catch (ModelAccessException e) {
 			return logAndSendException("annotation created but failed to update the number of instances on class: "
 					+ clsQName + "\n" + e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 
@@ -484,8 +498,10 @@ public class Annotation extends ServiceAdapter {
 	 * @param instanceName
 	 * @return
 	 * @throws ModelAccessException
+	 * @throws NonExistingRDFResourceException
 	 */
-	public Response updateClassOnTree(String clsQName, String instanceName) throws ModelAccessException {
+	public Response updateClassOnTree(String clsQName, String instanceName) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		XMLResponseREPLY response = servletUtilities.createReplyResponse(createAndAnnotateRequest,
 				RepliesStatus.ok);
@@ -596,7 +612,8 @@ public class Annotation extends ServiceAdapter {
 				}
 
 				try {
-					ARTURIResource objectInstance = createNewResource(ontModel, objectInstanceQName, getUserNamedGraphs());
+					ARTURIResource objectInstance = createNewResource(ontModel, objectInstanceQName,
+							getUserNamedGraphs());
 					ontModel.addInstance(objectInstance.getURI(), rangeClsRes, wgraph);
 					createLexicalization(ontModel, objectInstance, objectInstanceQName, urlPage, title,
 							wgraph);
@@ -604,7 +621,8 @@ public class Annotation extends ServiceAdapter {
 				} catch (ModelUpdateException e) {
 					return logAndSendException("Instance creation error: " + e.getMessage());
 				} catch (DuplicatedResourceException e) {
-					return logAndSendException("there is a resource with the same name of: " + objectInstanceQName);
+					return logAndSendException("there is a resource with the same name of: "
+							+ objectInstanceQName);
 				}
 				ARTURIResource subjectInstanceRes = ontModel.createURIResource(ontModel
 						.expandQName(subjectInstanceQName));
@@ -642,6 +660,8 @@ public class Annotation extends ServiceAdapter {
 			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 
@@ -655,7 +675,8 @@ public class Annotation extends ServiceAdapter {
 
 			ARTURIResource property = ontModel
 					.createURIResource(ontModel.expandQName(predicatePropertyQName));
-			ARTURIResource objectInstance = retrieveExistingResource(ontModel, objectInstanceQName, getUserNamedGraphs());
+			ARTURIResource objectInstance = retrieveExistingResource(ontModel, objectInstanceQName,
+					getUserNamedGraphs());
 			createLexicalization(ontModel, objectInstance, lexicalization, urlPage, title, wgraph);
 			ARTResource subjectInstanceRes = ontModel.createURIResource(ontModel
 					.expandQName(subjectInstanceQName));
