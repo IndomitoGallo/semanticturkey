@@ -202,7 +202,7 @@ public class SKOS extends Resource {
 			response = getSchemesMatrixPerConcept(skosConceptName, lang);
 
 			// IS METHODS
-		}  else if (request.equals(Req.isTopConceptRequest)) {
+		} else if (request.equals(Req.isTopConceptRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String schemeName = setHttpPar(Par.scheme);
 			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
@@ -436,10 +436,11 @@ public class SKOS extends Resource {
 	 * @param graphs
 	 * @throws ModelAccessException
 	 * @throws ModelUpdateException
+	 * @throws NonExistingRDFResourceException
 	 */
 	private void assignHierarchyToSchemeRecursive(SKOSModel skosModel, ARTURIResource concept,
 			ARTURIResource sourceScheme, ARTURIResource targetScheme, ARTResource... graphs)
-			throws ModelAccessException, ModelUpdateException {
+			throws ModelAccessException, ModelUpdateException, NonExistingRDFResourceException {
 		skosModel.addConceptToScheme(concept, targetScheme, graphs);
 		ARTURIResourceIterator narrowers = skosModel.listNarrowerConcepts(concept, false, true, graphs);
 		Iterator<ARTURIResource> filteredNarrowers = Iterators.filter(narrowers,
@@ -485,8 +486,7 @@ public class SKOS extends Resource {
 			ARTURIResourceIterator schemes = skosModel.listAllSchemes(graphs);
 			while (schemes.streamOpen()) {
 				ARTURIResource scheme = schemes.getNext();
-				Element schemeElem = RDFXMLHelp.addRDFNode(dataElement, skosModel, scheme, false,
-						true);
+				Element schemeElem = RDFXMLHelp.addRDFNode(dataElement, skosModel, scheme, false, true);
 				schemeElem.setAttribute("inScheme", (schemesForConcept.contains(scheme) ? "true" : "false"));
 			}
 			schemes.close();
@@ -546,8 +546,10 @@ public class SKOS extends Resource {
 	 * @param defaultLanguage
 	 * @return
 	 * @throws ModelAccessException
+	 * @throws NonExistingRDFResourceException
 	 */
-	public ARTURIResourceIterator getTopConcepts() throws ModelAccessException {
+	public ARTURIResourceIterator getTopConcepts() throws ModelAccessException,
+			NonExistingRDFResourceException {
 		SKOSModel skosModel = getSKOSModel();
 		ARTResource[] graphs = getUserNamedGraphs();
 		Predicate<ARTURIResource> rootConceptsPred = new RootConceptsPredicate(skosModel, graphs);
@@ -649,6 +651,8 @@ public class SKOS extends Resource {
 			return logAndSendException(e);
 		} catch (MissingLanguageException e) {
 			return createReplyFAIL(e.getMessage());
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -747,8 +751,7 @@ public class SKOS extends Resource {
 			skosModel.addConceptToScheme(newConcept.getURI(), superConcept, conceptScheme, wrkGraph);
 			addPrefLabel(skosModel, newConcept, prefLabel, prefLabelLang);
 
-			RDFXMLHelp.addRDFNode(response,
-					createSTConcept(skosModel, newConcept, true, prefLabelLang));
+			RDFXMLHelp.addRDFNode(response, createSTConcept(skosModel, newConcept, true, prefLabelLang));
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -835,7 +838,6 @@ public class SKOS extends Resource {
 				it = unfilteredIt;
 			}
 
-			
 			Collection<STRDFResource> concepts = STRDFNodeFactory.createEmptyResourceCollection();
 			while (it.hasNext()) {
 				concepts.add(createSTConcept(skosModel, it.next(), true, defaultLanguage));
@@ -866,6 +868,8 @@ public class SKOS extends Resource {
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -895,6 +899,8 @@ public class SKOS extends Resource {
 			topConceptsIt.close();
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		return response;
@@ -921,6 +927,8 @@ public class SKOS extends Resource {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -945,6 +953,8 @@ public class SKOS extends Resource {
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
 		return response;
@@ -971,6 +981,8 @@ public class SKOS extends Resource {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -996,6 +1008,8 @@ public class SKOS extends Resource {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 		return response;
 	}
@@ -1018,8 +1032,7 @@ public class SKOS extends Resource {
 			ARTURIResource skosConcept = retrieveExistingResource(ontModel, skosConceptName, graphs);
 			ARTLiteral prefLabel = ontModel.getPrefLabel(skosConcept, lang, true, graphs);
 
-			RDFXMLHelp
-					.addRDFNode(response, STRDFNodeFactory.createSTRDFLiteral(prefLabel, true));
+			RDFXMLHelp.addRDFNode(response, STRDFNodeFactory.createSTRDFLiteral(prefLabel, true));
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {
@@ -1047,8 +1060,7 @@ public class SKOS extends Resource {
 			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
 			ARTLiteralIterator altLabels = skosModel.listAltLabels(skosConcept, lang, true, graphs);
 
-			RDFXMLHelp.addRDFNodes(response,
-					createSTLiteralCollection(skosModel, altLabels, true, lang));
+			RDFXMLHelp.addRDFNodes(response, createSTLiteralCollection(skosModel, altLabels, true, lang));
 
 			altLabels.close();
 		} catch (ModelAccessException e) {
@@ -1058,32 +1070,30 @@ public class SKOS extends Resource {
 		}
 		return response;
 	}
-	
-	
+
 	public Response isTopConcept(String skosConceptName, String schemeName) {
 		SKOSModel skosModel = getSKOSModel();
-		
+
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
-			ARTURIResource skosScheme  = retrieveExistingResource(skosModel, schemeName, graphs);
-			
+			ARTURIResource skosScheme = retrieveExistingResource(skosModel, schemeName, graphs);
+
 			return createBooleanResponse(skosModel.isTopConcept(skosConcept, skosScheme, graphs));
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		}
-		
+
 	}
-	
-	
+
 	// **************************
 	// **** PRIVATE METHODS *****
 	// **************************
 
 	private void recursiveCreateSKOSConceptsTree(SKOSModel ontModel, ARTURIResource concept, Element element)
-			throws DOMException, ModelAccessException {
+			throws DOMException, ModelAccessException, NonExistingRDFResourceException {
 		Element skosElement = XMLHelp.newElement(element, "concept");
 		skosElement.setAttribute("name", ontModel.getQName(concept.getURI()));
 
@@ -1111,9 +1121,11 @@ public class SKOS extends Resource {
 	 *            <code>show</code> property of the node
 	 * @return
 	 * @throws ModelAccessException
+	 * @throws NonExistingRDFResourceException
 	 */
 	private STRDFResource createSTSKOSResource(SKOSModel skosModel, ARTURIResource resource,
-			RDFResourceRolesEnum role, boolean explicit, String defaultLanguage) throws ModelAccessException {
+			RDFResourceRolesEnum role, boolean explicit, String defaultLanguage) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		String show;
 		ARTLiteral lbl = null;
 		if (defaultLanguage != null)
@@ -1127,7 +1139,7 @@ public class SKOS extends Resource {
 	}
 
 	private STRDFResource createSTConcept(SKOSModel skosModel, ARTURIResource concept, boolean explicit,
-			String defaultLanguage) throws ModelAccessException {
+			String defaultLanguage) throws ModelAccessException, NonExistingRDFResourceException {
 		return createSTSKOSResource(skosModel, concept, RDFResourceRolesEnum.concept, explicit,
 				defaultLanguage);
 	}
@@ -1145,10 +1157,11 @@ public class SKOS extends Resource {
 	 * @param lang
 	 * @return
 	 * @throws ModelAccessException
+	 * @throws NonExistingRDFResourceException
 	 */
 	public Collection<STRDFResource> createSTSKOSResourceCollection(SKOSModel model,
 			ARTURIResourceIterator it, RDFResourceRolesEnum role, boolean explicit, String lang)
-			throws ModelAccessException {
+			throws ModelAccessException, NonExistingRDFResourceException {
 		Collection<STRDFResource> uris = new ArrayList<STRDFResource>();
 		while (it.streamOpen()) {
 			uris.add(createSTSKOSResource(model, it.getNext(), role, explicit, lang));
@@ -1168,12 +1181,13 @@ public class SKOS extends Resource {
 	}
 
 	private STRDFResource createSTScheme(SKOSModel skosModel, ARTURIResource scheme, boolean explicit,
-			String defaultLanguage) throws ModelAccessException {
+			String defaultLanguage) throws ModelAccessException, NonExistingRDFResourceException {
 		return createSTSKOSResource(skosModel, scheme, RDFResourceRolesEnum.conceptScheme, explicit,
 				defaultLanguage);
 	}
 
-	private void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException {
+	private void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		ARTURIResourceIterator it = model.listNarrowerConcepts((ARTURIResource) concept.getARTNode(), false,
 				true, getUserNamedGraphs());
 		if (it.streamOpen()) {
@@ -1185,7 +1199,8 @@ public class SKOS extends Resource {
 	}
 
 	private void addPrefLabel(SKOSModel skosModel, ARTURIResource res, String prefLabel, String lang)
-			throws ModelAccessException, ModelUpdateException, MissingLanguageException {
+			throws ModelAccessException, ModelUpdateException, MissingLanguageException,
+			NonExistingRDFResourceException {
 		if (prefLabel != null) {
 			if (lang != null)
 				skosModel.setPrefLabel(res, prefLabel, lang, getWorkingGraph());

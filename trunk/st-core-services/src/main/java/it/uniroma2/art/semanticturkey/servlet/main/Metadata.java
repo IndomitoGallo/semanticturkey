@@ -36,6 +36,7 @@ import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.ImportManagementException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.ImportStatus;
 import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappingUpdateException;
@@ -299,6 +300,8 @@ public class Metadata extends Resource {
 		} catch (ModelAccessException e) {
 			logger.error("" + e);
 			return servletUtilities.createExceptionResponse(request, e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 	}
 

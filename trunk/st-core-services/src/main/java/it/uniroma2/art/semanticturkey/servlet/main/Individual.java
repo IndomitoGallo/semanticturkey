@@ -252,7 +252,7 @@ public class Individual extends Resource {
 	}
 
 	private void keepCareOfOrphaneResource(OWLModel model, ARTResource individual, ARTResource[] graphs)
-			throws ModelAccessException, ModelUpdateException {
+			throws ModelAccessException, ModelUpdateException, NonExistingRDFResourceException {
 		ARTResourceIterator it = model.listTypes(individual, true, graphs);
 		if (!it.streamOpen())
 			model.addType(individual, OWL.Res.THING, getWorkingGraph());

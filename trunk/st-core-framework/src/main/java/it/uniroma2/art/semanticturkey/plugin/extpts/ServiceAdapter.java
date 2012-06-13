@@ -285,15 +285,15 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return servletUtilities.createExceptionResponse(request, msg, sertype);
 	}
 
-	protected ARTResource getWorkingGraph() throws ModelAccessException {
+	protected ARTResource getWorkingGraph() throws ModelAccessException, NonExistingRDFResourceException {
 		return NodeFilters.MAINGRAPH;
 	}
 
-	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException {
+	protected ARTResource[] getUserNamedGraphs() throws ModelAccessException, NonExistingRDFResourceException {
 		return userGraphs;
 	}
 
-	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException {
+	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException, NonExistingRDFResourceException {
 		RDFModel model = ProjectManager.getCurrentProject().getOntModel();
 		return model.listNamedGraphs();
 	}
@@ -302,7 +302,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return ProjectManager.getCurrentProject().getOWLModel();
 	}
 
-	protected ARTURIResource retrieveExistingResource(RDFModel model, String qname, ARTResource[] graphs)
+	protected ARTURIResource retrieveExistingResource(RDFModel model, String qname, ARTResource... graphs)
 			throws NonExistingRDFResourceException, ModelAccessException {
 		ARTURIResource res = model.createURIResource(model.expandQName(qname));
 		if (model.existsResource(res, graphs))
