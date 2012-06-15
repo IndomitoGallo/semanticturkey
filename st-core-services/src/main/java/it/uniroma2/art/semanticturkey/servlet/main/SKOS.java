@@ -1220,7 +1220,7 @@ public class SKOS extends Resource {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected SKOSModel getSKOSModel() {
+	public static SKOSModel getSKOSModel() {
 		return ((Project<SKOSModel>) ProjectManager.getCurrentProject()).getOntModel();
 	}
 
