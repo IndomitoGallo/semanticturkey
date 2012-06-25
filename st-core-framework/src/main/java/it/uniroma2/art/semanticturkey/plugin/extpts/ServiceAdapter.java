@@ -28,6 +28,7 @@
 package it.uniroma2.art.semanticturkey.plugin.extpts;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.io.RDFNodeSerializer;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
@@ -302,7 +303,15 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return ProjectManager.getCurrentProject().getOWLModel();
 	}
 
-	protected ARTURIResource retrieveExistingResource(RDFModel model, String qname, ARTResource... graphs)
+	protected ARTResource retrieveExistingResource(RDFModel model, String qname, ARTResource... graphs)
+			throws NonExistingRDFResourceException, ModelAccessException {		
+		ARTResource res = RDFNodeSerializer.createResource(model, qname);
+		if (model.existsResource(res, graphs))
+			return res;
+		throw new NonExistingRDFResourceException(res, graphs);
+	}
+	
+	protected ARTURIResource retrieveExistingURIResource(RDFModel model, String qname, ARTResource... graphs)
 			throws NonExistingRDFResourceException, ModelAccessException {
 		ARTURIResource res = model.createURIResource(model.expandQName(qname));
 		if (model.existsResource(res, graphs))
@@ -318,12 +327,12 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 * 
 	 * @param model
 	 * @param qname
-	 * @param graphs
+	 * @param graphs these are the graphs to be checked for existence of the resource
 	 * @return
 	 * @throws NonExistingRDFResourceException
 	 * @throws ModelAccessException
 	 */
-	protected ARTURIResource createNewResource(RDFModel model, String qname, ARTResource[] graphs)
+	protected ARTURIResource createNewResource(RDFModel model, String qname, ARTResource... graphs)
 			throws DuplicatedResourceException, ModelAccessException {
 		ARTURIResource res = model.createURIResource(model.expandQName(qname));
 		if (model.existsResource(res, graphs))

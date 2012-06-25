@@ -145,7 +145,7 @@ public class Individual extends Resource {
 		ARTURIResource individual;
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			individual = retrieveExistingResource(ontModel, indQName, graphs);
+			individual = retrieveExistingURIResource(ontModel, indQName, graphs);
 
 			ARTResourceIterator directTypesIterator = ((DirectReasoning) ontModel).listDirectTypes(
 					individual, graphs);
@@ -180,8 +180,8 @@ public class Individual extends Resource {
 		ARTURIResource individual;
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			individual = retrieveExistingResource(model, indQName, graphs);
-			ARTURIResource typeCls = retrieveExistingResource(model, typeQName, graphs);
+			individual = retrieveExistingURIResource(model, indQName, graphs);
+			ARTURIResource typeCls = retrieveExistingURIResource(model, typeQName, graphs);
 
 			Collection<ARTResource> types = RDFIterators.getCollectionFromIterator(((DirectReasoning) model)
 					.listDirectTypes(individual, graphs));
@@ -219,8 +219,8 @@ public class Individual extends Resource {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTResource individual = retrieveExistingResource(model, indQName, graphs);
-			ARTURIResource typeCls = retrieveExistingResource(model, typeQName, graphs);
+			ARTResource individual = retrieveExistingURIResource(model, indQName, graphs);
+			ARTURIResource typeCls = retrieveExistingURIResource(model, typeQName, graphs);
 
 			Collection<ARTResource> types = RDFIterators.getCollectionFromIterator(((DirectReasoning) model)
 					.listDirectTypes(individual, graphs));

@@ -23,6 +23,7 @@ import it.uniroma2.art.semanticturkey.servlet.main.Plugins;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
 import it.uniroma2.art.semanticturkey.servlet.main.Property;
 import it.uniroma2.art.semanticturkey.servlet.main.SKOS;
+import it.uniroma2.art.semanticturkey.servlet.main.SKOSXL;
 import it.uniroma2.art.semanticturkey.servlet.main.SPARQL;
 import it.uniroma2.art.semanticturkey.servlet.main.Statement;
 import it.uniroma2.art.semanticturkey.servlet.main.Synonyms;
@@ -77,6 +78,7 @@ public abstract class ServiceTest {
 	public ServiceWrapper environmentService;
 	public ServiceWrapper ontManagerService;
 	public ServiceWrapper skosService;
+	public ServiceWrapper skosXLService;
 
 	public void initialize(boolean delete) throws STInitializationException, IOException {
 		initialize("..", delete);
@@ -214,6 +216,7 @@ public abstract class ServiceTest {
 		statementService = new ServiceHttpWrapper("statement", httpclient);
 		ontManagerService = new ServiceHttpWrapper("ontManager", httpclient);
 		skosService = new ServiceHttpWrapper("skos", httpclient);
+		skosXLService = new ServiceHttpWrapper("skosxl", httpclient);
 	}
 
 	protected void initializeServiceDirectWrappers() {
@@ -237,6 +240,7 @@ public abstract class ServiceTest {
 		statementService = new ServiceDirectWrapper(new Statement(""));
 		ontManagerService = new ServiceDirectWrapper(new OntManager(""));
 		skosService = new ServiceDirectWrapper(new SKOS(""));
+		skosXLService = new ServiceDirectWrapper(new SKOSXL(""));
 	}
 
 	public static ParameterPair par(String par, String value) {
@@ -258,6 +262,10 @@ public abstract class ServiceTest {
 
 		public String getParValue() {
 			return value;
+		}
+		
+		public String toString() {
+			return "<" + par + "," + value + ">";
 		}
 	}
 

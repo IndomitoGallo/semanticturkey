@@ -132,7 +132,7 @@ public class SKOS extends Resource {
 		super(id);
 	}
 
-	public Logger getLogger() {
+	protected Logger getLogger() {
 		return logger;
 	}
 
@@ -333,8 +333,8 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, graphs);
 
 			skosModel.setTopConcept(concept, scheme, false, getWorkingGraph());
 		} catch (ModelAccessException e) {
@@ -352,8 +352,8 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, graphs);
 			skosModel.setTopConcept(concept, scheme, true, getWorkingGraph());
 
 			RDFXMLHelp.addRDFNode(response, createSTConcept(skosModel, concept, true, null));
@@ -373,8 +373,8 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
-			ARTURIResource broaderConcept = retrieveExistingResource(skosModel, broaderConceptName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, graphs);
+			ARTURIResource broaderConcept = retrieveExistingURIResource(skosModel, broaderConceptName, graphs);
 
 			skosModel.removeBroaderConcept(concept, broaderConcept, getWorkingGraph());
 		} catch (ModelAccessException e) {
@@ -404,11 +404,11 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
-			ARTURIResource targetScheme = retrieveExistingResource(skosModel, targetSchemeName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, graphs);
+			ARTURIResource targetScheme = retrieveExistingURIResource(skosModel, targetSchemeName, graphs);
 
 			if (sourceSchemeName != null) {
-				ARTURIResource sourceScheme = retrieveExistingResource(skosModel, sourceSchemeName,
+				ARTURIResource sourceScheme = retrieveExistingURIResource(skosModel, sourceSchemeName,
 						getUserNamedGraphs());
 				assignHierarchyToSchemeRecursive(skosModel, concept, sourceScheme, targetScheme, graphs);
 			} else {
@@ -480,7 +480,7 @@ public class SKOS extends Resource {
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
 			Element dataElement = response.getDataElement();
-			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
+			ARTURIResource skosConcept = retrieveExistingURIResource(skosModel, skosConceptName, graphs);
 			Collection<ARTURIResource> schemesForConcept = RDFIterators.getCollectionFromIterator(skosModel
 					.listAllSchemesForConcept(skosConcept, graphs));
 			ARTURIResourceIterator schemes = skosModel.listAllSchemes(graphs);
@@ -504,7 +504,7 @@ public class SKOS extends Resource {
 		ARTURIResourceIterator it;
 		try {
 			if (schemaUri != null) {
-				ARTURIResource skosScheme = retrieveExistingResource(skosModel, schemaUri,
+				ARTURIResource skosScheme = retrieveExistingURIResource(skosModel, schemaUri,
 						getUserNamedGraphs());
 				it = skosModel.listTopConceptsInScheme(skosScheme, true, getUserNamedGraphs());
 			} else {
@@ -576,7 +576,7 @@ public class SKOS extends Resource {
 		try {
 			SKOSModel skosModel = getSKOSModel();
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, graphs);
 			if (skosModel.listNarrowerConcepts(concept, false, true, getUserNamedGraphs()).streamOpen()) {
 				return createReplyFAIL("concept: " + conceptName
 						+ " has narrower concepts; delete them before");
@@ -600,7 +600,7 @@ public class SKOS extends Resource {
 			ARTResource[] graphs = getUserNamedGraphs();
 
 			SKOSModel skosModel = getSKOSModel();
-			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeName, graphs);
 			if (!skosModel.isSKOSConceptScheme(scheme, graphs))
 				return logAndSendException("resource" + scheme + " exists, but is not a scheme!");
 
@@ -665,8 +665,8 @@ public class SKOS extends Resource {
 		try {
 
 			SKOSModel skosModel = getSKOSModel();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptQName, getUserNamedGraphs());
-			ARTURIResource broaderConcept = retrieveExistingResource(skosModel, braoderConceptQName,
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptQName, getUserNamedGraphs());
+			ARTURIResource broaderConcept = retrieveExistingURIResource(skosModel, braoderConceptQName,
 					getUserNamedGraphs());
 
 			skosModel.addBroaderConcept(concept, broaderConcept, getWorkingGraph());
@@ -689,8 +689,8 @@ public class SKOS extends Resource {
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
 			SKOSModel skosModel = getSKOSModel();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptQName, graphs);
-			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeQName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptQName, graphs);
+			ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeQName, graphs);
 
 			skosModel.addConceptToScheme(concept, scheme, getWorkingGraph());
 
@@ -711,8 +711,8 @@ public class SKOS extends Resource {
 
 			SKOSModel skosModel = getSKOSModel();
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptQName, graphs);
-			ARTURIResource scheme = retrieveExistingResource(skosModel, schemeQName, graphs);
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptQName, graphs);
+			ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeQName, graphs);
 
 			skosModel.removeConceptFromScheme(concept, scheme, getWorkingGraph());
 
@@ -741,11 +741,11 @@ public class SKOS extends Resource {
 
 			ARTURIResource superConcept;
 			if (superConceptName != null)
-				superConcept = retrieveExistingResource(skosModel, superConceptName, graphs);
+				superConcept = retrieveExistingURIResource(skosModel, superConceptName, graphs);
 			else
 				superConcept = NodeFilters.NONE;
 
-			ARTURIResource conceptScheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource conceptScheme = retrieveExistingURIResource(skosModel, schemeName, graphs);
 
 			logger.debug("adding concept to graph: " + wrkGraph);
 			skosModel.addConceptToScheme(newConcept.getURI(), superConcept, conceptScheme, wrkGraph);
@@ -785,12 +785,12 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, getUserNamedGraphs());
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, getUserNamedGraphs());
 			ARTURIResourceIterator unfilteredIt = skosModel.listNarrowerConcepts(concept, false, true,
 					getUserNamedGraphs());
 			Iterator<ARTURIResource> it;
 			if (schemeName != null) {
-				ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, getUserNamedGraphs());
+				ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeName, getUserNamedGraphs());
 				it = Iterators.filter(unfilteredIt,
 						ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
 			} else {
@@ -826,12 +826,12 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 
-			ARTURIResource concept = retrieveExistingResource(skosModel, conceptName, getUserNamedGraphs());
+			ARTURIResource concept = retrieveExistingURIResource(skosModel, conceptName, getUserNamedGraphs());
 			ARTURIResourceIterator unfilteredIt = skosModel.listBroaderConcepts(concept, false, true,
 					getUserNamedGraphs());
 			Iterator<ARTURIResource> it;
 			if (schemeName != null) {
-				ARTURIResource scheme = retrieveExistingResource(skosModel, schemeName, getUserNamedGraphs());
+				ARTURIResource scheme = retrieveExistingURIResource(skosModel, schemeName, getUserNamedGraphs());
 				it = Iterators.filter(unfilteredIt,
 						ConceptsInSchemePredicate.getFilter(skosModel, scheme, getUserNamedGraphs()));
 			} else {
@@ -1029,7 +1029,7 @@ public class SKOS extends Resource {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource skosConcept = retrieveExistingResource(ontModel, skosConceptName, graphs);
+			ARTURIResource skosConcept = retrieveExistingURIResource(ontModel, skosConceptName, graphs);
 			ARTLiteral prefLabel = ontModel.getPrefLabel(skosConcept, lang, true, graphs);
 
 			RDFXMLHelp.addRDFNode(response, STRDFNodeFactory.createSTRDFLiteral(prefLabel, true));
@@ -1057,7 +1057,7 @@ public class SKOS extends Resource {
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
 
-			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
+			ARTURIResource skosConcept = retrieveExistingURIResource(skosModel, skosConceptName, graphs);
 			ARTLiteralIterator altLabels = skosModel.listAltLabels(skosConcept, lang, true, graphs);
 
 			RDFXMLHelp.addRDFNodes(response, createSTLiteralCollection(skosModel, altLabels, true, lang));
@@ -1076,8 +1076,8 @@ public class SKOS extends Resource {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource skosConcept = retrieveExistingResource(skosModel, skosConceptName, graphs);
-			ARTURIResource skosScheme = retrieveExistingResource(skosModel, schemeName, graphs);
+			ARTURIResource skosConcept = retrieveExistingURIResource(skosModel, skosConceptName, graphs);
+			ARTURIResource skosScheme = retrieveExistingURIResource(skosModel, schemeName, graphs);
 
 			return createBooleanResponse(skosModel.isTopConcept(skosConcept, skosScheme, graphs));
 		} catch (NonExistingRDFResourceException e) {
