@@ -43,6 +43,7 @@ import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -51,11 +52,13 @@ import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNode;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -84,7 +87,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 
-public abstract class Resource extends ServiceAdapter {
+public class Resource extends ServiceAdapter {
 
 	private ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
 
@@ -111,6 +114,68 @@ public abstract class Resource extends ServiceAdapter {
 
 	public static final String langTag = "lang";
 
+	
+	public static class Req {
+		public static final String getPropertyValuesRequest = "getPropertyValues";
+	}
+	
+	public static class Par {
+		public static final String resource = "resource";
+		public static final String property = "property";
+	}
+	
+	
+	protected Logger getLogger() {
+		return logger;
+	}
+
+	protected Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+		logger.debug("request to SKOS-XL");
+
+		Response response = null;
+		// all new fashioned requests are put inside these grace brackets
+		if (request == null)
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+
+		else if (request == Req.getPropertyValuesRequest) {
+			String resourceName = setHttpPar(Par.resource);
+			String propertyName = setHttpPar(Par.property);
+			checkRequestParametersAllNotNull(Par.resource, Par.property);			
+			response = getPropertyValues(resourceName, propertyName);
+		} else
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+
+		this.fireServletEvent();
+		return response;
+	}
+
+	//@TODO add if they are explicit or no
+	public Response getPropertyValues(String resourceName, String propertyName) {
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
+			
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			
+			Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
+			while (it.streamOpen()) {
+				values.add(STRDFNodeFactory.createSTRDFNode(model, it.getNext(), true, true, true));
+			}
+			RDFXMLHelp.addRDFNodes(response, values);
+			return response;			
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+
+	
 	/**
 	 * 
 	 * 
@@ -132,7 +197,7 @@ public abstract class Resource extends ServiceAdapter {
 		ARTResource resource;
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			resource = retrieveExistingResource(ontModel, resourceQName, graphs);
+			resource = retrieveExistingURIResource(ontModel, resourceQName, graphs);
 			HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
 
 			// TEMPLATE PROPERTIES (properties which can be shown since the selected instance has at least a
@@ -511,7 +576,7 @@ public abstract class Resource extends ServiceAdapter {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource cls = retrieveExistingResource(ontModel, resourceQName, graphs);
+			ARTURIResource cls = retrieveExistingURIResource(ontModel, resourceQName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			collectParents(ontModel, cls, resType, dataElement, graphs);
@@ -523,6 +588,15 @@ public abstract class Resource extends ServiceAdapter {
 		}
 	}
 
+	
+	
+	
+	
+	// *******************
+	// FACILITY METHODS
+	// *******************
+	
+	
 	protected void collectParents(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
 			Element superTypesElem, ARTResource... graphs) throws ModelAccessException,
 			NonExistingRDFResourceException {

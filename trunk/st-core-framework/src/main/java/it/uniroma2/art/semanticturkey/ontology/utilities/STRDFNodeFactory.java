@@ -137,6 +137,17 @@ public class STRDFNodeFactory {
 		}
 	}
 
+	/**
+	 * @param model
+	 * @param node
+	 * @param role
+	 *            if true the role is being extracted and specified
+	 * @param explicit
+	 * @param rendering
+	 * @return
+	 * @throws DOMException
+	 * @throws ModelAccessException
+	 */
 	public static STRDFResource createSTRDFResource(RDFModel model, ARTResource node, boolean role,
 			boolean explicit, boolean rendering) throws DOMException, ModelAccessException {
 
@@ -145,6 +156,20 @@ public class STRDFNodeFactory {
 					explicit, rendering);
 
 		return createSTRDFResource(model, node, null, explicit, rendering);
+	}
+
+	public static STRDFResource createSTRDFResource(ARTResource node, RDFResourceRolesEnum role,
+			boolean explicit, String show) throws DOMException, ModelAccessException {
+		STRDFResource stRes;
+		if (node.isURIResource()) {
+			// uri
+			stRes = createSTRDFURI(node.asURIResource(), role, explicit, show);
+		} else {
+			// bnode
+			stRes = createSTRDFBNode(node.asBNode(), role, explicit, show);
+		}
+
+		return stRes;
 	}
 
 	public static STRDFResource createSTRDFResource(RDFModel model, ARTResource node,
@@ -171,6 +196,10 @@ public class STRDFNodeFactory {
 
 	public static Collection<STRDFResource> createEmptyResourceCollection() {
 		return new ArrayList<STRDFResource>();
+	}
+	
+	public static Collection<STRDFNode> createEmptyNodeCollection() {
+		return new ArrayList<STRDFNode>();
 	}
 
 	/*

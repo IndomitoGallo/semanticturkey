@@ -43,26 +43,28 @@ public class ServletBundle implements BundleActivator {
 		logger.info("registering services");
 
 		context.registerService(ServiceInterface.class.getName(), new SystemStart("systemStart"), null);
+		
 		context.registerService(ServiceInterface.class.getName(), new Administration("administration"), null);
 		context.registerService(ServiceInterface.class.getName(), new Annotation("annotation"), null);
 		context.registerService(ServiceInterface.class.getName(), new Cls("cls"), null);
 		context.registerService(ServiceInterface.class.getName(), new Delete("delete"), null);
+		context.registerService(ServiceInterface.class.getName(), new Environment("environment"), null);
 		context.registerService(ServiceInterface.class.getName(), new Individual("individual"), null);
 		context.registerService(ServiceInterface.class.getName(), new InputOutput("inputOutput"), null);
 		context.registerService(ServiceInterface.class.getName(), new Metadata("metadata"), null);
 		context.registerService(ServiceInterface.class.getName(), new ModifyName("modifyName"), null);
-		context.registerService(ServiceInterface.class.getName(), new Page("page"), null);
-		context.registerService(ServiceInterface.class.getName(), new Property("property"), null);
-		context.registerService(ServiceInterface.class.getName(), new OntoSearch("ontologySearch"), null);
-		context.registerService(ServiceInterface.class.getName(), new Synonyms("synonyms"), null);
-		context.registerService(ServiceInterface.class.getName(), new Projects("projects"), null);
-		context.registerService(ServiceInterface.class.getName(), new SPARQL("sparql"), null);
-		context.registerService(ServiceInterface.class.getName(), new Statement("statement"), null);
-		context.registerService(ServiceInterface.class.getName(), new Environment("environment"), null);
-		context.registerService(ServiceInterface.class.getName(), new SKOS("skos"), null);
 		context.registerService(ServiceInterface.class.getName(), new OntManager("ontManager"), null);
-		
+		context.registerService(ServiceInterface.class.getName(), new OntoSearch("ontologySearch"), null);
+		context.registerService(ServiceInterface.class.getName(), new Page("page"), null);
 		context.registerService(ServiceInterface.class.getName(), new Plugins("plugins"), null);
+		context.registerService(ServiceInterface.class.getName(), new Projects("projects"), null);
+		context.registerService(ServiceInterface.class.getName(), new Property("property"), null);
+		context.registerService(ServiceInterface.class.getName(), new Resource("resource"), null);
+		context.registerService(ServiceInterface.class.getName(), new SKOS("skos"), null);
+		context.registerService(ServiceInterface.class.getName(), new SKOSXL("skosxl"), null);
+		context.registerService(ServiceInterface.class.getName(), new SPARQL("sparql"), null);		
+		context.registerService(ServiceInterface.class.getName(), new Statement("statement"), null);
+		context.registerService(ServiceInterface.class.getName(), new Synonyms("synonyms"), null);
 		
 		logger.info("all services have been registered");
 	}

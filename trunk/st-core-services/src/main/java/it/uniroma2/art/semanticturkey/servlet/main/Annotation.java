@@ -467,7 +467,7 @@ public class Annotation extends ServiceAdapter {
 		try {
 			ARTURIResource instance = createNewResource(ontModel, instanceQName, getUserNamedGraphs());
 			String instanceURI = instance.getURI();
-			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs());
+			ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, getUserNamedGraphs());
 			ontModel.addInstance(instanceURI, cls, getWorkingGraph());
 			logger.debug("created new instance: " + instanceURI + " for class: " + cls);
 			createLexicalization(ontModel, instance, instanceQName, urlPage, title, getWorkingGraph());
@@ -538,7 +538,7 @@ public class Annotation extends ServiceAdapter {
 				+ " lexicalization: " + lexicalizationEncoded + " title: " + title);
 		RDFModel ontModel = getOWLModel();
 		try {
-			ARTURIResource subjectInstance = retrieveExistingResource(ontModel, subjectInstanceQName,
+			ARTURIResource subjectInstance = retrieveExistingURIResource(ontModel, subjectInstanceQName,
 					getUserNamedGraphs());
 			createLexicalization(ontModel, subjectInstance, lexicalizationEncoded, urlPage, title,
 					getWorkingGraph());
@@ -675,7 +675,7 @@ public class Annotation extends ServiceAdapter {
 
 			ARTURIResource property = ontModel
 					.createURIResource(ontModel.expandQName(predicatePropertyQName));
-			ARTURIResource objectInstance = retrieveExistingResource(ontModel, objectInstanceQName,
+			ARTURIResource objectInstance = retrieveExistingURIResource(ontModel, objectInstanceQName,
 					getUserNamedGraphs());
 			createLexicalization(ontModel, objectInstance, lexicalization, urlPage, title, wgraph);
 			ARTResource subjectInstanceRes = ontModel.createURIResource(ontModel
@@ -704,7 +704,7 @@ public class Annotation extends ServiceAdapter {
 			String[] topicsStringArray = topicsString.split("\\|_\\|");
 			ArrayList<ARTURIResource> topics = new ArrayList<ARTURIResource>();
 			for (String topicName : topicsStringArray) {
-				ARTURIResource topic = retrieveExistingResource(ontModel, topicName, graphs);
+				ARTURIResource topic = retrieveExistingURIResource(ontModel, topicName, graphs);
 				topics.add(topic);
 			}
 			tagPageWithTopics(ontModel, webPageInstance, topics, wgraph);

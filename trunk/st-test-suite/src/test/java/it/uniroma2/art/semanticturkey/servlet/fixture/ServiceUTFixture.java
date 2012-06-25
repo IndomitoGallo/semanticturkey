@@ -83,11 +83,15 @@ public class ServiceUTFixture extends ServiceTest {
 	}
 
 	public static void startST(String modelType) throws TestInitializationFailed {
+		startST(modelType, "http://art.uniroma2.it/ontologies/myont");
+	}
+	
+	public static void startST(String modelType, String baseuri) throws TestInitializationFailed {
 
 		Response resp = serviceTester.projectsService.makeRequest(
 				Projects.Req.createNewProjectRequest,
 				par(Projects.projectNamePar, "testProject"),
-				par(Projects.baseuriPar, "http://art.uniroma2.it/ontologies/myont"),
+				par(Projects.baseuriPar, baseuri),
 				par(Projects.ontmanagerPar, OntologyManagerFactorySesame2Impl.class.getName()),
 				par(Projects.projectTypePar, ProjectType.continuosEditing.toString()),
 				par(Projects.ontMgrConfigurationPar,
@@ -99,6 +103,16 @@ public class ServiceUTFixture extends ServiceTest {
 		if (!resp.isAffirmative())
 			throw new TestInitializationFailed();
 
+	}
+	
+	public static void startST(String modelType, String baseuri, String defaultNamespace) throws TestInitializationFailed {
+		startST(modelType, baseuri);
+		
+		Response resp = serviceTester.metadataService.makeRequest(
+				Metadata.setDefaultNamespaceRequest,
+				par(Metadata.namespacePar, defaultNamespace)
+		);
+		System.out.println(resp);
 	}
 
 	/**

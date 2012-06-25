@@ -241,7 +241,7 @@ public class Cls extends Resource {
 
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTResource wgraph = getWorkingGraph();
-			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+			ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
 
 			// THIS IS DONE HERE AS THIS DATA IS CALCULATED ONCE, while each single rendering is calculated
 			// per class
@@ -424,7 +424,7 @@ public class Cls extends Resource {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+			ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
 
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
@@ -514,7 +514,7 @@ public class Cls extends Resource {
 			if (ontModel.existsResource(instanceRes)) {
 				return logAndSendException("there is another resource with the same name!");
 			}
-			ARTURIResource clsRes = retrieveExistingResource(ontModel, clsQName, getUserNamedGraphs());
+			ARTURIResource clsRes = retrieveExistingURIResource(ontModel, clsQName, getUserNamedGraphs());
 			ontModel.addInstance(ontModel.expandQName(instanceQName), clsRes);
 			return updateClassOnTree(clsQName, instanceQName);
 		} catch (ModelAccessException e) {
@@ -756,7 +756,7 @@ public class Cls extends Resource {
 			ARTResource[] graphs = getUserNamedGraphs();
 			for (String clsQName : clsesQNames) {
 
-				ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
+				ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
 
 				Element classElement = XMLHelp.newElement(dataElement, "class");
 				// class name
@@ -807,8 +807,8 @@ public class Cls extends Resource {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTURIResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
-			ARTURIResource superCls = retrieveExistingResource(ontModel, superclsQName, graphs);
+			ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
+			ARTURIResource superCls = retrieveExistingURIResource(ontModel, superclsQName, graphs);
 
 			Collection<ARTResource> superClasses = RDFIterators
 					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls,
@@ -848,8 +848,8 @@ public class Cls extends Resource {
 
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
-			ARTResource cls = retrieveExistingResource(ontModel, clsQName, graphs);
-			ARTResource superCls = retrieveExistingResource(ontModel, superClassQName, graphs);
+			ARTResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
+			ARTResource superCls = retrieveExistingURIResource(ontModel, superClassQName, graphs);
 
 			Collection<ARTResource> superClasses = RDFIterators
 					.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSuperClasses(cls,
@@ -918,7 +918,7 @@ public class Cls extends Resource {
 			if (exists) {
 				return logAndSendException("there is a resource with the same name!");
 			}
-			ARTResource superClassResource = retrieveExistingResource(ontModel, superClassQName,
+			ARTResource superClassResource = retrieveExistingURIResource(ontModel, superClassQName,
 					getUserNamedGraphs());
 
 			ontModel.addClass(newClassURI);
