@@ -22,6 +22,7 @@ import it.uniroma2.art.semanticturkey.servlet.main.Page;
 import it.uniroma2.art.semanticturkey.servlet.main.Plugins;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
 import it.uniroma2.art.semanticturkey.servlet.main.Property;
+import it.uniroma2.art.semanticturkey.servlet.main.Resource;
 import it.uniroma2.art.semanticturkey.servlet.main.SKOS;
 import it.uniroma2.art.semanticturkey.servlet.main.SKOSXL;
 import it.uniroma2.art.semanticturkey.servlet.main.SPARQL;
@@ -73,6 +74,7 @@ public abstract class ServiceTest {
 	public ServiceWrapper systemStartService;
 	public ServiceWrapper projectsService;
 	public ServiceWrapper pluginsService;
+	public ServiceWrapper resourceService;
 	public ServiceWrapper sparqlService;
 	public ServiceWrapper statementService;
 	public ServiceWrapper environmentService;
@@ -209,6 +211,7 @@ public abstract class ServiceTest {
 		pluginsService = new ServiceHttpWrapper("plugins", httpclient);
 		propertyService = new ServiceHttpWrapper("property", httpclient);
 		projectsService = new ServiceHttpWrapper("projects", httpclient);
+		resourceService = new ServiceHttpWrapper("resource", httpclient);
 		searchOntologyService = new ServiceHttpWrapper("ontologySearch", httpclient);
 		synonymsService = new ServiceHttpWrapper("synonyms", httpclient);
 		systemStartService = new ServiceHttpWrapper("systemStart", httpclient);
@@ -233,6 +236,7 @@ public abstract class ServiceTest {
 		pluginsService = new ServiceDirectWrapper(new Plugins(""));
 		propertyService = new ServiceDirectWrapper(new Property(""));
 		projectsService = new ServiceDirectWrapper(new Projects(""));
+		resourceService = new ServiceDirectWrapper(new Resource(""));
 		searchOntologyService = new ServiceDirectWrapper(new OntoSearch(""));
 		synonymsService = new ServiceDirectWrapper(new Synonyms(""));
 		systemStartService = new ServiceDirectWrapper(new SystemStart(""));
