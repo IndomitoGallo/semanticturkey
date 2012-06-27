@@ -89,6 +89,13 @@ public class SKOSXL_UT extends ServiceUTFixture {
 		);
 		System.out.println(resp);
 		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.skosXLService.makeRequest(SKOSXL.Req.getPrefLabelRequest,
+				par(SKOS.Par.concept, "c_mais"),
+				par(SKOS.Par.langTag, "nonexistinglangcode")
+		);
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
 	}
 	
 	
