@@ -200,7 +200,7 @@ public class SKOSXL extends SKOS {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource skosConcept = retrieveExistingURIResource(model, skosConceptName, graphs);
 
-			if (lang != "*") {
+			if (!lang.equals("*")) {
 				STRDFResource prefLabel = getPrefXLabel(model, skosConcept, lang, graphs);
 				if (prefLabel != null)
 					RDFXMLHelp.addRDFNode(response, prefLabel);
@@ -290,7 +290,7 @@ public class SKOSXL extends SKOS {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource skosConcept = retrieveExistingURIResource(model, skosConceptName, graphs);
 
-			if (lang != "*") {
+			if (!lang.equals("*")) {
 				STRDFResource prefLabel = getPrefXLabel(model, skosConcept, lang, graphs);
 				if (prefLabel != null)
 					RDFXMLHelp.addRDFNode(XMLHelp.newElement(response.getDataElement(), "prefLabel"),
@@ -435,7 +435,9 @@ public class SKOSXL extends SKOS {
 	public STRDFResource getPrefXLabel(SKOSXLModel model, ARTURIResource skosConcept, String lang,
 			ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource prefLabel = model.getPrefXLabel(skosConcept, lang, graphs);
-		return createSTXLabel(model, prefLabel, true);
+		if (prefLabel!=null)
+			return createSTXLabel(model, prefLabel, true);
+		return null;
 	}
 
 	public Collection<STRDFResource> listPrefXLabels(SKOSXLModel model, ARTURIResource skosConcept,
@@ -447,7 +449,7 @@ public class SKOSXL extends SKOS {
 	public Collection<STRDFResource> listAltXLabels(SKOSXLModel model, ARTURIResource skosConcept,
 			String lang, ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResourceIterator altLabels;
-		if (lang == "*")
+		if (lang.equals("*"))
 			altLabels = model.listAltXLabels(skosConcept, graphs);
 
 		else
@@ -459,7 +461,7 @@ public class SKOSXL extends SKOS {
 	public Collection<STRDFResource> listHiddenXLabels(SKOSXLModel model, ARTURIResource skosConcept,
 			String lang, ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResourceIterator altLabels;
-		if (lang == "*")
+		if (lang.equals("*"))
 			altLabels = model.listHiddenXLabels(skosConcept, graphs);
 
 		else
