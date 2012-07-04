@@ -313,7 +313,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	
 	protected ARTURIResource retrieveExistingURIResource(RDFModel model, String qname, ARTResource... graphs)
 			throws NonExistingRDFResourceException, ModelAccessException {
-		ARTURIResource res = model.createURIResource(model.expandQName(qname));
+		ARTURIResource res = RDFNodeSerializer.createURI(model, qname);
 		if (model.existsResource(res, graphs))
 			return res;
 		throw new NonExistingRDFResourceException(res, graphs);
