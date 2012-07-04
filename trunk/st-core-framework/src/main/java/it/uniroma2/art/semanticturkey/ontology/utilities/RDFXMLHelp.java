@@ -193,6 +193,8 @@ public class RDFXMLHelp {
 				nodeElement.setAttribute("lang", lang);
 		}
 		nodeElement.setTextContent(node.getLabel());
+		
+		nodeElement.setAttribute("explicit", Boolean.toString(node.isExplicit()));
 
 		serializeMap(nodeElement, node);
 

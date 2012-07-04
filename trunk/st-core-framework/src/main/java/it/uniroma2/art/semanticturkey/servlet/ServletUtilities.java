@@ -384,6 +384,21 @@ public class ServletUtilities {
 		booleanValueElement.setTextContent(Boolean.toString(resp));
 		return response;
 	}
+	
+	/**
+	 * creates a response with a single integer value returned
+	 * 
+	 * @param request
+	 * @param resp
+	 * @return
+	 */
+	public XMLResponseREPLY createIntegerResponse(String request, int value) {
+		XMLResponseREPLY response = (XMLResponseREPLY) createReplyResponse(request, RepliesStatus.ok,
+				SerializationType.xml);
+		Element integerValueElement = createValueElement(response, XmlSchema.INTEGER);
+		integerValueElement.setTextContent(Integer.toString(value));
+		return response;
+	}
 
 	/**
 	 * creates an element to host a single typed value in a response

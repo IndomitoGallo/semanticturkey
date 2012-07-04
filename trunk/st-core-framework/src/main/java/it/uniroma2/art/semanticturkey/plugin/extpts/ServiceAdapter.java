@@ -99,7 +99,7 @@ public abstract class ServiceAdapter implements ServiceInterface {
 
 	/**
 	 * as for {@link ServiceAdapter#setHttpPar(String) but invokes {@link Boolean#parseBoolean(String)} on
-	 * the string value of the parameter}
+	 * the string value of the parameter}. Defaults to <code>false</code>.
 	 * 
 	 * @param parameterName
 	 * @return
@@ -204,6 +204,10 @@ public abstract class ServiceAdapter implements ServiceInterface {
 
 	protected XMLResponseREPLY createBooleanResponse(boolean resp) {
 		return servletUtilities.createBooleanResponse(httpParameters.get("request"), resp);
+	}
+	
+	protected XMLResponseREPLY createIntegerResponse(int value) {
+		return servletUtilities.createIntegerResponse(httpParameters.get("request"), value);
 	}
 	
 	protected XMLResponseREPLY createReplyResponse(RepliesStatus status) {

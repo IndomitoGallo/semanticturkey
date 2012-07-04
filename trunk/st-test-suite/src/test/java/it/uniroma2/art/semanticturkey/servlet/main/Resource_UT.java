@@ -82,6 +82,31 @@ public class Resource_UT extends ServiceUTFixture {
 		assertAffirmativeREPLY(resp);
 	}
 	
+	
+	@Test
+	public void testGetPropertyValuesCount() {
+		Response resp = serviceTester.resourceService.makeRequest(Resource.Req.getPropertyValuesCountRequest,
+				par(Resource.Par.resource, "heritage:accomodation"),
+				par(Resource.Par.property, "rdfs:label")
+		);		
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.resourceService.makeRequest(Resource.Req.getPropertyValuesCountRequest,
+				par(Resource.Par.resource, "heritage:VA_VillaImperialePeristilio"),
+				par(Resource.Par.property, "geo:radius")
+		);		
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+		
+		resp = serviceTester.resourceService.makeRequest(Resource.Req.getPropertyValuesCountRequest,
+				par(Resource.Par.resource, "heritage:VA_VillaImperialePeristilio"),
+				par(Resource.Par.property, "geo:geo_coord")
+		);		
+		System.out.println(resp);
+		assertAffirmativeREPLY(resp);
+	}
+	
 
 
 }
