@@ -114,17 +114,17 @@ public class Resource extends ServiceAdapter {
 
 	public static final String langTag = "lang";
 
-	
 	public static class Req {
 		public static final String getPropertyValuesRequest = "getPropertyValues";
+		public static final String getPropertyValuesCountRequest = "getPropertyValuesCount";
 	}
-	
+
 	public static class Par {
 		public static final String resource = "resource";
 		public static final String property = "property";
+		public static final String explicit = "explicit";
 	}
-	
-	
+
 	protected Logger getLogger() {
 		return logger;
 	}
@@ -140,8 +140,14 @@ public class Resource extends ServiceAdapter {
 		else if (request == Req.getPropertyValuesRequest) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertyName = setHttpPar(Par.property);
-			checkRequestParametersAllNotNull(Par.resource, Par.property);			
+			checkRequestParametersAllNotNull(Par.resource, Par.property);
 			response = getPropertyValues(resourceName, propertyName);
+		} else if (request == Req.getPropertyValuesCountRequest) {
+			String resourceName = setHttpPar(Par.resource);
+			String propertyName = setHttpPar(Par.property);
+			boolean explicit = setHttpBooleanPar(Par.explicit);
+			checkRequestParametersAllNotNull(Par.resource, Par.property);
+			response = getPropertyValuesCount(resourceName, propertyName, explicit);
 		} else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
@@ -149,7 +155,6 @@ public class Resource extends ServiceAdapter {
 		return response;
 	}
 
-	//@TODO add if they are explicit or no
 	public Response getPropertyValues(String resourceName, String propertyName) {
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -158,15 +163,46 @@ public class Resource extends ServiceAdapter {
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
-			
+
+			Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
+					.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
+
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-			
+
 			Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
 			while (it.streamOpen()) {
-				values.add(STRDFNodeFactory.createSTRDFNode(model, it.getNext(), true, true, true));
+				ARTNode next = it.getNext();
+				boolean explicit;
+				if (explicitValues.contains(next))
+					explicit = true;
+				else 
+					explicit = false;
+				values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
 			}
+			it.close();
 			RDFXMLHelp.addRDFNodes(response, values);
-			return response;			
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+	
+	public Response getPropertyValuesCount(String resourceName, String propertyName, boolean explicit) {
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, !explicit, graphs);
+
+			Collection<ARTNode> values = RDFIterators.getCollectionFromIterator(it);
+
+			XMLResponseREPLY response = createIntegerResponse(values.size());
+			return response;
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -175,7 +211,6 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	
 	/**
 	 * 
 	 * 
@@ -588,15 +623,10 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	
-	
-	
-	
 	// *******************
 	// FACILITY METHODS
 	// *******************
-	
-	
+
 	protected void collectParents(OWLModel ontModel, ARTResource resource, RDFResourceRolesEnum restype,
 			Element superTypesElem, ARTResource... graphs) throws ModelAccessException,
 			NonExistingRDFResourceException {

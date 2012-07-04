@@ -34,7 +34,6 @@ import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
 import it.uniroma2.art.semanticturkey.servlet.main.Projects;
-import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
@@ -78,14 +77,34 @@ public class ServiceUTFixture extends ServiceTest {
 		initWholeTestClass(testInst, STDirectoryRelPath, true);
 	}
 
+	/**
+	 * starts ST with an empty OWL project, of baseuri: http://art.uniroma2.it/ontologies/myont
+	 * 
+	 * @throws TestInitializationFailed
+	 */
 	public static void startST() throws TestInitializationFailed {
 		startST("OWL");
 	}
 
+	/**
+	 * starts ST with an empty project of type <code>modelType</code>, called <em>testProject</em>, using
+	 * <code>http://art.uniroma2.it/ontologies/myont</code> as its baseuri
+	 * 
+	 * @param modelType
+	 * @throws TestInitializationFailed
+	 */
 	public static void startST(String modelType) throws TestInitializationFailed {
 		startST(modelType, "http://art.uniroma2.it/ontologies/myont");
 	}
-	
+
+	/**
+	 * starts ST with a new empty project of type <code>modelType</code>, called <em>testProject</em>, using
+	 * argument <code>baseuri</code> as its baseuri
+	 * 
+	 * @param modelType
+	 * @param baseuri
+	 * @throws TestInitializationFailed
+	 */
 	public static void startST(String modelType, String baseuri) throws TestInitializationFailed {
 
 		Response resp = serviceTester.projectsService.makeRequest(
@@ -104,14 +123,22 @@ public class ServiceUTFixture extends ServiceTest {
 			throw new TestInitializationFailed();
 
 	}
-	
-	public static void startST(String modelType, String baseuri, String defaultNamespace) throws TestInitializationFailed {
+
+	/**
+	 * as for {@link #startST(String, String)}, but the default namespace can be set differently from just
+	 * <code>baseuri + "#"</code>
+	 * 
+	 * @param modelType
+	 * @param baseuri
+	 * @param defaultNamespace
+	 * @throws TestInitializationFailed
+	 */
+	public static void startST(String modelType, String baseuri, String defaultNamespace)
+			throws TestInitializationFailed {
 		startST(modelType, baseuri);
-		
-		Response resp = serviceTester.metadataService.makeRequest(
-				Metadata.setDefaultNamespaceRequest,
-				par(Metadata.namespacePar, defaultNamespace)
-		);
+
+		Response resp = serviceTester.metadataService.makeRequest(Metadata.setDefaultNamespaceRequest,
+				par(Metadata.namespacePar, defaultNamespace));
 		System.out.println(resp);
 	}
 

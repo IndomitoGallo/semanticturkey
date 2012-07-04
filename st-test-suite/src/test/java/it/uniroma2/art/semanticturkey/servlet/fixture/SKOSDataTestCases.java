@@ -45,9 +45,6 @@ public class SKOSDataTestCases {
 	
 	
 	
-	
-	
-	
 	public static class SKOSDataCreator {
 		
 		public Response addScheme(Vocabulary voc, String prefLabel, String lang) {

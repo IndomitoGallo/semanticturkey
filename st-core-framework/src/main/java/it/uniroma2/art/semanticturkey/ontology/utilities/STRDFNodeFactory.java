@@ -108,6 +108,8 @@ public class STRDFNodeFactory {
 	 * @param role
 	 *            when <code>true</code>, if the node is a resource, it tells the role of the resource (cls,
 	 *            ontology, property...). see {@link RDFResourceRolesEnum}
+	 * @param explicit 
+	 * 			  is automatically assigned to the explicit attribute of the STRDFNode resource to be created           
 	 * @param rendering
 	 *            If true, it provides a human readable representation of the node
 	 *            <ul>
