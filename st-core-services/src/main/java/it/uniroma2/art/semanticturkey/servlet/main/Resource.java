@@ -130,19 +130,19 @@ public class Resource extends ServiceAdapter {
 	}
 
 	protected Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
-		logger.debug("request to SKOS-XL");
+		logger.debug("request to Resource");
 
 		Response response = null;
 		// all new fashioned requests are put inside these grace brackets
 		if (request == null)
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
-		else if (request == Req.getPropertyValuesRequest) {
+		else if (request.equals(Req.getPropertyValuesRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertyName = setHttpPar(Par.property);
 			checkRequestParametersAllNotNull(Par.resource, Par.property);
 			response = getPropertyValues(resourceName, propertyName);
-		} else if (request == Req.getPropertyValuesCountRequest) {
+		} else if (request.equals(Req.getPropertyValuesCountRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertyName = setHttpPar(Par.property);
 			boolean explicit = setHttpBooleanPar(Par.explicit);

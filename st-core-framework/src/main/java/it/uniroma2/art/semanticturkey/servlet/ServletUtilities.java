@@ -384,7 +384,7 @@ public class ServletUtilities {
 		booleanValueElement.setTextContent(Boolean.toString(resp));
 		return response;
 	}
-	
+
 	/**
 	 * creates a response with a single integer value returned
 	 * 
@@ -490,11 +490,12 @@ public class ServletUtilities {
 	public ResponseProblem createNoSuchHandlerExceptionResponse(String request, SerializationType ser_type) {
 		if (ser_type == SerializationType.xml) {
 			Document xml = XMLHelp.createNewDoc();
-			return new XMLResponseEXCEPTION(xml, request, "no handler for such a request!");
+			return new XMLResponseEXCEPTION(xml, request, "no handler for request: " + request + " !!!");
 		} else {
 			JSONObject json_content = new JSONObject();
 			try {
-				return new JSONResponseEXCEPTION(json_content, request, "no handler for such a request!");
+				return new JSONResponseEXCEPTION(json_content, request, "no handler for such a request: "
+						+ request + " !!!");
 			} catch (JSONException e) {
 				logger.error("Error in Json response creation:" + e.getMessage());
 				e.printStackTrace();
@@ -577,10 +578,10 @@ public class ServletUtilities {
 		// if other namespace than default one, then it is imported, thus write only
 		res.getNamespace().equals(ProjectManager.getCurrentProject().getDefaultNamespace()));
 	}
-	
-	public boolean checkWritable(RDFModel model, ARTResource res, ARTResource graph) throws ModelAccessException {
+
+	public boolean checkWritable(RDFModel model, ARTResource res, ARTResource graph)
+			throws ModelAccessException {
 		return model.hasTriple(res, NodeFilters.ANY, NodeFilters.ANY, false, graph);
 	}
-
 
 }
