@@ -117,11 +117,13 @@ public class Resource extends ServiceAdapter {
 	public static class Req {
 		public static final String getPropertyValuesRequest = "getPropertyValues";
 		public static final String getPropertyValuesCountRequest = "getPropertyValuesCount";
+		public static final String getValuesOfPropertiesRequest = "getValuesOfProperties";
 	}
 
 	public static class Par {
 		public static final String resource = "resource";
 		public static final String property = "property";
+		public static final String properties = "properties";
 		public static final String explicit = "explicit";
 	}
 
@@ -148,7 +150,12 @@ public class Resource extends ServiceAdapter {
 			boolean explicit = setHttpBooleanPar(Par.explicit);
 			checkRequestParametersAllNotNull(Par.resource, Par.property);
 			response = getPropertyValuesCount(resourceName, propertyName, explicit);
-		} else
+		} else if(request.equals(Req.getValuesOfPropertiesRequest)){
+			String resourceName = setHttpPar(Par.resource);
+			String propertiesNames = setHttpPar(Par.properties);
+			checkRequestParametersAllNotNull(Par.resource, Par.properties);
+			response = getValuesOfProperties(resourceName, propertiesNames);
+		}else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
@@ -204,6 +211,53 @@ public class Resource extends ServiceAdapter {
 			XMLResponseREPLY response = createIntegerResponse(values.size());
 			return response;
 
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+	
+	public Response getValuesOfProperties(String resourceName, String propertiesNames) {
+		String[] propsNames = propertiesNames.split("\\|_\\|");
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			
+			Element dataElement = response.getDataElement();
+			Element extCollection = XMLHelp.newElement(dataElement, "collection");
+						
+			
+			for(String propName : propsNames){
+				Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
+				
+				Element propElem = XMLHelp.newElement(propValuesElem, "property");
+				ARTURIResource property = retrieveExistingURIResource(model, propName, graphs);
+				RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
+				
+				Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
+				ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
+				Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
+						.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
+				
+				Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
+				while (it.streamOpen()) {
+					ARTNode next = it.getNext();
+					boolean explicit;
+					if (explicitValues.contains(next))
+						explicit = true;
+					else 
+						explicit = false;
+					values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
+				}
+				it.close();
+				RDFXMLHelp.addRDFNodes(valuesElem, values);
+			}
+			return response;
+			
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {
