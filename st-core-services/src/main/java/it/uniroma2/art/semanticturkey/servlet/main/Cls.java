@@ -217,7 +217,8 @@ public class Cls extends Resource {
 	 * @param forTree
 	 *            <code>true</code> if this request has been performed to fill an ontology class tree. In this
 	 *            case, an attribute called "more" is being provided for each subclass. If its value is 1 then
-	 *            the subclass has subclasses itself
+	 *            the subclass has subclasses itself. Also, in case of a tree request, only URI classes are
+	 *            being retrieved
 	 * @param instNum
 	 *            <code>true</code> if the user is interested in knowing the number of instances per concept
 	 * @param labelQuery
@@ -257,9 +258,15 @@ public class Cls extends Resource {
 				requestedISOLang = lblProc.getRequestedISOLang();
 			}
 
-			System.err.println("labelProp3: " + labelProp);
-			// creating named subclasses iterator
-			RDFIterator<ARTResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
+			RDFIterator<? extends ARTResource> subClassesIterator;
+
+			// creating subclasses iterator
+			// URI filter and other complex operations for tree show
+			if (forTree)
+				subClassesIterator = new SubClassesForTreeIterator(ontModel, cls, graphs);
+			else
+				// simple listDirectSubClasses for standard method	
+				subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(cls, graphs);
 
 			Collection<STRDFResource> classes = STRDFNodeFactory.createEmptyResourceCollection();
 			while (subClassesIterator.streamOpen()) {
@@ -435,7 +442,8 @@ public class Cls extends Resource {
 			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkReadOnly(cls)));
 
 			if (hasSubClassesRequest) {
-				RDFIterator<ARTResource> subSubClassesIterator = new subClassesIterator(ontModel, cls, graphs);
+				RDFIterator<ARTURIResource> subSubClassesIterator = new SubClassesForTreeIterator(ontModel,
+						cls, graphs);
 				if (subSubClassesIterator.hasNext())
 					root.setAttribute("more", "1"); // the subclass has further subclasses
 				else
@@ -679,12 +687,19 @@ public class Cls extends Resource {
 		subClassesIterator.close();
 	}
 
-	private class subClassesIterator implements RDFIterator<ARTResource> {
+	/**
+	 * An iterator which retrieves subclasses of a class for the specific case of populating a class tree.<br/>
+	 * This means the subclasses are limited to URI resources (e.g. not class descriptions coded as bnodes)
+	 * 
+	 * @author Armando Stellato &lt;stellato@info.uniroma2.it&gt; -Xmx400m
+	 * 
+	 */
+	private class SubClassesForTreeIterator implements RDFIterator<ARTURIResource> {
 
 		RDFIterator<? extends ARTResource> subClassesIterator;
 		Iterator<? extends ARTResource> finalIterator;
 
-		subClassesIterator(RDFSModel ontModel, ARTURIResource superCls, ARTResource... graphs)
+		SubClassesForTreeIterator(RDFSModel ontModel, ARTResource superCls, ARTResource... graphs)
 				throws ModelAccessException {
 			// to check that even with a non-owl reasoning triple-store, root classes are computed as children
 			// of owl:Thing
@@ -699,7 +714,7 @@ public class Cls extends Resource {
 				Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(
 						ontModel), exclusionPredicate);
 
-				subClassesIterator = ontModel.listClasses(true, graphs);
+				subClassesIterator = ontModel.listNamedClasses(true, graphs);
 				finalIterator = Iterators.filter(subClassesIterator, rootUserClsPred);
 
 			} else {
@@ -731,13 +746,16 @@ public class Cls extends Resource {
 		public void remove() {
 			subClassesIterator.remove();
 		}
-
 	}
 
 	/**
-	 * retrieves info about classes identified by qnames concatenated through symbol |_| into
-	 * <code>clsesQNamesString</code> <br/>
+	 * This call has to be performed when a given list of classes has to be shown as roots for a given class
+	 * tree<br/>
+	 * The method retrieves info about classes identified by qnames concatenated through symbol |_| into
+	 * <code>clsesQNamesString</code> (classes shown in a classtree are always URI, as bnodes are only shown
+	 * as superclasses in the descriptions of other classes ) <br/>
 	 * The response provides additional info depending on other arguments' values.<br/>
+	 * 
 	 * 
 	 * @param clsesQNamesString
 	 * @param instNumBool
@@ -765,7 +783,8 @@ public class Cls extends Resource {
 				classElement.setAttribute("deleteForbidden",
 						Boolean.toString(servletUtilities.checkReadOnly(cls)));
 				// class has children?
-				RDFIterator<ARTResource> subClassesIterator = new subClassesIterator(ontModel, cls, graphs);
+				RDFIterator<ARTURIResource> subClassesIterator = new SubClassesForTreeIterator(ontModel, cls,
+						graphs);
 				if (subClassesIterator.hasNext())
 					classElement.setAttribute("more", "1"); // the subclass has further subclasses
 				else

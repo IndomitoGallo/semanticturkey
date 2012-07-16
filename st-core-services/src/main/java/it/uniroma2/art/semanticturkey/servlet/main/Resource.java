@@ -118,7 +118,7 @@ public class Resource extends ServiceAdapter {
 		public static final String getPropertyValuesRequest = "getPropertyValues";
 		public static final String getPropertyValuesCountRequest = "getPropertyValuesCount";
 		public static final String getValuesOfPropertiesRequest = "getValuesOfProperties";
-		public static final String getValuesOfPropetiesCountRequest = "getValuesOfPropetiesCount";
+		public static final String getValuesOfPropertiesCountRequest = "getValuesOfPropertiesCount";
 	}
 
 	public static class Par {
@@ -156,11 +156,11 @@ public class Resource extends ServiceAdapter {
 			String propertiesNames = setHttpPar(Par.properties);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfProperties(resourceName, propertiesNames);
-		} else if(request.equals(Req.getValuesOfPropetiesCountRequest)){
+		} else if(request.equals(Req.getValuesOfPropertiesCountRequest)){
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfPropetiesCount(resourceName, propertiesNames);
+			response = getValuesOfPropertiesCount(resourceName, propertiesNames);
 		}
 		else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
@@ -273,7 +273,7 @@ public class Resource extends ServiceAdapter {
 	}
 	
 	
-	public Response getValuesOfPropetiesCount(String resourceName, String propertiesNames) {
+	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
