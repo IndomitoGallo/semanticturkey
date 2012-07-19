@@ -4,6 +4,8 @@ if (typeof art_semanticturkey == "undefined") {
 
 Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Deserializer.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
 
 art_semanticturkey.init = function() {
 	var schemeList = document.getElementById("schemeList");
@@ -19,10 +21,13 @@ art_semanticturkey.init = function() {
 	
 	var predefRoots = schemeList._view.sourceAdapter.fetchRoots;
 	schemeList._view.sourceAdapter.fetchRoots = function() {
-		var selSc = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme").getElementsByTagName("property")[0].getAttribute("value");
+		//var selSc = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme").getElementsByTagName("property")[0].getAttribute("value");
 
-		var roots = predefRoots();
+		var response = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme");
 		
+		var selSc = art_semanticturkey.Deserializer.getPropertyValue(response);
+		//var collectionValues = art_semanticturkey.deserializer.getCollection(response);
+		var roots = predefRoots();
 		for (var i = 0 ; i < roots.length ; i++) {
 			if (roots[i].id == selSc) {
 				roots[i].record.check = true;

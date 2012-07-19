@@ -1,7 +1,10 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
 Components.utils.import("resource://stmodules/stEvtMgr.jsm");
- 
+Components.utils.import("resource://stmodules/Deserializer.jsm");	
+Components.utils.import("resource://stmodules/ARTResources.jsm");
+				
+
 EXPORTED_SYMBOLS = [ "STRequests" ];
 
 var service = STRequests.SKOS;
@@ -19,7 +22,7 @@ function getTopConcepts(scheme,lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getTopConcepts');
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var lang_p = "lang=" + lang;
-	return HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p));
 }
 
 /**
@@ -37,7 +40,7 @@ function getNarrowerConcepts(concept, scheme, lang) {
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var treeView_p ="treeView=true";
 	var lang_p = "lang=" + lang;
-	return HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p));
 }
 
 /**
@@ -50,9 +53,10 @@ function getNarrowerConcepts(concept, scheme, lang) {
 function getAllSchemesList(lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getAllSchemesList: langTag (' + lang + ')');
 	var lang_p = "lang=" + lang;
-	return HttpMgr.GET(serviceName, service.getAllSchemesListRequest, lang_p);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, lang_p));
 }
 
+//TODO fix with the new normalized answer
 function getConceptDescription(concept, method) {
 	Logger.debug('[SERVICE_SKOS.jsm] getConceptDescription');
 	var concept_p = "concept=" + concept;
@@ -61,6 +65,7 @@ function getConceptDescription(concept, method) {
 	return HttpMgr.GET(serviceName, service.getConceptDescriptionRequest,concept_p, method_p);	
 }
 
+//TODO fix with the new normalized answer
 function getConceptSchemeDescription(scheme) {
 	Logger.debug('[SERVICE_SKOS.jsm] getConceptSchemeDescription');
 	var scheme_p = "scheme=" + scheme;
@@ -69,6 +74,7 @@ function getConceptSchemeDescription(scheme) {
 	return HttpMgr.GET(serviceName, service.getConceptSchemeDescriptionRequest,scheme_p, method_p);	
 }
 
+//TODO fix with the new normalized answer
 function getPrefLabel(concept, lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getPrefLabel');
 	var concept_p = "concept=" + concept;
@@ -77,6 +83,7 @@ function getPrefLabel(concept, lang) {
 	return HttpMgr.GET(serviceName, service.getPrefLabelRequest,concept_p, lang_p);	
 }
 
+//TODO fix with the new normalized answer
 function addBroaderConcept(concept, broaderConcept) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = "broaderConcept=" + broaderConcept;
@@ -84,12 +91,19 @@ function addBroaderConcept(concept, broaderConcept) {
 	var reply = HttpMgr.GET(serviceName, service.addBroaderConceptRequest, concept_p, broaderConcept_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosBroaderConceptAdded", {getConceptName : function(){return concept;}, hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, getBroaderConceptName : function(){return broaderConcept}});
+		evtMgr.fireEvent("skosBroaderConceptAdded", {
+			getConceptName : function(){return concept;}, 
+			hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, 
+			getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, 
+			getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, 
+			getBroaderConceptName : function(){return broaderConcept}
+		});
 	}
 	
 	return reply;
 }
 
+//TODO fix with the new normalized answer
 function addTopConcept(scheme, concept) {
 	var scheme_p = "scheme=" + scheme;
 	var concept_p = "concept=" + concept;
@@ -97,12 +111,19 @@ function addTopConcept(scheme, concept) {
 	var reply = HttpMgr.GET(serviceName, service.addTopConceptRequest, scheme_p, concept_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosTopConceptAdded", {getConceptName : function(){return concept;}, hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, getSchemeName : function(){return scheme}});
+		evtMgr.fireEvent("skosTopConceptAdded", {
+			getConceptName : function(){return concept;}, 
+			hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, 
+			getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, 
+			getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, 
+			getSchemeName : function(){return scheme}
+		});
 	}
 	
 	return reply;
 }
 
+//TODO fix with the new normalized answer
 function setPrefLabel(concept, label, lang) {
 	var concept_p = "concept=" + concept;
 	var label_p = "label=" + label;
@@ -111,13 +132,17 @@ function setPrefLabel(concept, label, lang) {
 	var reply = HttpMgr.GET(serviceName, service.setPrefLabelRequest, concept_p, label_p, lang_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosPrefLabelSet", {getConceptName : function(){return concept;}, getLabel : function(){return label;}, getLang : function(){return lang;}});	
+		evtMgr.fireEvent("skosPrefLabelSet", {
+			getConceptName : function(){return concept;}, 
+			getLabel : function(){return label;}, 
+			getLang : function(){return lang;}});	
 	}
 	
 	return reply;
 	
 }
 
+//TODO fix with the new normalized answer
 function removeTopConcept(scheme, concept) {
 	var scheme_p = "scheme=" + scheme;
 	var concept_p = "concept=" + concept;
@@ -125,7 +150,10 @@ function removeTopConcept(scheme, concept) {
 	var reply = HttpMgr.GET(serviceName, service.removeTopConceptRequest, scheme_p, concept_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosTopConceptRemoved", {getConceptName : function(){return concept;}, getSchemeName : function(){return scheme}});
+		evtMgr.fireEvent("skosTopConceptRemoved", {
+			getConceptName : function(){return concept;}, 
+			getSchemeName : function(){return scheme}
+		});
 	}
 	
 	return reply;
@@ -150,8 +178,17 @@ function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLang
 	
 	var reply = HttpMgr.GET(serviceName, service.createConceptRequest, concept_p, broaderConcept_p, scheme_p, prefLabel_p, prefLabelLanguage_p);
 
+	var uriValue = Deserializer.getURI(reply);
+	
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosConceptAdded", {getConceptQName : function(){return concept;}, getBroaderConceptQName : function(){return broaderConcept;}, hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}});
+		evtMgr.fireEvent("skosConceptAdded", {
+			//getConceptQName : function(){return concept;}, 
+			getConceptQName : function(){return uriValue.getURI();}, 
+			getBroaderConceptQName : function(){return broaderConcept;}, 
+			hasSubsumees : function(){return uriValue.more == "1";}, 
+			getURI : function() {return uriValue.getURI();}, 
+			getLabel : function(){return uriValue.getShow();}
+		});
 	}
 	
 	return reply;
@@ -174,11 +211,16 @@ function createScheme(scheme, prefLabel, prefLabelLanguage) {
 	
 	var reply = HttpMgr.GET(serviceName, service.createSchemeRequest,scheme_p, prefLabel_p,prefLabelLanguage_p);
 	
-	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosSchemeAdded", {getSchemeName : function(){return scheme;}, getURI : function(){return reply.getElementsByTagName("scheme")[0].getAttribute("uri");}, getLabel : function(){return reply.getElementsByTagName("scheme")[0].getAttribute("label");}});
-	}
+	var uriValue = Deserializer.getURI(reply);
 	
-	return reply;
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("skosSchemeAdded", {
+			getSchemeName : function(){return uriValue.getURI();}, 
+			getURI : function(){return uriValue.getURI();}, 
+			getLabel : function(){return uriValue.getShow();}
+		});
+	}
+	return uriValue;
 }
 
 /**
@@ -195,7 +237,9 @@ function deleteConcept(concept) {
 	var reply = HttpMgr.GET(serviceName, service.deleteConceptRequest, concept_p);
 	
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosConceptRemoved", {getConceptName : function(){return concept;}});
+		evtMgr.fireEvent("skosConceptRemoved", {
+			getConceptName : function(){return concept;}
+		});
 	}
 	
 	return reply;
@@ -220,7 +264,9 @@ function deleteScheme(scheme, forceDeleteDanglingConcepts) {
 	var reply = HttpMgr.GET(serviceName, service.deleteSchemeRequest, scheme_p, setForceDeleteDanglingConcepts_p, forceDeleteDanglingConcepts_p);
 	
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosSchemeRemoved", {getSchemeName : function(){return scheme;}});
+		evtMgr.fireEvent("skosSchemeRemoved", {
+			getSchemeName : function(){return scheme;}
+		});
 	}
 	
 	return reply;
@@ -234,7 +280,10 @@ function removeBroaderConcept(concept, broaderConcept) {
 	var reply = HttpMgr.GET(serviceName, service.removeBroaderConceptRequest, concept_p, broaderConcept_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosBroaderConceptRemoved", {getConceptName : function(){return concept;}, getBroaderConceptName : function(){return broaderConcept;}});
+		evtMgr.fireEvent("skosBroaderConceptRemoved", {
+			getConceptName : function(){return concept;}, 
+			getBroaderConceptName : function(){return broaderConcept;}
+		});
 	}
 	
 	return reply;
@@ -248,7 +297,11 @@ function removePrefLabel(concept, label, lang) {
 	var reply = HttpMgr.GET(serviceName, service.removePrefLabelRequest, concept_p, label_p, lang_p);
 
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("skosPrefLabelRemoved", {getConceptName : function(){return concept;}, getLabel : function(){return label;}, getLang : function(){return lang;}});
+		evtMgr.fireEvent("skosPrefLabelRemoved", {
+			getConceptName : function(){return concept;}, 
+			getLabel : function(){return label;}, 
+			getLang : function(){return lang;}
+		});
 	}
 	
 	return reply;
