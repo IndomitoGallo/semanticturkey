@@ -1,9 +1,15 @@
 
-EXPORTED_SYMBOLS = ["ARTNode", "ARTLiteral", "ARTURIResource", "ARTBNode"];
+// just for the developlment phase, then it should be used the relative module
+
+//EXPORTED_SYMBOLS = ["ARTNode", "ARTLiteral", "ARTURIResource", "ARTBNode"];
+
+
+if (typeof art_semanticturkey == 'undefined')
+	var art_semanticturkey = {};
 
 /********** ARTNode *******************/
 
-ARTNode = function(){
+art_semanticturkey.ARTNode = function(){
 		
 	this.isLiteral = function(){
 		return false;
@@ -24,7 +30,7 @@ ARTNode = function(){
 
 /********** ARTLiteral *******************/
 
-ARTLiteral = function(label, datatype, lang){
+art_semanticturkey.ARTLiteral = function(label, datatype, lang){
 	var label = label;
 	var datatype = datatype;
 	var lang = lang;
@@ -46,14 +52,14 @@ ARTLiteral = function(label, datatype, lang){
 	};
 };
 
-ARTLiteral.prototype = new ARTNode();
-ARTLiteral.constructor = ARTLiteral;
+art_semanticturkey.ARTLiteral.prototype = new art_semanticturkey.ARTNode();
+art_semanticturkey.ARTLiteral.constructor = art_semanticturkey.ARTLiteral;
 
 /********** ARTURIResource *******************/
 
-ARTURIResource = function(show, role, uri){
-	var show = show;
-	var role = role;
+art_semanticturkey.ARTURIResource = function(localName, nameSpace, uri){
+	var localName = localName;
+	var nameSpace = nameSpace;
 	var uri = uri;
 	
 	this.isResource = function(){
@@ -64,12 +70,12 @@ ARTURIResource = function(show, role, uri){
 		return true;
 	};
 	
-	this.getShow = function(){
-		return show;	
+	this.getLocalName = function(){
+		return localName;	
 	};
 	
-	this.getRole = function(){
-		return role;	
+	this.getNamespace = function(){
+		return nameSpace;	
 	};
 	
 	this.getURI = function(){
@@ -77,8 +83,8 @@ ARTURIResource = function(show, role, uri){
 	};
 };
 
-ARTURIResource.prototype = new ARTNode();
-ARTURIResource.constructor = ARTURIResource;
+art_semanticturkey.ARTURIResource.prototype = new ARTNode();
+art_semanticturkey.ARTURIResource.constructor = ARTURIResource;
 
 
 /********** ARTBNode *******************/
@@ -99,5 +105,5 @@ ARTBNode = function(id){
 	};
 };
 
-ARTBNode.prototype = new ARTNode();
-ARTBNode.constructor = ARTBNode;
+art_semanticturkey.ARTBNode.prototype = new ARTNode();
+art_semanticturkey.ARTBNode.constructor = ARTBNode;

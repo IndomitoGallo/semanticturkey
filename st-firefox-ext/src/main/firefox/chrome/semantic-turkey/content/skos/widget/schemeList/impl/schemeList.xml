@@ -44,7 +44,13 @@
 				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/Logger.jsm");
 				Components.utils.import("resource://stmodules/PrefUtils.jsm", this.art_semanticturkey);
-				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);				
+				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);	
+				Components.utils.import("resource://stmodules/ARTResources.jsm", this.art_semanticturkey);
+				
+				//var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+				//                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
+				                                      
+				//mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/utilities/deserializer.js?timestamp="+((new Date()).getTime()), this);			
 				
 				var bound = this;
 				
@@ -62,15 +68,15 @@
 					this.cache = {};
 				}
 								
-				this._view.sourceAdapter.fetchRoots = function() {						
-						var responseXML = null;
+				this._view.sourceAdapter.fetchRoots = function() {
+						var deserializedResponse = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
+							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
 						
-						var schemes = parseResponse(responseXML);			
+						var schemes = parseResponse(deserializedResponse);			
 						return schemes;
 				};
 					
@@ -100,19 +106,28 @@
 					}
 				};
 					
-				var parseResponse = function(responseElement) {
+				var parseResponse = function(collectionValues) {
 					var result = [];
+							
+					//var collectionValues = art_semanticturkey.deserializer.getCollection(responseElement);
 					
-					var dataElement = responseElement.getElementsByTagName('data')[0];
-					var schemeList = dataElement.getElementsByTagName("Scheme");
+					//var dataElement = responseElement.getElementsByTagName('data')[0];
+					//var schemeList = dataElement.getElementsByTagName("Scheme");
 					
-					for (var i = 0; i < schemeList.length; ++i) {
-
+					for (var i = 0; i < collectionValues.length; ++i) {
+						var uriElem = collectionValues[i];
+						
+						//item = new DataRow({
+				        //                    uri : schemeList[i].getAttribute("uri"), 
+					    //                    label : schemeList[i].getAttribute("label"),
+					    //                    name : schemeList[i].getAttribute("name")							
+					    //                   }); 
+						
 						item = new DataRow({
-				                            uri : schemeList[i].getAttribute("uri"), 
-					                        label : schemeList[i].getAttribute("label"),
-					                        name : schemeList[i].getAttribute("name")							
-					                       }); 
+											uri : uriElem.getURI(),
+											label : uriElem.getShow(),
+                                            name: uriElem.getURI()
+                                             }); 
 						
 						result.push(item);						
 					}
@@ -171,7 +186,7 @@
 					var n = skosSchemeAddedObj.getSchemeName();
 					var l = skosSchemeAddedObj.getLabel();
 					var u = skosSchemeAddedObj.getURI();
-					
+
 					var row = new DataRow({uri : u, name : n, label : l});
 
 					bound._view.addRow(null, row);

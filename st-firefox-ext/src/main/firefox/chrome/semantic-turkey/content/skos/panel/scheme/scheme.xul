@@ -29,6 +29,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#">
+	<script type="text/javascript" src="chrome://semantic-turkey/content/utilities/deserializer.js" />
 	<script type="text/javascript" src="scheme.js" />
 	<script type="text/javascript" src="chrome://semantic-turkey/content/event/eventObjects.js" />
 	<st:schemeList id="schemeList" xul:flex="1" hideheading="true" hidetoolbar="false" mutable="true" columns="check[checkbox],name"/>

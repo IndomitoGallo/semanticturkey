@@ -41,11 +41,15 @@
 				Components.utils.import("resource://stservices/SERVICE_Projects.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/PrefUtils.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);				
-			
+				Components.utils.import("resource://stmodules/ARTResources.jsm", this.art_semanticturkey);				
+				
 				var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
 				                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
                 mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/event/eventObjects.js", this);
-
+                
+                //mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/utilities/deserializer.js?timestamp="+((new Date()).getTime()), this);
+				
+				
 				var bound = this;
 				
 				function DataRow(record) {
@@ -66,39 +70,43 @@
 				}
 				
 				this._view.sourceAdapter.fetchRoots = function() {						
-						var responseXML = null;
+						var deserializedResponse = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getTopConcepts(bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
+							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getTopConcepts(bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
 						
-						return parseResponse(responseXML);
+						return parseResponse(deserializedResponse);
 				};
 					
 				this._view.sourceAdapter.fetchChildren = function(id){
-						var responseXML = null;
+						var deserializedResponse = null;
 						try{
-							responseXML=bound.art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(id, bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
+							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getNarrowerConcepts(id, bound.conceptScheme == "*" ? null : bound.conceptScheme, bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
 						}catch (e) {
 							return [];
 						}
-						return parseResponse(responseXML);
+						return parseResponse(deserializedResponse);
 				};
 					
-				var parseResponse = function(responseElement) {
+				var parseResponse = function(collectionValues) {
 					var result = [];
 					
-					var dataElement = responseElement.getElementsByTagName('data')[0];
-					var conceptList = dataElement.getElementsByTagName("concept");
-					
-					for (var i = 0; i < conceptList.length; ++i) {
-
-						item = new DataRow({concept : conceptList[i].getAttribute("name"), 
-					                                                            more : conceptList[i].getAttribute("more"),
-					                                                            label : conceptList[i].getAttribute("label"),
-					                                                            uri : conceptList[i].getAttribute("uri")							
-					                                                            }); 
+					//var collectionValues = art_semanticturkey.deserializer.getCollection(responseElement);
+					for (var i = 0; i < collectionValues.length; ++i) {
+						var uriElem = collectionValues[i];
+						
+						//item = new DataRow({concept : conceptList[i].getAttribute("name"), 
+					    //                                                        more : conceptList[i].getAttribute("more"),
+					    //                                                        label : conceptList[i].getAttribute("label"),
+					    //                                                        uri : conceptList[i].getAttribute("uri")							
+					    //                                                        }); 
+						item = new DataRow({concept : uriElem.getURI(), 
+                                            more : uriElem.more,
+                                            label : uriElem.getShow(),
+                                            uri : uriElem.getURI()							
+                                             }); 
 						
 						result.push(item);						
 					}
