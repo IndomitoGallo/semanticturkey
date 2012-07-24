@@ -297,12 +297,17 @@ public class Resource extends ServiceAdapter {
 				Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
 						.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
 				
-				int cont = 0;
+				int contAll = 0;
+				int contExplicit = 0;
+				
 				while (it.streamOpen()) {
-					it.getNext();
-					++cont;
+					ARTNode artNode = it.getNext();
+					++contAll;
+					if (explicitValues.contains(artNode))
+						++contExplicit;
 				}
-				Element numValuesElem = XMLHelp.newElement(propValuesElem, "valuesCount", cont+"");
+				XMLHelp.newElement(propValuesElem, "valuesCount", contAll+"");
+				XMLHelp.newElement(propValuesElem, "valuesExplicitCount", contExplicit+"");
 				
 				it.close();
 			}
