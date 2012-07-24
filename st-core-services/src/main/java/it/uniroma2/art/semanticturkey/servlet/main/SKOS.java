@@ -1138,7 +1138,7 @@ public class SKOS extends Resource {
 		return STRDFNodeFactory.createSTRDFURI(resource, role, explicit, show);
 	}
 
-	private STRDFResource createSTConcept(SKOSModel skosModel, ARTURIResource concept, boolean explicit,
+	protected STRDFResource createSTConcept(SKOSModel skosModel, ARTURIResource concept, boolean explicit,
 			String defaultLanguage) throws ModelAccessException, NonExistingRDFResourceException {
 		return createSTSKOSResource(skosModel, concept, RDFResourceRolesEnum.concept, explicit,
 				defaultLanguage);
@@ -1186,7 +1186,7 @@ public class SKOS extends Resource {
 				defaultLanguage);
 	}
 
-	private void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException,
+	protected void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException,
 			NonExistingRDFResourceException {
 		ARTURIResourceIterator it = model.listNarrowerConcepts((ARTURIResource) concept.getARTNode(), false,
 				true, getUserNamedGraphs());
