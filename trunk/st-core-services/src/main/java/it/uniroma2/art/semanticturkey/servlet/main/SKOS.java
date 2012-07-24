@@ -1123,7 +1123,7 @@ public class SKOS extends Resource {
 	 * @throws ModelAccessException
 	 * @throws NonExistingRDFResourceException
 	 */
-	private STRDFResource createSTSKOSResource(SKOSModel skosModel, ARTURIResource resource,
+	protected STRDFResource createSTSKOSResource(SKOSModel skosModel, ARTURIResource resource,
 			RDFResourceRolesEnum role, boolean explicit, String defaultLanguage) throws ModelAccessException,
 			NonExistingRDFResourceException {
 		String show;
