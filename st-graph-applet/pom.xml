@@ -42,6 +42,12 @@
 						<phase>install</phase>
 						<configuration>
 							<target>
+								<!-- See: http://maven.apache.org/plugins/maven-antrun-plugin/examples/classpaths.html -->
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<property name="runtime_classpath" refid="maven.runtime.classpath" />
+								<property name="test_classpath" refid="maven.test.classpath" />
+								<property name="plugin_classpath" refid="maven.plugin.classpath" />
+
 								<ant antfile="st-build.xml" />
 							</target>
 						</configuration>
@@ -58,7 +64,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-core-framework</artifactId>
-			<version>0.8.1-SNAPSHOT</version>
+			<version>0.8.6-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

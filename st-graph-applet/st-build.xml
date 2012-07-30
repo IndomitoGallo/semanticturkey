@@ -8,9 +8,10 @@
 
 <project default="final" basedir="." name="SemanticTurkeyGraph" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
+	<!--
 	<path id="maven-ant-tasks.classpath" path="./../system-resources/antlib/maven-ant-tasks-2.0.10.jar" />
 	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
-
+	-->
 
 	<target name="start" depends="final"/>
 
@@ -29,10 +30,12 @@
 				<fileset dir="../${dist.applet}" includes="*.jar" />
 			</delete>
 		-->
+		<!--
 		<artifact:pom id="stpom" file="pom.xml" />
 		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" useScope="runtime" />
+		-->
 		<copy todir="../${dist.applet}">
-			<fileset refid="dependency.fileset" />
+			<path path="${runtime_classpath}" />
 			<!--
     	  <mapper classpathref="maven-ant-tasks.classpath"
     	          classname="org.apache.maven.artifact.ant.VersionMapper"
@@ -49,7 +52,7 @@
 			<fileset dir="src/main/webapp" includes="*.html" />
 		</copy>
 		<copy todir="../${dist.applet}">
-			<fileset dir="${maven.target}" includes="*.jar" />
+			<fileset dir="${project.build.directory}" includes="*.jar" />
 		</copy>
 	</target>
 
