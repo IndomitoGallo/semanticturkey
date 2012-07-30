@@ -8,9 +8,10 @@
 
 <project default="final" basedir="." name="SemanticTurkeyCoreFramework" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
+	<!--
 	<path id="maven-ant-tasks.classpath" path="./../system-resources/antlib/maven-ant-tasks-2.0.10.jar" />
 	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
-
+	-->
 
 	<target name="start" depends="final">
 
@@ -46,10 +47,13 @@
 				<fileset dir="../${dist.applet}" includes="*.jar" />
 			</delete>
 		-->
+		<!--
 		<artifact:pom id="stpom" file="pom.xml" />
 		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" useScope="runtime" />
+		-->
+		
 		<copy todir="../${dist.lib}">
-			<fileset refid="dependency.fileset" />
+			<path path="${runtime_classpath}" />
 			<!--
     	  <mapper classpathref="maven-ant-tasks.classpath"
     	          classname="org.apache.maven.artifact.ant.VersionMapper"
@@ -63,7 +67,7 @@
 
 	<target name="copy_jar" depends="buildlib">
 		<copy todir="../${dist.lib}">
-			<fileset dir="${maven.target}" includes="*.jar" />
+			<fileset dir="${project.build.directory}" includes="*.jar" />
 		</copy>
 	</target>
 
@@ -71,5 +75,4 @@
 	<!-- === Final Empty Task ================================================= -->
 
 	<target name="final" depends="copy_jar" />
-
 </project>
