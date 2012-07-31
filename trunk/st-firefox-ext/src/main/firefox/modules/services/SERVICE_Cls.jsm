@@ -1,5 +1,7 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/Deserializer.jsm");	
+Components.utils.import("resource://stmodules/ARTResources.jsm");
 
 EXPORTED_SYMBOLS = [ "HttpMgr", "STRequests" ];
 
@@ -70,7 +72,7 @@ function getSubClasses(clsName, tree, instNum) {
 	var className = "clsName=" + clsName;
 	var tree = "tree=" + tree;
 	var instNum = "instNum=" + instNum;
-	return HttpMgr.GET(serviceName, service.getSubClassesRequest, className, tree, instNum);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getSubClassesRequest, className, tree, instNum));
 }
 
 /**
