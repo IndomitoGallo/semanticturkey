@@ -21,9 +21,11 @@ function getCollection(response){
 				var explicitValue = childElements[i].getAttribute('explicit');
 				var moreValue = childElements[i].getAttribute('more');
 				var roleValue = childElements[i].getAttribute('role');
+				var numInst = childElements[i].getAttribute('numInst');
 				var artURIRes = new ARTURIResource(showValue, roleValue, uriValue);
 				artURIRes.explicit = explicitValue; 
 				artURIRes.more = moreValue; 
+				artURIRes.numInst = numInst; 
 				collectionArray.push(artURIRes);
 			} else if(tagName == 'literal'){ // TODO check this name
 			} // TODO add the other possible types

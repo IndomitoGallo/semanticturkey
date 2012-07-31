@@ -397,14 +397,21 @@ public class Cls extends Resource {
 
 	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException,
 			NonExistingRDFResourceException {
-		ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
+		/*ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
 				getUserNamedGraphs());
 		if (it.streamOpen()) {
 			subClass.setInfo("more", "1");
 
 		} else
 			subClass.setInfo("more", "0");
-		it.close();
+		it.close();*/
+		RDFIterator<ARTURIResource> subSubClassesIterator = new SubClassesForTreeIterator(model,
+				subClass.getARTNode().asURIResource(), getUserNamedGraphs());
+		if (subSubClassesIterator.hasNext())
+			subClass.setInfo("more", "1"); // the subclass has further subclasses
+		else
+			subClass.setInfo("more", "0"); // the subclass has no subclasses itself
+		subSubClassesIterator.close();
 	}
 
 	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
