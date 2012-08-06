@@ -126,6 +126,8 @@ public class Resource extends ServiceAdapter {
 		public static final String property = "property";
 		public static final String properties = "properties";
 		public static final String explicit = "explicit";
+		public static final String subProp = "subProp";
+		
 	}
 
 	protected Logger getLogger() {
@@ -154,13 +156,15 @@ public class Resource extends ServiceAdapter {
 		} else if(request.equals(Req.getValuesOfPropertiesRequest)){
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
+			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfProperties(resourceName, propertiesNames);
+			response = getValuesOfProperties(resourceName, propertiesNames, subproperties);
 		} else if(request.equals(Req.getValuesOfPropertiesCountRequest)){
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
+			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfPropertiesCount(resourceName, propertiesNames);
+			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties);
 		}
 		else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
@@ -225,7 +229,7 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 	
-	public Response getValuesOfProperties(String resourceName, String propertiesNames) {
+	public Response getValuesOfProperties(String resourceName, String propertiesNames, boolean subProp) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -235,33 +239,12 @@ public class Resource extends ServiceAdapter {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			
 			Element dataElement = response.getDataElement();
-			Element extCollection = XMLHelp.newElement(dataElement, "collection");
 						
 			
 			for(String propName : propsNames){
-				Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
 				
-				Element propElem = XMLHelp.newElement(propValuesElem, "property");
 				ARTURIResource property = retrieveExistingURIResource(model, propName, graphs);
-				RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
-				
-				Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
-				ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
-				Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
-						.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
-				
-				Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
-				while (it.streamOpen()) {
-					ARTNode next = it.getNext();
-					boolean explicit;
-					if (explicitValues.contains(next))
-						explicit = true;
-					else 
-						explicit = false;
-					values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
-				}
-				it.close();
-				RDFXMLHelp.addRDFNodes(valuesElem, values);
+				getValuesOfSubProperties(resource, property, subProp, graphs, model, dataElement);
 			}
 			return response;
 			
@@ -272,8 +255,43 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 	
+	private void getValuesOfSubProperties(ARTResource resource, ARTURIResource property, boolean subProp, ARTResource[] graphs, 
+			OWLModel model, Element dataElement) throws NonExistingRDFResourceException, ModelAccessException{
+		Element extCollection = XMLHelp.newElement(dataElement, "collection");
+		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
+		
+		Element propElem = XMLHelp.newElement(propValuesElem, "property");
+		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
+		
+		Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
+		ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
+		Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
+				.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
+		
+		Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
+		while (it.streamOpen()) {
+			ARTNode next = it.getNext();
+			boolean explicit;
+			if (explicitValues.contains(next))
+				explicit = true;
+			else 
+				explicit = false;
+			values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
+		}
+		it.close();
+		RDFXMLHelp.addRDFNodes(valuesElem, values);
+		if(subProp){
+			ARTURIResourceIterator iter = ((DirectReasoning)model).listDirectSubProperties(property, graphs);
+			while(iter.hasNext()){
+				ARTURIResource subPropRes = iter.next();
+				getValuesOfSubProperties(resource, subPropRes, subProp, graphs, model, propValuesElem);
+			}
+			
+		}
+	}
 	
-	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames) {
+	
+	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -283,33 +301,11 @@ public class Resource extends ServiceAdapter {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			
 			Element dataElement = response.getDataElement();
-			Element extCollection = XMLHelp.newElement(dataElement, "collection");
 						
 			
 			for(String propName : propsNames){
-				Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
-				
-				Element propElem = XMLHelp.newElement(propValuesElem, "property");
 				ARTURIResource property = retrieveExistingURIResource(model, propName, graphs);
-				RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
-				
-				ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
-				Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
-						.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
-				
-				int contAll = 0;
-				int contExplicit = 0;
-				
-				while (it.streamOpen()) {
-					ARTNode artNode = it.getNext();
-					++contAll;
-					if (explicitValues.contains(artNode))
-						++contExplicit;
-				}
-				XMLHelp.newElement(propValuesElem, "valuesCount", contAll+"");
-				XMLHelp.newElement(propValuesElem, "valuesExplicitCount", contExplicit+"");
-				
-				it.close();
+				getValuesOfPropertiesCount(resource, property, subProp, graphs, model, dataElement);
 			}
 			return response;
 			
@@ -320,6 +316,45 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
+	
+	private void getValuesOfPropertiesCount(ARTResource resource, ARTURIResource property, boolean subProp, ARTResource[] graphs, 
+			OWLModel model, Element outerElement) throws ModelAccessException{
+		Element extCollection = XMLHelp.newElement(outerElement, "collection");
+		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
+		
+		Element propElem = XMLHelp.newElement(propValuesElem, "property");
+		
+		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
+		
+		ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
+		Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
+				.listValuesOfSubjPredPair(resource, property, false, graphs));
+		
+		int contAll = 0;
+		int contExplicit = 0;
+		
+		while (it.streamOpen()) {
+			ARTNode artNode = it.getNext();
+			++contAll;
+			if (explicitValues.contains(artNode))
+				++contExplicit;
+		}
+		XMLHelp.newElement(propValuesElem, "valuesCount", contAll+"");
+		XMLHelp.newElement(propValuesElem, "valuesExplicitCount", contExplicit+"");
+		
+		it.close();
+		
+		
+		if(subProp){
+			ARTURIResourceIterator iter = ((DirectReasoning)model).listDirectSubProperties(property, graphs);
+			while(iter.hasNext()){
+				ARTURIResource subPropRes = iter.next();
+				getValuesOfPropertiesCount(resource, subPropRes, subProp, graphs, model, propValuesElem);
+			}
+		}
+	}
+	
+	
 	/**
 	 * 
 	 * 

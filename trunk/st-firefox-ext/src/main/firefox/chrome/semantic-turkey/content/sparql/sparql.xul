@@ -36,7 +36,7 @@
 	<script type="application/x-javascript" 
 		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
 	<script type="application/x-javascript" 
-		src="codemirror2/lib/codemirror.js"/>
+		src="codemirror2/lib/modified_codemirror.js"/>
 	<script type="application/x-javascript" 
 		src="flint/sparqlmode_ll1.js"/>
 		

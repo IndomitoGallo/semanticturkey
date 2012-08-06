@@ -33,3 +33,7 @@ treechildren::-moz-tree-cell-text {
 .CodeMirror-gutter {
 	min-width: 4em !important;
 }
+
+.CodeMirror-scroll {
+	background-color: white;
+}
