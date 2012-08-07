@@ -35,6 +35,9 @@ Components.utils.import("resource://stservices/SERVICE_ModifyName.jsm",
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils
 		.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Deserializer.jsm", art_semanticturkey);	
+Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
+
 
 art_semanticturkey.eventListenerArrayObject = null;
 
@@ -140,6 +143,7 @@ window.onunload = function() {
 /** Funzione che crea gli elementi di EditorPanel in base al type */
 art_semanticturkey.init = function(type, sourceElementName, superName,
 		sourceElement) {
+	//alert("type = "+type); // da cancellare
 	var mytype = type;
 	// NScarpato 07-07-2008 add custom title to editor panel
 	var edPnl = document.getElementById("editorPanel");
@@ -540,7 +544,8 @@ art_semanticturkey.getPropertyDescription_RESPONSE = function(responseElement) {
  */
 art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 	var superTypes = responseElement.getElementsByTagName('SuperTypes');
-	var superTypeList = superTypes[0].getElementsByTagName('SuperType');
+	//var superTypeList = superTypes[0].getElementsByTagName('SuperType');
+	var superTypeList = art_semanticturkey.Deserializer.getCollection(superTypes[0]);
 	// NScarpato 26/11/2007 change types visualization added add type and remove
 	// type
 	var parentBox = document.getElementById("parentBoxRows");
@@ -628,50 +633,51 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		list.appendChild(listhead);
 		parentBox.appendChild(list);
 		for (var i = 0; i < superTypeList.length; i++) {
-			if (superTypeList[i].nodeType == 1) {
-				var lsti = document.createElement("listitem");
-				var lci = document.createElement("listitem-iconic");
-				var img = document.createElement("image");
-				if (request == "getClsDescription") {
-					img
-							.setAttribute("src",
-									"chrome://semantic-turkey/skin/images/class20x20.png");
-				} else if(request == "getConceptDescription") {
-					img
-					.setAttribute("src",
-							"chrome://semantic-turkey/skin/images/skosConcept20x20.png");					
-				} else {
-					img
-							.setAttribute("src",
-									"chrome://semantic-turkey/skin/images/prop20x20.png");
-				}
-				lci.appendChild(img);
-				var lbl = document.createElement("label");
-				var value = superTypeList[i].getAttribute("resource");
-				lsti.setAttribute("label", value);
-				lsti.setAttribute("explicit", superTypeList[i]
-								.getAttribute("explicit"));
-				lsti.addEventListener("dblclick",
-						art_semanticturkey.resourcedblClickEvent, true);
-				lsti.addEventListener("mouseover",
-						art_semanticturkey.setCursorPointerEvent, true);
-				lsti.addEventListener("mouseout",
-						art_semanticturkey.setCursorDefaultEvent, true);
-
-				var containerObjTx = new Object();
-				containerObjTx.explicit = superTypeList[i].getAttribute("explicit");
-				containerObjTx.sourceElementName = value;
-				if (request == "getClsDescription") // Class
-					containerObjTx.sourceType = "cls";
-				else
-					// Property
-					containerObjTx.sourceType = window.arguments[0].sourceType;
-				lsti.containerObj = containerObjTx;
-				lbl.setAttribute("value", value);
-				lci.appendChild(lbl);
-				lsti.appendChild(lci);
-				list.appendChild(lsti);
+			//if (superTypeList[i].nodeType == 1) {
+			var lsti = document.createElement("listitem");
+			var lci = document.createElement("listitem-iconic");
+			var img = document.createElement("image");
+			if (request == "getClsDescription") {
+				img
+						.setAttribute("src",
+								"chrome://semantic-turkey/skin/images/class20x20.png");
+			} else if(request == "getConceptDescription") {
+				img
+				.setAttribute("src",
+						"chrome://semantic-turkey/skin/images/skosConcept20x20.png");					
+			} else {
+				img
+						.setAttribute("src",
+								"chrome://semantic-turkey/skin/images/prop20x20.png");
 			}
+			lci.appendChild(img);
+			var lbl = document.createElement("label");
+			//var value = superTypeList[i].getAttribute("resource");
+			var value = superTypeList[i].getURI();
+			lsti.setAttribute("label", value);
+			lsti.setAttribute("explicit", superTypeList[i].explicit);
+							//.getAttribute("explicit"));
+			lsti.addEventListener("dblclick",
+					art_semanticturkey.resourcedblClickEvent, true);
+			lsti.addEventListener("mouseover",
+					art_semanticturkey.setCursorPointerEvent, true);
+			lsti.addEventListener("mouseout",
+					art_semanticturkey.setCursorDefaultEvent, true);
+
+			var containerObjTx = new Object();
+			containerObjTx.explicit = superTypeList[i].explicit; //.getAttribute("explicit");
+			containerObjTx.sourceElementName = value;
+			if (request == "getClsDescription") // Class
+				containerObjTx.sourceType = "cls";
+			else
+				// Property
+				containerObjTx.sourceType = window.arguments[0].sourceType;
+			lsti.containerObj = containerObjTx;
+			lbl.setAttribute("value", value);
+			lci.appendChild(lbl);
+			lsti.appendChild(lci);
+			list.appendChild(lsti);
+			//}
 		}
 	} else {// superTypeList.length <= 3
 		var superT = "";
@@ -728,76 +734,78 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 		row3.appendChild(box2);
 		parentBox.appendChild(row3);
 		for (var j = 0; j < superTypeList.length; j++) {
-			if (superTypeList[j].nodeType == 1) {
-				var value2 = superTypeList[j].getAttribute("resource");
-				var explicit = superTypeList[j].getAttribute("explicit");
-				var txbox2 = document.createElement("textbox");
-				txbox2.setAttribute("value", value2);
-				txbox2.setAttribute("id", "tx" + value2);
-				txbox2.setAttribute("readonly", "true");
-				txbox2.addEventListener("dblclick",
-						art_semanticturkey.resourcedblClickEvent, true);
-				txbox2.addEventListener("mouseover",
-						art_semanticturkey.setCursorPointerEvent, true);
-				txbox2.addEventListener("mouseout",
-						art_semanticturkey.setCursorDefaultEvent, true);
+			//if (superTypeList[j].nodeType == 1) {
+			//var value2 = superTypeList[j].getAttribute("resource");
+			var value2 = superTypeList[j].getURI();
+			//var explicit = superTypeList[j].getAttribute("explicit");
+			var explicit = superTypeList[j].explicit;
+			var txbox2 = document.createElement("textbox");
+			txbox2.setAttribute("value", value2);
+			txbox2.setAttribute("id", "tx" + value2);
+			txbox2.setAttribute("readonly", "true");
+			txbox2.addEventListener("dblclick",
+					art_semanticturkey.resourcedblClickEvent, true);
+			txbox2.addEventListener("mouseover",
+					art_semanticturkey.setCursorPointerEvent, true);
+			txbox2.addEventListener("mouseout",
+					art_semanticturkey.setCursorDefaultEvent, true);
 
-				var containerObjTx = new Object();
-				containerObjTx.explicit = explicit;
-				containerObjTx.sourceElementName = value2;
-				if (request == "getClsDescription")
-					containerObjTx.sourceType = "cls";
-				else
-					containerObjTx.sourceType = window.arguments[0].sourceType;
-				txbox2.containerObj = containerObjTx;
-				var typeButton3 = document.createElement("button");
-				typeButton3.setAttribute("id", "typeButton");
-				typeButton3.setAttribute("flex", "0");
-				if (request == "getClsDescription") {
-					typeButton3.addEventListener("command",
-							art_semanticturkey.removeSuperClassEvent, true);
-					var containerObj = new Object();
-					containerObj.value = value2;
-					containerObj.isList = false;
-					typeButton3.containerObj = containerObj;
-					typeButton3.setAttribute("label", "Remove Super Class");
-					typeButton3
-							.setAttribute("image",
-									"chrome://semantic-turkey/skin/images/class_delete.png");
-				} else if(request == "getConceptDescription") {
-					typeButton3.addEventListener("command",
-							art_semanticturkey.removeBroaderConceptEvent, true);
-					var containerObj = new Object();
-					containerObj.value = value2;
-					containerObj.isList = false;
-					typeButton3.containerObj = containerObj;
-					typeButton3.setAttribute("label", "Remove Broader Concept");
-					typeButton3
-							.setAttribute("image",
-									"chrome://semantic-turkey/skin/images/skosC_delete.png");					
-				} else {
-					typeButton3.addEventListener("command",
-							art_semanticturkey.removeSuperPropertyEvent, true);
-					var containerObj = new Object();
-					containerObj.superPropValue = value2;
-					typeButton3.containerObj = containerObj;
-					typeButton3.setAttribute("label", "Remove SuperProperty");
-					typeButton3
-							.setAttribute("image",
-									"chrome://semantic-turkey/skin/images/prop_delete.png");
-				}
-				if (explicit == "false") {
-					typeButton3.setAttribute("disabled", "true");
-
-				}
-				var row4 = document.createElement("row");
-				row4.setAttribute("id", value2);
-				row4.setAttribute("type", superT);
-				row4.appendChild(typeButton3);
-				row4.insertBefore(txbox2, typeButton3);
-
-				parentBox.appendChild(row4);
+			var containerObjTx = new Object();
+			containerObjTx.explicit = explicit;
+			containerObjTx.sourceElementName = value2;
+			if (request == "getClsDescription")
+				containerObjTx.sourceType = "cls";
+			else
+				containerObjTx.sourceType = window.arguments[0].sourceType;
+			txbox2.containerObj = containerObjTx;
+			var typeButton3 = document.createElement("button");
+			typeButton3.setAttribute("id", "typeButton");
+			typeButton3.setAttribute("flex", "0");
+			if (request == "getClsDescription") {
+				typeButton3.addEventListener("command",
+						art_semanticturkey.removeSuperClassEvent, true);
+				var containerObj = new Object();
+				containerObj.value = value2;
+				containerObj.isList = false;
+				typeButton3.containerObj = containerObj;
+				typeButton3.setAttribute("label", "Remove Super Class");
+				typeButton3
+						.setAttribute("image",
+								"chrome://semantic-turkey/skin/images/class_delete.png");
+			} else if(request == "getConceptDescription") {
+				typeButton3.addEventListener("command",
+						art_semanticturkey.removeBroaderConceptEvent, true);
+				var containerObj = new Object();
+				containerObj.value = value2;
+				containerObj.isList = false;
+				typeButton3.containerObj = containerObj;
+				typeButton3.setAttribute("label", "Remove Broader Concept");
+				typeButton3
+						.setAttribute("image",
+								"chrome://semantic-turkey/skin/images/skosC_delete.png");					
+			} else {
+				typeButton3.addEventListener("command",
+						art_semanticturkey.removeSuperPropertyEvent, true);
+				var containerObj = new Object();
+				containerObj.superPropValue = value2;
+				typeButton3.containerObj = containerObj;
+				typeButton3.setAttribute("label", "Remove SuperProperty");
+				typeButton3
+						.setAttribute("image",
+								"chrome://semantic-turkey/skin/images/prop_delete.png");
 			}
+			if (explicit == "false") {
+				typeButton3.setAttribute("disabled", "true");
+
+			}
+			var row4 = document.createElement("row");
+			row4.setAttribute("id", value2);
+			row4.setAttribute("type", superT);
+			row4.appendChild(typeButton3);
+			row4.insertBefore(txbox2, typeButton3);
+
+			parentBox.appendChild(row4);
+			//}
 		}
 	}
 
@@ -807,7 +815,8 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
  */
 art_semanticturkey.parsingType = function(responseElement, request) {
 	var types = responseElement.getElementsByTagName('Types');
-	var typeList = types[0].getElementsByTagName('Type');
+	//var typeList = types[0].getElementsByTagName('Type');
+	var typeList = art_semanticturkey.Deserializer.getCollection(types[0]);
 	var parentBox = document.getElementById("parentBoxRows");
 	if (typeList.length > 3) {
 		var typeToolbox = document.createElement("toolbox");
@@ -859,36 +868,37 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		list.appendChild(listhead);
 		parentBox.appendChild(list);
 		for (var i = 0; i < typeList.length; i++) {
-			if (typeList[i].nodeType == 1) {
-				lsti = document.createElement("listitem");
-				lci = document.createElement("listitem-iconic");
-				img = document.createElement("image");
-				img
-						.setAttribute("src",
-								"chrome://semantic-turkey/skin/images/class20x20.png");
-				lci.appendChild(img);
-				lbl = document.createElement("label");
-				var value = typeList[i].getAttribute("class");
-				lsti.setAttribute("label", value);
-				lsti.setAttribute("explicit", typeList[i]
-								.getAttribute("explicit"));
-				lsti.addEventListener("dblclick",
-						art_semanticturkey.resourcedblClickEvent, true);
-				lsti.addEventListener("mouseover",
-						art_semanticturkey.setCursorPointerEvent, true);
-				lsti.addEventListener("mouseout",
-						art_semanticturkey.setCursorDefaultEvent, true);
+			//if (typeList[i].nodeType == 1) {
+			lsti = document.createElement("listitem");
+			lci = document.createElement("listitem-iconic");
+			img = document.createElement("image");
+			img
+					.setAttribute("src",
+							"chrome://semantic-turkey/skin/images/class20x20.png");
+			lci.appendChild(img);
+			lbl = document.createElement("label");
+			//var value = typeList[i].getAttribute("class");
+			var value = typeList[i].getURI();
+			lsti.setAttribute("label", value);
+			lsti.setAttribute("explicit", typeList[i].explicit);
+							//.getAttribute("explicit"));
+			lsti.addEventListener("dblclick",
+					art_semanticturkey.resourcedblClickEvent, true);
+			lsti.addEventListener("mouseover",
+					art_semanticturkey.setCursorPointerEvent, true);
+			lsti.addEventListener("mouseout",
+					art_semanticturkey.setCursorDefaultEvent, true);
 
-				var containerObjTx = new Object();
-				containerObjTx.explicit = typeList[i].getAttribute("explicit");
-				containerObjTx.sourceElementName = value;
-				containerObjTx.sourceType = "cls";
-				lsti.containerObj = containerObjTx;
-				lbl.setAttribute("value", value);
-				lci.appendChild(lbl);
-				lsti.appendChild(lci);
-				list.appendChild(lsti);
-			}
+			var containerObjTx = new Object();
+			containerObjTx.explicit = typeList[i].explicit; //.getAttribute("explicit");
+			containerObjTx.sourceElementName = value;
+			containerObjTx.sourceType = "cls";
+			lsti.containerObj = containerObjTx;
+			lbl.setAttribute("value", value);
+			lci.appendChild(lbl);
+			lsti.appendChild(lci);
+			list.appendChild(lsti);
+			//}
 		}
 	} else {
 		var lbl = document.createElement("label");
@@ -923,49 +933,51 @@ art_semanticturkey.parsingType = function(responseElement, request) {
 		row.appendChild(box);
 		parentBox.appendChild(row);
 		for (var j = 0; j < typeList.length; j++) {
-			if (typeList[j].nodeType == 1) {
-				var value = typeList[j].getAttribute("class");
-				var explicit = typeList[j].getAttribute("explicit");
-				var txbox = document.createElement("textbox");
-				txbox.setAttribute("id", "tx" + value);
-				txbox.setAttribute("value", value);
-				txbox.setAttribute("readonly", "true");
-				txbox.addEventListener("dblclick",
-						art_semanticturkey.resourcedblClickEvent, true);
-				txbox.addEventListener("mouseover",
-						art_semanticturkey.setCursorPointerEvent, true);
-				txbox.addEventListener("mouseout",
-						art_semanticturkey.setCursorDefaultEvent, true);
+			//if (typeList[j].nodeType == 1) {
+			//var value = typeList[j].getAttribute("class");
+			//var explicit = typeList[j].getAttribute("explicit");
+			var value = typeList[j].getURI();
+			var explicit = typeList[j].explicit;
+			var txbox = document.createElement("textbox");
+			txbox.setAttribute("id", "tx" + value);
+			txbox.setAttribute("value", value);
+			txbox.setAttribute("readonly", "true");
+			txbox.addEventListener("dblclick",
+					art_semanticturkey.resourcedblClickEvent, true);
+			txbox.addEventListener("mouseover",
+					art_semanticturkey.setCursorPointerEvent, true);
+			txbox.addEventListener("mouseout",
+					art_semanticturkey.setCursorDefaultEvent, true);
 
-				var containerObjTx = new Object();
-				containerObjTx.explicit = explicit;
-				containerObjTx.sourceElementName = value;
-				containerObjTx.sourceType = "cls";
-				txbox.containerObj = containerObjTx;
-				var typeButton = document.createElement("button");
-				typeButton.setAttribute("id", "typeButton");
-				typeButton.setAttribute("flex", "0");
-				typeButton.addEventListener("command",
-						art_semanticturkey.removeTypeEvent, true);
-				var containerObj = new Object();
-				containerObj.value = value;
-				containerObj.sourceType = window.arguments[0].sourceType;
-				containerObj.isList = false;
-				typeButton.containerObj = containerObj;
-				if (explicit == "false") {
-					typeButton.setAttribute("disabled", "true");
-				}
-
-				typeButton.setAttribute("label", "Remove Type");
-				typeButton
-						.setAttribute("image",
-								"chrome://semantic-turkey/skin/images/class_delete.png");
-				var row2 = document.createElement("row");
-				row2.setAttribute("id", value);
-				row2.appendChild(typeButton);
-				row2.insertBefore(txbox, typeButton);
-				parentBox.appendChild(row2);
+			var containerObjTx = new Object();
+			containerObjTx.explicit = explicit;
+			containerObjTx.sourceElementName = value;
+			containerObjTx.sourceType = "cls";
+			txbox.containerObj = containerObjTx;
+			var typeButton = document.createElement("button");
+			typeButton.setAttribute("id", "typeButton");
+			typeButton.setAttribute("flex", "0");
+			typeButton.addEventListener("command",
+					art_semanticturkey.removeTypeEvent, true);
+			var containerObj = new Object();
+			containerObj.value = value;
+			containerObj.sourceType = window.arguments[0].sourceType;
+			containerObj.isList = false;
+			typeButton.containerObj = containerObj;
+			if (explicit == "false") {
+				typeButton.setAttribute("disabled", "true");
 			}
+
+			typeButton.setAttribute("label", "Remove Type");
+			typeButton
+					.setAttribute("image",
+							"chrome://semantic-turkey/skin/images/class_delete.png");
+			var row2 = document.createElement("row");
+			row2.setAttribute("id", value);
+			row2.appendChild(typeButton);
+			row2.insertBefore(txbox, typeButton);
+			parentBox.appendChild(row2);
+			//}
 		}
 	}
 };
