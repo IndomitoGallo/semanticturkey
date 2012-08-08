@@ -20,7 +20,7 @@
 
 <window id="newProjectWindow" title="New Project"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="430" height="250">
+	width="430" height="280">
 
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/projects/newProject.js" />
