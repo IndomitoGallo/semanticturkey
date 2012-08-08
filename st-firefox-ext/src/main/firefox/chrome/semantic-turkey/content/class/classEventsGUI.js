@@ -107,7 +107,7 @@ art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(
 			art_semanticturkey.getSubClassesTree_RESPONSE(collectionSubClass,
 					treeChildren);
 			tree.treeBoxObject.view.toggleOpenState(tree.currentIndex);
-
+			
 			var list = document.getElementById("IndividualsList");
 			responseXML = art_semanticturkey.STRequests.Cls
 					.getClassAndInstancesInfo(
@@ -164,49 +164,54 @@ art_semanticturkey.parsingSubClass = function(classNode, node, isRootNode) {
 	//legacy
 	if(typeof numInst == 'undefined')
 		numInst = classNode.getAttribute("numInst");
+	
+	var showValue;
+	if(typeof classNode.getShow == 'undefined')
+		showValue = classNode.getAttribute("name");
+	else
+		showValue = classNode.getShow();
+	
 	if (numInst != 0) {
 		//legacy
-		if(typeof classNode.getShow == 'undefined')
-			tc.setAttribute("label", classNode.getAttribute("name") + numInst);
-		else
-			tc.setAttribute("label", classNode.getShow() +"("+ numInst+")");
-		//numInst = numInst.substring(1, numInst.length - 1);
+		tc.setAttribute("label", showValue +"("+ numInst+")");
 	} else {
-		if(typeof classNode.getShow == 'undefined')
-			tc.setAttribute("label", classNode.getAttribute("name"));
-		else
-			tc.setAttribute("label", classNode.getShow());
+		tc.setAttribute("label", showValue);
 	}
+	
 	//legacy
-	if(typeof classNode.getShow == 'undefined')
-		tc.setAttribute("show", classNode.getAttribute("name"));
-	else
-		tc.setAttribute("show", classNode.getShow());
+	tc.setAttribute("show", showValue);
 	tc.setAttribute("numInst", numInst);
+	
 	//legacy
-	if(typeof classNode.explicit == 'undefined')
-		tc.setAttribute("deleteForbidden", classNode
-				.getAttribute("deleteForbidden"));
+	var deleteForbidden;
+	if(typeof classNode.deleteForbidden == 'undefined')
+		deleteForbidden = classNode.getAttribute("deleteForbidden");
 	else
-		tc.setAttribute("deleteForbidden", classNode.explicit);
-	var df = classNode.explicit;
-	//legacy
-	if(typeof df == 'undefined')
-		df = classNode.getAttribute("deleteForbidden");
-	if (df == "true")
+		deleteForbidden = classNode.deleteForbidden;
+	if(deleteForbidden == null)
+		deleteForbidden = false;
+	tc.setAttribute("deleteForbidden", deleteForbidden);
+	if (deleteForbidden == "true")
 		tc.setAttribute("properties", "basetrue");
+	
+	
+	
 	tc.setAttribute("isRootNode", isRootNode);
 	tr.appendChild(tc);
+	
+	
 	var ti = document.createElement("treeitem");
 	//legacy
 	if(typeof classNode.getURI == 'undefined')
 		ti.setAttribute("className", classNode.getAttribute("name"));
 	else
 		ti.setAttribute("className", classNode.getURI());
+	ti.setAttribute("show", showValue);
 	ti.appendChild(tr);
 	var tch = document.createElement("treechildren");
 	node.appendChild(ti);
 	var more = classNode.more;
+	
 	//legacy
 	if(typeof more == 'undefined')
 		more = classNode.getAttribute("more");
@@ -863,6 +868,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 };
 
 art_semanticturkey.getImgFromType = function(type, explicit) {
+	alert("dentro getImgFromType, type = "+type +" e explicit = "+explicit); // da cancellare
 	var imgType;
 	if (type == "individual") {
 		if (explicit == "false")
