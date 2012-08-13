@@ -19,11 +19,13 @@ function getCollection(response){
 				var uriValue = childElements[i].textContent;
 				var showValue = childElements[i].getAttribute('show');
 				var explicitValue = childElements[i].getAttribute('explicit');
+				var deleteForbiddenValue = childElements[i].getAttribute('deleteForbidden');
 				var moreValue = childElements[i].getAttribute('more');
 				var roleValue = childElements[i].getAttribute('role');
 				var numInst = childElements[i].getAttribute('numInst');
 				var artURIRes = new ARTURIResource(showValue, roleValue, uriValue);
 				artURIRes.explicit = explicitValue; 
+				artURIRes.deleteForbidden = deleteForbiddenValue;
 				artURIRes.more = moreValue; 
 				artURIRes.numInst = numInst; 
 				collectionArray.push(artURIRes);

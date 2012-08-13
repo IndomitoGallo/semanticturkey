@@ -83,7 +83,7 @@ art_semanticturkey.onAccept = function() {
 		//get the functions for the event drag'n'drop over instance
 		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");
 		//set timeout to close the window
-		window.setTimeout(function() {window.close();}, 100);
+		//window.setTimeout(function() {window.close();}, 100);
 		
 		//execute the selected function
 		var fun = FunctionOI[sindex].getfunct();
@@ -96,6 +96,7 @@ art_semanticturkey.onAccept = function() {
 				+ " not registered annotation type reset to bookmarking");
 		prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
 	}
+	close();
 };
 
 //when cancel button is pressed close the window

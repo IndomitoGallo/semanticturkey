@@ -218,7 +218,8 @@ art_semanticturkey.renamedClassFunct = function(eventId, classRenamedObj){
  * @author Noemi Andrea check all occurence of class that should be removed
  */
 art_semanticturkey.checkAndRemove = function(removedClassName, node) {
-	var className = node.getAttribute("className");
+	//var className = node.getAttribute("className");
+	var className = node.getAttribute("show");
 	if (className == removedClassName) {
 		var parentNode = node.parentNode;
 		parentNode.removeChild(node);
@@ -248,7 +249,8 @@ art_semanticturkey.checkAndRename = function(newClassName, oldClassName, node) {
 
 art_semanticturkey.checkAndCreate = function(className, parentNode,
 		superClassName, numInst, delForbidden, hasSubClasses) {
-	var parentClassName = parentNode.getAttribute("className");
+	//var parentClassName = parentNode.getAttribute("className");
+	var parentClassName = parentNode.getAttribute("show");
 	if (parentClassName == superClassName) {
 		var parentTreeChildren = parentNode
 				.getElementsByTagName("treechildren")[0];
@@ -276,9 +278,11 @@ art_semanticturkey.checkAndCreate = function(className, parentNode,
 		else{
 			tc.setAttribute("label", className+"("+numInst+")");
 		}
+		tc.setAttribute("show", className);
 		tr.appendChild(tc);
 		var ti = document.createElement("treeitem");
 		ti.setAttribute("className", className);
+		ti.setAttribute("show", className);
 		if(hasSubClasses != undefined)
 			ti.setAttribute("container", hasSubClasses);
 		ti.appendChild(tr);
