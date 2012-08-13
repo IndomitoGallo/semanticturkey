@@ -29,6 +29,7 @@
 if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_Property.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
 netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
@@ -147,16 +148,16 @@ art_semanticturkey.onAccept = function() {
 		parameters = art_semanticturkey.getParameters(tree,
 				tree.currentIndex);
 
-			// Inherits the given parameters
-			parameters.__proto__ = window.arguments[0];
-		
-			window.setTimeout(function() {window.close();}, 10);
-
-			art_semanticturkey.listDragDropEnrichProp(parameters);
+		// Inherits the given parameters
+		parameters.__proto__ = window.arguments[0];
+	
+		//window.setTimeout(function() {window.close();}, 10);
+		art_semanticturkey.listDragDropEnrichProp(parameters);
 		
 	} else {
 		alert("Please select a property");
 	}
+	close();
 };
 
 art_semanticturkey.onCancel = function() {
@@ -181,12 +182,13 @@ art_semanticturkey.getParameters = function(tree, index) {
 };
 
 art_semanticturkey.listDragDropEnrichProp = function(parameters) {
+	
 	try {
 		// NScarpato 26/11/2010
-		var responseXML = art_semanticturkey.STRequests.Property.getRange(
-				parameters.predicatePropertyName, "false");
+		var responseXML = art_semanticturkey.STRequests.Property.getRange( parameters.predicatePropertyName, "false");
+		
 		var ranges = responseXML.getElementsByTagName("ranges")[0];
-
+		
 		if (ranges.getAttribute("rngType").indexOf("resource") != -1) {
 			window
 					.openDialog(

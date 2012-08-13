@@ -868,7 +868,6 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 };
 
 art_semanticturkey.getImgFromType = function(type, explicit) {
-	alert("dentro getImgFromType, type = "+type +" e explicit = "+explicit); // da cancellare
 	var imgType;
 	if (type == "individual") {
 		if (explicit == "false")
