@@ -2,6 +2,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import it.uniroma2.art.owlart.io.RDFNodeSerializer;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
+import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSXLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
@@ -167,7 +169,23 @@ public class SKOSXL extends SKOS {
 			XLabelCreationMode xLabelCreationMode = XLabelCreationMode.valueOf(modeString);
 			response = addHiddenXLabel(skosConceptName, xLabelCreationMode, label, lang);
 		}
-
+		
+		// REMOVE
+		else if(request.equals(Req.removePrefLabelRequest)){
+			String skosConceptName = setHttpPar(Par.concept);
+			String lang = setHttpPar(Par.langTag);
+			String label = setHttpPar(Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			response = removePrefXLabel(skosConceptName, label, lang);
+		} else if(request.equals(Req.removeAltLabelRequest)){
+			String skosConceptName = setHttpPar(Par.concept);
+			String lang = setHttpPar(Par.langTag);
+			String label = setHttpPar(Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			response = removeAltXLabel(skosConceptName, label, lang);
+		}
+		
+		
 		else
 			response = super.getPreCheckedResponse(request);
 
@@ -180,6 +198,84 @@ public class SKOSXL extends SKOS {
 		return logger;
 	}
 
+	
+	
+	/**
+	 * this service removes the preferred label for a given language
+	 * 
+	 * @param skosConceptName
+	 * @param label
+	 * @param lang
+	 * @return
+	 */
+	public Response removePrefXLabel(String skosConceptName, String label, String lang) {
+		SKOSXLModel model = getSKOSXLModel();
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+		try {
+			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
+			
+			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
+			
+			while (altLabelsIter.hasNext()) {
+				STRDFResource strdfRes = altLabelsIter.next();
+				ARTURIResource tmp = strdfRes.getARTNode().asURIResource();
+				
+				if(strdfRes.getRendering().compareTo(label) == 0){
+					model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), tmp, getWorkingGraph());
+					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
+				}
+			}
+			
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+	
+	/**
+	 * this service removes an alternative label for a given language
+	 * 
+	 * @param skosConceptName
+	 * @param label
+	 * @param lang
+	 * @return
+	 */
+	public Response removeAltXLabel(String skosConceptName, String label, String lang) {
+		SKOSXLModel model = getSKOSXLModel();
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+		try {
+			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
+			
+			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
+			
+			while (altLabelsIter.hasNext()) {
+				STRDFResource strdfRes = altLabelsIter.next();
+				ARTURIResource tmp = strdfRes.getARTNode().asURIResource();
+				
+				if(strdfRes.getRendering().compareTo(label) == 0){
+					model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), tmp, getWorkingGraph());
+					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
+				}
+			}
+			
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+	
 	// SERVICE METHODS
 
 	/**
