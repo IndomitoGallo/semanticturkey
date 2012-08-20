@@ -19,6 +19,7 @@ import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.SKOSXLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
+import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
@@ -64,7 +65,7 @@ public class SKOSXL extends SKOS {
 		public static final String addHiddenLabelRequest = "addHiddenLabel";
 
 		// CREATE REQUESTS
-		// public static final String createConceptRequest = "createConcept";
+		 public static final String createConceptRequest = "createConcept";
 		// public static final String createSchemeRequest = "createScheme";
 
 		// REMOVE REQUESTS
@@ -86,7 +87,7 @@ public class SKOSXL extends SKOS {
 	// PARS
 
 	public static class Par {
-		// final static public String broaderConcept = "broaderConcept";
+		final static public String broaderConcept = "broaderConcept";
 		final static public String concept = "concept";
 		// final static public String conceptFrom = "conceptFrom";
 		// final static public String conceptTo = "conceptTo";
@@ -95,7 +96,7 @@ public class SKOSXL extends SKOS {
 		final static public String label = "label";
 		final static public String langTag = "lang";
 		// final static public String newConcept = "newConcept";
-		// final static public String prefLabel = "prefLabel";
+		 final static public String prefLabel = "prefLabel";
 		// final static public String relatedConcept = "relatedConcept";
 		// final static public String semanticRelation = "semanticRelation";
 		final static public String scheme = "scheme";
@@ -144,7 +145,17 @@ public class SKOSXL extends SKOS {
 
 		// ADD/CREATE/SET
 
-		else if (request.equals(Req.setPrefLabelRequest)) {
+		else if (request.equals(Req.createConceptRequest)) {
+			String conceptName = setHttpPar(Par.concept);
+			String broaderConceptName = setHttpPar(Par.broaderConcept);
+			String schemeName = setHttpPar(Par.scheme);
+			String prefLabel = setHttpPar(Par.prefLabel);
+			String prefLabelLanguage = setHttpPar(Par.langTag);
+			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
+			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
+					prefLabelLanguage);
+
+		}else if (request.equals(Req.setPrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
 			String lang = setHttpPar(Par.langTag);
 			String label = setHttpPar(Par.label);
@@ -410,6 +421,51 @@ public class SKOSXL extends SKOS {
 		return response;
 	}
 
+	
+	
+	public Response createConcept(String conceptName, String superConceptName, String schemeName,
+			String prefLabel, String prefLabelLang) {
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		logger.debug("conceptName: " + conceptName);
+		logger.debug("schemeName: " + schemeName);
+
+		try {
+			ARTResource wrkGraph = getWorkingGraph();
+			SKOSXLModel skosxlModel = getSKOSXLModel();
+			ARTResource[] graphs = getUserNamedGraphs();
+
+			ARTURIResource newConcept = createNewResource(skosxlModel, conceptName, graphs);
+
+			ARTURIResource superConcept;
+			if (superConceptName != null)
+				superConcept = retrieveExistingURIResource(skosxlModel, superConceptName, graphs);
+			else
+				superConcept = NodeFilters.NONE;
+
+			ARTURIResource conceptScheme = retrieveExistingURIResource(skosxlModel, schemeName, graphs);
+
+			logger.debug("adding concept to graph: " + wrkGraph);
+			skosxlModel.addConceptToScheme(newConcept.getURI(), superConcept, conceptScheme, wrkGraph);
+			
+			ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, prefLabelLang,
+					getWorkingGraph());
+			skosxlModel.setPrefXLabel(newConcept, prefXLabel, getWorkingGraph());
+
+			RDFXMLHelp.addRDFNode(response, createSTConcept(skosxlModel, newConcept, true, prefLabelLang));
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		} catch (DuplicatedResourceException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+	
+	
 	/**
 	 * this service sets the preferred label for a given language
 	 * 
