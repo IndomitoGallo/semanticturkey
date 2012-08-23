@@ -452,6 +452,7 @@ public class SKOSXL extends SKOS {
 			skosxlModel.setPrefXLabel(newConcept, prefXLabel, getWorkingGraph());
 
 			RDFXMLHelp.addRDFNode(response, createSTConcept(skosxlModel, newConcept, true, prefLabelLang));
+			RDFXMLHelp.addRDFNode(response, createSTXLabel(skosxlModel, prefXLabel, true));
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -484,15 +485,26 @@ public class SKOSXL extends SKOS {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 		try {
-			ARTURIResource skosConcept = retrieveExistingURIResource(model, skosConceptName,
-					getUserNamedGraphs());
+			ARTResource graph = getWorkingGraph();
+			ARTURIResource skosConcept = retrieveExistingURIResource(model, skosConceptName, graph);
+			
+			//change the other preferred label (of the same language) to alternative label, as only one preferred label per language can exist
+			ARTResource oldPrefLabelRes = model.getPrefXLabel(skosConcept, lang, graph);
+			if(oldPrefLabelRes != null && oldPrefLabelRes.isURIResource()){
+				ARTURIResource oldxlabel = oldPrefLabelRes.asURIResource();
+				model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), oldxlabel, graph);
+				model.addTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), oldxlabel, graph);
+			}
+			
 			if (mode == XLabelCreationMode.bnode)
 				model.setPrefXLabel(skosConcept, label, lang, getWorkingGraph());
 			else {
 				ARTURIResource prefXLabel = model.addXLabel(createURIForXLabel(model), label, lang,
 						getWorkingGraph());
 				model.setPrefXLabel(skosConcept, prefXLabel, getWorkingGraph());
+				RDFXMLHelp.addRDFNode(response, createSTXLabel(model, prefXLabel, true));
 			}
+			
 
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
@@ -530,6 +542,7 @@ public class SKOSXL extends SKOS {
 				ARTURIResource altXLabel = model.addXLabel(createURIForXLabel(model), label, lang,
 						getWorkingGraph());
 				model.addAltXLabel(skosConcept, altXLabel, getWorkingGraph());
+				RDFXMLHelp.addRDFNode(response, createSTXLabel(model, altXLabel, true));
 			}
 
 		} catch (ModelUpdateException e) {
