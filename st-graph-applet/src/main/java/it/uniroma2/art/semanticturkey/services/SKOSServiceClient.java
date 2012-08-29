@@ -5,10 +5,12 @@ import it.uniroma2.art.semanticturkey.graph.Pair;
 import it.uniroma2.art.semanticturkey.graph.Vertex;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class SKOSServiceClient extends HttpServiceClient implements RepositoryServiceClient 
@@ -53,7 +55,7 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 	}
 
 	private Vector<Pair<Vertex, Edge>> getTopConceptsOf(SKOSVertex parentVertex) {
-		String cmd = String.format(CMD_GET_ROOT_CONCEPTS, parentVertex.getName(), getLang());
+		String cmd = String.format(CMD_GET_ROOT_CONCEPTS, encodeURIComponent(parentVertex.getName()), encodeURIComponent(getLang()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -62,15 +64,15 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		
 		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
 		
-		NodeList nodes = doc.getElementsByTagName("concept");
+		NodeList nodes = doc.getElementsByTagName("uri");
 		
 		for (int i = 0 ; i < nodes.getLength() ; i++) {
-			Node n = nodes.item(i);
+			Element n = (Element)nodes.item(i);
 
-			String name = n.getAttributes().getNamedItem("name").getNodeValue();;
+			String name = n.getTextContent().trim();
 			String nodeFace = name;
 			if (isHumanReadable()) {
-				String label = n.getAttributes().getNamedItem("label").getNodeValue().trim();
+				String label = n.getAttributes().getNamedItem("show").getNodeValue().trim();
 				
 				if (!label.equals("")) {
 					nodeFace = label;
@@ -85,7 +87,7 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 	}
 	
 	private Vector<Pair<Vertex, Edge>> getNarrowerConceptsOf(SKOSVertex parentVertex) {
-		String cmd = String.format(CMD_GET_NARROWER_CONCEPTS, parentVertex.getName(), selectedScheme, getLang());
+		String cmd = String.format(CMD_GET_NARROWER_CONCEPTS, encodeURIComponent(parentVertex.getName()), encodeURIComponent(selectedScheme), encodeURIComponent(getLang()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -94,15 +96,15 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		
 		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
 		
-		NodeList nodes = doc.getElementsByTagName("concept");
+		NodeList nodes = doc.getElementsByTagName("uri");
 		
 		for (int i = 0 ; i < nodes.getLength() ; i++) {
-			Node n = nodes.item(i);
-			
-			String name = n.getAttributes().getNamedItem("name").getNodeValue();;
+			Element n = (Element)nodes.item(i);
+
+			String name = n.getTextContent().trim();
 			String nodeFace = name;
 			if (isHumanReadable()) {
-				String label = n.getAttributes().getNamedItem("label").getNodeValue().trim();
+				String label = n.getAttributes().getNamedItem("show").getNodeValue().trim();
 				
 				if (!label.equals("")) {
 					nodeFace = label;
@@ -116,11 +118,24 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		return result;
 	}
 	
-	private Object getLang() {
+	private String getLang() {
 		return this.lang;
 	}
 
 	protected boolean isHumanReadable() {
 		return this.humanReadable;
+	}
+	
+	private String encodeURIComponent(String text) {
+		//TODO: Not fully compatibile with the JS implementation
+		try {
+			String intermediate = URLEncoder.encode(text, "UTF-8");
+			intermediate = intermediate.replace("+", "%20");
+			
+			return intermediate;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
