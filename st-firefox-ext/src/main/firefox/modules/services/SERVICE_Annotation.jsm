@@ -1,5 +1,7 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/Deserializer.jsm");	
+Components.utils.import("resource://stmodules/stEvtMgr.jsm");
 
 EXPORTED_SYMBOLS = [ "HttpMgr", "STRequests" ];
 
@@ -289,12 +291,35 @@ function bookmarkPage(urlPage, title, topics){
 		topics_p += topics[i];
 	}
 	
-	return HttpMgr.GET(serviceName, service.bookmarkPageRequest,urlPage_p,title_p,topics_p);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.bookmarkPageRequest,urlPage_p,title_p,topics_p));
+}
+
+function getPageTopics(urlPage) {
+	var urlPage_p = "urlPage=" + urlPage;
+	
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getPageTopicsRequest,urlPage_p));
 }
 
 function getBookmarksByTopic(topic) {
-	var topic_p= "topic="+topic;
+	var topic_p = "topic=" + topic;
 	return HttpMgr.GET(serviceName, service.getBookmarksByTopicRequest,topic_p);
+}
+
+function removeBookmark(urlPage, topic) {
+	var urlPage_p = "urlPage=" + urlPage;
+	var topic_p = "topic=" + topic;
+	
+	
+	var reply = HttpMgr.GET(serviceName, service.removeBookmarkRequest, urlPage_p, topic_p);
+
+	if (!reply.isFail()) {
+		evtMgr.fireEvent("bookmarkRemoved", {
+			getPageURL : function() {return urlPage;},
+			getTopic : function() {return topic;}
+			});
+	}
+	
+	return reply;
 }
 
 // Annotation SERVICE INITIALIZATION
@@ -306,5 +331,6 @@ service.relateAndAnnotateBindCreate = relateAndAnnotateBindCreate;
 service.createFurtherAnnotation = createFurtherAnnotation;
 service.addAnnotation=addAnnotation;
 service.bookmarkPage=bookmarkPage;
+service.getPageTopics=getPageTopics;
 service.getBookmarksByTopic=getBookmarksByTopic;
-
+service.removeBookmark=removeBookmark;

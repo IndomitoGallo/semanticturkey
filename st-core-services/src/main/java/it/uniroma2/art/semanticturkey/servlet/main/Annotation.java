@@ -26,6 +26,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTLiteral;
+import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
@@ -34,30 +35,40 @@ import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 
 /**
  * Service which managing annotation requests
@@ -74,10 +85,11 @@ public class Annotation extends ServiceAdapter {
 	public static final String addAnnotationRequest = "addAnnotation";
 	public static final String relateAndAnnotateRequest = "relateAndAnnotate";
 	public static final String bookmarkPageRequest = "bookmarkPage";
-	public static final String getBookmarksByTopic = "getBookmarksByTopic";
-	public static final String getAllBookmarks = "getAllBookmarks";
-
-	// parameters
+	public static final String getBookmarksByTopicRequest = "getBookmarksByTopic";
+	public static final String getPageTopicsRequest = "getPageTopics";
+	public static final String getAllBookmarksRequest = "getAllBookmarks";
+	public static final String removeBookmarkRequest = "removeBookmark";
+ 	// parameters
 	public static final String annotQNameString = "annotQName";
 	public static final String textString = "text";
 	public static final String op = "op";
@@ -141,11 +153,21 @@ public class Annotation extends ServiceAdapter {
 			String topics = setHttpPar(topicsList);
 			checkRequestParametersAllNotNull(urlPageField, titleField, topicsList);
 			response = bookmarkPage(pageURL, title, topics);
-		} else if (request.equals(getBookmarksByTopic)) {
+		} else if (request.equals(getBookmarksByTopicRequest)) {
 			String topicName = setHttpPar(topic);
 			checkRequestParametersAllNotNull(topic);
 			response = getBookmarksByTopic(topicName);
-		} else if (request.equals(getAllBookmarks)) {
+		} else if(request.equals(removeBookmarkRequest)) {
+			String urlPage = setHttpPar(urlPageField);
+			String topic = setHttpPar(Annotation.topic);
+			checkRequestParametersAllNotNull(urlPageField, Annotation.topic);
+			
+			response = removeBookmark(urlPage, topic);
+		} else if(request.equals(getPageTopicsRequest)) {
+			String urlPage = setHttpPar(urlPageField);
+			checkRequestParametersAllNotNull(urlPageField);
+			response = getPageTopics(urlPage);
+		} else if (request.equals(getAllBookmarksRequest)) {
 			response = getAllBookmarks();
 		} else if (request.equals(chkAnnotationsRequest)) {
 			String urlPage = setHttpPar(urlPageField);
@@ -208,6 +230,56 @@ public class Annotation extends ServiceAdapter {
 		return response;
 	}
 
+	static private class NodeToResource implements Function<ARTNode, ARTURIResource>{
+
+		public ARTURIResource apply(ARTNode arg) {
+			return arg.asURIResource();
+		}
+
+	}
+	
+	private Response getPageTopics(String urlPage) {
+		OWLModel ontModel = getOWLModel();
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+		Element dataElement = response.getDataElement();
+
+		ARTLiteral urlPageLiteral = ontModel.createLiteral(urlPage);
+		ARTResourceIterator collectionIterator;
+		ARTResource webPage = null;
+		try {
+			collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url, urlPageLiteral,
+					true, getUserNamedGraphs());
+			while (collectionIterator.hasNext()) {
+				webPage = (ARTResource) collectionIterator.next();
+			}
+			if (webPage == null) {
+				return response;
+			}
+			
+			ARTNodeIterator topicIterator = ontModel.listValuesOfSubjPredPair(webPage, SemAnnotVocab.Res.topic, true, getUserNamedGraphs());
+			Iterator<ARTURIResource> filteredIterator =  Iterators.transform(topicIterator, new NodeToResource());
+			
+			Collection<STRDFResource> topicCollection = STRDFNodeFactory.createEmptyResourceCollection();
+
+			while (filteredIterator.hasNext()) {
+				ARTURIResource resource = filteredIterator.next();
+				
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(resource, RDFResourceRolesEnum.concept, true, ontModel.getQName(resource.getURI()));
+				topicCollection.add(stResource);
+			}
+			
+			RDFXMLHelp.addRDFNodes(dataElement, topicCollection);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		
+		return response;
+	}
+
 	/**
 	 * this service returns all previous annotations taken into the page associated to the given url
 	 * 
@@ -223,7 +295,7 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response getPageAnnotations(String urlPage) {
 		OWLModel ontModel = getOWLModel();
-
+		
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 		Element dataElement = response.getDataElement();
@@ -697,6 +769,9 @@ public class Annotation extends ServiceAdapter {
 
 	public Response bookmarkPage(String pageURL, String title, String topicsString) {
 		RDFModel ontModel = getOWLModel();
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		Element dataElement = response.getDataElement();
+		
 		try {
 			ARTResource wgraph = getWorkingGraph();
 			ARTResource[] graphs = getUserNamedGraphs();
@@ -709,6 +784,14 @@ public class Annotation extends ServiceAdapter {
 			}
 			tagPageWithTopics(ontModel, webPageInstance, topics, wgraph);
 
+			Collection<STRDFResource> topicCollection = STRDFNodeFactory.createEmptyResourceCollection();
+
+			for(ARTURIResource topic : topics) {				
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(topic, RDFResourceRolesEnum.concept, true, ontModel.getQName(topic.getURI()));
+				topicCollection.add(stResource);
+			}
+			
+			RDFXMLHelp.addRDFNodes(dataElement, topicCollection);
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
@@ -716,9 +799,38 @@ public class Annotation extends ServiceAdapter {
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
-		return createReplyResponse(RepliesStatus.ok);
+
+		return response;
 	}
 
+	public Response removeBookmark(String urlPage, String topic) {
+		try {
+			XMLResponse response = createReplyResponse(RepliesStatus.ok);
+			
+			OWLModel ontModel = getOWLModel();
+			
+			ARTResourceIterator collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url,
+					ontModel.createLiteral(urlPage), true, getUserNamedGraphs());
+			
+			ARTURIResource webPageInstanceRes = null;
+			
+			if (collectionIterator.streamOpen()) {
+				webPageInstanceRes = collectionIterator.getNext().asURIResource();
+			}
+			
+			if (webPageInstanceRes == null) {
+				return createReplyFAIL("Web page <" + urlPage + "> does not exist");
+			}
+			
+			ARTURIResource topicResource = ontModel.createURIResource(topic);
+			
+			ontModel.deleteStatement(ontModel.createStatement(webPageInstanceRes, SemAnnotVocab.Res.topic, topicResource), getWorkingGraph());
+		
+			return response;
+		} catch (Exception e) {
+			return logAndSendException(e);
+		}	
+	}
 	public void createLexicalization(RDFModel model, ARTURIResource instance, String lexicalization,
 			String pageURL, String title, ARTResource... graphs) throws ModelUpdateException,
 			ModelAccessException {
