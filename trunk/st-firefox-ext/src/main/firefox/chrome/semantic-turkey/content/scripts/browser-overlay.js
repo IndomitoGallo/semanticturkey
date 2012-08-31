@@ -590,6 +590,15 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 			document.getElementById("key_openSTSKOSSidebar").disabled = true;
 			document.getElementById("humanReadableButton").hidden = true;
 		}
+		
+		if (typeof art_semanticturkey.bookmarkStEventArray != "undefined") {
+			art_semanticturkey.bookmarkStEventArray.deregisterAllListener();
+		}
+		
+		art_semanticturkey.bookmarkStateManagement.bookmarkStEventArray = new art_semanticturkey.eventListenerArrayClass();
+		art_semanticturkey.bookmarkStateManagement.bookmarkStEventArray.addEventListenerToArrayAndRegister("bookmarkRemoved", art_semanticturkey.bookmarkStateManagement.handleBookmarkRemoved)
+		
+		gBrowser.addEventListener("load", art_semanticturkey.bookmarkStateManagement.showPageTopics, true);
 	}
 	else if(eventId == "projectClosed"){
 		var broadcasterList = document.getElementById("mainBroadcasterSet").getElementsByTagName("broadcaster");
@@ -625,7 +634,14 @@ art_semanticturkey.changeProjectObj = function(eventId, projectInfo) {
 		if (typeof art_semanticturkey.skosStateManagemenet.stEventArray != "undefined") {
 			art_semanticturkey.skosStateManagemenet.stEventArray.unregister();
 			art_semanticturkey.skosStateManagemenet.stEventArray = undefined;
-		}		
+		}
+		
+		if (typeof art_semanticturkey.bookmarkStateManagement.bookmarkStEventArray != "undefined") {
+			art_semanticturkey.bookmarkStateManagement.bookmarkStEventArray.deregisterAllListener();
+			art_semanticturkey.bookmarkStateManagement.bookmarkStEventArray = undefined;
+		}
+		
+		gBrowser.removeEventListener("load", art_semanticturkey.bookmarkStateManagement.showPageTopics, true);
 	}
 	else if(eventId == "projectChangedName"){
 		var projectName = projectInfo.projectName;
@@ -675,13 +691,16 @@ art_semanticturkey.dropOnBrowser = function(event){
 			var title = doc.title;
 			var topics = [event.dataTransfer.getData("application/skos.concept")];
 
-			art_semanticturkey.STRequests.Annotation.bookmarkPage(urlPage, title, topics);
-		}
-		catch (e) {
+			var topicCollection = art_semanticturkey.STRequests.Annotation.bookmarkPage(urlPage, title, topics);
+						
+			art_semanticturkey.bookmarkStateManagement.showNewBookmark(event, topicCollection);
+			
+		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 	}
 };
+
 
 art_semanticturkey.humanReadableButtonClick = function(event) {
 	var oldState = art_semanticturkey.Preferences.get("extensions.semturkey.skos.humanReadable", false);
@@ -709,4 +728,201 @@ art_semanticturkey.skosStateManagemenet.projectPropertySet = function(eventId, p
 	if (projectPropertySetObj.getPropName() == "skos.selected_scheme") {
 		art_semanticturkey.skosStateManagemenet.selectedScheme = projectPropertySetObj.getPropValue();
 	}
+};
+
+art_semanticturkey.bookmarkStateManagement = {};
+
+art_semanticturkey.bookmarkStateManagement.showNewBookmark = function(event, topic) {
+	var doc = event.originalTarget.ownerDocument;
+
+	var topicArea = art_semanticturkey.bookmarkStateManagement.getOrCreateTopicArea(doc);
+	var topicFrame = topicArea.children[0];
+
+	art_semanticturkey.bookmarkStateManagement.addTopicsToPage(doc, topic);
+};
+
+art_semanticturkey.bookmarkStateManagement.showPageTopics = function(event) {
+	  var doc = event.originalTarget;
+	  
+	  if (doc instanceof HTMLDocument) {
+	    if (doc.defaultView.frameElement) {return;}; // Skip events related to inner frame
+
+		var topics = art_semanticturkey.STRequests.Annotation
+				.getPageTopics(doc.documentURI);
+
+		art_semanticturkey.bookmarkStateManagement.addTopicsToPage(doc, topics);
+	  }
+};
+
+art_semanticturkey.bookmarkStateManagement.addTopicsToPage = function(doc, topics) {
+	var topicArea = art_semanticturkey.bookmarkStateManagement.getOrCreateTopicArea(doc);
+	var topicFrame = topicArea.children[0];
+
+	var initialNodes = topicFrame.childNodes;
+
+	var allTopics = [];
+
+	for ( var i = 0; i < initialNodes.length; i++) {
+		if (initialNodes[i] instanceof HTMLDivElement) {
+			allTopics.push(initialNodes[i].getAttribute("st-topic-uri"));
+		}
+	}
+
+	for ( var i = 0; i < topics.length; i++) {
+		if (allTopics.indexOf(topics[i].getURI()) != -1)
+			continue; // Avoid duplicates
+
+		allTopics.push(topics[i].getURI());
+
+		var topicElement = doc.createElementNS("http://www.w3.org/1999/xhtml",
+				"div");
+		topicElement.className = "st-topic";
+		var topicLabel = doc.createTextNode(topics[i].getShow());
+		topicElement.appendChild(topicLabel);
+		topicElement.setAttribute("st-topic-uri", topics[i].getURI());
+		topicElement.addEventListener("click", function(event) {
+
+			if (!(event.target instanceof HTMLDivElement))
+				return; // Skip events bubbling from the close button
+
+			var uri = event.target.getAttribute("st-topic-uri");
+			var parameters = {
+				sourceElement : null, // elemento contenente i dati della riga
+				// corrente
+				sourceType : "concept", // tipo di editor: clss, ..., determina
+				// le funzioni custom ed il titolo della
+				// finestra
+				sourceElementName : uri, // nome dell'elemento corrente
+				// (quello usato per
+				// identificazione: attualmente il
+				// qname)
+				sourceParentElementName : "", // nome dell'elemento genitore
+				isFirstEditor : false, // l'editor è stato aperto direttamente
+				// dall class/... tree o da un altro
+				// editor?
+				deleteForbidden : false, // cancellazione vietata
+				parentWindow : window, // finestra da cui viene aperto l'editor
+				skos : {
+					selectedScheme : this.conceptScheme
+				}
+			};
+			window.openDialog(
+					"chrome://semantic-turkey/content/editors/editorPanel.xul",
+					"_blank",
+					"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
+					parameters);
+		}, false);
+
+		var closeButton = doc.createElementNS("http://www.w3.org/1999/xhtml",
+				"img");
+		closeButton.setAttribute("src", "moz-icon://stock/gtk-close?size=menu");
+		closeButton.style.paddingLeft = "5px";
+		closeButton.style.maxHeight = "12pt";
+		topicElement.appendChild(closeButton);
+
+		closeButton.addEventListener("click", function(event) {
+			try {
+				var doc = event.target.ownerDocument;
+				var topicElement = event.target.parentNode;
+				var uri = topicElement.getAttribute("st-topic-uri");
+
+				var response = art_semanticturkey.STRequests.Annotation
+						.removeBookmark(doc.documentURI, uri);
+			} catch (e) {
+				alert("Exception: " + e.message);
+			}
+		}, false);
+		var spacer = doc.createTextNode(" ");
+
+		topicFrame.appendChild(topicElement);
+		topicFrame.appendChild(spacer);
+	}
+
+	art_semanticturkey.bookmarkStateManagement.recomputeTopicAreaLayout(topicFrame);
+};
+
+art_semanticturkey.bookmarkStateManagement.recomputeTopicAreaLayout = function(topicFrame) {
+	var doc = topicFrame.ownerDocument;
+	var frameContent = topicFrame.childNodes;
+	var topicCount = 0;
+
+	for ( var i = 0; i < frameContent.length; i++) {
+		var node = frameContent[i];
+		if (node.nodeType == 3) {
+			if (topicCount % 3 == 0) { // Replace with a BR
+				var br = doc.createElementNS("http://www.w3.org/1999/xhtml",
+						"br");
+				node.parentNode.replaceChild(br, node);
+			}
+		} else if (node.nodeType == 1) {
+			if (node.classList.contains("st-topic")) {
+				topicCount++;
+			} else { // it is a BR
+				if (topicCount % 3 != 0) { // Replace with a space
+					var spacer = doc.createTextNode(" ");
+					node.parentNode.replaceChild(spacer, node);
+				}
+			}
+		}
+	}
+};
+
+art_semanticturkey.bookmarkStateManagement.getOrCreateTopicArea = function(doc) {
+	var topicArea = doc.getElementById("st-topic-area");
+
+	if (topicArea == null) {
+		var ss = doc.createElementNS("http://www.w3.org/1999/xhtml", "style");
+		ss.setAttribute("type", "text/css");
+		ss.innerHTML = "#st-topic-area {clear:both;position: absolute;margin: 5px;top: 0px;right: 0px;overflow: hidden;width: 20px;height: 20px;border-radius: 10px;background-color: red;cursor: pointer;}\n"
+				+ "#st-topic-area:hover {width: auto;height: auto;border-radius: 0px;background-color: transparent;cursor: auto;}\n"
+				+ "#st-topic-area-frame {visibility: hidden;font-size: 12pt;line-height: 200%;text-align:right;}\n"
+				+ "#st-topic-area:hover > #st-topic-area-frame {visibility: visible;}\n"
+				+ ".st-topic {display: inline;background-color: lightgreen;border-radius: 4pt;padding: 4pt;cursor: pointer;}\n";
+
+		doc.getElementsByTagName("head")[0].appendChild(ss);
+
+		topicArea = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		topicArea.setAttribute("id", "st-topic-area");
+		doc.body.appendChild(topicArea);
+
+		var topicFrame = doc.createElementNS("http://www.w3.org/1999/xhtml",
+				"div");
+		topicFrame.setAttribute("id", "st-topic-area-frame");
+		topicArea.appendChild(topicFrame);
+	}
+
+	return topicArea;
+};
+
+art_semanticturkey.bookmarkStateManagement.handleBookmarkRemoved = function(eventId, bookmarkRemovedObj) {
+	var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+			.getService(Components.interfaces.nsIIOService);
+
+	var browsers = gBrowser.browsers;
+	for ( var i = 0; i < browsers.length; i++) {
+		var b = gBrowser.getBrowserAtIndex(i);
+
+		if (b.currentURI.spec == bookmarkRemovedObj.getPageURL()) {
+			var doc = b.contentDocument;
+			var topicArea = art_semanticturkey.bookmarkStateManagement.getOrCreateTopicArea(doc);
+			art_semanticturkey.bookmarkStateManagement.removeTopic(topicArea, {getURI : function(){return bookmarkRemovedObj.getTopic();}});
+		}
+	}
+};
+
+art_semanticturkey.bookmarkStateManagement.removeTopic = function(topicArea, topic) {
+	var topicFrame = topicArea.children[0];
+	var childNodes = topicFrame.childNodes;
+	
+	for (var i = 0 ; i < childNodes.length ; i++) {
+		if (typeof childNodes[i].classList != "undefined" && childNodes[i].classList.contains("st-topic")) {
+			if (childNodes[i].getAttribute("st-topic-uri") == topic.getURI()) {
+				var spacer = childNodes[i].nextSibling;
+				topicFrame.removeChild(childNodes[i]);
+				topicFrame.removeChild(spacer);
+			}
+		}
+	}
+	
+	art_semanticturkey.bookmarkStateManagement.recomputeTopicAreaLayout(topicFrame);
 };
