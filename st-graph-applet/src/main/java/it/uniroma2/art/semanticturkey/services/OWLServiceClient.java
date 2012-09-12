@@ -61,10 +61,10 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 
 		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
 		Document doc = response.getResponseObject();
-		NodeList nl = doc.getElementsByTagName("class");
+		NodeList nl = doc.getElementsByTagName("uri");
 		for (int i = 0; i < nl.getLength(); ++i) {
 			Node n = nl.item(i);
-			Node attr = n.getAttributes().getNamedItem("name");
+			Node attr = n.getAttributes().getNamedItem("show");
 			v.add(new Pair<Vertex, Edge>(new OWLVertex(attr.getNodeValue(), OWLVertex.OWL_NODE_TYPE.CLASS),
 					new Edge(SUBCLASS_LABEL)));
 		}
