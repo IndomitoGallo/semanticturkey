@@ -124,18 +124,5 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 
 	protected boolean isHumanReadable() {
 		return this.humanReadable;
-	}
-	
-	private String encodeURIComponent(String text) {
-		//TODO: Not fully compatibile with the JS implementation
-		try {
-			String intermediate = URLEncoder.encode(text, "UTF-8");
-			intermediate = intermediate.replace("+", "%20");
-			
-			return intermediate;
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	}	
 }

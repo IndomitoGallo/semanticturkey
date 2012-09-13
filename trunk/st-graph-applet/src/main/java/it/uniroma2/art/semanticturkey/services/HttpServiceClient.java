@@ -7,8 +7,10 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,6 +66,19 @@ public abstract class HttpServiceClient
 			e.printStackTrace();
 		} catch (SAXException e) 
 		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	protected String encodeURIComponent(String text) {
+		//TODO: Not fully compatibile with the JS implementation
+		try {
+			String intermediate = URLEncoder.encode(text, "UTF-8");
+			intermediate = intermediate.replace("+", "%20");
+			
+			return intermediate;
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return null;
