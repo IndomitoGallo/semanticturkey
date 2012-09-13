@@ -54,7 +54,7 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private Vector<Pair<Vertex, Edge>> getSubClassesOf(String parentNodeName) {
-		String cmd = String.format(CMD_GET_SUBCLASSESOF, parentNodeName);
+		String cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent(parentNodeName));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -73,7 +73,7 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private Vector<Pair<Vertex, Edge>> getClassDescription(String parentNodeName) {
-		String cmd = String.format(CMD_GET_CLASSDESCRIPTION, parentNodeName);
+		String cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(parentNodeName));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -118,7 +118,7 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private Vector<Pair<Vertex, Edge>> getIndividualsOf(String parentNodeName) {
-		String cmd = String.format(CMD_GET_INSTANCESOF, parentNodeName);
+		String cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(parentNodeName));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
