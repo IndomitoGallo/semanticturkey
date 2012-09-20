@@ -8,8 +8,8 @@ public abstract class SKOSVertex extends Vertex{
 
 	private String nodeFace;
 	
-	public SKOSVertex(String name, String nodeFace) {
-		super(name);
+	public SKOSVertex(String name, Vertex vertexParent, boolean isRootVertex, String nodeFace) {
+		super(name, vertexParent, isRootVertex);
 		this.nodeFace = nodeFace;
 	}
 	

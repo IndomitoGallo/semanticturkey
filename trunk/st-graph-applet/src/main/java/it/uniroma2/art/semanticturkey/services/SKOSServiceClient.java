@@ -7,6 +7,9 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
@@ -24,8 +27,10 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 	private String selectedScheme;
 	private boolean humanReadable;
 	private String lang;
+	private Map<String, Vertex> completeVertexMap;
 	
-	public SKOSServiceClient(boolean humanReadable, String lang) {
+	public SKOSServiceClient(Map<String, Vertex>completeVertexMap, boolean humanReadable, String lang) {
+		this.completeVertexMap = completeVertexMap;
 		this.humanReadable = humanReadable;
 		this.lang = lang;
 	}
@@ -40,10 +45,12 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		Document doc = response.getResponseObject();
 		selectedScheme = doc.getElementsByTagName("property").item(0).getAttributes().getNamedItem("value").getNodeValue();
 
-		return new SKOSConceptSchemeVertex(selectedScheme);
+		SKOSConceptSchemeVertex vertex = new SKOSConceptSchemeVertex(selectedScheme, null, true);
+		completeVertexMap.put(vertex.getName(), vertex);
+		return vertex;
 	}
 	
-	public Vector<Pair<Vertex, Edge>> getChildrenOf(Vertex v) 
+	public List<Edge> getChildrenOf(Vertex v) 
 	{
 		if (v instanceof SKOSConceptVertex) {
 			return getNarrowerConceptsOf((SKOSConceptVertex)v);		
@@ -54,15 +61,15 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		return null;
 	}
 
-	private Vector<Pair<Vertex, Edge>> getTopConceptsOf(SKOSVertex parentVertex) {
+	private List<Edge> getTopConceptsOf(SKOSVertex parentVertex) {
 		String cmd = String.format(CMD_GET_ROOT_CONCEPTS, encodeURIComponent(parentVertex.getName()), encodeURIComponent(getLang()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
 		
 		Document doc = response.getResponseObject();
-		
-		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
+
+		List<Edge> edgeList = new ArrayList<Edge>();
 		
 		NodeList nodes = doc.getElementsByTagName("uri");
 		
@@ -79,14 +86,20 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 				}
 			}
 			
-			result.add(new Pair<Vertex, Edge>(new SKOSConceptVertex(name, nodeFace), new Edge("skos:hasTopConcept")));
+			SKOSConceptVertex endVertex = (SKOSConceptVertex) completeVertexMap.get(name);
+			if(endVertex == null){
+				endVertex = new SKOSConceptVertex(name, parentVertex, false, nodeFace);
+				completeVertexMap.put(endVertex.getName(), endVertex);	
+			}
+			Edge edge = new Edge("skos:hasTopConcept", parentVertex, endVertex, true);
+			edgeList.add(edge);
 		}
 
 		
-		return result;
+		return edgeList;
 	}
 	
-	private Vector<Pair<Vertex, Edge>> getNarrowerConceptsOf(SKOSVertex parentVertex) {
+	private List<Edge> getNarrowerConceptsOf(SKOSVertex parentVertex) {
 		String cmd = String.format(CMD_GET_NARROWER_CONCEPTS, encodeURIComponent(parentVertex.getName()), encodeURIComponent(selectedScheme), encodeURIComponent(getLang()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
@@ -94,7 +107,7 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 		
 		Document doc = response.getResponseObject();
 		
-		Vector<Pair<Vertex, Edge>> result = new Vector<Pair<Vertex,Edge>>();
+		List<Edge> edgeList = new ArrayList<Edge>();
 		
 		NodeList nodes = doc.getElementsByTagName("uri");
 		
@@ -110,12 +123,17 @@ public class SKOSServiceClient extends HttpServiceClient implements RepositorySe
 					nodeFace = label;
 				}
 			}
-			
-			result.add(new Pair<Vertex, Edge>(new SKOSConceptVertex(name, nodeFace), new Edge("skos:narrower")));
+			SKOSConceptVertex endVertex = (SKOSConceptVertex) completeVertexMap.get(name);
+			if(endVertex == null){
+				endVertex = new SKOSConceptVertex(name, parentVertex, false, nodeFace); 
+				completeVertexMap.put(endVertex.getName(), endVertex);
+			}
+			Edge edge = new Edge("skos:narrower", parentVertex, endVertex, true);
+			edgeList.add(edge);
 		}
 
 		
-		return result;
+		return edgeList;
 	}
 	
 	private String getLang() {

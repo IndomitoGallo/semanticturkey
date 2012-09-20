@@ -1,6 +1,7 @@
 package it.uniroma2.art.semanticturkey.services;
 
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+import it.uniroma2.art.semanticturkey.graph.Vertex;
 import it.uniroma2.art.semanticturkey.servlet.ResponseParser;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 
@@ -24,8 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public abstract class HttpServiceClient
-{
+public abstract class HttpServiceClient {
 	private static final String URI_SCHEME = "http";
 	private static final String URI_HOST = "127.0.0.1";
 	private static final int URI_PORTNO = 1979;
@@ -84,8 +84,7 @@ public abstract class HttpServiceClient
 		return null;
 	}
 
-	private HttpGet prepareGet(String url, String query) throws URISyntaxException 
-	{
+	private HttpGet prepareGet(String url, String query) throws URISyntaxException {
 		URI uri = URIUtils.createURI(URI_SCHEME, URI_HOST, URI_PORTNO, url, query, null);
 		
 		log.info("uri [GET]: " + uri);

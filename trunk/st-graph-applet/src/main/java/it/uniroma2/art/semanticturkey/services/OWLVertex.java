@@ -17,14 +17,12 @@ public class OWLVertex extends Vertex
 	
 	private OWL_NODE_TYPE type;
 	
-	public OWLVertex(String name) 
-	{
-		super(name);
+	public OWLVertex(String name, Vertex vertexParent, boolean isRootVertex) {
+		super(name, vertexParent, isRootVertex);
 	}
-
-	public OWLVertex(String name, OWL_NODE_TYPE type) 
-	{
-		super(name);
+	
+	public OWLVertex(String name, Vertex vertexParent, boolean isRootVertex, OWL_NODE_TYPE type) {
+		super(name, vertexParent, isRootVertex);
 		this.type = type;
 
 		if (type.equals(OWL_NODE_TYPE.CLASS))
@@ -44,8 +42,7 @@ public class OWLVertex extends Vertex
 		*/
 	}
 
-	public OWL_NODE_TYPE getType() 
-	{
+	public OWL_NODE_TYPE getType() {
 		return type;
 	}
 }

@@ -96,13 +96,17 @@ public class SimpleViewer extends JApplet
 	
     //private static final int EDGE_LENGTH = 100;
 	private VisualizationViewer<Vertex, Edge> visualizationServer;
-	private Graph<Vertex, Edge> g;
+	private Graph<Vertex, Edge> graph;
+	
+	private Map<String, Vertex> completeVertexMap;
+	//private List<Edge> completeEdgeList;
+	
 	private Layout<Vertex, Edge> layout;
     private ScalingControl scaler = new CrossoverScalingControl();
     //private LensSupport hyperbolicViewSupport;
     protected static Graph<? extends Object, ? extends Object>[] g_array;
     protected static int graph_index;
-    private RepositoryServiceClient sc = null; 
+    private RepositoryServiceClient repServiceClient = null; 
     private JComboBox jcb;
 	private boolean humanReadable = false;
 	private String lang;
@@ -129,20 +133,22 @@ public class SimpleViewer extends JApplet
 	public void init()
 	{
     	Graph<Vertex, Edge> ig = Graphs.<Vertex, Edge>synchronizedDirectedGraph(new DirectedSparseMultigraph<Vertex, Edge>());
-        ObservableGraph<Vertex, Edge> og = new ObservableGraph<Vertex, Edge>(ig);
-        og.addGraphEventListener(new GraphEventListener<Vertex, Edge>() {
+        ObservableGraph<Vertex, Edge> obsGraph = new ObservableGraph<Vertex, Edge>(ig);
+        obsGraph.addGraphEventListener(new GraphEventListener<Vertex, Edge>() {
 			public void handleGraphEvent(GraphEvent<Vertex, Edge> evt) {
 				//System.err.println("got "+evt);
 			}});
-        g = og;
+        graph = obsGraph;
 
-        layout = new FRLayout<Vertex, Edge>(g); //, new ConstantTransformer<Integer>(EDGE_LENGTH));
+        layout = new FRLayout<Vertex, Edge>(graph); //, new ConstantTransformer<Integer>(EDGE_LENGTH));
         layout.setSize(new Dimension(this.getWidth(), this.getHeight()));
 		
 		Relaxer relaxer = new VisRunner((IterativeContext)layout);
 		relaxer.stop();
 		relaxer.prerelax();
 
+		completeVertexMap = new HashMap<String, Vertex>();
+		
         JRootPane rp = this.getRootPane();
         rp.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         getContentPane().setLayout(new BorderLayout());
@@ -227,7 +233,7 @@ public class SimpleViewer extends JApplet
                         cellHasFocus);
             }
         });
-        jcb.addActionListener(new LayoutChooser(jcb, g, visualizationServer));
+        jcb.addActionListener(new LayoutChooser(jcb, graph, visualizationServer));
         jcb.setSelectedItem(FRLayout.class);
         graph_index = jcb.getSelectedIndex();
         
@@ -322,11 +328,11 @@ public class SimpleViewer extends JApplet
 		ProjectServiceClient psc = new ProjectServiceClient();
         String model = psc.getModelType();
         if (model.equals(ProjectServiceClient.OWL_MODEL_TYPE))
-        	sc = new OWLServiceClient();
+        	repServiceClient = new OWLServiceClient(completeVertexMap);
         else if (model.equals(ProjectServiceClient.SKOS_MODEL_TYPE))
-        	sc = new SKOSServiceClient(isHumanReadable(), getLang());
+        	repServiceClient = new SKOSServiceClient(completeVertexMap, isHumanReadable(), getLang());
         else if (model.equals(ProjectServiceClient.SKOSXL_MODEL_TYPE))
-        	sc = new SKOSXLServiceClient(isHumanReadable(), getLang());
+        	repServiceClient = new SKOSXLServiceClient(completeVertexMap, isHumanReadable(), getLang());
         else
         {
             JOptionPane.showMessageDialog(this,
@@ -338,9 +344,9 @@ public class SimpleViewer extends JApplet
         	return;
         }
         validate();
-		Vertex v = sc.getRootVertex();
-		layout.setLocation(v, new Point(X_INIT, Y_INIT));
-		g.addVertex(v);
+		Vertex vertex = repServiceClient.getRootVertex();
+		layout.setLocation(vertex, new Point(X_INIT, Y_INIT));
+		graph.addVertex(vertex);
 	}
 	
     private String getLang() {
@@ -398,159 +404,124 @@ public class SimpleViewer extends JApplet
 		}
     }
     
-    /*
-    class STVertexIconShapeTransformer<V> extends VertexIconShapeTransformer<Vertex> 
-    {
-        boolean shapeImages = true;
-
-        public STVertexIconShapeTransformer(Transformer<Vertex, Shape> delegate) 
-        {
-            super(delegate);
-        }
-
-        public boolean isShapeImages() 
-        {
-            return shapeImages;
-        }
-        public void setShapeImages(boolean shapeImages) 
-        {
-            shapeMap.clear();
-            this.shapeImages = shapeImages;
-        }
-
-		private ImageIcon scale(ImageIcon ii)
-		{
-			Image img = ii.getImage();  
-			Image newimg = img.getScaledInstance(20, 20,  java.awt.Image.SCALE_SMOOTH);  
-			return new ImageIcon(newimg);  			
-		}
-		
-        public Shape transform(Vertex v) 
-        {
-			Icon icon = null;
-			if (v.getIconName() != null)
-			{
-				ImageIcon ic = new ImageIcon(getClass().getResource(v.getIconName()));
-	        	LayeredIcon lc = new LayeredIcon(scale(ic).getImage());
-				icon = (Icon) lc;
-			}
-
-			if (icon != null && icon instanceof ImageIcon) 
-			{
-				Image image = ((ImageIcon) icon).getImage();
-
-				Shape shape = shapeMap.get(image);
-				if (shape == null) 
-				{
-					if (shapeImages) 
-					{
-						shape = FourPassImageShaper.getShape(image, 30);
-					} 
-					else 
-					{
-						shape = new Rectangle2D.Float(0, 0, 
-								image.getWidth(null), image.getHeight(null));
-					}
-                    if(shape.getBounds().getWidth() > 0 && shape.getBounds().getHeight() > 0) 
-                    {
-                        int width = image.getWidth(null);
-                        int height = image.getHeight(null);
-                        AffineTransform transform = 
-                            AffineTransform.getTranslateInstance(-width / 2, -height / 2);
-                        shape = transform.createTransformedShape(shape);
-                        shapeMap.put(image, shape);
-                    }
-				}
-				return shape;
-			} 
-			else 
-			{
-				return delegate.transform(v);
-			}
-		}
-    }
-    */
-    
     /**
      * A nested class to demo the GraphMouseListener finding the
      * right vertices after zoom/pan
      */
     class STGraphMouseListener<V> implements GraphMouseListener<Vertex> 
     {
-		public void graphClicked(Vertex v, MouseEvent me) 
+		public void graphClicked(Vertex vertex, MouseEvent mouseEvent) 
 		{
-			Vector<Pair<Vertex, Edge>> vs = sc.getChildrenOf(v);
-			if (vs == null)
+			//Vector<Pair<Vertex, Edge>> vs = sc.getChildrenOf(vertex);
+			List<Edge> edgeList = repServiceClient.getChildrenOf(vertex);
+			
+			if (edgeList == null)
 				return;
 			
-			Vertex t;
-			if (!v.isExpanded())
-			{
+			//Vertex tempVertex;
+			if (!vertex.isExpanded()) {
 				visualizationServer.getRenderContext().getPickedVertexState().clear();
 				visualizationServer.getRenderContext().getPickedEdgeState().clear();
 		    	
-				v.setExpanded(true);
-				for (Pair<Vertex, Edge> pi : vs)
-				{
-					if ((t = search(pi.getK())) == null)
-					{
-						g.addVertex(pi.getK());
-						g.addEdge(pi.getL(), v, pi.getK());
-					}	
-					else
-						g.addEdge(pi.getL(), v, t);
+				vertex.setExpanded(true);
+				for (Edge edge : edgeList) {
+					Vertex startVertex = edge.getStartVertex();
+					Vertex endVertex = edge.getEndVertex();
+					if(graph.getVertices().contains(startVertex) == false)
+						graph.addVertex(startVertex);
+					if(graph.getVertices().contains(endVertex) == false)
+						graph.addVertex(endVertex);
+					graph.addEdge(edge, startVertex, endVertex);
+					
+					//add the edged to the two vertexes
+					startVertex.addEdge(edge, true);
+					endVertex.addEdge(edge, false);
 				}
 				refreshGraph();
 			}
-			else
-			{
+			else {
+				// the vertex is expanded, so close it
+				vertex.setExpanded(false);
+				
+				//remove the outgoing edges which were added when this vertex was clicked on
 				boolean refreshReq = false;
-				Collection<Vertex> ns = g.getSuccessors(v);
-				Iterator<Vertex> it = ns.iterator();
-				//
-				// Searching for removed vertexes
-				while (it.hasNext())
-				{
-					Vertex vi = it.next();
-					//
-					// A vertex previously added to the graph has been removed?
-					if (!exist(vi, vs))
-					{
-						refreshReq = true;
-						g.removeVertex(vi);
-						//System.out.println("Removed child from: " + v.getName() + " [" + vi.getName() + "]");
-					}
-				}
-				//
-				// Searching for new vertexes
-				ns = g.getSuccessors(v); // Re-read successors of currently vertex: maybe some vertexes has been removed
-				for (Pair<Vertex, Edge> pi : vs)
-				{
-					if (!exist(pi, ns))
-					{
-						refreshReq = true;
-						if ((t = search(pi.getK())) == null)
-						{
-							g.addVertex(pi.getK());
-							g.addEdge(pi.getL(), v, pi.getK());
-						}	
+				List<Edge> outgoingEdgeList = vertex.getOutgoingEdgeList();
+				//boolean toContinue = true;
+				int pos = 0;
+				if(outgoingEdgeList.isEmpty() == false){
+					while(true){
+						Edge edge = outgoingEdgeList.get(pos);
+						if(edge.isGeneratedByStartVertex()){
+							Vertex endVertex = edge.getEndVertex();
+							graph.removeEdge(edge);
+							outgoingEdgeList.remove(edge);
+							endVertex.getIncomingEdgeList().remove(edge);
+							checkAndRemoveVertex(endVertex, vertex);
+							refreshReq = true;
+						}
 						else
-							g.addEdge(pi.getL(), v, t);
-						
-						//g.addVertex(pi.getK());
-						//g.addEdge(pi.getL(), v, pi.getK());
-						//System.out.println("Added child to: " + v.getName() + " [" + pi.getK().getName() + "]");
+							++pos;
+						if(pos==outgoingEdgeList.size())
+							break;
 					}
 				}
 				
+				//remove incoming edges which were added when this vertex was clicked on
+				List<Edge> incomingEdgeList = vertex.getIncomingEdgeList();
+				pos = 0;
+				if(incomingEdgeList.isEmpty() == false){
+					while(true){
+						Edge edge = incomingEdgeList.get(pos);
+						if(!edge.isGeneratedByStartVertex()){
+							Vertex startVertex = edge.getStartVertex();
+							graph.removeEdge(edge);
+							incomingEdgeList.remove(edge);
+							startVertex.getOutgoingEdgeList().remove(edge);
+							checkAndRemoveVertex(startVertex, vertex);
+							refreshReq = true;
+						}
+						else
+							++pos;
+						if(pos==incomingEdgeList.size())
+							break;
+					}
+				}
+								
 				// Need refresh?
 				if (refreshReq)
 					visualizationServer.repaint();
 			}
 		}
 		
-		private void refreshGraph()
-		{
+		private void checkAndRemoveVertex(Vertex vertex, Vertex fromVertex){
+			if(vertex.isRootVertex())
+				return;
+			if(vertex.getVertexParent() == fromVertex){
+				//remove this vertex and check all the vertex linked to this one
+				completeVertexMap.remove(vertex);
+				graph.removeVertex(vertex);
+				
+				List<Edge> outgoingEdgeList = vertex.getOutgoingEdgeList();
+				for(Edge edge : outgoingEdgeList){
+					graph.removeEdge(edge);
+					
+					Vertex endVertex = edge.getEndVertex();
+					checkAndRemoveVertex(endVertex, vertex);
+				}
+				outgoingEdgeList.clear();
+				
+				List<Edge> incomingEdgeList = vertex.getIncomingEdgeList();
+				for(Edge edge : incomingEdgeList){
+					graph.removeEdge(edge);
+					
+					Vertex startVertex = edge.getStartVertex();
+					checkAndRemoveVertex(startVertex, vertex);
+				}
+				incomingEdgeList.clear();
+			}
+		}
+		
+		private void refreshGraph() {
             layout.initialize();
     		Relaxer relaxer = new VisRunner((IterativeContext)layout);
     		relaxer.stop();
@@ -563,8 +534,7 @@ public class SimpleViewer extends JApplet
 			visualizationServer.repaint();
 		}
 		
-		private boolean exist(Vertex v, Vector<Pair<Vertex, Edge>> vs)
-		{
+		private boolean exist(Vertex v, Vector<Pair<Vertex, Edge>> vs) {
 			for (Pair<Vertex, Edge> pi : vs)
 			{
 				if (v.equals(pi.getK()))
@@ -574,8 +544,7 @@ public class SimpleViewer extends JApplet
 			return false;
 		}
 		
-		private boolean exist(Pair<Vertex, Edge> p, Collection<Vertex> vs)
-		{
+		private boolean exist(Pair<Vertex, Edge> p, Collection<Vertex> vs) {
 			Iterator<Vertex> it = vs.iterator();
 			
 			while (it.hasNext())
@@ -588,35 +557,31 @@ public class SimpleViewer extends JApplet
 			return false;
 		}
 
-		private Vertex search(Vertex v)
-		{
-			Collection<Vertex> c = g.getVertices();
-			Iterator<Vertex> it = c.iterator();
+		private Vertex search(Vertex vertex) {
+			Collection<Vertex> vertexCollection = graph.getVertices();
+			Iterator<Vertex> it = vertexCollection.iterator();
 
 			while (it.hasNext())
 			{
-				Vertex v2 = it.next();
-				if (v.equals(v2))
-					return v2;
+				Vertex foundVertex = it.next();
+				if (vertex.equals(foundVertex))
+					return foundVertex;
 			}
 			
 			return null;
 		}
 		
-		public void graphPressed(Vertex v, MouseEvent me) 
-		{
+		public void graphPressed(Vertex v, MouseEvent me) {
 		    //System.err.println("Vertex "+v+" was pressed at ("+me.getX()+","+me.getY()+")");
 		}
 		
-		public void graphReleased(Vertex v, MouseEvent me) 
-		{
+		public void graphReleased(Vertex v, MouseEvent me) {
 		    //System.err.println("Vertex "+v+" was released at ("+me.getX()+","+me.getY()+")");
 		}
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Class<? extends Layout>[] getCombos()
-    {
+    private static Class<? extends Layout>[] getCombos() {
         List<Class<? extends Layout>> layouts = new ArrayList<Class<? extends Layout>>();
         layouts.add(KKLayout.class);
         layouts.add(FRLayout.class);
@@ -630,13 +595,12 @@ public class SimpleViewer extends JApplet
     }
     
 	@SuppressWarnings("unchecked")
-	public Layout<Vertex, Edge> getSelectedLayout() 
-	{
+	public Layout<Vertex, Edge> getSelectedLayout() {
         Class<? extends Layout<Vertex, Edge>> layoutC = (Class<? extends Layout<Vertex, Edge>>) jcb.getSelectedItem();
         try
         {
             Constructor<? extends Layout<Vertex, Edge>> constructor = layoutC.getConstructor(new Class[] {Graph.class});
-            Object o = constructor.newInstance(g);
+            Object o = constructor.newInstance(graph);
             Layout<Vertex, Edge> l = (Layout<Vertex, Edge>) o;
             l.setInitializer(visualizationServer.getGraphLayout());
             l.setSize(visualizationServer.getSize());
@@ -649,8 +613,7 @@ public class SimpleViewer extends JApplet
 		return null;
 	}
 
-	private static final class LayoutChooser implements ActionListener
-    {
+	private static final class LayoutChooser implements ActionListener {
         private final JComboBox jcb;
         private final VisualizationViewer<Vertex, Edge> vv;
         private final Graph<Vertex, Edge> graph;
@@ -664,8 +627,7 @@ public class SimpleViewer extends JApplet
         }
 
         @SuppressWarnings("unchecked")
-		public void actionPerformed(ActionEvent arg0)
-        {
+		public void actionPerformed(ActionEvent arg0) {
         	/*
             Object[] constructorArgs = { 
             		g_array[graph_index]
