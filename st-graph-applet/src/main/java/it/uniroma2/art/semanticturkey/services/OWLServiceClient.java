@@ -6,6 +6,9 @@ import it.uniroma2.art.semanticturkey.graph.Vertex;
 import it.uniroma2.art.semanticturkey.services.OWLVertex.OWL_NODE_TYPE;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.w3c.dom.Document;
@@ -16,81 +19,98 @@ import org.w3c.dom.NodeList;
 /**
  * @author Carlo Ieva
  * @author Armando Stellato <stellato@info.uniroma2.it>
+ * @author Andrea Turbati <turbati@info.uniroma2.it>
  *
  */
 public class OWLServiceClient extends HttpServiceClient implements RepositoryServiceClient {
 	private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&method=templateandvalued";
 	private static final String CMD_GET_INSTANCESOF = "service=cls&request=getClassAndInstancesInfo&clsName=%s";
 	private static final String CMD_GET_CLASSDESCRIPTION = "service=cls&request=getClsDescription&clsName=%s&method=templateandvalued&bnodeFilter=true";
-	private static final String SUBCLASS_LABEL = "subclass-of";
-	private static final String INSTANCE_LABEL = "instance-of";
+	//private static final String SUBCLASS_LABEL = "subclass-of";
+	//private static final String INSTANCE_LABEL = "instance-of";
+	//private static final String SUBCLASS_LABEL = "hasSubclass";
+	//private static final String INSTANCE_LABEL = "hasInstance";
+	private static final String SUBCLASS_LABEL = "subclassOf";
+	private static final String INSTANCE_LABEL = "instanceOf";
 	// private static final String NODE_TYPE_LITERAL = "literal";
 	private static final String NODE_TYPE_CLS = "cls";
 	private static final String NODE_TYPE_INDIVIDUAL = "individual";
+	
+	private Map<String, Vertex>completeVertexMap;
 
+	public OWLServiceClient(Map<String, Vertex> completeVertexMap){
+		this.completeVertexMap = completeVertexMap;
+	}
+	
 	public Vertex getRootVertex() {
-		return new OWLVertex("owl:Thing", OWLVertex.OWL_NODE_TYPE.CLASS);
+		OWLVertex owlVertex = new OWLVertex("owl:Thing", null, true, OWLVertex.OWL_NODE_TYPE.CLASS);
+		completeVertexMap.put(owlVertex.getName(), owlVertex);
+		return owlVertex;
 	}
 
-	public Vector<Pair<Vertex, Edge>> getChildrenOf(Vertex parent) {
-		OWLVertex ov = (OWLVertex) parent;
-		if (!ov.getType().equals(OWL_NODE_TYPE.CLASS) && !ov.getType().equals(OWL_NODE_TYPE.INDIVIDUAL))
+	public List<Edge> getChildrenOf(Vertex parent) {
+		OWLVertex owlVertex = (OWLVertex) parent;
+		if (!owlVertex.getType().equals(OWL_NODE_TYPE.CLASS) && !owlVertex.getType().equals(OWL_NODE_TYPE.INDIVIDUAL))
 			return null;
 
-		String parentNodeName = parent.getName();
-		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
-		Vector<Pair<Vertex, Edge>> t = null;
-		t = getSubClassesOf(parentNodeName);
-		if (t != null)
-			v.addAll(t);
-		t = getIndividualsOf(parentNodeName);
-		if (t != null)
-			v.addAll(t);
+		List<Edge> edgeList = new ArrayList<Edge>();
+		List<Edge> tempEdgeList = null;
+		tempEdgeList = getSubClassesOf(owlVertex);
+		if (tempEdgeList != null)
+			edgeList.addAll(tempEdgeList);
+		tempEdgeList = getIndividualsOf(owlVertex);
+		if (tempEdgeList != null)
+			edgeList.addAll(tempEdgeList);
 
-		t = getClassDescription(parentNodeName);
-		if (t != null)
-			v.addAll(t);
-		return v;
+		tempEdgeList = getClassDescription(owlVertex);
+		if (tempEdgeList != null)
+			edgeList.addAll(tempEdgeList);
+		return edgeList;
 	}
 
-	private Vector<Pair<Vertex, Edge>> getSubClassesOf(String parentNodeName) {
-		String cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent(parentNodeName));
+	private List<Edge> getSubClassesOf(OWLVertex vertex) {
+		String cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
 
-		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
+		List<Edge> edgeList = new ArrayList<Edge>();
 		Document doc = response.getResponseObject();
 		NodeList nl = doc.getElementsByTagName("uri");
 		for (int i = 0; i < nl.getLength(); ++i) {
 			Node n = nl.item(i);
 			Node attr = n.getAttributes().getNamedItem("show");
-			v.add(new Pair<Vertex, Edge>(new OWLVertex(attr.getNodeValue(), OWLVertex.OWL_NODE_TYPE.CLASS),
-					new Edge(SUBCLASS_LABEL)));
+			Vertex subClassVertex = completeVertexMap.get(attr.getNodeValue());
+			if(subClassVertex == null){
+				subClassVertex = new OWLVertex(attr.getNodeValue(), vertex, false, OWLVertex.OWL_NODE_TYPE.CLASS);
+				completeVertexMap.put(subClassVertex.getName(), subClassVertex);
+			}
+			Edge edge = new Edge(SUBCLASS_LABEL, subClassVertex, vertex, false);
+			edgeList.add(edge);
 		}
 
-		return v;
+		return edgeList;
 	}
 
-	private Vector<Pair<Vertex, Edge>> getClassDescription(String parentNodeName) {
-		String cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(parentNodeName));
+	private List<Edge> getClassDescription(OWLVertex vertex) {
+		String cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
 
-		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
+		List<Edge> edgeList = new ArrayList<Edge>();
 		Document doc = response.getResponseObject();
-		NodeList nl = doc.getElementsByTagName("Property");
-		for (int i = 0; i < nl.getLength(); ++i) {
-			Node n = nl.item(i);
-			String propName = ((Element)n).getAttribute("name");
+		NodeList nodeList = doc.getElementsByTagName("Property");
+		for (int i = 0; i < nodeList.getLength(); ++i) {
+			Node node = nodeList.item(i);
+			String propName = ((Element)node).getAttribute("name");
 
 			// OLD PARSER for nodes called "Value", using an XPath expression
 			// XPath xpath = XPathFactory.newInstance().newXPath();
 			// NodeList values = (NodeList) xpath.evaluate("//Property[@name=\"" + attr.getNodeValue() +
 			// "\"]/Value[@type!=\"bnode\" and @type!=\"cls_bnode\"]", n, XPathConstants.NODESET);
 
-			NodeList values = n.getChildNodes();
+			NodeList values = node.getChildNodes();
 
 			for (int j = 0; j < values.getLength(); ++j) {
 				Node x = values.item(j);
@@ -100,39 +120,48 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 					label = label.length() > 30 ? label.substring(0, 29) + "..." : label;
 
 					//TODO use enums in OWL ART API instead
-					OWLVertex ov;
+					OWLVertex owlVertex;
 					String role = xElem.getAttribute("role");
-					if (role.equals(NODE_TYPE_CLS))
-						ov = new OWLVertex(label, OWLVertex.OWL_NODE_TYPE.CLASS);
-					else if (role.equals(NODE_TYPE_INDIVIDUAL))
-						ov = new OWLVertex(label, OWLVertex.OWL_NODE_TYPE.INDIVIDUAL);
-					else
-						ov = new OWLVertex(label, OWLVertex.OWL_NODE_TYPE.GENERIC);
-
-					ov.setTooltip(label);
-					v.add(new Pair<Vertex, Edge>(ov, new Edge(propName)));
+					owlVertex = (OWLVertex) completeVertexMap.get(label);
+					if(owlVertex == null){
+						if (role.equals(NODE_TYPE_CLS))
+							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.CLASS);
+						else if (role.equals(NODE_TYPE_INDIVIDUAL))
+							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.INDIVIDUAL);
+						else
+							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.GENERIC);
+						completeVertexMap.put(owlVertex.getName(), owlVertex);
+					}
+					owlVertex.setTooltip(label);
+					Edge edge = new Edge(propName, vertex, owlVertex, true);
+					edgeList.add(edge);
 				}
 			}
 		}
-		return v;
+		return edgeList;
 	}
 
-	private Vector<Pair<Vertex, Edge>> getIndividualsOf(String parentNodeName) {
-		String cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(parentNodeName));
+	private List<Edge> getIndividualsOf(OWLVertex vertex) {
+		String cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
 
-		Vector<Pair<Vertex, Edge>> v = new Vector<Pair<Vertex, Edge>>();
+		List<Edge> edgeList = new ArrayList<Edge>();
 		Document doc = response.getResponseObject();
 		NodeList nl = doc.getElementsByTagName("Instance");
 		for (int i = 0; i < nl.getLength(); ++i) {
 			Node n = nl.item(i);
 			Node attr = n.getAttributes().getNamedItem("name");
-			v.add(new Pair<Vertex, Edge>(new OWLVertex(attr.getNodeValue(),
-					OWLVertex.OWL_NODE_TYPE.INDIVIDUAL), new Edge(INSTANCE_LABEL)));
+			OWLVertex startVertex = (OWLVertex) completeVertexMap.get(attr.getNodeValue());
+			if (startVertex == null){
+				startVertex = new OWLVertex(attr.getNodeValue(), vertex, false, OWLVertex.OWL_NODE_TYPE.INDIVIDUAL);
+				completeVertexMap.put(startVertex.getName(), startVertex);
+			}
+			Edge edge = new Edge(INSTANCE_LABEL, startVertex, vertex, false);
+			edgeList.add(edge);
 		}
 
-		return v;
+		return edgeList;
 	}
 }
