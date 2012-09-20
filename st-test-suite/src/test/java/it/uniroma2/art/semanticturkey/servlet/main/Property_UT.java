@@ -67,22 +67,6 @@ public class Property_UT extends ServiceUTFixture {
 				"propertyRanges.owl");
 	}
 
-	@Test
-	public void getDataRangedPropertyDescriptionTest() {
-		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
-				Property.Par.propertyQNamePar, "propertyRanges:dataRangedProperty"));
-		assertAffirmativeREPLY(resp);
-
-		System.out.println("resp for: getDataRangedPropertyDescriptionTest\n" + resp);
-
-		Element ranges = getRangesElement(resp);
-		String rngType = ranges.getAttribute("rngType");
-		assertEquals(RDFTypesEnum.literal.toString(), rngType);
-
-		Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
-		String role = bnode.getAttribute("role");
-		assertEquals(RDFResourceRolesEnum.dataRange.toString(), role);
-	}
 
 	@Test
 	public void getEmptyRangePropertyDescriptionTest() {
@@ -137,6 +121,45 @@ public class Property_UT extends ServiceUTFixture {
 		assertEquals(RDFTypesEnum.resource.toString(), rngType);
 	}
 
+	
+	@Test
+	public void getDataRangedPropertyDescriptionTest() {
+		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
+				Property.Par.propertyQNamePar, "propertyRanges:dataRangedIntegerProperty"));
+		assertAffirmativeREPLY(resp);
+
+		System.out.println("resp for: getDataRangedPropertyDescriptionTest\n" + resp);
+
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.literal.toString(), rngType);
+
+		Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
+		String role = bnode.getAttribute("role");
+		assertEquals(RDFResourceRolesEnum.dataRange.toString(), role);
+	}
+	
+	@Test
+	public void getDataRangedStringPropertyDescriptionTest() {
+		Response resp = serviceTester.propertyService.makeRequest(Property.propertyDescriptionRequest, par(
+				Property.Par.propertyQNamePar, "propertyRanges:dataRangedStringProperty"));
+		assertAffirmativeREPLY(resp);
+
+		System.out.println("resp for: getDataRangedStringPropertyDescriptionTest\n" + resp);
+
+		Element ranges = getRangesElement(resp);
+		String rngType = ranges.getAttribute("rngType");
+		assertEquals(RDFTypesEnum.literal.toString(), rngType);
+
+		Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
+		String role = bnode.getAttribute("role");
+		assertEquals(RDFResourceRolesEnum.dataRange.toString(), role);
+	}
+	
+	// **************
+	//   GET RANGES
+	// **************
+	
 	@Test
 	public void getRangeOfIntegerRangedPropertyTest() {
 		Response resp = serviceTester.propertyService.makeRequest(Property.Req.getRangeRequest, par(
@@ -154,7 +177,7 @@ public class Property_UT extends ServiceUTFixture {
 	@Test
 	public void getRangeOfDataRangedPropertyTest() {
 		Response resp = serviceTester.propertyService.makeRequest(Property.Req.getRangeRequest, par(
-				Property.Par.propertyQNamePar, "propertyRanges:dataRangedProperty"), par(
+				Property.Par.propertyQNamePar, "propertyRanges:dataRangedIntegerProperty"), par(
 				Property.Par.visualize, "true"));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
@@ -170,7 +193,9 @@ public class Property_UT extends ServiceUTFixture {
 				RDFTypesEnum.bnode.toString()));
 		assertAffirmativeREPLY(resp);
 		System.out.println(resp);
-
 	}
+	
+
+
 
 }
