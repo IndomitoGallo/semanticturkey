@@ -367,7 +367,7 @@ public class Property extends Resource {
 			}
 
 			// ONTOLOGY PROPERTIES
-			if (annotationprops == true) {
+			if (ontologyprops == true) {
 				filteredPropsIterator = Iterators.filter(ontModel.listOntologyProperties(true,
 						NodeFilters.MAINGRAPH), rootUserPropsPred);
 				logger.debug("\n\nontology root annotation properties: \n");

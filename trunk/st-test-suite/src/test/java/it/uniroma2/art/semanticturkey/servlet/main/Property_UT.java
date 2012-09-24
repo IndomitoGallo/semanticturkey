@@ -196,6 +196,27 @@ public class Property_UT extends ServiceUTFixture {
 	}
 	
 
+	// **************
+	//   PROP TREES
+	// **************
 
 
+	@Test
+	public void getAnnotationPropertiesTreeTest() {
+		Response resp = serviceTester.propertyService.makeRequest(Property.Req.getAnnotationPropertiesTreeRequest);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	
+		// Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
+	}
+
+	@Test
+	public void getOntologyPropertiesTreeTest() {
+		Response resp = serviceTester.propertyService.makeRequest(Property.Req.getOntologyPropertiesTreeRequest);
+		assertAffirmativeREPLY(resp);
+		System.out.println(resp);
+	
+		// Element bnode = ServiceUTFixture.getFirstElement(resp, "bnode");
+	}
+	
 }
