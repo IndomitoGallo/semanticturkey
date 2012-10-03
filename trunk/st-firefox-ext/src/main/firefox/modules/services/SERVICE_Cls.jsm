@@ -137,7 +137,8 @@ function renameResource(newResourceName, oldResourceName) {
  * @return
  */
 function addClass(newClassName) {
-	var superClassName = "superClassName=http://www.w3.org/2002/07/owl#Thing";
+	//var superClassName = "superClassName=http://www.w3.org/2002/07/owl#Thing";
+	var superClassName = "superClassName=owl:Thing";
 	var newClassName = "newClassName=" + newClassName;
 	return HttpMgr.GET(serviceName, service.createClassRequest, superClassName, newClassName);
 }
