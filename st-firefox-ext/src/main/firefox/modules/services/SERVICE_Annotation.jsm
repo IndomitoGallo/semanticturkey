@@ -246,6 +246,16 @@ function chkAnnotation(urlPage) {
 	return HttpMgr.GET(serviceName, service.chkAnnotationsRequest,urlPage);
 }
 
+ /** given page <code>urlPage</code>, this method tells if the page has topics
+ * 
+ * @member STRequests.Annotation
+ * @param urlPage
+ * @return
+ */
+function chkBookmarks(urlPage) {
+	var urlPage="urlPage="+urlPage;
+	return HttpMgr.GET(serviceName, service.chkBookmarksRequest,urlPage);
+}
 
 /**
  * given page <code>urlPage</code>, it returns all annotations previously taken on that page
@@ -324,6 +334,7 @@ function removeBookmark(urlPage, topic) {
 
 // Annotation SERVICE INITIALIZATION
 service.chkAnnotation = chkAnnotation;
+service.chkBookmarks = chkBookmarks;
 service.getPageAnnotations = getPageAnnotations;
 service.createAndAnnotate = createAndAnnotate;
 service.relateAndAnnotateBindAnnot = relateAndAnnotateBindAnnot;

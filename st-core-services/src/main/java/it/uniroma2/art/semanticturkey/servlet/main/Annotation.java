@@ -80,6 +80,7 @@ public class Annotation extends ServiceAdapter {
 
 	public static final String getPageAnnotationsRequest = "getPageAnnotations";
 	public static final String chkAnnotationsRequest = "chkAnnotations";
+	public static final String chkBookmarksRequest = "chkBookmarks";
 	public static final String removeAnnotationRequest = "removeAnnotation";
 	public static final String createAndAnnotateRequest = "createAndAnnotate";
 	public static final String addAnnotationRequest = "addAnnotation";
@@ -173,6 +174,10 @@ public class Annotation extends ServiceAdapter {
 			String urlPage = setHttpPar(urlPageField);
 			checkRequestParametersAllNotNull(urlPageField);
 			response = chkPageForAnnotations(urlPage);
+		} else if (request.equals(chkBookmarksRequest)) {
+			String urlPage = setHttpPar(urlPageField);
+			checkRequestParametersAllNotNull(urlPageField);
+			response = chkBookmarks(urlPage);
 		} else if (request.equals(removeAnnotationRequest)) {
 			String annotQName = setHttpPar(annotQNameString);
 			response = removeAnnotation(annotQName);
@@ -221,12 +226,42 @@ public class Annotation extends ServiceAdapter {
 						predicatePropertyName, objectInstanceNameEncoded, annotation, urlPage, title);
 			}
 
-			//
-
 		} else
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
+		return response;
+	}
+
+	private Response chkBookmarks(String urlPage) {
+		OWLModel ontModel = getOWLModel();
+
+		XMLResponseREPLY response = createBooleanResponse(false);
+
+		ARTLiteral urlPageLiteral = ontModel.createLiteral(urlPage);
+		ARTResourceIterator collectionIterator;
+		ARTResource webPage = null;
+		try {
+			collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url, urlPageLiteral,
+					true, getUserNamedGraphs());
+			while (collectionIterator.hasNext()) {
+				webPage = (ARTResource) collectionIterator.next();
+			}
+			if (webPage == null) {
+				return response;
+			}
+			
+			boolean hasBookmarks = ontModel.hasTriple(webPage, SemAnnotVocab.Res.topic, NodeFilters.ANY, true, getUserNamedGraphs());
+			
+			if (hasBookmarks) {
+				response = createBooleanResponse(true);
+			}
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		
 		return response;
 	}
 
