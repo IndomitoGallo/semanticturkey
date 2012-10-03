@@ -29,6 +29,8 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/annotation/annotation.js" />
 	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/bookmark/bookmark.js" />
+	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/initializer.js" />
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/fileChooser.js" />
@@ -159,6 +161,9 @@
 			tooltiptext="Annotated Page" />
 	</toolbarpalette>
 	<statusbar id="status-bar">
+		<statusbarpanel id="status-bar-bookmark" collapsed="true"
+			class="statusbarpanel-iconic" tooltiptext="Show Page Topics"
+			src="chrome://browser/skin/places/pageStarred.png" />
 		<statusbarpanel id="status-bar-annotation" collapsed="true"
 			class="statusbarpanel-iconic" tooltiptext="Annotated Page"
 			src="chrome://semantic-turkey/skin/images/highlighter.png" />

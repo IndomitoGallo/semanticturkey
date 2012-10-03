@@ -160,6 +160,7 @@ STRequests.Page.getBookmarksRequest ="getBookmarks";
 //annotation service request
 STRequests.Annotation.serviceName = "annotation";
 STRequests.Annotation.chkAnnotationsRequest = "chkAnnotations";
+STRequests.Annotation.chkBookmarksRequest = "chkBookmarks";
 STRequests.Annotation.getPageAnnotationsRequest = "getPageAnnotations";
 STRequests.Annotation.createAndAnnotateRequest = "createAndAnnotate";
 STRequests.Annotation.createFurtherAnnotationRequest = "addAnnotation";
