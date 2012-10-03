@@ -69,7 +69,6 @@
 							!javax.imageio,
 							!javax.net,
 							!javax.net.*,
-							!javax.xml.datatype,
 							!javax.xml.xpath,
 							!org.w3c.dom,
 							!sun.reflect.generics.reflectiveObjects;
