@@ -77,6 +77,8 @@ import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 //import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
+import edu.uci.ics.jung.visualization.decorators.AbstractEdgeShapeTransformer;
+import edu.uci.ics.jung.visualization.decorators.ConstantDirectionalEdgeValueTransformer;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 //import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
@@ -160,7 +162,14 @@ public class SimpleViewer extends JApplet
         //
 		// Edge settings...
         visualizationServer.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Edge>());
-		
+        
+        AbstractEdgeShapeTransformer aesf = (AbstractEdgeShapeTransformer) visualizationServer.getRenderContext().getEdgeShapeTransformer();
+        aesf.setControlOffsetIncrement(40);
+        
+        ConstantDirectionalEdgeValueTransformer<Vertex, Edge> cdev = new ConstantDirectionalEdgeValueTransformer<Vertex, Edge>(0.4, 0.4);
+        cdev.setDirectedValue(0.4);
+        visualizationServer.getRenderContext().setEdgeLabelClosenessTransformer(cdev);
+        
         // Vertex settings...
         visualizationServer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Vertex>());
 		visualizationServer.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.S);

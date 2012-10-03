@@ -415,6 +415,7 @@ art_semanticturkey.enableSTToolbarButtons = function(){
 };
 
 art_semanticturkey.startSTServer = function(){
+	document.getElementById("startSTToolBarButton").disabled = true;
 	art_semanticturkey.JavaFirefoxSTBridge.initialize();
 	art_semanticturkey.startST();
 };
