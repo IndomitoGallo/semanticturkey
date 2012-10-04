@@ -23,7 +23,8 @@ import org.w3c.dom.NodeList;
  *
  */
 public class OWLServiceClient extends HttpServiceClient implements RepositoryServiceClient {
-	private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&method=templateandvalued";
+	//private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&method=templateandvalued";
+	private static final String CMD_GET_SUBCLASSESOF = "service=cls&request=getSubClasses&clsName=%s&tree=true";
 	private static final String CMD_GET_INSTANCESOF = "service=cls&request=getClassAndInstancesInfo&clsName=%s";
 	private static final String CMD_GET_CLASSDESCRIPTION = "service=cls&request=getClsDescription&clsName=%s&method=templateandvalued&bnodeFilter=true";
 	//private static final String SUBCLASS_LABEL = "subclass-of";
@@ -58,9 +59,11 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 		tempEdgeList = getSubClassesOf(owlVertex);
 		if (tempEdgeList != null)
 			edgeList.addAll(tempEdgeList);
-		tempEdgeList = getIndividualsOf(owlVertex);
-		if (tempEdgeList != null)
-			edgeList.addAll(tempEdgeList);
+		if(owlVertex.getName().compareTo("owl:Thing")!=0){ // to ignore the instances of owl:Thing
+			tempEdgeList = getIndividualsOf(owlVertex);
+			if (tempEdgeList != null)
+				edgeList.addAll(tempEdgeList);
+		}
 
 		tempEdgeList = getClassDescription(owlVertex);
 		if (tempEdgeList != null)
@@ -69,7 +72,11 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private List<Edge> getSubClassesOf(OWLVertex vertex) {
-		String cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent(vertex.getName()));
+		String cmd;
+		if(vertex.getName().compareTo("owl:Thing") == 0)
+			cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent("http://www.w3.org/2002/07/owl#Thing"));
+		else
+			cmd = String.format(CMD_GET_SUBCLASSESOF, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -93,7 +100,12 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private List<Edge> getClassDescription(OWLVertex vertex) {
-		String cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(vertex.getName()));
+		//String cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(vertex.getName()));
+		String cmd;
+		if(vertex.getName().compareTo("owl:Thing") == 0)
+			cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent("http://www.w3.org/2002/07/owl#Thing"));
+		else
+			cmd = String.format(CMD_GET_CLASSDESCRIPTION, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;
@@ -117,20 +129,21 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 				if (x instanceof Element) {
 					Element xElem = ((Element) x);
 					String label = xElem.getAttribute("show");					
-					label = label.length() > 30 ? label.substring(0, 29) + "..." : label;
+					//label = label.length() > 30 ? label.substring(0, 29) + "..." : label;
 
 					//TODO use enums in OWL ART API instead
 					OWLVertex owlVertex;
-					String role = xElem.getAttribute("role");
+					//String role = xElem.getAttribute("role");
 					owlVertex = (OWLVertex) completeVertexMap.get(label);
 					if(owlVertex == null){
-						if (role.equals(NODE_TYPE_CLS))
+						continue; // use only the vertex which are already present in the graph
+						/*if (role.equals(NODE_TYPE_CLS))
 							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.CLASS);
 						else if (role.equals(NODE_TYPE_INDIVIDUAL))
 							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.INDIVIDUAL);
 						else
 							owlVertex = new OWLVertex(label, vertex, false, OWLVertex.OWL_NODE_TYPE.GENERIC);
-						completeVertexMap.put(owlVertex.getName(), owlVertex);
+						completeVertexMap.put(owlVertex.getName(), owlVertex);*/
 					}
 					owlVertex.setTooltip(label);
 					Edge edge = new Edge(propName, vertex, owlVertex, true);
@@ -142,7 +155,12 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 	}
 
 	private List<Edge> getIndividualsOf(OWLVertex vertex) {
-		String cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(vertex.getName()));
+		//String cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(vertex.getName()));
+		String cmd;
+		if(vertex.getName().compareTo("owl:Thing") == 0)
+			cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent("http://www.w3.org/2002/07/owl#Thing"));
+		else
+			cmd = String.format(CMD_GET_INSTANCESOF, encodeURIComponent(vertex.getName()));
 		XMLResponse response = doHttpGet(SERVLET_URL, cmd);
 		if (response == null)
 			return null;

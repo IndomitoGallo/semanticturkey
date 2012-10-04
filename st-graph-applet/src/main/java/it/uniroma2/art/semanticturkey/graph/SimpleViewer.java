@@ -507,7 +507,7 @@ public class SimpleViewer extends JApplet
 				return;
 			if(vertex.getVertexParent() == fromVertex){
 				//remove this vertex and check all the vertex linked to this one
-				completeVertexMap.remove(vertex);
+				completeVertexMap.remove(vertex.getName());
 				graph.removeVertex(vertex);
 				
 				List<Edge> outgoingEdgeList = vertex.getOutgoingEdgeList();
