@@ -91,6 +91,7 @@ art_semanticturkey.removeInstance_RESPONSE = function(responseElement) {
 			break;
 		}
 	}
+	//update the class tree
 	var tree = document.getElementById("classesTree");
 	var childList = tree.getElementsByTagName("treeitem");
 	for ( var i = 0; i < childList.length; i++) {
@@ -99,10 +100,11 @@ art_semanticturkey.removeInstance_RESPONSE = function(responseElement) {
 			var numInst = treecell.getAttribute("numInst") - 1;
 			treecell.setAttribute("numInst", numInst);
 			var label = treecell.getAttribute("label");
+			var show = treecell.getAttribute("show");
 			if (numInst == "0") {
-				label = parentClassName;
+				label = show;
 			} else {
-				label = parentClassName + "(" + numInst + ")";
+				label = show + "(" + numInst + ")";
 			}
 			treecell.setAttribute("label", label);
 		}

@@ -68,7 +68,7 @@ HttpMgr = new function() {
 		// Logger.debug('registered method: ' + method);
 		requestHandler[request] = method;
 		// Logger.debug(' request '+request);
-		Logger.debug('[SemTurkeyHTTP.jsm] addedRequestHandler:\n' + requestHandler[request]);
+		//Logger.debug('[SemTurkeyHTTP.jsm] addedRequestHandler:\n' + requestHandler[request]);
 	};
 
 	this.getRequestHandler = function() {
