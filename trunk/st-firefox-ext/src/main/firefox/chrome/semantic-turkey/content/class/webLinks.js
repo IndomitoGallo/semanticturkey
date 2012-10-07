@@ -54,6 +54,10 @@ art_semanticturkey.getBookmarks_RESPONSE = function(responseElement, status) {
 	var bookmarksList = responseElement.getElementsByTagName("URL");
 	for ( var i = 0; i < bookmarksList.length; i++) {
 		var value = bookmarksList[i].getAttribute("value");
+		if(value.charAt(0) == "\"")
+			value = value.substr(1);
+		if(value.charAt(value.length-1) == "\"")
+			value = value.substr(0, value.length-1);
 		var title = bookmarksList[i].getAttribute("title");
 		var pagelbl2 = document.createElement("label");
 		pagelbl2.setAttribute("value", title);

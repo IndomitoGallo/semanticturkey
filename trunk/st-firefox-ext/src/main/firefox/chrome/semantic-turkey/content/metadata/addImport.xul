@@ -20,7 +20,7 @@
 
 <window id="addImportWindow" title="Add Import dialog"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="300" height="200">
+	width="500" height="260">
 	<!--
 		<dialog id="addImport" title="Add Import dialog"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
