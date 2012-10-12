@@ -123,5 +123,14 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 			</activation>
 		</profile>
 	</profiles>
+	
+	<licenses>
+		<license>
+			<name>Mozilla Public License Version 1.1</name>
+			<url> http//www.mozilla.org/MPL/</url>
+			<distribution>repo</distribution>
+			<comments />
+		</license>
+	</licenses>
 
 </project>
