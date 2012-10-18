@@ -61,6 +61,31 @@ art_semanticturkey.JavaFirefoxSTBridge._getExtensionPath = function(extensionNam
 art_semanticturkey.JavaFirefoxSTBridge._packageLoader = function(urlStrings, trace) {
 	art_semanticturkey.JavaFirefoxSTBridge._trace("packageLoader {");
 
+	/*
+	 * Starting from FF 15.0 the reference window.java is no longer available to
+	 * scripts. A workaround consists in running an applet (e.g. java.applet.Applet)
+	 * so that scripts may access the package java from it.
+	 * For further information, see: https://bugzilla.mozilla.org/show_bug.cgi?id=748343
+	 */ 
+	var embeddedAppletElement = window.document.createElementNS("http://www.w3.org/1999/xhtml", "embed");
+	embeddedAppletElement.setAttribute("id", "st_emebedded_java_applet");
+	embeddedAppletElement.setAttribute("type", "application/x-java-applet");
+	embeddedAppletElement.setAttribute("code", "java.applet.Applet");
+	embeddedAppletElement.setAttribute("MAYSCRIPT", "true");
+	embeddedAppletElement.setAttribute("width", "0");
+	embeddedAppletElement.setAttribute("height", "0");
+	
+	// It seems that the applet is not initialized until it is inserted into the DOM tree.
+	window.document.documentElement.appendChild(embeddedAppletElement);
+
+	/*
+	 * According to the first paragraph of this web page:
+	 * http://docs.oracle.com/javase/tutorial/deployment/applet/appletStatus.html
+	 * the execution of the following expression will be blocked until the applet has
+	 * been initialized. However, this could freez FF.
+	 */
+	var java = embeddedAppletElement.Packages.java;
+
 	var toUrlArray = function(a) {
 		// var urlArray = java.lang.reflect.Array.newInstance(java.net.URL,
 		// a.length);
@@ -193,19 +218,21 @@ function WrappedPackages(classLoader) {
 	.loadClass("edu.mit.simile.javaFirefoxExtensionUtils.Packages")
 	.newInstance();
 
+	var arrayListClass = classLoader.loadClass("java.util.ArrayList");
+	
 	var argumentsToArray = function(args) {
 		// this direct method is actualy not supported by current java versions,
 		// so need to create
 		// a dummy java object
 		// var a = java.lang.reflect.Array.newInstance(java.lang.Object,
 		// args.length);
-		var dummyObject = new java.lang.Object(); 
-		var a = java.lang.reflect.Array.newInstance(dummyObject.getClass(),
-				args.length);
+
+		var a = arrayListClass.newInstance();
 		for (var i = 0; i < args.length; i++) {
-			java.lang.reflect.Array.set(a, i, args[i]);
+			//arrayClass.set(a, i, args[i]);
+			a.add(args[i]);
 		}
-		return a;
+		return a.toArray();
 	};
 
 	this.getClass = function(className) {
