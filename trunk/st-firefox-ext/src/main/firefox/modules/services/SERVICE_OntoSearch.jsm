@@ -1,5 +1,7 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/Deserializer.jsm");	
+Components.utils.import("resource://stmodules/ARTResources.jsm");
 
 EXPORTED_SYMBOLS = ["STRequests"];
 
@@ -18,7 +20,7 @@ var serviceName = service.serviceName;
 function searchOntology(inputString,types){
 	var inputString = "inputString="+inputString;
 	var types = "types="+types;
-	return HttpMgr.GET(serviceName, service.searchOntologyRequest,inputString,types);
+	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.searchOntologyRequest,inputString,types));
 }
 //OntoSearch SERVICE INITIALIZATION
 service.searchOntology = searchOntology;

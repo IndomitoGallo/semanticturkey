@@ -54,21 +54,21 @@ art_semanticturkey.ontoSearch = function(event, types) {
 			} else {
 				var inputString = document.getElementById("ontosearch_prop").value;
 			}
-			var responseXML = art_semanticturkey.STRequests.OntoSearch
+			var responseCollection = art_semanticturkey.STRequests.OntoSearch
 					.searchOntology(inputString, types);
-			art_semanticturkey.OntoSearch_RESPONSE(responseXML, types);
+			art_semanticturkey.OntoSearch_RESPONSE(responseCollection, types);
 		}
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
 };
 
-art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
-	var foundList = responseElement.getElementsByTagName('found');
-	if (foundList.length > 1) {
+art_semanticturkey.OntoSearch_RESPONSE = function(responseCollection, types) {
+	//var foundList = responseCollection.getElementsByTagName('found');
+	if (responseCollection.length > 1) {
 		// var callPanel = parameters.callPanel;
 		var parameters = new Object();
-		parameters.foundList = foundList;
+		parameters.foundList = responseCollection;
 		parameters.parentWindow = window;
 		parameters.types = types;
 		window
@@ -76,17 +76,14 @@ art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
 						"chrome://semantic-turkey/content/ontologySearch/searchResults.xul",
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
-	} else if (foundList.length == 1) {
-		var resType = foundList[0].getAttribute("type");
-		var resName = foundList[0].getAttribute("name");
-		var typeName = "";
+	} else if (responseCollection.length == 1) {
+		var typeNameCollection = "";
 		//if (resType == "owl:Individual") {
-		if (resType == "individual") {
+		if (responseCollection[0].getRole() == "individual") {
 			try {
-				var responseXML = art_semanticturkey.STRequests.Individual
-						.get_directNamedTypes(resName);
-				typeName = responseXML.getElementsByTagName("Type")[0]
-						.getAttribute("qname");
+				var responseArray = art_semanticturkey.STRequests.Individual
+						.get_directNamedTypes(responseCollection[0].getShow());
+				typeNameCollection = responseArray["types"];
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -99,9 +96,9 @@ art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
 		} else if (types == "property") {
 			myTree = document.getElementById("propertiesTree");
 		}
-		art_semanticturkey.searchFocus(myTree, myList, resType, resName,
-				typeName);
-	} else if (foundList.length == 0) {
+		art_semanticturkey.searchFocus(myTree, myList, responseCollection[0].getRole(), responseCollection[0].getShow(),
+				typeNameCollection);
+	} else if (responseCollection.length == 0) {
 		alert("No match found");
 	}
 };
@@ -114,20 +111,19 @@ art_semanticturkey.OntoSearch_RESPONSE = function(responseElement, types) {
  * @param
  */
 art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
-		typeName) {
-	//if (resType == "owl:Individual") {
+		typeNameCollection) {
 	if (resType == "individual") {
-		art_semanticturkey.selectElementClass(myTree, typeName);
+		art_semanticturkey.selectElementClass(myTree, typeNameCollection[0].getShow());
 		try {
-			var responseXML = art_semanticturkey.STRequests.Cls
-					.getClassAndInstancesInfo(typeName);
-			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, myList);
+			var responseArray = art_semanticturkey.STRequests.Cls
+					.getClassAndInstancesInfo(typeNameCollection[0].getURI());
+			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseArray, myList);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
 		var index = 0;
 		while (myList.getItemAtIndex(index) != null) {
-			if (myList.getItemAtIndex(index).label == resName) {
+			if (myList.getItemAtIndex(index).getAttribute("show") == resName) {
 				myList.selectedIndex = index;
 				myList.scrollToIndex(index);
 				break;
@@ -136,10 +132,10 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 		}
 	} else if (resType == "cls") {
 		art_semanticturkey.selectElementClass(myTree, resName);
-		var responseXML = art_semanticturkey.STRequests.Cls
+		var responseArray = art_semanticturkey.STRequests.Cls
 				.getClassAndInstancesInfo(resName);
-		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, myList);
-
+		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseArray, myList);
+		
 	} else if (resType == "lexicalization") {
 		// TODO Mancano le lexicalization nella ricerca
 	} else if (resType.indexOf("Property")) {
@@ -147,20 +143,22 @@ art_semanticturkey.searchFocus = function(myTree, myList, resType, resName,
 	}
 
 };
-art_semanticturkey.selectElementClass = function(myTree, resName) {
+art_semanticturkey.selectElementClass = function(myTree, resNameShow) {
 	var visible = false;
 
 	while (visible == false) {
 		var treeitemLists = myTree.getElementsByTagName("treeitem");
+		//iterate over all the visible class elements in the class tree
 		for (var index = 0; index < treeitemLists.length; index++) {
 			var current = treeitemLists[index];
 			var treerow = current.getElementsByTagName('treerow')[0];
 			var treecell = treerow.getElementsByTagName('treecell')[0];
-			var label = treecell.getAttribute("label");
-			if (label.indexOf('(') > -1) {
+			//var classShow = treecell.getAttribute("label");
+			var classShow = treecell.getAttribute("show");
+			/*if (label.indexOf('(') > -1) {
 				label = label.substring(0, label.indexOf('('));
-			}
-			if (label == resName) {
+			}*/
+			if (classShow == resNameShow) {
 				var pi = current;
 				var pTreecell = treecell;
 				while (pTreecell.getAttribute("isRootNode") == "false") {
@@ -173,30 +171,35 @@ art_semanticturkey.selectElementClass = function(myTree, resName) {
 				myTree.view.selection.toggleSelect(index);
 				myTree.boxObject.scrollToRow(index);
 				visible = true;
+				//found the desired element, exit
 				return;
 			}
 		}
-		var parentName = resName;
+		var parentName = resNameShow;
 		var pvisible = false;
 		while (pvisible == false) {
-			var responseXML = art_semanticturkey.STRequests.Cls
+			var responseCollection = art_semanticturkey.STRequests.Cls
 					.getSuperClasses(parentName);
-			var parentNameList = responseXML.getElementsByTagName('SuperType');
-			parentName = parentNameList[0].getAttribute("resource");
+			//var parentNameList = responseCollection.getElementsByTagName('SuperType');
+			parentNameShow = responseCollection[0].getShow();
+			parentURI = responseCollection[0].getURI();
 			var treeitemLists = myTree.getElementsByTagName("treeitem");
+			//iterate over all the visible class elements in the class tree
 			for (var index = 0; index < treeitemLists.length; index++) {
 				var current = treeitemLists[index];
 				var treerow = current.getElementsByTagName('treerow')[0];
 				var treecell = treerow.getElementsByTagName('treecell')[0];
 				var treechildern = current.getElementsByTagName("treechildren")[0];
-				var label = treecell.getAttribute("label");
-				if (label.indexOf('(') > -1) {
-					label = label.substring(0, label.indexOf('('));
-				}
-				if (label == parentName) {
+				var show = treecell.getAttribute("show");
+				//var label = treecell.getAttribute("label");
+				//if (label.indexOf('(') > -1) {
+				//	label = label.substring(0, label.indexOf('('));
+				//}
+				//if (label == parentName) 
+				if(show == parentNameShow) {
 					current.setAttribute("open", true);
 					var responseXML = art_semanticturkey.STRequests.Cls
-							.getSubClasses(parentName, true, true);
+							.getSubClasses(parentURI, true, true);
 					art_semanticturkey.getSubClassesTree_RESPONSE(responseXML,
 							treechildern);
 					pvisible = true;

@@ -120,9 +120,9 @@ art_semanticturkey.removeProperty = function() {
 	if (deleteForbidden == "false") {
 		var name = treecell.getAttribute("label");
 		try{
-			var responseXML = art_semanticturkey.STRequests.Delete
+			var responseURI = art_semanticturkey.STRequests.Delete
 					.removeProperty(name);
-			art_semanticturkey.removeProperty_RESPONSE(responseXML);
+			art_semanticturkey.removeProperty_RESPONSE(responseURI);
 		}
 		catch (e) {
 			alert(e.name + ": " + e.message);

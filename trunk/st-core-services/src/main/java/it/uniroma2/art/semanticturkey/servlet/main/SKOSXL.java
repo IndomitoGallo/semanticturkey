@@ -54,7 +54,7 @@ public class SKOSXL extends SKOS {
 		// public static final String getSchemesMatrixPerConceptRequest = "getSchemesMatrixPerConceptRequest";
 
 		// IS REQUESTS
-		public static final String isTopConceptRequest = "isTopConcept";
+		//public static final String isTopConceptRequest = "isTopConcept";
 
 		// ADD REQUESTS
 		// public static final String addTopConceptRequest = "addTopConcept";

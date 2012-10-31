@@ -77,19 +77,19 @@ art_semanticturkey.associateEventsOnGraphicElementsClasses = function() {
 
 
 art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(
-		responseElement) {
+		responseCollection) {
 	var rootTreechildren = document.getElementById('rootClassTreeChildren');
-	var dataElement = responseElement.getElementsByTagName('data')[0];
-	var classList = dataElement.getElementsByTagName("class");
-	for (var i = 0; i < classList.length; ++i) {
+	//var dataElement = responseElement.getElementsByTagName('data')[0];
+	//var classList = dataElement.getElementsByTagName("class");
+	for (var i = 0; i < responseCollection.length; ++i) {
 		//art_semanticturkey.parsingSubClass(classList[i], rootTreechildren,
 		//		isRootNode);
 		art_semanticturkey
-				.parsingSubClass(classList[i], rootTreechildren, true);
+				.parsingSubClass(responseCollection[i], rootTreechildren, true);
 	}
 
 	// open the owl:Thing node if it is the only node
-	if (classList.length == 1) {
+	if (responseCollection.length == 1) {
 		var treeItemThing = rootTreechildren.getElementsByTagName("treeitem")[0];
 		var tree = document.getElementById("classesTree");
 		tree.view.selection.clearSelection();
@@ -109,10 +109,10 @@ art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE = function(
 			tree.treeBoxObject.view.toggleOpenState(tree.currentIndex);
 			
 			var list = document.getElementById("IndividualsList");
-			responseXML = art_semanticturkey.STRequests.Cls
+			responseArray = art_semanticturkey.STRequests.Cls
 					.getClassAndInstancesInfo(
 							"http://www.w3.org/2002/07/owl#Thing", true);
-			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML,
+			art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseArray,
 					list);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -161,60 +161,38 @@ art_semanticturkey.parsingSubClass = function(classNode, node, isRootNode) {
 	var tr = document.createElement("treerow");
 	var tc = document.createElement("treecell");
 	var numInst = classNode.numInst;
-	//legacy
-	if(typeof numInst == 'undefined')
-		numInst = classNode.getAttribute("numInst");
 	
 	var showValue;
-	if(typeof classNode.getShow == 'undefined')
-		showValue = classNode.getAttribute("name");
-	else
-		showValue = classNode.getShow();
+	showValue = classNode.getShow();
 	
 	if (numInst != 0) {
-		//legacy
 		tc.setAttribute("label", showValue +"("+ numInst+")");
 	} else {
 		tc.setAttribute("label", showValue);
 	}
 	
-	//legacy
 	tc.setAttribute("show", showValue);
 	tc.setAttribute("numInst", numInst);
 	
-	//legacy
 	var deleteForbidden;
-	if(typeof classNode.deleteForbidden == 'undefined')
-		deleteForbidden = classNode.getAttribute("deleteForbidden");
-	else
-		deleteForbidden = classNode.deleteForbidden;
+	deleteForbidden = classNode.deleteForbidden;
 	if(deleteForbidden == null)
 		deleteForbidden = false;
 	tc.setAttribute("deleteForbidden", deleteForbidden);
 	if (deleteForbidden == "true")
 		tc.setAttribute("properties", "basetrue");
 	
-	
-	
 	tc.setAttribute("isRootNode", isRootNode);
 	tr.appendChild(tc);
 	
-	
 	var ti = document.createElement("treeitem");
-	//legacy
-	if(typeof classNode.getURI == 'undefined')
-		ti.setAttribute("className", classNode.getAttribute("name"));
-	else
-		ti.setAttribute("className", classNode.getURI());
+	ti.setAttribute("className", classNode.getURI());
 	ti.setAttribute("show", showValue);
 	ti.appendChild(tr);
 	var tch = document.createElement("treechildren");
 	node.appendChild(ti);
 	var more = classNode.more;
 	
-	//legacy
-	if(typeof more == 'undefined')
-		more = classNode.getAttribute("more");
 	if (more == "1") {
 		ti.appendChild(tch);
 		ti.setAttribute("container", true);
@@ -266,28 +244,6 @@ art_semanticturkey.parsingClass = function(classNode, node, isRootNode) {
 	} else {
 		ti.setAttribute("container", false);
 	}
-	// }
-	// TODO in the future it may be possible to choose the style of tree
-	// (with or without instances)
-	/*
-	 * if (classList[i].nodeName == "Instances") { instanceNodes =
-	 * classList[i].childNodes; for ( var j = 0; j < instanceNodes.length; j++) {
-	 * if (instanceNodes[j].nodeType == 1) { var trInst =
-	 * document.createElement("treerow"); var tcInst =
-	 * document.createElement("treecell"); tcInst.setAttribute("properties",
-	 * "individual"); tcInst.setAttribute("label", instanceNodes[j]
-	 * .getAttribute("name")); trInst.appendChild(tcInst); var tiInst =
-	 * document.createElement("treeitem"); tiInst.appendChild(trInst);
-	 * tch.appendChild(tiInst); } } }
-	 */
-
-	// NScarpato 12/07/07 change ClassTree visualization on closed mode
-	// TODO in the future it may be possible to choose the style of tree
-	// (with or without instances)
-	/*
-	 * else if (instanceNodes != null && instanceNodes.length > 0) {
-	 * ti.setAttribute("open", false); ti.setAttribute("container", true); }
-	 */
 };
 
 art_semanticturkey.onKeyPressed = function(event) {
@@ -315,7 +271,7 @@ art_semanticturkey.openSubClassesList = function(event, tree) {
 		if (isContainer == "false") {
 			return;
 		}
-		var isOpen = treeitem.getAttribute("open");
+		var isOpen = treeitem.getAttribute("open");	
 		if (keyCode == KeyEvent.DOM_VK_RETURN) {
 			if (isOpen == "true") {
 				action = "loadSubTree";
@@ -364,10 +320,10 @@ art_semanticturkey.openSubClassesList = function(event, tree) {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		var className = treeitem.getAttribute("className");
-		var responseXML = art_semanticturkey.STRequests.Cls.getSubClasses(
+		var collectionSubClass = art_semanticturkey.STRequests.Cls.getSubClasses(
 				className, true, true);
 		art_semanticturkey
-				.getSubClassesTree_RESPONSE(responseXML, treeChildren);
+				.getSubClassesTree_RESPONSE(collectionSubClass, treeChildren);
 	} else if (action == "emptySubTree") {
 		// EMPTY TREE
 		while (treeChildren.hasChildNodes()) {
@@ -407,9 +363,9 @@ art_semanticturkey.loadInstanceList = function(event, tree, list) {
 	try {
 		var start = new Date().getTime();
 
-		var responseXML = art_semanticturkey.STRequests.Cls
+		var responseArray = art_semanticturkey.STRequests.Cls
 				.getClassAndInstancesInfo(className, true);
-		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseXML, list,
+		art_semanticturkey.getClassAndInstancesInfo_RESPONSE(responseArray, list,
 				start);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
@@ -464,9 +420,9 @@ art_semanticturkey.removeClass = function() {
 		alert("You cannot delete this class because it has subClasses!");
 	} else {
 		try {
-			var responseXML = art_semanticturkey.STRequests.Delete
+			var responseURI = art_semanticturkey.STRequests.Delete
 					.removeClass(name);
-			art_semanticturkey.removeClass_RESPONSE(responseXML);
+			art_semanticturkey.removeClass_RESPONSE(responseURI);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -479,12 +435,9 @@ art_semanticturkey.removeClass = function() {
  *         remove Class request
  */
 
-art_semanticturkey.removeClass_RESPONSE = function(responseElement) {
-	var resourceElement = responseElement.getElementsByTagName('Resource')[0];
-	var removedClassName = resourceElement.getAttribute("name");
-
+art_semanticturkey.removeClass_RESPONSE = function(responseURI) {
 	art_semanticturkey.evtMgr.fireEvent("removedClass",
-			(new art_semanticturkey.classRemovedClass(removedClassName)));
+			(new art_semanticturkey.classRemovedClass(responseURI)));
 
 };
 
@@ -605,53 +558,20 @@ art_semanticturkey.createSiblingClass = function() {
 					"_blank", "modal=yes,resizable,centerscreen", parameters);
 };
 
-art_semanticturkey.addClass_RESPONSE = function(responseElement) {
+art_semanticturkey.addClass_RESPONSE = function(responseArray) {
 
-	var superClassElement = responseElement.getElementsByTagName('superclass')[0];
-	var superClassName = superClassElement.getAttribute("name");
-	var classElement = responseElement.getElementsByTagName('class')[0];
-	var className = classElement.getAttribute("name");
+	//var superClassElement = responseArray.getElementsByTagName('superclass')[0];
+	//var superClassName = superClassElement.getAttribute("name");
+	//var classElement = responseArray.getElementsByTagName('class')[0];
+	//var className = classElement.getAttribute("name");
 
 	art_semanticturkey.evtMgr
 			.fireEvent("createdSubClass",
-					(new art_semanticturkey.classAddedClass(className,
-							superClassName)));
-	/*
-	 * if (superClassName == "owl:Thing") { var rootNode =
-	 * document.getElementById('rootClassTreeChildren'); var tr =
-	 * document.createElement("treerow"); var tc =
-	 * document.createElement("treecell"); tc.setAttribute("numInst", "0");
-	 * tc.setAttribute("deleteForbidden", false);
-	 * //tc.setAttribute("isRootNode", true); tc.setAttribute("isRootNode",
-	 * false); tc.setAttribute("label", className); tr.appendChild(tc); var ti =
-	 * document.createElement("treeitem"); ti.setAttribute("className",
-	 * className); ti.appendChild(tr); rootNode.appendChild(ti); } else {
-	 */
-	/*
-	 * var tree = document.getElementById("classesTree"); var childList =
-	 * tree.getElementsByTagName("treeitem"); for (var i = 0; i <
-	 * childList.length; i++) { art_semanticturkey.checkAndCreate(className,
-	 * childList[i], superClassName); }
-	 */
-	// }
+					(new art_semanticturkey.classAddedClass(responseArray["class"],
+							responseArray["superClass"])));
+	
 };
 
-// TODO da eliminare, visto che tale funzione qui non dovrebbe esistere
-/*
- * art_semanticturkey.checkAndCreate = function(className, parentNode,
- * superClassName) { var parentClassName = parentNode.getAttribute("className");
- * if (parentClassName == superClassName) { var parentTreeChildren = parentNode
- * .getElementsByTagName("treechildren")[0]; if (parentTreeChildren == null) {
- * parentTreeChildren = document.createElement("treechildren");
- * parentNode.appendChild(parentTreeChildren);
- * parentNode.setAttribute("container", true); parentNode.setAttribute("open",
- * true); } var tr = document.createElement("treerow"); var tc =
- * document.createElement("treecell"); tc.setAttribute("numInst", "0");
- * tc.setAttribute("deleteForbidden", false); tc.setAttribute("isRootNode",
- * false); tc.setAttribute("label", className); tr.appendChild(tc); var ti =
- * document.createElement("treeitem"); ti.setAttribute("className", className);
- * ti.appendChild(tr); parentTreeChildren.appendChild(ti); } };
- */
 
 /**
  * @author Noemi Andrea invoke add Synonym request
@@ -767,7 +687,7 @@ art_semanticturkey.classesTreeClick = function(event, tree, list) {
 };
 
 art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
-		responseElement, list, startAll) {
+		responseArray, list, startAll) {
 	//var startJustUIComplete = new Date().getTime();
 	var list = list;
 	if (typeof list == 'undefined')
@@ -776,14 +696,11 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 	while (rows--) {
 		list.removeItemAt(rows);
 	}
-	var parentClassNameURI = responseElement.getElementsByTagName('Class')[0]
-			.getAttribute("name");
+	var parentClassNameURI = responseArray['class'].getURI()
 	var parentClassNameShow = "";
 	
-	var numTotInst = responseElement.getElementsByTagName('Class')[0]
-			.getAttribute("numTotInst");
-	var hasSubClasses = responseElement.getElementsByTagName('Class')[0]
-			.getAttribute("more"); // this can be "1" or "0" or null
+	var numTotInst = responseArray['class'].numInst;
+	var hasSubClasses = responseArray['class'].more; // this can be "1" or "0" or null
 
 	var classTree = document.getElementById("classesTree");
 
@@ -804,7 +721,7 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 				}
 				var treecell = childList[i].getElementsByTagName("treecell")[0];
 				treecell.setAttribute("numInst", numTotInst);
-				parentClassNameShow =treecell.getAttribute("show");
+				parentClassNameShow = treecell.getAttribute("show");
 				if (numTotInst > 0)
 					treecell.setAttribute("label", treecell.getAttribute("show") + "("
 									+ numTotInst + ")");
@@ -822,20 +739,19 @@ art_semanticturkey.getClassAndInstancesInfo_RESPONSE = function(
 			parentClassNameURI);
 	list.getElementsByTagName('listheader')[0].setAttribute("numTotInst",
 			numTotInst);
-	var instancesList = responseElement.getElementsByTagName('Instance');
+	
+	var instancesResList = responseArray['instances'];
 	//var startJustUI = new Date().getTime();
-	for (var i = 0; i < instancesList.length; i++) {
-		var instName = instancesList[i].getAttribute("name");
+	for (var i = 0; i < instancesResList.length; i++) {
+		var instName = instancesResList[i].getShow();
 		var lsti = document.createElement("listitem");
 		lsti.setAttribute("label", instName);
-		// NScarpato 14/04/2008 add explicit attribute for instances
-		// list
-		var explicit = instancesList[i].getAttribute("explicit");
+		var explicit = instancesResList[i].explicit;
 		lsti.setAttribute("explicit", explicit);
 		lsti.setAttribute("parentCls", parentClassNameURI);
 		var lci = document.createElement("listitem-iconic");
 		var img = document.createElement("image");
-		var type = instancesList[i].getAttribute("type");
+		var type = instancesResList[i].getRole();
 		lsti.setAttribute("type", type);
 		img.setAttribute("src", art_semanticturkey.getImgFromType(type,
 						explicit));
@@ -987,23 +903,23 @@ art_semanticturkey.createIndividual = function() {
 /**
  * Create Instance event handler
  */
-art_semanticturkey.createInstance_RESPONSE = function(responseElement) {
+art_semanticturkey.createInstance_RESPONSE = function(responseArray) {
 	var tree = document.getElementById("classesTree");
 	var childList = tree.getElementsByTagName("treeitem");
-	var className = responseElement.getElementsByTagName("Class")[0]
-			.getAttribute("clsName");
-	var numInst = responseElement.getElementsByTagName("Class")[0]
-			.getAttribute("numTotInst");
-
+	var classRes = responseArray["class"];
+	var className = classRes.getURI();
+	var numInst = classRes.numInst;
 	for (var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndCreateInstance(className, numInst,
-				childList[i]);
+		//art_semanticturkey.checkAndCreateInstance(className, numInst,
+		//		childList[i]);
 	}
 	art_semanticturkey.classesTreeClick("");
 };
 
+/* It seems that this is not used anymore
 art_semanticturkey.checkAndCreateInstance = function(clsName, numInst, node) {
 	var className = node.getAttribute("className");
+	//alert("dentro checkAndCreateInstance e className = "+className+" , clsName = "+clsName); // da cancellare
 	if (className == clsName) {
 		node.getElementsByTagName("treecell")[0].setAttribute("numInst",
 				numInst);
@@ -1011,4 +927,4 @@ art_semanticturkey.checkAndCreateInstance = function(clsName, numInst, node) {
 		node.getElementsByTagName("treecell")[0]
 				.setAttribute("label", newLabel);
 	}
-};
+};*/

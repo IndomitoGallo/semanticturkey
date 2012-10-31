@@ -43,9 +43,11 @@ function getURI(response){
 	var explicitValue = uriElement.getAttribute('explicit');
 	var moreValue = uriElement.getAttribute('more');
 	var roleValue = uriElement.getAttribute('role');
+	var numInst = uriElement.getAttribute("numInst")
 	var artURIRes = new ARTURIResource(showValue, roleValue, uriValue);
 	artURIRes.explicit = explicitValue; 
 	artURIRes.more = moreValue; 
+	artURIRes.numInst = numInst; 
 	return artURIRes;
 }
 

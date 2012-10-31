@@ -24,6 +24,7 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
@@ -33,6 +34,10 @@ import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -45,6 +50,7 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -259,19 +265,28 @@ public class OntoSearch extends ServiceAdapter {
 
 	private Response xmlizeResults(RDFModel rep, ArrayList<Struct> results) {
 		String request = searchOntologyRequest;
+		
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 				RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
+		//Element dataElement = response.getDataElement();
 		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			Collection<STRDFResource> resultsCollection = STRDFNodeFactory.createEmptyResourceCollection();
 			for (Struct result : results) {
-				Element newElement = XMLHelp.newElement(dataElement, "found");
-				newElement.setAttribute("name", rep.getQName(result._resource.getURI()));
-				newElement.setAttribute("type", result._type.toString());
+				STRDFResource stResult = STRDFNodeFactory.createSTRDFResource(rep, result._resource, result._type, 
+						servletUtilities.checkWritable(rep, result._resource, wgraph),
+						false);
+				setRendering(rep, stResult, graphs);
+				resultsCollection.add(stResult);
 			}
+			RDFXMLHelp.addRDFNodes(response, resultsCollection);
 		} catch (DOMException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
+			return logAndSendException(e);
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		return response;
@@ -306,6 +321,14 @@ public class OntoSearch extends ServiceAdapter {
 			return true;
 	}
 
+	private void setRendering(RDFModel model, STRDFResource individual, ARTResource[] graphs) 
+			throws ModelAccessException {
+
+		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
+
+		individual.setRendering(rendering);
+	}
+	
 	private class Struct {
 		public RDFResourceRolesEnum _type;
 		public ARTURIResource _resource;
