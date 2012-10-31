@@ -516,7 +516,7 @@ art_semanticturkey.treeDragDrop = function(event, parentWindow) {
 			parameters2.list = list;
 
 			try {
-				var responseXML = parentWindow.art_semanticturkey.STRequests.Annotation
+				var responseArray = parentWindow.art_semanticturkey.STRequests.Annotation
 						.createAndAnnotate(trecell.parentNode.parentNode
 										.getAttribute("className"), str,
 								tabWin, title);
@@ -524,9 +524,9 @@ art_semanticturkey.treeDragDrop = function(event, parentWindow) {
 				alert(e.name + ": " + e.message);
 			}
 			
-			if(responseXML != null){
+			if(responseArray != null){
 				var tree = parentWindow.document.getElementById("classesTree");
-				parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,tree,true,event);
+				parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseArray,tree,true,event);
 			}
 		}
 	}

@@ -69,7 +69,8 @@ classHandlers["*"] = new function() {
 		var selectedObjClsName = currentelement.getAttribute("className");
 
 		var reply = art_semanticturkey.STRequests.Cls.addIndividual(selectedObjClsName, win.arguments[0].objectInstanceName);
-		return reply.getElementsByTagName("Instance")[0].getAttribute("instanceName");
+		//return reply.getElementsByTagName("Instance")[0].getAttribute("instanceName");
+		return reply['instance'].getURI();
 	}
 };
 classHandlers["skos:Concept"] = new function() {
@@ -231,6 +232,7 @@ art_semanticturkey.bind = function() {
 				close();
 				if (mainTree != null) {
 					window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
+					
 				}
 			}	
 };
@@ -313,43 +315,42 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 									propValue, selectedObjClsName, type);
 				}
 			} else {
-//			/*NScarpato 29/11/2010*/
-//			 win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-//					win.arguments[0].subjectInstanceName,
-//					win.arguments[0].predicatePropertyName,
-//					win.arguments[0].objectInstanceName,
-//					selectedObjClsName,
-//					type
-//			);
-			
-			// Step 1: create the subject
-			var clsHandl = classHandlers.getCurrentHandler();
-			var objectInstanceName = clsHandl.createInstance(win, tree);
-			
-			if (typeof objectInstanceName == "undefined") {
-				return;
-			}
-			
-			// Step 2: Add the property value
-			art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subjectInstanceName, win.arguments[0].predicatePropertyName, objectInstanceName, type);
-			 
-			// Step 3: Add the annotation
-
-			// The annotation has to be applied to the resource, which is the value
-			// of the property assigned before
-			var newParameters = Object.create(win.arguments[0]);
-			newParameters.subjectInstanceName = newParameters.objectInstanceName;
-			 
-			return win.arguments[0].functors.addAnnotation(newParameters);
-
-				/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
-						.relateAndAnnotateBindCreate(
-								win.arguments[0].subjectInstanceName,
-								win.arguments[0].predicatePropertyName,
-								win.arguments[0].objectInstanceName,
-								win.arguments[0].urlPage,
-								win.arguments[0].title, selectedObjClsName,
-								null, type);*/
+	//			/*NScarpato 29/11/2010*/
+	//			 win.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+	//					win.arguments[0].subjectInstanceName,
+	//					win.arguments[0].predicatePropertyName,
+	//					win.arguments[0].objectInstanceName,
+	//					selectedObjClsName,
+	//					type
+	//			);
+				
+				// Step 1: create the subject
+				var clsHandl = classHandlers.getCurrentHandler();
+				var objectInstanceName = clsHandl.createInstance(win, tree);
+				
+				if (typeof objectInstanceName == "undefined") {
+					return;
+				}
+				// Step 2: Add the property value
+				art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subjectInstanceName, win.arguments[0].predicatePropertyName, objectInstanceName, type);
+				 
+				// Step 3: Add the annotation
+	
+				// The annotation has to be applied to the resource, which is the value
+				// of the property assigned before
+				var newParameters = Object.create(win.arguments[0]);
+				newParameters.subjectInstanceName = newParameters.objectInstanceName;
+				 
+				return win.arguments[0].functors.addAnnotation(newParameters);
+	
+					/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
+							.relateAndAnnotateBindCreate(
+									win.arguments[0].subjectInstanceName,
+									win.arguments[0].predicatePropertyName,
+									win.arguments[0].objectInstanceName,
+									win.arguments[0].urlPage,
+									win.arguments[0].title, selectedObjClsName,
+									null, type);*/
 			}
 		} catch (e) {
 			alert(e.name + ": " + e.message);

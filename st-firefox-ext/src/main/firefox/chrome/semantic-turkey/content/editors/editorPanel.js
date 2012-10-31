@@ -56,6 +56,7 @@ window.onload = function() {
 						.indexOf('('));
 	}*/
 
+	alert("dentro load editor e sourceType = "+sourceType);
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);
 
@@ -161,7 +162,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	var txbox = document.createElement("textbox");
 	// alert("explicit = "+window.arguments[0].explicit); // da cancellare
 	var isFirstEditor = window.arguments[0].isFirstEditor;
-	if (type == "cls") {
+	if (type.toLowerCase() == "cls") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -185,7 +186,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			img.setAttribute("src",
 					"chrome://semantic-turkey/skin/images/class20x20.png");
 		}
-	} else if (type == "individual") {
+	} else if (type.toLowerCase() == "individual") {
 		if (isFirstEditor == false) {
 			explicit = "false";
 			document
@@ -205,9 +206,9 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			img.setAttribute("src",
 					"chrome://semantic-turkey/skin/images/individual.png");
 		}
-	} else if (type == "Ontology") {
+	} else if (type.toLowerCase() == "ontology") {
 		document.getElementById("buttonModify").disabled = true;
-	} else if (type.indexOf("ObjectProperty") != -1) {
+	} else if (type.toLowerCase().indexOf("objectproperty") != -1) {
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
 			document
@@ -231,7 +232,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.setAttribute("src",
 							"chrome://semantic-turkey/skin/images/propObject20x20.png");
 		}
-	} else if (type.indexOf("DatatypeProperty") != -1) {
+	} else if (type.toLowerCase().indexOf("datatypeproperty") != -1) {
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
 			document
@@ -255,7 +256,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.setAttribute("src",
 							"chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 		}
-	} else if (type.indexOf("AnnotationProperty") != -1) {
+	} else if (type.toLowerCase().indexOf("annotationproperty") != -1) {
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
 			document
@@ -280,7 +281,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 							"chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 		}
 
-	} else if (type.indexOf("Property") != -1) {
+	} else if (type.toLowerCase().indexOf("property") != -1) {
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
 			document
@@ -304,7 +305,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					"chrome://semantic-turkey/skin/images/prop.png");
 		}
 
-	} else if (type == "concept") {
+	} else if (type.toLowerCase() == "concept") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -322,7 +323,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		} else {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept20x20.png");
 		}
-	} else if (type == "conceptScheme") {
+	} else if (type.toLowerCase() == "conceptscheme") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -340,7 +341,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		} else {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosScheme20x20.png");
 		}
-	} else if (type == "xLabel") {
+	} else if (type.toLowerCase() == "xlabel") {
 		var deleteForbidden;
 		if (isFirstEditor == false) {
 			deleteForbidden = "true";
@@ -378,7 +379,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	var parentBox = document.getElementById("parentBoxRows");
 	try {
 		var responseXML;
-		if (type == "cls") {
+		if (type.toLowerCase() == "cls") {
 			responseXML = art_semanticturkey.STRequests.Cls
 					.getClassDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
@@ -386,7 +387,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			responseXML = art_semanticturkey.STRequests.Page
 					.getBookmarks(sourceElementName);
 			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
-		} else if (type == "individual") {
+		} else if (type.toLowerCase() == "individual") {
 			responseXML = art_semanticturkey.STRequests.Individual
 					.getIndividualDescription(sourceElementName,
 							"templateandvalued");
@@ -396,11 +397,11 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					.getBookmarks(sourceElementName);
 			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
 
-		} else if (type == "Ontology") {
+		} else if (type.toLowerCase() == "ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else if (type == "concept") {
+		} else if (type.toLowerCase() == "concept") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 
@@ -411,10 +412,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			
 			responseXML = art_semanticturkey.STRequests.Annotation.getBookmarksByTopic(sourceElementName);
 			art_semanticturkey.getBookmarksByTopic_RESPONSE(responseXML);
-		} else if (type == "conceptScheme") {
+		} else if (type.toLowerCase() == "conceptscheme") {
 			responseXML = art_semanticturkey.STRequests.SKOS.getConceptSchemeDescription(sourceElementName);
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
-		} else if (type == "xLabel") {
+		} else if (type.toLowerCase() == "xlabel") {
 			responseXML = art_semanticturkey.STRequests.Individual
 			.getIndividualDescription(sourceElementName,
 					"templateandvalued");
@@ -2333,16 +2334,16 @@ art_semanticturkey.addType = function(addtype) {
 			"chrome://semantic-turkey/content/editors/class/classTree.xul",
 			"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
 			parameters2);
-	var responseXML;
+	var responseArray;
 	if (parameters2.selectedClass != "") {
 		try {
 			if (addtype == "individual") {
-				responseXML = art_semanticturkey.STRequests.Individual.addType(
+				responseArray = art_semanticturkey.STRequests.Individual.addType(
 						document.getElementById("name")
 								.getAttribute("actualValue"),
 						parameters2.selectedClass);
 			} else {
-				responseXML = art_semanticturkey.STRequests.Cls.addType(
+				responseArray = art_semanticturkey.STRequests.Cls.addType(
 						document.getElementById("name")
 								.getAttribute("actualValue"),
 						parameters2.selectedClass);
@@ -2354,7 +2355,7 @@ art_semanticturkey.addType = function(addtype) {
 			var explicit = true;
 			var instanceType = window.arguments[0].sourceType;
 			art_semanticturkey.evtMgr.fireEvent("addedType", 
-					(new art_semanticturkey.typeAddedClass(instancaId, parameters2.selectedClass, explicit, instanceType)));
+					(new art_semanticturkey.typeAddedClass(responseArray["instance"], responseArray["type"], explicit, instanceType)));
 			// document.getElementById("editorPanel").setAttribute("changed",
 			// "true");
 		} catch (e) {
@@ -2369,12 +2370,10 @@ art_semanticturkey.removeTypeEvent = function(event) {
 			containerObj.isList);
 };
 
-/**
- * NScarpato 26/11/2007 Remove Type
- */
+
 art_semanticturkey.removeType = function(value, sourceType, isList) {
 	var explicit = "true";
-	var responseXML;
+	var responseArray;
 	if (isList) {
 		var list = document.getElementById("typesList");
 		var selItem = list.selectedItem;
@@ -2384,20 +2383,20 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
 	if (explicit == "true") {
 		try {
 			if (sourceType == "individual") {
-				responseXML = art_semanticturkey.STRequests.Individual
+				responseArray = art_semanticturkey.STRequests.Individual
 						.removeType(document.getElementById("name")
 										.getAttribute("actualValue"), value);
 			} else {
-				responseXML = art_semanticturkey.STRequests.Cls.removeType(
+				responseArray = art_semanticturkey.STRequests.Cls.removeType(
 						document.getElementById("name")
 								.getAttribute("actualValue"), value);
 			}
 			// art_semanticturkey.refreshPanel();
 			//art_semanticturkey.evtMgr.fireEvent("refreshEditor",
 			//		(new art_semanticturkey.genericEventClass()));
-			var instancaId = document.getElementById("name").getAttribute("actualValue");
+			//var instancaId = document.getElementById("name").getAttribute("actualValue");
 			art_semanticturkey.evtMgr.fireEvent("removedType",
-					(new art_semanticturkey.typeRemovedClass(instancaId, value)));
+					(new art_semanticturkey.typeRemovedClass(responseArray["instance"], responseArray["type"])));
 			// document.getElementById("editorPanel").setAttribute("changed",
 			// "true");
 		} catch (e) {
@@ -2409,16 +2408,14 @@ art_semanticturkey.removeType = function(value, sourceType, isList) {
 
 };
 
-/**
- * NScarpato 05/12/2007 addSuperClass
- */
+
 art_semanticturkey.addSuperClass = function(addSCtype) {
-	var responseElement;
+	var responseArray;
 	var className;
-	if (addSCtype == "list") {
+	if (addSCtype == "list") { // TODO check when this case happens
 		var parameters2 = new Object();
 		parameters2.source = "editorClass";
-		var lsti = document.createElement("listitem");
+		//var lsti = document.createElement("listitem");
 		var selectedClass = "";
 		parameters2.selectedClass = selectedClass;
 		parameters2.parentWindow = window.arguments[0].parentWindow;
@@ -2429,7 +2426,7 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 		try {
 			className = document.getElementById("name")
 					.getAttribute("actualValue")
-			responseElement = art_semanticturkey.STRequests.Cls.addSuperCls(
+			responseArray = art_semanticturkey.STRequests.Cls.addSuperCls(
 					className, parameters2.selectedClass);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -2437,9 +2434,9 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 	} else {
 		var parameters2 = new Object();
 		parameters2.source = "editorClass";
-		var txbox = document.createElement("textbox");
+		//var txbox = document.createElement("textbox");
 		var selectedClass = "";
-		txbox.setAttribute("readonly", "true");
+		//txbox.setAttribute("readonly", "true");
 		parameters2.selectedClass = selectedClass;
 		parameters2.parentWindow = window.arguments[0].parentWindow;
 		window.openDialog(
@@ -2447,11 +2444,11 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 				"_blank", "chrome,dependent,dialog,modal=yes,resizable,centerscreen", 
 				parameters2);
 		if (parameters2.selectedClass != "") {
-			txbox.setAttribute("value", selectedClass);
+			//txbox.setAttribute("value", selectedClass);
 			try {
 				className = document.getElementById("name")
 						.getAttribute("actualValue");
-				responseElement = art_semanticturkey.STRequests.Cls
+				responseArray = art_semanticturkey.STRequests.Cls
 						.addSuperCls(className, parameters2.selectedClass);
 			} catch (e) {
 				alert(e.name + ": " + e.message);
@@ -2459,16 +2456,15 @@ art_semanticturkey.addSuperClass = function(addSCtype) {
 		}
 	}
 	// art_semanticturkey.refreshPanel();
-	art_semanticturkey.addSuperClass_RESPONSE(className, responseElement);
+	art_semanticturkey.addSuperClass_RESPONSE(responseArray);
 };
 
-art_semanticturkey.addSuperClass_RESPONSE = function(className, responseElement) {
-	var resourceNode = responseElement.getElementsByTagName('Type')[0];
-	var className = className;
-	var superClassName = resourceNode.getAttribute("qname");
+art_semanticturkey.addSuperClass_RESPONSE = function(responseArray) {
+	var classRes = responseArray["class"];
+	var superClassRes = responseArray["superClass"];
 	art_semanticturkey.evtMgr.fireEvent("subClsOfAddedClass",
-			(new art_semanticturkey.subClsOfAddedClass(className,
-					superClassName)));
+			(new art_semanticturkey.subClsOfAddedClass(classRes,
+					superClassRes)));
 };
 
 art_semanticturkey.removeSuperClassEvent = function(event) {
@@ -2477,12 +2473,10 @@ art_semanticturkey.removeSuperClassEvent = function(event) {
 			.removeSuperClass(containerObj.value, containerObj.isList);
 };
 
-/**
- * NScarpato 05/12/2007 Remove Super Class
- */
+
 art_semanticturkey.removeSuperClass = function(value, isList) {
 	var explicit = "true";
-	var responseElement;
+	var responseArray;
 	var className;
 	var value = value;
 	if (isList) {
@@ -2495,11 +2489,10 @@ art_semanticturkey.removeSuperClass = function(value, isList) {
 		try {
 			className = document.getElementById("name")
 					.getAttribute("actualValue");
-			responseElement = art_semanticturkey.STRequests.Cls.removeSuperCls(
+			responseArray = art_semanticturkey.STRequests.Cls.removeSuperCls(
 					className, value);
 			// art_semanticturkey.refreshPanel();
-			art_semanticturkey.removeSuperClass_RESPONSE(className,
-					responseElement);
+			art_semanticturkey.removeSuperClass_RESPONSE(responseArray);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
 		}
@@ -2508,14 +2501,12 @@ art_semanticturkey.removeSuperClass = function(value, isList) {
 	}
 };
 
-art_semanticturkey.removeSuperClass_RESPONSE = function(className,
-		responseElement) {
-	var resourceNode = responseElement.getElementsByTagName('Type')[0];
-	var className = className;
-	var superClassName = resourceNode.getAttribute("qname");
+art_semanticturkey.removeSuperClass_RESPONSE = function(responseArray) {
+	var classRes = responseArray["class"];
+	var superClassRes = responseArray["superClass"];
 	art_semanticturkey.evtMgr.fireEvent("subClsOfRemovedClass",
-			(new art_semanticturkey.subClsOfRemovedClass(className,
-					superClassName)));
+			(new art_semanticturkey.subClsOfRemovedClass(classRes,
+					superClassRes)));
 };
 
 art_semanticturkey.createAndAddPropValueEvent = function(event) {

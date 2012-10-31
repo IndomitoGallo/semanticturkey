@@ -41,6 +41,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
@@ -808,8 +809,10 @@ public class Resource extends ServiceAdapter {
 
 		Collection<STRDFResource> superTypes = STRDFNodeFactory.createEmptyResourceCollection();
 		for (ARTResource superType : directSuperTypes) {
-			superTypes.add(STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
-					directExplicitSuperTypes.contains(superType), true));
+			STRDFResource res = STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
+					directExplicitSuperTypes.contains(superType), true);
+			setRendering(ontModel, res, graphs);
+			superTypes.add(res);
 		}
 
 		RDFXMLHelp.addRDFNodes(superTypesElem, superTypes);
@@ -876,6 +879,14 @@ public class Resource extends ServiceAdapter {
 		else
 			// if (proj.getOntologyType().equals(OntologyType.SKOS))
 			return ((SKOSModel) model).getOWLModel();
+	}
+	
+	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
+			throws ModelAccessException {
+
+		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
+
+		individual.setRendering(rendering);
 	}
 
 }

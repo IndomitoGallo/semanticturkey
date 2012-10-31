@@ -47,12 +47,13 @@ art_semanticturkey.selectResult = function() {
 	var resName = sourceElement.getAttribute("label");
 	var resType = sourceElement.getAttribute("resType");
 	var types = window.arguments[0].types;
-	var typeName = "";
+	var typeNameCollection = "";
 	//if(resType == "owl:Individual"){
 	if(resType == "individual"){
 			try {
-				var responseXML = parentWindow.art_semanticturkey.STRequests.Individual.get_directNamedTypes(resName);
-				typeName = responseXML.getElementsByTagName("Type")[0].getAttribute("qname");
+				var responseArray = parentWindow.art_semanticturkey.STRequests.Individual.get_directNamedTypes(resName);
+				typeNameCollection = responseArray["types"];
+				//typeNameShow = typeNameCollection[0].getShow();
 			} catch (e) {
 				alert(e.name + ": " + e.message);
 			}
@@ -63,15 +64,14 @@ art_semanticturkey.selectResult = function() {
 	var myTree="";
 	var myList="";
 	if (types == "clsNInd") {
-			myTree = parentWindow.document.getElementById("classesTree");  
-			myList =parentWindow.document.getElementById("IndividualsList");
-		}else if (types == "property"){
-			myTree =parentWindow.document.getElementById("propertiesTree");
-	
-		}
+		myTree = parentWindow.document.getElementById("classesTree");  
+		myList =parentWindow.document.getElementById("IndividualsList");
+	}else if (types == "property"){
+		myTree =parentWindow.document.getElementById("propertiesTree");
+	}
 	close();	
 	
-	parentWindow.art_semanticturkey.searchFocus(myTree, myList, resType, resName, typeName);
+	parentWindow.art_semanticturkey.searchFocus(myTree, myList, resType, resName, typeNameCollection);
 	
 };
 
@@ -81,8 +81,8 @@ art_semanticturkey.selectResult = function() {
  */
 art_semanticturkey.initList = function(foundList) {
 	for (var i = 0; i < foundList.length; i++) {
-		var type = foundList[i].getAttribute("type");
-		var name = foundList[i].getAttribute("name");
+		var type = foundList[i].getRole();
+		var name = foundList[i].getShow();
 		// var typeName = foundList[i].getAttribute("type");
 		var myList = document.getElementById("SearchList"); 
 		var lsti = document.createElement("listitem");
@@ -94,8 +94,8 @@ art_semanticturkey.initList = function(foundList) {
 		//if (type == "owl:Individual") {
 		if (type == "individual") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/individual20x20.png");
-			name = type + " " + foundList[i].getAttribute("name");
-			lsti.setAttribute("label", foundList[i].getAttribute("name"));
+			name = type + " " + foundList[i].getShow();
+			lsti.setAttribute("label", foundList[i].getShow());
 			lbl.setAttribute("value", name);
 			lci.appendChild(img);
 			lci.appendChild(lbl);
@@ -104,8 +104,8 @@ art_semanticturkey.initList = function(foundList) {
 		//} else if (type == "Class") {
 		} else if (type == "cls") {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/class20x20.png");
-			name = type + " " + foundList[i].getAttribute("name");
-			lsti.setAttribute("label", foundList[i].getAttribute("name"));
+			name = type + " " + foundList[i].getShow();
+			lsti.setAttribute("label", foundList[i].getShow());
 			lbl.setAttribute("value", name);
 			lci.appendChild(img);
 			lci.appendChild(lbl);
@@ -122,8 +122,8 @@ art_semanticturkey.initList = function(foundList) {
 		} else {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/prop20x20.png");
 		}
-		var name = foundList[i].getAttribute("name");
-		lsti.setAttribute("label", foundList[i].getAttribute("name"));
+		var name = foundList[i].getShow();
+		lsti.setAttribute("label", foundList[i].getShow());
 		lbl.setAttribute("value", name);
 		lci.appendChild(img);
 		lci.appendChild(lbl);

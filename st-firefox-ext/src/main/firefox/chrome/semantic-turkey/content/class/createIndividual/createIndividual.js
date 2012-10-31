@@ -16,9 +16,9 @@ art_semanticturkey.onAccept = function() {
 	var clsName = window.arguments[0].name;
 	var parentWindow = window.arguments[0].parentWindow;
 	try {
-		var responseXML = parentWindow.art_semanticturkey.STRequests.Cls.addIndividual(
+		var responseArray = parentWindow.art_semanticturkey.STRequests.Cls.addIndividual(
 			clsName, instanceName);
-		parentWindow.art_semanticturkey.createInstance_RESPONSE(responseXML);
+		parentWindow.art_semanticturkey.createInstance_RESPONSE(responseArray);
 		close();
 	}
 	catch (e) {

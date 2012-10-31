@@ -30,9 +30,15 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -76,8 +82,9 @@ public class Delete extends ServiceAdapter {
 	}
 
 	/**
-	 * Metodo che si occupa della creazione dell'elemento xml relativo alla cancellazione di classi o istanze
-	 * dell'ontologia si possono cancellare solo classi e istanze che non appartengono alla Domain ontology
+	 * This service deals with the creation of the response regarding the deletion of a class or an instance.
+	 * It is possible to delete from the ontology only the classes and the instances which do not belong to the
+	 * Domain Ontology  
 	 * 
 	 * @return Response xml
 	 */
@@ -92,6 +99,7 @@ public class Delete extends ServiceAdapter {
 		String encodedQName = servletUtilities.encodeLabel(qname);
 		OWLModel model = (OWLModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource resource;
+		Response response = null;
 		try {
 			resource = model.createURIResource(model.expandQName(encodedQName));
 			if (!model.existsResource(resource))
@@ -103,15 +111,15 @@ public class Delete extends ServiceAdapter {
 													// class has no
 				// subclasses nor direct instances (otherwise, a rewire of lost ISA
 				// connections is necessary)
-				deleteClass(resource, model);
+				response = deleteClass(resource, model);
 			if (request.equals(removeInstanceRequest))
-				deleteInstance(resource, model);
+				response = deleteInstance(resource, model);
 			if (request.equals(removePropertyRequest)) { // for property the removal of incoming edges
 															// instruction implies
 				// that it has no subproperties (otherwise, a rewire of lost ISA
 				// connections is necessary)
 				if (checkPropertyDeleatability(resource, model))
-					deleteProperty(resource, model);
+					response = deleteProperty(resource, model);
 				else
 					return servletUtilities.createExceptionResponse("deleteResource",
 							"cannot delete property, there are triples in the ontology using this property!");
@@ -129,28 +137,42 @@ public class Delete extends ServiceAdapter {
 		logger.debug("deleting request is: " + request + ", for resource: " + qname);
 
 		// XML RESPONSE PREPARATION
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		/*XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "Resource");
 		element.setAttribute("name", qname);
-		element.setAttribute("type", request);
+		element.setAttribute("type", request);*/
 		return response;
 	}
 
 	
-	public void deleteClass(ARTResource cls, OWLModel ontModel) throws ModelUpdateException {
+	public Response deleteClass(ARTResource cls, OWLModel ontModel) throws ModelUpdateException {
 		logger.debug("deleting class: " + cls );
-		ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, cls); // 1) removes all the incoming edges
-		// //beware! only applicable if the
-		// application has already checked
-		// that the class has no subclasses
-		// nor instances!, otherwise some
-		// rewiring of lost semantic
-		// connections (ISA and instanceof) is
-		// necessary!
-		// TODO there should be no need of traversal propagation, otherwise report cases where it is needed
-		// in the meanwhile, i just delete outcoming edges from class
-		ontModel.deleteTriple(cls, NodeFilters.ANY, NodeFilters.ANY);
+		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					false);
+			setRendering(ontModel, stClass, graphs);
+			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, cls); // 1) removes all the incoming edges
+			// beware! only applicable if the application has already checked
+			// that the class has no subclasses nor instances!, otherwise some
+			// rewiring of lost semantic connections (ISA and instanceof) is
+			// necessary!
+			// TODO there should be no need of traversal propagation, otherwise report cases where it is needed
+			// in the meanwhile, i just delete outcoming edges from class
+			ontModel.deleteTriple(cls, NodeFilters.ANY, NodeFilters.ANY);
+			
+			RDFXMLHelp.addRDFNode(response, stClass);
+			return response;
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		
 	}
 
 	/**
@@ -159,10 +181,25 @@ public class Delete extends ServiceAdapter {
 	 * @param ontModel
 	 * @throws RepositoryUpdateException
 	 */
-	public void deleteInstance(ARTResource resource, OWLModel ontModel) throws ModelUpdateException {
-		if (deletePropertyPropagationTree == null)
-			initializeDeletePropertyPropagationTree();
-		ModelUtilities.deepDeleteIndividual(resource, ontModel, deletePropertyPropagationTree);
+	public Response deleteInstance(ARTResource resource, OWLModel ontModel) throws ModelUpdateException {
+		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, resource,
+					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, resource, wgraph),
+					false);
+			setRendering(ontModel, stInstance, graphs);
+			if (deletePropertyPropagationTree == null)
+				initializeDeletePropertyPropagationTree();
+			ModelUtilities.deepDeleteIndividual(resource, ontModel, deletePropertyPropagationTree);
+			RDFXMLHelp.addRDFNode(response, stInstance);
+			return response;
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
 	}
 
 	/**
@@ -180,20 +217,31 @@ public class Delete extends ServiceAdapter {
 		return !stit.hasNext();
 	}
 
-	public void deleteProperty(ARTURIResource property, OWLModel ontModel) throws ModelUpdateException {
-		ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, property); // 1) removes all the incoming
-		// edges //beware! only
-		// applicable if the application
-		// has already checked that the
-		// class has no subclasses nor
-		// instances!, otherwise some
-		// rewiring of lost semantic
-		// connections (ISA and
-		// instanceof) is necessary!
-		ontModel.deleteTriple(NodeFilters.ANY, property, NodeFilters.ANY);
-		// TODO there should be no need of traversal propagation, otherwise report cases where it is needed
-		// in the meanwhile, i just delete outcoming edges from class
-		ontModel.deleteTriple(property, NodeFilters.ANY, NodeFilters.ANY);
+	public Response deleteProperty(ARTURIResource property, OWLModel ontModel) throws ModelUpdateException {
+		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			STRDFResource stProperty = STRDFNodeFactory.createSTRDFResource(ontModel, property,
+					RDFResourceRolesEnum.property, servletUtilities.checkWritable(ontModel, property, wgraph),
+					false);
+			setRendering(ontModel, stProperty, graphs);
+			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, property); // 1) removes all the incoming
+			// edges //beware! only applicable if the application
+			// has already checked that the class has no subclasses nor
+			// instances!, otherwise some rewiring of lost semantic
+			// connections (ISA and instanceof) is necessary!
+			ontModel.deleteTriple(NodeFilters.ANY, property, NodeFilters.ANY);
+			// TODO there should be no need of traversal propagation, otherwise report cases where it is needed
+			// in the meanwhile, i just delete outcoming edges from class
+			ontModel.deleteTriple(property, NodeFilters.ANY, NodeFilters.ANY);
+			RDFXMLHelp.addRDFNode(response, stProperty);
+			return response;
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
 	}
 
 	/**
@@ -211,4 +259,12 @@ public class Delete extends ServiceAdapter {
 		Delete.deletePropertyPropagationTree = deletePropertyPropagationTree;
 	}
 
+	
+	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
+			throws ModelAccessException {
+
+		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
+
+		individual.setRendering(rendering);
+	}
 }

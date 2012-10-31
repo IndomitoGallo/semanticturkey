@@ -116,14 +116,12 @@ art_semanticturkey.classDragDrop = function(event) {
 	}
 };
 
-art_semanticturkey.classDragDrop_RESPONSE = function(responseElement, tree,selectClass,event) {
+art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectClass,event) {
 	var childList = tree.getElementsByTagName("treeitem");
-	var resourceElement = responseElement
-			.getElementsByTagName('Class')[0];
-	var clsName = resourceElement.getAttribute("clsName");
-	var numTotInst = resourceElement.getAttribute("numTotInst");
+	var clsName = responseArray['class'].getURI();
+	var numInst = responseArray['class'].numInst;
 	for ( var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndAnnotate(clsName, numTotInst,
+		art_semanticturkey.checkAndAnnotate(clsName, numInst,
 				childList[i]);
 	}
 	if(typeof event != 'undefined' && selectClass){
@@ -139,13 +137,13 @@ art_semanticturkey.classDragDrop_RESPONSE = function(responseElement, tree,selec
 };
 
 
-art_semanticturkey.checkAndAnnotate = function(clsName, numTotInst, node) {
+art_semanticturkey.checkAndAnnotate = function(clsName, numInst, node) {
 	var className = node.getAttribute("className");
 	if (className == clsName) {
 		node.getElementsByTagName("treecell")[0]
-				.setAttribute("numInst",numTotInst);
+				.setAttribute("numInst",numInst);
 		var newLabel = "";
-		newLabel = clsName + "(" + numTotInst + ")";
+		newLabel = clsName + "(" + numInst + ")";
 		node.getElementsByTagName("treecell")[0].setAttribute("label", newLabel);
 	}
 };

@@ -2,28 +2,28 @@
 
 /**
  * Created a new class in the ontology
- * @param {} className
- * @param {} superClassName
+ * @param {} classRes
+ * @param {} superClassRes
  * @param {} parameters
  */
-art_semanticturkey.classAddedClass = function(className, superClassName){
-	var className = className;
-	var superClassName = superClassName;
+art_semanticturkey.classAddedClass = function(classRes, superClassRes){
+	var classRes = classRes;
+	var superClassRes = superClassRes;
 	
-	this.getClassName = function(){
-		return className;
+	this.getClassRes = function(){
+		return classRes;
 	};
 	
-	this.getSuperClassName = function(){
-		return superClassName;
+	this.getSuperClassRes = function(){
+		return superClassRes;
 	};
 };
 
-art_semanticturkey.classRemovedClass = function(className){
-	var className = className;
+art_semanticturkey.classRemovedClass = function(classRes){
+	var classRes = classRes;
 	
-	this.getClassName = function(){
-		return className;
+	this.getClassRes = function(){
+		return classRes;
 	};
 };
 
@@ -108,35 +108,35 @@ art_semanticturkey.propertyAddedClass = function(propertyName, superPropertyName
 
 /**
  * The subclassof property was added for a class
- * @param {} className
- * @param {} superClassName
+ * @param {} classRes
+ * @param {} superClassRes
  */
-art_semanticturkey.subClsOfAddedClass = function(className, superClassName){
-	var className = className;
-	var superClassName = superClassName;
+art_semanticturkey.subClsOfAddedClass = function(classRes, superClassRes){
+	var classRes = classRes;
+	var superClassRes = superClassRes;
 	
-	this.getClassName = function(){
-		return className;
+	this.getClassRes = function(){
+		return classRes;
 	};
-	this.getSuperClassName = function(){
-		return superClassName;
+	this.getSuperClassRes = function(){
+		return superClassRes;
 	};
 };
 
 /**
  * The subclassof property was removed for a class
- * @param {} className
- * @param {} superClassName
+ * @param {} classRes
+ * @param {} superClassRes
  */
-art_semanticturkey.subClsOfRemovedClass = function(className, superClassName){
-	var className = className;
-	var superClassName = superClassName;
+art_semanticturkey.subClsOfRemovedClass = function(classRes, superClassRes){
+	var classRes = classRes;
+	var superClassRes = superClassRes;
 	
-	this.getClassName = function(){
-		return className;
+	this.getClassRes = function(){
+		return classRes;
 	};
-	this.getSuperClassName = function(){
-		return superClassName;
+	this.getSuperClassRes = function(){
+		return superClassRes;
 	};
 };
 
@@ -161,40 +161,41 @@ art_semanticturkey.subPropOfRemovedClass = function(propertyName, superPropertyN
 
 /**
  * The type was removed for an instance
- * @param {} instanceName
- * @param {} className
+ * @param {} instanceRes
+ * @param {} classRes
  */
-art_semanticturkey.typeRemovedClass = function(instanceName, className){
-	var instanceName = instanceName;
-	var className = className;
+art_semanticturkey.typeRemovedClass = function(instanceRes, classRes){
+	alert("ciao22");
+	var instanceRes = instanceRes;
+	var classRes = classRes;
 	
 	this.getResource = function(){
-		return instanceName;
+		return instanceRes;
 	};
 	this.getType = function(){
-		return className;
+		return classRes;
 	};
 };
 
 
 /**
  * The type was added for an instance
- * @param {} instanceName
- * @param {} className
+ * @param {} instanceRes
+ * @param {} classRes
  * @param {} explicit
  * @param {} instanceType
  */
-art_semanticturkey.typeAddedClass = function(instanceName, className, explicit, instanceType){
-	var instanceName = instanceName;
-	var className = className;
+art_semanticturkey.typeAddedClass = function(instanceRes, classRes, explicit, instanceType){
+	var instanceRes = instanceRes;
+	var classRes = classRes;
 	var instanceType = instanceType;
 	var explicit = explicit;
 	
 	this.getResource = function(){
-		return instanceName;
+		return instanceRes;
 	};
 	this.getType = function(){
-		return className;
+		return classRes;
 	};
 	this.getExplicit = function(){
 		return explicit;

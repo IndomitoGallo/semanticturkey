@@ -74,18 +74,18 @@ art_semanticturkey.onAccept = function() {
 	var type = window.arguments[0].type;
 	var propType = window.arguments[0].propType;
 	var textboxName = document.getElementById("name").value;
-	var responseXML;
+	var responseArray;
 	try{
 		if (type == "property") {
-			responseXML = parentWindow.art_semanticturkey.STRequests.Property.addProperty(
+			responseArray = parentWindow.art_semanticturkey.STRequests.Property.addProperty(
 					textboxName, propType);
 		} else if (type == "subProperty") {
 			var selPropName = window.arguments[0].selPropName;
-			responseXML = parentWindow.art_semanticturkey.STRequests.Property.addSubProperty(
+			responseArray = parentWindow.art_semanticturkey.STRequests.Property.addSubProperty(
 					textboxName, propType,
 					selPropName);
 	}
-		parentWindow.art_semanticturkey.addProperty_RESPONSE(responseXML);
+		parentWindow.art_semanticturkey.addProperty_RESPONSE(responseArray);
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);

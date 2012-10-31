@@ -1,5 +1,7 @@
 Components.utils.import("resource://stmodules/STRequests.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/Deserializer.jsm");	
+Components.utils.import("resource://stmodules/ARTResources.jsm");
 
 EXPORTED_SYMBOLS = [ "HttpMgr", "STRequests" ];
 
@@ -69,7 +71,7 @@ function getAnnotationPropertiesTree() {
 function removeProperty(name) {
 	var myName = "name=" + name;
 	var myType = "type=Property";
-	return HttpMgr.GET(deleteServiceName, deleteService.removePropertyRequest, myName, myType);
+	return Deserializer.getURI(HttpMgr.GET(deleteServiceName, deleteService.removePropertyRequest, myName, myType));
 }
 
 /**
@@ -83,7 +85,10 @@ function removeProperty(name) {
 function addProperty(propertyQName, propertyType) {
 	var myPropertyQName = "propertyQName=" + propertyQName;
 	var myPropertyType = "propertyType=" + propertyType;
-	return HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType);
+	var reply = HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType);
+	var resArray = new Array();
+	resArray["property"] = Deserializer.getURI(reply.getElementsByTagName("Property")[0]);
+	return resArray;
 }
 
 /**
@@ -101,8 +106,12 @@ function addSubProperty(propertyQName, propertyType, superPropertyQName) {
 	var myPropertyQName = "propertyQName=" + propertyQName;
 	var myPropertyType = "propertyType=" + propertyType;
 	var mySuperPropertyQName = "superPropertyQName=" + superPropertyQName;
-	return HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType,
+	var reply = HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType,
 			mySuperPropertyQName);
+	var resArray = new Array();
+	resArray["property"] = Deserializer.getURI(reply.getElementsByTagName("Property")[0]);
+	resArray["superProperty"] = Deserializer.getURI(reply.getElementsByTagName("SuperProperty")[0]);
+	return resArray;
 }
 
 /**
@@ -253,6 +262,7 @@ function removeSuperProperty(propertyQName, superPropertyQName) {
 
 /**
  * get info about Domain of a property
+ * NEVER USED
  * 
  * @member STRequests.Property
  * @param propertyQName

@@ -423,7 +423,7 @@ public class Cls extends Resource {
 
 	/**
 	 * 
-	 * @author Armando Stellato
+	 * @author Armando Stellato, Andrea Turbati
 	 * 
 	 * @param clsQName
 	 *            the qname of the class whose instances are being retrieved
@@ -439,36 +439,22 @@ public class Cls extends Resource {
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
 			ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
-
+			ARTResource wgraph = getWorkingGraph();
+			
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			dataElement.setAttribute("type", "Instpanel");
-			Element root = XMLHelp.newElement(dataElement, "Class");
-			root.setAttribute("name", clsQName);
-
-			root.setAttribute("deleteForbidden", String.valueOf(servletUtilities.checkReadOnly(cls)));
-
-			if (hasSubClassesRequest) {
-				RDFIterator<ARTURIResource> subSubClassesIterator = new SubClassesForTreeIterator(ontModel,
-						cls, graphs);
-				if (subSubClassesIterator.hasNext())
-					root.setAttribute("more", "1"); // the subclass has further subclasses
-				else
-					root.setAttribute("more", "0"); // the subclass has no subclasses itself
-				subSubClassesIterator.close();
-			}
-
-			// the instance widget is a tree where the root is the class which has a flat list of children
-			// given by its instances. The name of the class is necessary to sync the number of instances
-			// reported in brackets near the classes in the classs tree (he has to find the class by
-			// its name!)
-			String numTotInst = ""
-					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, direct,
-							graphs);
-			root.setAttribute("numTotInst", numTotInst);
-			// again, to sync with the class tree (update the number of instances near the name of the
-			// classes)
-			createInstancesXMLList(ontModel, cls, direct, root, graphs);
+			
+			Element classElement = XMLHelp.newElement(dataElement, "Class");
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					false);
+			setRendering(ontModel, stClass, null, null, graphs);
+			decorateWithNumberOfIstances(ontModel, stClass);
+			if(hasSubClassesRequest)
+				decorateForTreeView(ontModel, stClass);
+			RDFXMLHelp.addRDFNode(classElement, stClass);
+			
+			createInstancesXMLList(ontModel, cls, direct, dataElement, graphs);
 			return response;
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -477,10 +463,11 @@ public class Cls extends Resource {
 		}
 	}
 
-	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element element,
+	private void createInstancesXMLList(RDFSModel ontModel, ARTResource cls, boolean direct, Element dataElement,
 			ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
-		Element instancesElement = XMLHelp.newElement(element, "Instances");
-
+		Element instancesElement = XMLHelp.newElement(dataElement, "Instances");
+		ARTResource wgraph = getWorkingGraph();
+		
 		// TODO filter on admin also here
 		ARTResourceIterator instancesIterator;
 		if (direct)
@@ -488,28 +475,16 @@ public class Cls extends Resource {
 		else
 			instancesIterator = ontModel.listInstances(cls, true, graphs);
 
-		Collection<ARTResource> explicitInstances = RDFIterators.getCollectionFromIterator(ontModel
-				.listInstances(cls, false, getWorkingGraph()));
-
+		Collection<STRDFResource> instances = STRDFNodeFactory.createEmptyResourceCollection();
 		while (instancesIterator.streamOpen()) {
 			ARTResource instance = instancesIterator.getNext();
-			Element instanceElement = XMLHelp.newElement(instancesElement, "Instance");
-			// TYPE SETTING
-			RDFResourceRolesEnum valueType = ModelUtilities.getResourceRole(instance, ontModel);
-			instanceElement.setAttribute("type", valueType.toString());
-			// VALUE SETTING
-			if (instance.isURIResource()) {
-				instanceElement.setAttribute("name", ontModel.getQName(instance.asURIResource().getURI()));
-			} else {
-				instanceElement.setAttribute("name", instance.asBNode().getID());
-			}
-			// EXPLICIT-STATUS SETTING
-			if (explicitInstances.contains(instance))
-				instanceElement.setAttribute("explicit", "true");
-			else
-				instanceElement.setAttribute("explicit", "false");
-
+			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, instance, RDFResourceRolesEnum.individual, 
+					servletUtilities.checkWritable(ontModel, instance, wgraph),
+					false);
+			setRendering(ontModel, stIndividual, null, null, graphs);
+			instances.add(stIndividual);
 		}
+		RDFXMLHelp.addRDFNodes(instancesElement, instances);
 		instancesIterator.close();
 
 	}
@@ -547,20 +522,26 @@ public class Cls extends Resource {
 		try {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
+			
 			Element clsElement = XMLHelp.newElement(dataElement, "Class");
-			ARTResource cls;
-
 			String clsURI = ontModel.expandQName(clsQName);
-			cls = ontModel.createURIResource(clsURI);
-			clsElement.setAttribute("clsName", ontModel.getQName(clsURI));
-			String numTotInst = ""
-					+ ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls, true,
-							getUserNamedGraphs());
-			clsElement.setAttribute("numTotInst", numTotInst);
+			ARTResource cls = ontModel.createURIResource(clsURI);
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stClass);
+			setRendering(ontModel, stClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(clsElement, stClass);
+			
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
-			// instanceElement.setAttribute("instanceName", servletUtilities.decodeLabel(instanceName));
-			instanceElement.setAttribute("instanceName", instanceName); // think the decodeLabel is no more
-																		// necessary
+			ARTURIResource instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceName));
+			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, instanceRes,
+					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, instanceRes, wgraph),
+					false);
+			setRendering(ontModel, stInstance, null, null, graphs);
+			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
 			return response;
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -570,12 +551,12 @@ public class Cls extends Resource {
 
 	/**
 	 * retrieves the class tree rooted on the class identified by <code>clsQName</code>
-	 * 
+	 * Not used at the moment, so it is commented
 	 * @param clsQName
 	 *            the qname of the class which is root for the tree
 	 * @return
 	 */
-	public Response getClassSubTreeXML(String clsQName) {
+	/*public Response getClassSubTreeXML(String clsQName) {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		ARTURIResource cls;
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
@@ -591,7 +572,7 @@ public class Cls extends Resource {
 			return logAndSendException(e);
 		}
 		return response;
-	}
+	}*/
 
 	// TODO, se possibile, togliamo anche quell'odioso: subclasses. Non serve a niente e complica la vita a
 	// tutti!
@@ -774,39 +755,28 @@ public class Cls extends Resource {
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
+		//Element dataElement = response.getDataElement();
 
 		String[] clsesQNames = clsesQNamesString.split("\\|_\\|");
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
+			Collection<STRDFResource> classes = STRDFNodeFactory.createEmptyResourceCollection();
+			ARTResource wgraph = getWorkingGraph();
 			for (String clsQName : clsesQNames) {
 
 				ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
 
-				Element classElement = XMLHelp.newElement(dataElement, "class");
-				// class name
-				classElement.setAttribute("name", ontModel.getQName(cls.getURI()));
-				// class deletable?
-				classElement.setAttribute("deleteForbidden",
-						Boolean.toString(servletUtilities.checkReadOnly(cls)));
-				// class has children?
-				RDFIterator<ARTURIResource> subClassesIterator = new SubClassesForTreeIterator(ontModel, cls,
-						graphs);
-				if (subClassesIterator.hasNext())
-					classElement.setAttribute("more", "1"); // the subclass has further subclasses
-				else
-					classElement.setAttribute("more", "0"); // the subclass has no subclasses itself
-				subClassesIterator.close();
-
-				if (instNumBool) {
-					int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) ontModel, cls,
-							true, graphs);
-					if (numInst > 0)
-						classElement.setAttribute("numInst", "(" + numInst + ")");
-					else
-						classElement.setAttribute("numInst", "0");
-				}
+				STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+						RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+						false);
+				setRendering(ontModel, stClass, null, null, graphs);
+				decorateForTreeView(ontModel, stClass);
+				if(instNumBool)
+					decorateWithNumberOfIstances(ontModel, stClass);
+				
+				classes.add(stClass);
 			}
+			RDFXMLHelp.addRDFNodes(response, classes);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {
@@ -847,8 +817,24 @@ public class Cls extends Resource {
 
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			Element superClsElement = XMLHelp.newElement(dataElement, "Type");
-			superClsElement.setAttribute("qname", superclsQName);
+			
+			Element clsElement = XMLHelp.newElement(dataElement, "Class");
+			ARTResource wgraph = getWorkingGraph();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stClass);
+			setRendering(ontModel, stClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(clsElement, stClass);
+			
+			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
+			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superCls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superCls, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stSuperClass);
+			setRendering(ontModel, stSuperClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
+			
 			return response;
 
 		} catch (ModelAccessException e) {
@@ -891,8 +877,24 @@ public class Cls extends Resource {
 
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			Element typeElement = XMLHelp.newElement(dataElement, "Type");
-			typeElement.setAttribute("qname", superClassQName);
+			
+			Element clsElement = XMLHelp.newElement(dataElement, "Class");
+			ARTResource wgraph = getWorkingGraph();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stClass);
+			setRendering(ontModel, stClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(clsElement, stClass);
+			
+			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
+			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superCls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superCls, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stSuperClass);
+			setRendering(ontModel, stSuperClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
+			
 			return response;
 
 		} catch (ModelAccessException e) {
@@ -938,9 +940,11 @@ public class Cls extends Resource {
 		logger.debug("creating class: " + newClassQName + " as subClassOf: " + superClassQName);
 		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
 		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
 			String newClassURI = ontModel.expandQName(newClassQName);
-			ARTURIResource res = ontModel.createURIResource(newClassURI);
-			boolean exists = ontModel.existsResource(res);
+			ARTURIResource classRes = ontModel.createURIResource(newClassURI);
+			boolean exists = ontModel.existsResource(classRes);
 			if (exists) {
 				return logAndSendException("there is a resource with the same name!");
 			}
@@ -948,14 +952,29 @@ public class Cls extends Resource {
 					getUserNamedGraphs());
 
 			ontModel.addClass(newClassURI);
-			ontModel.addSuperClass(res, superClassResource);
+			ontModel.addSuperClass(classRes, superClassResource);
 
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
-			Element clsElement = XMLHelp.newElement(dataElement, "class");
-			clsElement.setAttribute("name", ontModel.getQName(newClassURI));
-			Element superClsElement = XMLHelp.newElement(dataElement, "superclass");
-			superClsElement.setAttribute("name", superClassQName);
+			
+			Element clsElement = XMLHelp.newElement(dataElement, "Class");
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, classRes,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, classRes, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stClass);
+			decorateForTreeView(ontModel, stClass);
+			setRendering(ontModel, stClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(clsElement, stClass);
+			
+			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
+			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superClassResource,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superClassResource, wgraph),
+					false);
+			decorateWithNumberOfIstances(ontModel, stSuperClass);
+			setRendering(ontModel, stSuperClass, null, null, graphs);
+			decorateForTreeView(ontModel, stSuperClass);
+			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
+			
 			return response;
 
 		} catch (ModelAccessException e) {

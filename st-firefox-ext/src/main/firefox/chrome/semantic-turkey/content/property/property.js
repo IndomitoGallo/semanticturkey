@@ -43,13 +43,11 @@ art_semanticturkey.getPropertiesTree_RESPONSE = function(responseElement) {
 };
 
 
-art_semanticturkey.removeProperty_RESPONSE = function(responseElement) {
+art_semanticturkey.removeProperty_RESPONSE = function(responseURI) {
 	var myTree = document.getElementById("propertiesTree");
 	var childList = myTree.getElementsByTagName("treeitem");
-	var resourceElement = responseElement.getElementsByTagName('Resource')[0];
-	var removedPropertyName = resourceElement.getAttribute("name");
 	for ( var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndRemoveProp(removedPropertyName, childList[i]);
+		art_semanticturkey.checkAndRemoveProp(responseURI.getShow(), childList[i]);
 	}
 
 };
@@ -66,69 +64,67 @@ art_semanticturkey.checkAndRemoveProp = function(removedPropertyName, node) {
 };
 
 
-art_semanticturkey.addProperty_RESPONSE = function(responseElement) {
-	
+art_semanticturkey.addProperty_RESPONSE = function(responseArray) {
 	var myTree = document.getElementById("propertiesTree");
 	
-	
-		var newPropName = responseElement.getElementsByTagName("property")[0].getAttribute("name");
-		var propType = responseElement.getElementsByTagName("property")[0].getAttribute("type");
-		var superPropName = responseElement.getElementsByTagName("superProperty")[0].getAttribute("name");
-		if (superPropName == "") {  // add root property
-			var node = document.getElementById('rootPropertyTreeChildren'); // myTree.getElementsByTagName('treechildren')[0]; 
-			var tr = document.createElement("treerow");
-			var tc = document.createElement("treecell");
-			tc.setAttribute("label", newPropName);
-			tc.setAttribute("deleteForbidden", "false");
-			tr.setAttribute("properties", propType.substring(4));
-			tc.setAttribute("properties", propType.substring(4));
-			tc.setAttribute("propType", propType);
-			tc.setAttribute("isRootNode", true);
-			//tr.setAttribute("properties", "base" + propType.substring(4));
-			//tc.setAttribute("properties", "base" + propType.substring(4));
-			tr.appendChild(tc);
-			var ti = document.createElement("treeitem");
-			ti.setAttribute("propertyName", newPropName); 
-			ti.appendChild(tr);
-			var tch = document.createElement("treechildren");
-			ti.appendChild(tch);
-			node.appendChild(ti);
-			
-		} else { // add sub property
-			var tr = document.createElement("treerow");
-			var tc = document.createElement("treecell");
-			var ti = document.createElement("treeitem");
-			tc.setAttribute("label", newPropName);
-			tc.setAttribute("deleteForbidden", "false");
-			tc.setAttribute("numInst", "0");
-			tc.setAttribute("isRootNode", false);
-			tc.setAttribute("properties", propType.substring(4));
-			tc.setAttribute("propType", propType);
-			tr.setAttribute("properties", propType.substring(4));
-			tr.appendChild(tc);
-			ti.setAttribute('container', 'false');
-			ti.setAttribute('open', 'false');
-			ti.setAttribute("propertyName", newPropName); 
-			ti.appendChild(tr);
-			var treecellNodes;
-			treecellNodes = myTree.getElementsByTagName("treecell");
-			var targetNode = null;
-			for ( var i = 0; i < treecellNodes.length; i++) {
-				if (treecellNodes[i].getAttribute("label") == superPropName) {
-					targetNode = treecellNodes[i].parentNode.parentNode;
-					break;
-				}
+	var newPropName = responseArray["property"].getShow();
+	var propType = responseArray["property"].getRole();
+	if (typeof responseArray["superProperty"] == 'undefined') {  // add root property
+		var node = document.getElementById('rootPropertyTreeChildren'); // myTree.getElementsByTagName('treechildren')[0]; 
+		var tr = document.createElement("treerow");
+		var tc = document.createElement("treecell");
+		tc.setAttribute("label", newPropName);
+		tc.setAttribute("deleteForbidden", "false");
+		tr.setAttribute("properties", propType);
+		tc.setAttribute("properties", propType);
+		tc.setAttribute("propType", propType);
+		tc.setAttribute("isRootNode", true);
+		//tr.setAttribute("properties", "base" + propType.substring(4));
+		//tc.setAttribute("properties", "base" + propType.substring(4));
+		tr.appendChild(tc);
+		var ti = document.createElement("treeitem");
+		ti.setAttribute("propertyName", newPropName); 
+		ti.appendChild(tr);
+		var tch = document.createElement("treechildren");
+		ti.appendChild(tch);
+		node.appendChild(ti);
+		
+	} else { // add sub property
+		var superPropName = responseArray["superProperty"].getShow();
+		var tr = document.createElement("treerow");
+		var tc = document.createElement("treecell");
+		var ti = document.createElement("treeitem");
+		tc.setAttribute("label", newPropName);
+		tc.setAttribute("deleteForbidden", "false");
+		tc.setAttribute("numInst", "0");
+		tc.setAttribute("isRootNode", false);
+		tc.setAttribute("properties", propType);
+		tc.setAttribute("propType", propType);
+		tr.setAttribute("properties", propType);
+		tr.appendChild(tc);
+		ti.setAttribute('container', 'false');
+		ti.setAttribute('open', 'false');
+		ti.setAttribute("propertyName", newPropName); 
+		ti.appendChild(tr);
+		var treecellNodes;
+		treecellNodes = myTree.getElementsByTagName("treecell");
+		var targetNode = null;
+		for ( var i = 0; i < treecellNodes.length; i++) {
+			if (treecellNodes[i].getAttribute("label") == superPropName) {
+				targetNode = treecellNodes[i].parentNode.parentNode;
+				break;
 			}
-			var treechildren = targetNode.getElementsByTagName('treechildren')[0];
-			if (treechildren == null) {
-				treechildren = document.createElement("treechildren");
-				targetNode.appendChild(treechildren);
-			}
-			targetNode.setAttribute("container", true);
-			targetNode.setAttribute("open", true);
-
-			treechildren.appendChild(ti);
 		}
+		var treechildren = targetNode.getElementsByTagName('treechildren')[0];
+		if (treechildren == null) {
+			treechildren = document.createElement("treechildren");
+			targetNode.appendChild(treechildren);
+		}
+		targetNode.setAttribute("container", true);
+		targetNode.setAttribute("open", true);
+
+		treechildren.appendChild(ti);
+	}
 };
 
 

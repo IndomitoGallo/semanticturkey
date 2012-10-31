@@ -71,11 +71,11 @@ art_semanticturkey.associateEventsFiredByServer = function(){
 
 
 art_semanticturkey.removeClassFunct = function(eventId, classRemovedObj){
-	var removedClassName = classRemovedObj.getClassName();
+	var removedClassUri = classRemovedObj.getClassRes().getURI();
 	var tree = document.getElementById("classesTree");
 	var childList = tree.getElementsByTagName("treeitem");
 	for (var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndRemove(removedClassName, childList[i]);
+		art_semanticturkey.checkAndRemove(removedClassUri, childList[i]);
 	}
 };
 
@@ -96,40 +96,40 @@ art_semanticturkey.renamedIndividualFunct = function(eventId, individualRenamedO
 };
 
 art_semanticturkey.removedTypeFunct = function(eventId, removedTypeObj){
-	var type = removedTypeObj.getType();
-	var resource = removedTypeObj.getResource();
+	var typeRes = removedTypeObj.getType();
+	var resourceRes = removedTypeObj.getResource();
 	var list = document.getElementById("IndividualsList");
 	var className = list.getElementsByTagName("listheader")[0].getAttribute("parentCls");
 	var listItemList = list.getElementsByTagName("listitem");
-	if(className != type)
+	if(className != typeRes.getURI())
 		return;
 	for (var i = 0; i < listItemList.length; i++) {
-		if (listItemList[i].getAttribute("label") == resource) {
+		if (listItemList[i].getAttribute("label") == resourceRes.getShow()) {
 			listItemList[i].parentNode.removeChild(listItemList[i]);
 		}
 	}
 };
 
 art_semanticturkey.addedTypeFunct = function(eventId, addedTypeObj){
-	var type = addedTypeObj.getType();
-	var instName = addedTypeObj.getResource();
+	var typeRes = addedTypeObj.getType();
+	var instRes = addedTypeObj.getResource();
 	var list = document.getElementById("IndividualsList");
 	var className = list.getElementsByTagName("listheader")[0].getAttribute("parentCls");
 	var listItemList = list.getElementsByTagName("listitem");
-	if(className != type)
+	if(className != typeRes.getURI())
 		return;
 	var foundInstance = false;
 	for (var i = 0; i < listItemList.length; i++) {
-		if (listItemList[i].getAttribute("label") == instName) {
+		if (listItemList[i].getAttribute("label") == instRes.getShow()) {
 			foundInstance = true;
 		}
 	}
 	if(foundInstance == false){
 		var lsti = document.createElement("listitem");
-		lsti.setAttribute("label", instName);
+		lsti.setAttribute("label", instRes.getShow());
 		var explicit = addedTypeObj.getExplicit();
 		lsti.setAttribute("explicit", explicit); 
-		lsti.setAttribute("parentCls", type);
+		lsti.setAttribute("parentCls", typeRes.get);
 		var lci = document.createElement("listitem-iconic");
 		var img = document.createElement("image");
 		var instanceType = addedTypeObj.getIstanceType();
@@ -138,8 +138,8 @@ art_semanticturkey.addedTypeFunct = function(eventId, addedTypeObj){
 		
 		lci.appendChild(img);
 		var lbl = document.createElement("label");
-		lbl.setAttribute("value", instName);
-		lbl.setAttribute("id", instName);
+		lbl.setAttribute("value", instRes.getShow());
+		lbl.setAttribute("id", instRes.getURI());
 		lbl.setAttribute("class", "base");
 		lci.appendChild(lbl);
 		lsti.appendChild(lci);
@@ -148,53 +148,25 @@ art_semanticturkey.addedTypeFunct = function(eventId, addedTypeObj){
 };
 
 art_semanticturkey.subClsOfRemovedFunct = function(eventId, subClsOfRemovedObj){
-	var className = subClsOfRemovedObj.getClassName();
-	var superClassName = subClsOfRemovedObj.getSuperClassName();
-	
-	art_semanticturkey.checkAndRefreshTree(className, superClassName);
-	
-	/*var childList = tree.getElementsByTagName("treeitem");
-	for (var i = 0; i < childList.length; i++) {
-		var parentNode = childList[i].parentNode.parentNode;
-		if(parentNode.getAttribute("className") == superClassName)
-			art_semanticturkey.checkAndRemove(className, childList[i]);
-	}
-	//now ask the server all the super class of the selcted class and search in the 
-	// class tree if it is necessary to add this class as a subclass of another class
-	var responseXMLSuperType = art_semanticturkey.STRequests.Cls
-					.getClassDescription(className,"templateandvalued");
-	var responseXMLClassInfo = art_semanticturkey.STRequests.Cls
-					.getClassAndInstancesInfo(className, true);
-	*/				
-	
+	art_semanticturkey.checkAndRefreshTree(subClsOfRemovedObj.getClassRes(), 
+			subClsOfRemovedObj.getSuperClassRes());
 };
 
 
 art_semanticturkey.subClsOfAddedFunct  = function(eventId, subClsOfAddedObj){
-	var className = subClsOfAddedObj.getClassName();
-	var superClassName = subClsOfAddedObj.getSuperClassName();
-	
-	art_semanticturkey.checkAndRefreshTree(className, superClassName);
-	/*
-	var numInst = subClsOfAddedObj.getNumInst();
-	var delForbidden = subClsOfAddedObj.getDelFobidden();
-	var tree = document.getElementById("classesTree");
-	var childList = tree.getElementsByTagName("treeitem");
-	for (var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndCreate(className, childList[i],
-				superClassName, numInst);
-	}*/
+	art_semanticturkey.checkAndRefreshTree(subClsOfAddedObj.getClassRes(), 
+			subClsOfAddedObj.getSuperClassRes());
 };
 
 
 art_semanticturkey.createdSubClassFunct = function(eventId, classAddedObj){
-	var className = classAddedObj.getClassName();
-	var superClassName = classAddedObj.getSuperClassName();
+	var classRes = classAddedObj.getClassRes();
+	var superClassRes = classAddedObj.getSuperClassRes();
 	var tree = document.getElementById("classesTree");
 	var childList = tree.getElementsByTagName("treeitem");
 	for (var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndCreate(className, childList[i],
-				superClassName);
+		art_semanticturkey.checkAndCreate(classRes, childList[i],
+				superClassRes);
 	}
 };
 
@@ -217,10 +189,9 @@ art_semanticturkey.renamedClassFunct = function(eventId, classRenamedObj){
 /**
  * @author Noemi Andrea check all occurence of class that should be removed
  */
-art_semanticturkey.checkAndRemove = function(removedClassName, node) {
-	//var className = node.getAttribute("className");
-	var className = node.getAttribute("show");
-	if (className == removedClassName) {
+art_semanticturkey.checkAndRemove = function(removedClassUri, node) {
+	var className = node.getAttribute("className");
+	if (className == removedClassUri) {
 		var parentNode = node.parentNode;
 		parentNode.removeChild(node);
 		if (parentNode.childNodes.length == 0) {
@@ -247,11 +218,11 @@ art_semanticturkey.checkAndRename = function(newClassName, oldClassName, node) {
 	}
 };
 
-art_semanticturkey.checkAndCreate = function(className, parentNode,
-		superClassName, numInst, delForbidden, hasSubClasses) {
+art_semanticturkey.checkAndCreate = function(classRes, parentNode,
+		superClassRes) {
 	//var parentClassName = parentNode.getAttribute("className");
-	var parentClassName = parentNode.getAttribute("show");
-	if (parentClassName == superClassName) {
+	var parentClassName = parentNode.getAttribute("className");
+	if (parentClassName == superClassRes.getURI()) {
 		var parentTreeChildren = parentNode
 				.getElementsByTagName("treechildren")[0];
 		if (parentTreeChildren == null) {
@@ -262,56 +233,59 @@ art_semanticturkey.checkAndCreate = function(className, parentNode,
 		}
 		var tr = document.createElement("treerow");
 		var tc = document.createElement("treecell");
+		var numInst = classRes.numInst;
 		if(numInst == undefined){
 			tc.setAttribute("numInst", "0");
 			tc.setAttribute("deleteForbidden", false);
 		}
 		else{
 			tc.setAttribute("numInst", numInst);
-			tc.setAttribute("deleteForbidden", delForbidden);
+			if(classRes.explicit == "true")
+				tc.setAttribute("deleteForbidden", false);
+			else
+				tc.setAttribute("deleteForbidden", true);
 		}
 		
 		tc.setAttribute("isRootNode", false);
 		if(numInst == undefined || numInst == 0){
-			tc.setAttribute("label", className);
+			tc.setAttribute("label", classRes.getShow());
 		}
 		else{
-			tc.setAttribute("label", className+"("+numInst+")");
+			tc.setAttribute("label", classRes.getShow()+"("+classRes.numInst+")");
 		}
-		tc.setAttribute("show", className);
+		tc.setAttribute("show", classRes.getShow());
 		tr.appendChild(tc);
 		var ti = document.createElement("treeitem");
-		ti.setAttribute("className", className);
-		ti.setAttribute("show", className);
-		if(hasSubClasses != undefined)
-			ti.setAttribute("container", hasSubClasses);
+		ti.setAttribute("className", classRes.getURI());
+		ti.setAttribute("show", classRes.getShow());
+		if(classRes.more != undefined)
+			ti.setAttribute("container", classRes.more);
 		ti.appendChild(tr);
 		parentTreeChildren.appendChild(ti);
 	}
 };
 
-art_semanticturkey.checkAndRefreshTree = function(className, superClassName){
+art_semanticturkey.checkAndRefreshTree = function(classRes, superClassRes){
 	//ask the server all the super class of the selcted class and search in the 
 	// class tree if it is necessary to add this class as a subclass of another class
 	var treeItemList = document.getElementById("classesTree").getElementsByTagName("treeitem");
 	var responseXMLSuperType = art_semanticturkey.STRequests.Cls
-					.getClassDescription(className,"templateandvalued");
-	var responseXMLClassInfo = art_semanticturkey.STRequests.Cls
-					.getClassAndInstancesInfo(className, true);
+					.getClassDescription(classRes.getURI(),"templateandvalued");
+	var responseArray = art_semanticturkey.STRequests.Cls
+					.getClassAndInstancesInfo(classRes.getURI(), true);
 					
-	var numInst = responseXMLClassInfo.getElementsByTagName('Class')[0]
-			.getAttribute("numTotInst");
-	var hasSubClasses =  responseXMLClassInfo.getElementsByTagName('Class')[0]
-			.getAttribute("more"); // this can be "1" or "0"
-	var deleteForbidden = responseXMLClassInfo.getElementsByTagName('Class')[0]
-			.getAttribute("deleteForbidden");
+	var numInst = responseArray['class'].numInst;
+	var hasSubClasses =  responseArray['class'].more; // this can be "1" or "0"
+	var explicit = responseArray['class'].explicit;
 	
-	var superTypeList = responseXMLSuperType.getElementsByTagName("SuperType");
+	var superTypeList = responseXMLSuperType.getElementsByTagName("SuperTypes")[0]
+			.getElementsByTagName("collection")[0].getElementsByTagName("uri");
+
 	
 	for (var i=0; i < treeItemList.length; i++) {
 		var treeItemClassName = treeItemList[i].getAttribute("className");
 		for(var j=0; j<superTypeList.length; ++j){
-			var superTypeClassName = superTypeList[j].getAttribute("resource");
+			var superTypeClassName = superTypeList[j].textContent;
 			//look for the superclasses
 			if(treeItemClassName == superTypeClassName){
 				var found = false;
@@ -320,7 +294,7 @@ art_semanticturkey.checkAndRefreshTree = function(className, superClassName){
 				if(parentTreeChildren != null){
 					var treeItemChildList = parentTreeChildren.childNodes;
 					for(var k=0; k<treeItemChildList.length && found == false; ++k){
-						if(treeItemChildList[k].getAttribute("className") == className)
+						if(treeItemChildList[k].getAttribute("className") == classRes.getURI())
 							found = true;
 					}
 				}
@@ -338,15 +312,19 @@ art_semanticturkey.checkAndRefreshTree = function(className, superClassName){
 						var tr = document.createElement("treerow");
 						var tc = document.createElement("treecell");
 						tc.setAttribute("numInst", numInst);
-						tc.setAttribute("deleteForbidden", deleteForbidden);
-						tc.setAttribute("isRootNode", false);
-						if(numInst == 0)
-							tc.setAttribute("label", className);
+						if(explicit == true)
+							tc.setAttribute("deleteForbidden", false);
 						else
-							tc.setAttribute("label", className+"("+numInst+")");
+							tc.setAttribute("deleteForbidden", true);
+						tc.setAttribute("isRootNode", false);
+						tc.setAttribute("show", classRes.getShow());
+						if(numInst == 0)
+							tc.setAttribute("label", classRes.getShow());
+						else
+							tc.setAttribute("label", classRes.getShow()+"("+numInst+")");
 						tr.appendChild(tc);
 						var ti = document.createElement("treeitem");
-						ti.setAttribute("className", className);
+						ti.setAttribute("className", classRes.getURI());
 						if(hasSubClasses == "0")
 							ti.setAttribute("container", false);
 						else{ //hasSubClasses == 1
@@ -362,17 +340,17 @@ art_semanticturkey.checkAndRefreshTree = function(className, superClassName){
 			}
 		}
 		//look for className and see if its superclass are the right one
-		if(treeItemClassName == className){
+		if(treeItemClassName == classRes.getURI()){
 			var treeItemSuperClassOfClass = treeItemList[i].parentNode.parentNode;
 			var SuperClassOfClassName = treeItemSuperClassOfClass.getAttribute("className");
 			var rightSuperClass = false;
 			for(var j=0; j<superTypeList.length; ++j){
-				var superTypeClassName = superTypeList[j].getAttribute("resource");
+				var superTypeClassName = superTypeList[j].textContent;
 				if(superTypeClassName == SuperClassOfClassName)
 					rightSuperClass = true;
 			}
 			if(rightSuperClass == false){
-				art_semanticturkey.checkAndRemove(className, treeItemList[i]);
+				art_semanticturkey.checkAndRemove(classRes.getURI(), treeItemList[i]);
 			}
 		}
 	}

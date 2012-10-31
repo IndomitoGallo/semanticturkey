@@ -66,9 +66,9 @@ art_semanticturkey.removeIndividual = function() {
 	var list = document.getElementById("IndividualsList");
 	var instanceName = list.selectedItem.label;
 	try {
-		var responseXML = art_semanticturkey.STRequests.Delete
+		var responseURI = art_semanticturkey.STRequests.Delete
 				.removeInstance(instanceName);
-		art_semanticturkey.removeInstance_RESPONSE(responseXML);
+		art_semanticturkey.removeInstance_RESPONSE(responseURI);
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);
@@ -77,12 +77,11 @@ art_semanticturkey.removeIndividual = function() {
 /**
  * Remove Individual event handler
  */
-art_semanticturkey.removeInstance_RESPONSE = function(responseElement) {
+art_semanticturkey.removeInstance_RESPONSE = function(responseURI) {
 	var list = document.getElementById("IndividualsList");
 	var parentClassName = list.getElementsByTagName('listheader')[0]
 			.getAttribute("parentCls");
-	var resourceElement = responseElement.getElementsByTagName('Resource')[0];
-	var removedIndividualName = resourceElement.getAttribute("name");
+	var removedIndividualName = responseURI.getShow();
 
 	var listItems = list.getElementsByTagName("listitem");
 	for ( var i = 0; i < listItems.length; i++) {

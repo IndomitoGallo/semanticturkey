@@ -36,6 +36,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -48,6 +49,8 @@ import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -547,6 +550,8 @@ public class Property extends Resource {
 		property = ontModel.createURIResource(propertyURI);
 
 		try {
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
 			switch (method) {
 
 			// editProperty(propertyQName, request, addProperty, propertyType, superPropertyQName);
@@ -570,28 +575,51 @@ public class Property extends Resource {
 					superProperty = ontModel.createURIResource(ontModel.expandQName(superPropertyQName));
 
 				// erm....
-				if (propertyType.equals("rdf:Property"))
+				RDFResourceRolesEnum role;
+				if (propertyType.equals("rdf:Property")){
 					ontModel.addProperty(propertyURI, superProperty);
-				else if (propertyType.equals("owl:ObjectProperty"))
+					role = RDFResourceRolesEnum.property;
+				}
+				else if (propertyType.equals("owl:ObjectProperty")){
 					ontModel.addObjectProperty(propertyURI, superProperty);
-				else if (propertyType.equals("owl:DatatypeProperty"))
+					role = RDFResourceRolesEnum.objectProperty;
+				}
+				else if (propertyType.equals("owl:DatatypeProperty")){
 					ontModel.addDatatypeProperty(propertyURI, superProperty);
-				else if (propertyType.equals("owl:AnnotationProperty"))
+					role = RDFResourceRolesEnum.datatypeProperty;
+				}
+				else if (propertyType.equals("owl:AnnotationProperty")){
 					ontModel.addAnnotationProperty(propertyURI, superProperty);
-				else if (propertyType.equals("owl:OntologyProperty"))
+					role = RDFResourceRolesEnum.annotationProperty;
+				}
+				else if (propertyType.equals("owl:OntologyProperty")){
 					ontModel.addOntologyProperty(propertyURI, superProperty);
+					role = RDFResourceRolesEnum.ontologyProperty;
+				}
 				else
 					return servletUtilities.createExceptionResponse(request, propertyType
 							+ " is not a recognized property type!");
-			}
+				
 				Element dataElement = response.getDataElement();
-				Element propertyElement = XMLHelp.newElement(dataElement, "property");
-				propertyElement.setAttribute("name", propertyQName);
-				propertyElement.setAttribute("type", parameters[0]); // parameters[0] = propertyType
-				Element superPropertyElement = XMLHelp.newElement(dataElement, "superProperty");
-				superPropertyElement.setAttribute("name", parameters[1]); // parameters[1] =
-				// superPropertyQName
+				Element propertyElement = XMLHelp.newElement(dataElement, "Property");
+				STRDFResource stProperty = STRDFNodeFactory.createSTRDFResource(ontModel, property,
+						role, servletUtilities.checkWritable(ontModel, property, wgraph),
+						false);
+				setRendering(ontModel, stProperty, graphs);
+				RDFXMLHelp.addRDFNode(propertyElement, stProperty);
+				
+				if (superPropertyQName != null){
+					Element superPropertyElement = XMLHelp.newElement(dataElement, "SuperProperty");
+					STRDFResource stSuperProperty = STRDFNodeFactory.createSTRDFResource(ontModel, superProperty,
+							role, servletUtilities.checkWritable(ontModel, property, wgraph),
+							false);
+					setRendering(ontModel, stSuperProperty, graphs);
+					RDFXMLHelp.addRDFNode(superPropertyElement, stSuperProperty);
+				}
+				
 				break;
+			}
+				
 
 			// editProperty(propertyQName, request, addSuperProperty, superPropertyQName);
 			case addSuperProperty: {
@@ -644,9 +672,11 @@ public class Property extends Resource {
 			}
 
 		} catch (ModelUpdateException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
 		} catch (ModelAccessException e) {
-			return servletUtilities.createExceptionResponse(request, e);
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
 		}
 
 		// ResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
@@ -1028,6 +1058,14 @@ public class Property extends Resource {
 
 		public void close() throws ModelAccessException {
 		}
+	}
+	
+	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
+			throws ModelAccessException {
+
+		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
+
+		individual.setRendering(rendering);
 	}
 
 }

@@ -30,20 +30,36 @@ tree.PropertyTree {
 treechildren::-moz-tree-image(Property) { 
 	list-style-image: url("chrome://semantic-turkey/skin/images/prop.png"); 
 	} 
+treechildren::-moz-tree-image(property) { 
+	list-style-image: url("chrome://semantic-turkey/skin/images/prop.png"); 
+	} 
 
 treechildren::-moz-tree-image(ObjectProperty) { 
 	list-style-image: url("chrome://semantic-turkey/skin/images/propObject.png"); 
 	}	
+treechildren::-moz-tree-image(objectProperty) { 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propObject.png"); 
+	}	
 	
+
 treechildren::-moz-tree-image(DatatypeProperty) { 
 	list-style-image: url("chrome://semantic-turkey/skin/images/propDatatype.png"); 
 	} 
-
+treechildren::-moz-tree-image(datatypeProperty) { 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propDatatype.png"); 
+	} 
+	
 treechildren::-moz-tree-image(AnnotationProperty) { 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propAnnotation.png"); 
+	}
+treechildren::-moz-tree-image(annotationProperty) { 
 	list-style-image: url("chrome://semantic-turkey/skin/images/propAnnotation.png"); 
 	}
 
 treechildren::-moz-tree-image(OntologyProperty) { 
+	list-style-image: url("chrome://semantic-turkey/skin/images/propOntology.png"); 
+	} 
+treechildren::-moz-tree-image(ontologyProperty) { 
 	list-style-image: url("chrome://semantic-turkey/skin/images/propOntology.png"); 
 	} 
 

@@ -20,7 +20,11 @@ function createAndAnnotate(clsQName, instanceQName, urlPage, title) {
 	var instanceQName = "instanceQName=" + instanceQName;
 	var urlPage = "urlPage=" + urlPage;
 	var title = "title=" + title;
-	return HttpMgr.GET(serviceName, service.createAndAnnotateRequest, clsQName, instanceQName, urlPage, title);
+	var reply = HttpMgr.GET(serviceName, service.createAndAnnotateRequest, clsQName, instanceQName, urlPage, title);
+	var resArray = new Array();
+	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
+	resArray["instance"] = Deserializer.getURI(reply.getElementsByTagName("Instance")[0]);
+	return resArray;
 }
 
 

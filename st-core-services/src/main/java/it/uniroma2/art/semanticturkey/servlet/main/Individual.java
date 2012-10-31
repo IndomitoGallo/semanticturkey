@@ -25,17 +25,25 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.model.ARTLiteral;
+import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
+import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -145,18 +153,32 @@ public class Individual extends Resource {
 		ARTURIResource individual;
 		try {
 			ARTResource[] graphs = getUserNamedGraphs();
+			ARTResource wgraph = getWorkingGraph();
 			individual = retrieveExistingURIResource(ontModel, indQName, graphs);
 
 			ARTResourceIterator directTypesIterator = ((DirectReasoning) ontModel).listDirectTypes(
 					individual, graphs);
 
+			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
+			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, individual, RDFResourceRolesEnum.individual, 
+					servletUtilities.checkWritable(ontModel, individual, wgraph),
+					false);
+			setRendering(ontModel, stIndividual, graphs);
+			RDFXMLHelp.addRDFNode(instanceElement, stIndividual);
+			
+			Element typesElement = XMLHelp.newElement(dataElement, "Types");
+			Collection<STRDFResource> types = STRDFNodeFactory.createEmptyResourceCollection();
 			while (directTypesIterator.streamOpen()) {
 				ARTResource type = directTypesIterator.getNext();
 				if (type.isURIResource()) {
-					Element typeElement = XMLHelp.newElement(dataElement, "Type");
-					typeElement.setAttribute("qname", ontModel.getQName(type.asURIResource().getURI()));
+					STRDFResource stType = STRDFNodeFactory.createSTRDFResource(ontModel, type, RDFResourceRolesEnum.cls, 
+							servletUtilities.checkWritable(ontModel, type, wgraph),
+							false);
+					setRendering(ontModel, stType, graphs);
+					types.add(stType);
 				}
 			}
+			RDFXMLHelp.addRDFNodes(typesElement, types);
 
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -191,6 +213,26 @@ public class Individual extends Resource {
 
 			model.addType(individual, typeCls, getWorkingGraph());
 
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			
+			Element typeElement = XMLHelp.newElement(dataElement, "Type");
+			ARTResource wgraph = getWorkingGraph();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(model, typeCls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(model, typeCls, wgraph),
+					false);
+			setRendering(model, stClass, graphs);
+			RDFXMLHelp.addRDFNode(typeElement, stClass);
+			
+			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
+			ARTURIResource instanceRes = model.createURIResource(model.expandQName(indQName));
+			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(model, instanceRes,
+					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(model, instanceRes, wgraph),
+					false);
+			setRendering(model, stInstance, graphs);
+			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
+			
+			return response;
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
@@ -198,12 +240,6 @@ public class Individual extends Resource {
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
-
-		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
-		Element typeElement = XMLHelp.newElement(dataElement, "Type");
-		typeElement.setAttribute("qname", typeQName);
-		return response;
 	}
 
 	// STARRED ti serve pure il nome della istanza?
@@ -236,6 +272,28 @@ public class Individual extends Resource {
 			if (types.size() == 1)
 				keepCareOfOrphaneResource(model, individual, graphs);
 
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			
+			Element typeElement = XMLHelp.newElement(dataElement, "Type");
+			ARTResource wgraph = getWorkingGraph();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(model, typeCls,
+					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(model, typeCls, wgraph),
+					false);
+			setRendering(model, stClass, graphs);
+			decorateWithNumberOfIstances(model, stClass);
+			RDFXMLHelp.addRDFNode(typeElement, stClass);
+			
+			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
+			ARTURIResource instanceRes = model.createURIResource(model.expandQName(indQName));
+			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(model, instanceRes,
+					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(model, instanceRes, wgraph),
+					false);
+			setRendering(model, stInstance, graphs);
+			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
+			
+			return response;
+			
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (ModelUpdateException e) {
@@ -244,11 +302,7 @@ public class Individual extends Resource {
 			return logAndSendException(e);
 		}
 
-		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-		Element dataElement = response.getDataElement();
-		Element typeElement = XMLHelp.newElement(dataElement, "Type");
-		typeElement.setAttribute("qname", typeQName);
-		return response;
+		
 	}
 
 	private void keepCareOfOrphaneResource(OWLModel model, ARTResource individual, ARTResource[] graphs)
@@ -257,5 +311,20 @@ public class Individual extends Resource {
 		if (!it.streamOpen())
 			model.addType(individual, OWL.Res.THING, getWorkingGraph());
 	}
+	
+	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
+			throws ModelAccessException {
 
+		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
+
+		individual.setRendering(rendering);
+	}
+
+	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
+			throws ModelAccessException, NonExistingRDFResourceException {
+		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
+				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
+		subClass.setInfo("numInst", Integer.toString(numInst));
+	}
+	
 }

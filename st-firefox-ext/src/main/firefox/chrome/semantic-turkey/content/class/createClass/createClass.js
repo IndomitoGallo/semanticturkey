@@ -39,10 +39,10 @@ art_semanticturkey.onAccept = function() {
 	var type = window.arguments[0].type;
 	var parentWindow = window.arguments[0].parentWindow;
 	var newClassName = document.getElementById("name").value;
-	var responseXML;
+	var responseArray;
 	try{
 		if (type == "rootClass") {
-			responseXML =parentWindow.art_semanticturkey.STRequests.Cls
+			responseArray =parentWindow.art_semanticturkey.STRequests.Cls
 					.addClass(newClassName);
 		} else {
 			var parentTreecell = window.arguments[0].parentTreecell;
@@ -51,10 +51,10 @@ art_semanticturkey.onAccept = function() {
 			if (numInst > 0) {
 				parentName = parentName.substring(0, parentName.lastIndexOf('('));
 			}
-			responseXML = parentWindow.art_semanticturkey.STRequests.Cls.addSubClass(
+			responseArray = parentWindow.art_semanticturkey.STRequests.Cls.addSubClass(
 					newClassName, parentName);
 		}
-		parentWindow.art_semanticturkey.addClass_RESPONSE(responseXML);
+		parentWindow.art_semanticturkey.addClass_RESPONSE(responseArray);
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);

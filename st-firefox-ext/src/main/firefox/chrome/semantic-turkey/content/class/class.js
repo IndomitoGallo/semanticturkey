@@ -70,8 +70,8 @@ art_semanticturkey.populateClassTree = function() {
 	//document.getElementById("graph").disabled = false;
 	try{
 		
-		var responseXML=art_semanticturkey.STRequests.Cls.getClassesInfoAsRootsForTree(true, "http://www.w3.org/2002/07/owl#Thing");
-		art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE(responseXML);
+		var responseCollection=art_semanticturkey.STRequests.Cls.getClassesInfoAsRootsForTree(true, "http://www.w3.org/2002/07/owl#Thing");
+		art_semanticturkey.getClassesInfoAsRootsForTree_RESPONSE(responseCollection);
 	}catch (e) {
 		alert(e.name + ": " + e.message);
 	}
