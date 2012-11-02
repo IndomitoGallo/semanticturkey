@@ -1,0 +1,193 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>${st.version}</version>
+	</parent>
+
+	<artifactId>st-core-services</artifactId>		
+	<name>Semantic Turkey CORE Services</name>
+	<description>The set of core services bundled with the default Semantic Turkey XPI</description>
+	<packaging>war</packaging>
+
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+		</developer>
+		<developer>
+			<id>turbati</id>
+			<name>Andrea Turbati</name>
+			<email>turbati@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/turbati</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+		</developer>
+	</developers>
+
+
+
+	<properties>
+		<spring.version>3.1.2.RELEASE</spring.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-core-framework</artifactId>
+			<version>${st.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-codegen-annotations</artifactId>
+			<version>${st.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-codegen-processor</artifactId>
+			<version>${st.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<verbose>true</verbose>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<!-- Make a skinny WAR -->
+					<packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
+					<archive>
+						<manifestFile>${basedir}/target/bnd/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.5</version>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<supportedProjectTypes>
+						<supportedProjectType>war</supportedProjectType>
+					</supportedProjectTypes>
+					<manifestLocation>target/bnd</manifestLocation>
+					<instructions>
+						<Webapp-Context>semantic_turkey</Webapp-Context>
+						<Web-ContextPath>semantic_turkey</Web-ContextPath>
+						<Export-Package>!*</Export-Package>
+						<Import-Package>
+							it.uniroma2.art.semanticturkey,
+							it.uniroma2.art.semanticturkey.exceptions,
+							it.uniroma2.art.semanticturkey.filter,
+							it.uniroma2.art.semanticturkey.ontology,
+							it.uniroma2.art.semanticturkey.ontology.utilities,
+							it.uniroma2.art.semanticturkey.plugin,
+							it.uniroma2.art.semanticturkey.plugin.extpts,
+							it.uniroma2.art.semanticturkey.project,
+							it.uniroma2.art.semanticturkey.resources,
+							it.uniroma2.art.semanticturkey.servlet,
+							it.uniroma2.art.semanticturkey.utilities,
+							it.uniroma2.art.semanticturkey.vocabulary,
+							org.springframework.web.servlet.view,
+							org.springframework.web.servlet,
+							org.springframework.context.*,
+							org.springframework.context.support,
+							org.springframework.context.config,
+							org.springframework.core,
+							org.springframework.web.context,
+							org.springframework.osgi.web.context.support,
+							org.springframework.stereotype,
+							org.springframework.ui,
+							org.springframework.web.bind.annotation,
+							org.springframework.web.servlet.mvc.annotation,
+							org.osgi.framework,
+							org.aopalliance.aop,
+							javax.persistence,
+							javax.validation,
+							net.sf.cglib.proxy,
+							net.sf.cglib.core,
+							net.sf.cglib.reflect,
+							org.springframework.validation.beanvalidation,
+							org.springframework.validation.annotation,
+							org.jsoup,
+							org.springframework.aop.framework,
+							org.springframework.aop,
+							javax.validation.bootstrap,
+							javax.validation.constraints,
+							javax.validation.spi,
+							org.hibernate.validator,
+							org.springframework.validation,
+							javax.inject,
+							org.springframework.beans.factory.config,
+							org.springframework.context.annotation,
+							javax.servlet.http,
+							*;resolution:=optional
+						</Import-Package>
+						<Bundle-ClassPath>
+							WEB-INF/classes,.
+						</Bundle-ClassPath>
+					</instructions>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<copy todir="../${dist.dir}/extensions/service">
+									<fileset dir="${project.build.directory}" includes="*.war" />
+								</copy>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<finalName>${project.groupId}.${project.artifactId}</finalName>
+	</build>
+	
+</project>

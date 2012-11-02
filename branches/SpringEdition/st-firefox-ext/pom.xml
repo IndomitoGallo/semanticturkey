@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>${st.version}</version>
+	</parent>
+
+	<artifactId>st-firefox-ext</artifactId>
+	<name>Semantic Turkey Firefox Extension</name>
+	<description>The javascript and XUL resources used to build the true firefox extension bunlded in the Semantic Turkey XPI</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>../${dist.dir}</outputDirectory>
+							<includeEmptyDirs>true</includeEmptyDirs>
+							<resources>
+								<resource>
+									<directory>src/main/firefox</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>chrome.manifest</include>
+										<include>install.rdf</include>
+										<include>components/data/sturkey.properties</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>src/main/firefox</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>chrome.manifest</exclude>
+										<exclude>install.rdf</exclude>
+										<exclude>components/data/sturkey.properties</exclude>
+										<exclude>**/*.idl</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<ant antfile="st-build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

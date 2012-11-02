@@ -1,0 +1,158 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>${st.version}</version>
+	</parent>
+
+	<artifactId>st-sesame2-ontmanager</artifactId>
+	<packaging>bundle</packaging>
+	<name>ST EXT-R Sesame2ImplExtension</name>
+	<description>The OSGi bundle for Sesame2 implementation of Semantic Turkey Ontology Manager</description>
+
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.5</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<bundleName>${project.name}</bundleName>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<bundleDescription>${project.description}</bundleDescription>
+
+						<Bundle-Activator>it.uniroma2.art.semanticturkey.ontology.sesame2.Sesame2ImplBundle</Bundle-Activator>
+
+						<!-- <Private-Package>it.uniroma2.art.semanticturkey.ontology.sesame2, 
+							org.openrdf.*, info.aduna.*</Private-Package> <_exportcontents>it.uniroma2.art.semanticturkey.ontology.sesame2, 
+							org.openrdf.*, info.aduna.*</_exportcontents> <Import-Package>!org.springframework.*,!org.apache.commons.httpclient.*,!org.apache.commons.cli,!javax.imageio.*,!javax.swing.*,!org.apache.commons.dbcp,org.osgi.framework,!javax.*,org.w3c.dom,org.xml.sax,org.xml.sax.helpers,it.uniroma2.art.owlart.*,it.uniroma2.art.semanticturkey.*,org.apache.commons.logging,javax.activation,javax.servlet,javax.servlet.http,javax.sql,javax.xml.datatype,javax.xml.namespace,javax.xml.parsers,javax.xml.validation</Import-Package> 
+							to import: -->
+						<Import-Package>!com.hp.*,
+							!com.hp.jena.*,
+							!au.com.bytecode.opencsv,
+							!org.apache.avalon.framework.*,
+							!ch.qos.logback.*,
+							!org.apache.commons.cli,
+							!org.apache.commons.dbcp,
+							!org.apache.xerces.util,
+							!org.apache.log.*,
+							!info.aduna.app.*,
+							!info.aduna.webapp.views.*,
+							!org.springframework.*,
+							!javax.activation,
+							!javax.naming,
+							!javax.servlet,
+							!javax.servlet.http,
+							!javax.sql,
+							!javax.swing,
+							!javax.xml.namespace,
+							!javax.xml.validation,
+							!org.springframework.web.servlet.mvc,
+							!javax.crypto,
+							!javax.crypto.*,
+							!javax.imageio,
+							!javax.net,
+							!javax.net.*,
+							!javax.xml.xpath,
+							!org.w3c.dom,
+							!sun.reflect.generics.reflectiveObjects;
+							*</Import-Package>
+						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Bundle-ClassPath>{maven-dependencies},.</Bundle-ClassPath>
+						<Embed-Directory>lib</Embed-Directory>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<copy todir="../${dist.dir}/extensions/ontmanager">
+									<fileset dir="${project.build.directory}" includes="*.jar" />
+								</copy>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<finalName>${project.groupId}.${project.artifactId}</finalName>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.collections</groupId>
+			<artifactId>google-collections</artifactId>
+			<version>1.0-rc1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart</groupId>
+			<artifactId>owlart-api</artifactId>
+			<version>2.0.4-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-core-framework</artifactId>
+			<version>${st.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart</groupId>
+			<artifactId>owlart-sesame2impl</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>

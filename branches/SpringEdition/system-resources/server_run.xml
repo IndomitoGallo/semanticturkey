@@ -1,0 +1,26 @@
+<project name="SemanticTurkeyServerStart" basedir="." default="run">
+    
+    <property name="lib.dir"		value="components/lib"/>
+    <property name="main-class"		value="it.uniroma2.art.semanticturkey.pluginmanager.PluginManager"/>
+    <property name="semturkeyjar"	value="st-core-pluginmanager.jar"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+	
+	
+    <target name="run">
+    	<echo>"basedir: " ${basedir}</echo>
+    	<echo>"user.dir: " ${user.dir}</echo>
+        <java fork="true" classname="${main-class}">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${lib.dir}/${semturkeyjar}.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    
+
+</project>

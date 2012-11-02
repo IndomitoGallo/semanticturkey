@@ -1,0 +1,131 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>${st.version}</version>
+	</parent>
+
+	<artifactId>st-core-framework</artifactId>
+	<name>Semantic Turkey CORE Framework</name>
+	<description>Semantic Turkey main project. It contains the core business logic of the system.</description>
+	<packaging>bundle</packaging>
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+		</developer>
+	</developers>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.5</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>
+
+							javax.persistence,
+							javax.validation,
+							org.w3c.dom.bootstrap,
+							org.jsoup,
+							javax.validation.bootstrap,
+							javax.validation.constraints,
+							javax.validation.spi,
+							org.hibernate.validator,
+							javax.inject,
+							javax.servlet.http,
+							*;resolution:=optional
+						</Import-Package>
+
+						<Export-Package>{local-packages}</Export-Package>
+
+						<Bundle-Activator>it.uniroma2.art.semanticturkey.SemanticTurkey</Bundle-Activator>
+						<!-- <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency> <Embed-Directory>lib</Embed-Directory> -->
+					</instructions>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<!-- 1.3 (version not specified) does not work -->
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+								<target>
+									<copy todir="../${dist.dir}/extensions/core">
+										<fileset dir="${project.build.directory}" includes="*.jar" />
+									</copy>
+								</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>jetty</groupId>
+			<artifactId>jetty</artifactId>
+			<version>5.1.10</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.wcohen.ss.art.uniroma2.it</groupId>
+			<artifactId>secondstring</artifactId>
+			<version>2006.06.15</version>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart</groupId>
+			<artifactId>owlart-api</artifactId>
+			<version>2.0.4-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.1</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.shell</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.shell.tui</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.bundlerepository</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.framework</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+	</dependencies>
+</project>

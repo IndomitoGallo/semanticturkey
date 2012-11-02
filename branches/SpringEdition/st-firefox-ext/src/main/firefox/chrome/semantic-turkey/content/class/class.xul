@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="class.css" type="text/css"?>
+<!--  /*
+	  * The contents of this file are subject to the Mozilla Public License
+	  * Version 1.1 (the "License");  you may not use this file except in compliance
+	  * with the License.  You may obtain a copy of the License at
+	  * http://www.mozilla.org/MPL/
+	  *
+	  * Software distributed under the License is distributed on an "AS IS" basis,
+	  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+	  * the specific language governing rights and limitations under the License.
+	  *
+	  * The Original Code is SemanticTurkey.
+	  *
+	  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+	  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+	  * All Rights Reserved.
+	  *
+	  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+	  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+	  * Current information about SemanticTurkey can be obtained at 
+	  * http://semanticturkey.uniroma2.it
+	  *
+	  */ -->
+
+<window title="Semantic Turkey"
+	id="captree-main-window"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	flex="1"
+	orient="vertical">
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
+	<!--<script src="chrome://global/content/nsDragAndDrop.js"/>
+		<script src="chrome://global/content/nsTransferable.js"/>--> 
+
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/class.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEventsGUI.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/classEventsFired.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/individualEvents.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/class/dragDrop.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/ontologySearch/ontologySearch.js"/>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+	<!-- <script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/highlighting.js"/> -->
+	<script src="chrome://global/content/nsDragAndDrop.js"/>
+	<script src="chrome://global/content/nsTransferable.js"/>
+	
+	<toolbox flex="0">
+		<toolbar id="findfiles-toolbar">
+			<toolbarbutton id="createRootClass" image="chrome://semantic-turkey/skin/images/class_create.png" tooltiptext="Create Class"/>
+			<toolbarbutton id="createSubClass"  image="chrome://semantic-turkey/skin/images/class_addSubClass.png"  tooltiptext="Create SubClass"></toolbarbutton>
+			<toolbarbutton  id="createSiblingClass"  image="chrome://semantic-turkey/skin/images/class_addSibling.png"  tooltiptext="Create Sibling Class"></toolbarbutton>
+			<toolbarbutton  id="removeClass"  image="chrome://semantic-turkey/skin/images/class_delete.png"  tooltiptext="Delete Class"></toolbarbutton>
+			<!--<toolbarbutton  id="graph"  image="chrome://semantic-turkey/skin/images/ontology20.png" tooltiptext="Semantic Navigation"></toolbarbutton>-->
+		</toolbar>
+	</toolbox>
+		
+	<popupset>
+		<menupopup id="clipmenu"  align="start">
+			<menuitem id="menuItemCreateIndividual" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="chrome://semantic-turkey/skin/images/individual_add.png" flex="0"/>
+					<label value="Create Instance" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<!--<menuitem id="menuItemGraph" flex="1">
+					<menuitem-iconic flex="1">
+						<image src="chrome://semantic-turkey/skin/images/ontology20.png" flex="0"/>
+						<label value="SemanticNavigation" flex="0"/> 						
+					</menuitem-iconic>
+				</menuitem> -->
+			<menuitem id="menuItemSubClass" flex="1">
+				<menuitem-iconic flex="1">
+					<image src="chrome://semantic-turkey/skin/images/class_addSubClass.png" flex="0"/>
+					<label value="Add SubClass" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemRemoveClass"  flex="1">
+				<menuitem-iconic id="removeItemIc" flex="1">
+					<image src="chrome://semantic-turkey/skin/images/class_delete.png" flex="0"/>
+					<label value="Delete" flex="0"/> 						
+				</menuitem-iconic>	
+			</menuitem>
+			<menuitem  id="menuItemRenameClass"  flex="1">
+				<menuitem-iconic>
+					<image src="chrome://semantic-turkey/skin/images/empty20x20.png" flex="0"/> 
+					<label value="Rename"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem   id="menuItemAddSynonym"  flex="1">
+				<menuitem-iconic flex="1">
+					<image src="chrome://semantic-turkey/skin/images/empty20x20.png" flex="0"/> 
+					<label value="Add Synonym" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemCreateSiblingClass" flex="1">
+				<menuitem-iconic >
+					<image src="chrome://semantic-turkey/skin/images/class_addSibling.png" flex="0"/>
+					<label value="Create Sibling Class" flex="0"/> 						
+				</menuitem-iconic>
+			</menuitem>
+		</menupopup>
+	</popupset>
+			
+	<!-- To fix the problem with the event management in the sidebar the observer art_semanticturkey.boardObserver
+	was added to the two attribute of the tree elements: ondragover and ondragdrop-->
+	<tree hidecolumnpicker="true" id="classesTree" context="clipmenu" seltype="single" flex="2"
+			ondragover="nsDragAndDrop.dragOver(event, art_semanticturkey.boardObserver)" 
+			ondragdrop="nsDragAndDrop.drop(event, art_semanticturkey.boardObserver)"	>
+		<treecols>
+			<treecol id="category"  label= "Classes" primary="true" flex="1" />
+		</treecols>
+		<treechildren id="rootClassTreeChildren" flex="1"/>
+	</tree>
+			
+	<!-- NScarpato 17/11/2006 Panel for instance view -->
+	<splitter state="open" collapse="after"
+		resizebefore="closest"
+		resizeafter="closest">
+		<grippy />
+	</splitter>
+	<!--	 <hbox flex="1">
+		<vbox flex="1">-->
+	
+	<!-- To fix the problem with the event management in the sidebar the observer art_semanticturkey.boardObserver
+	was added to the two attribute of the listbox elements: ondragover and ondragdrop-->	
+	<listbox id="IndividualsList"
+			context="clipmenulist"
+			flex="1"
+			ondragover="nsDragAndDrop.dragOver(event, art_semanticturkey.boardObserver)" 
+			ondragdrop="nsDragAndDrop.drop(event, art_semanticturkey.boardObserver)"	>		
+		<listhead>
+			<listheader>
+				<listitem-iconic>
+					<!-- <image src= "chrome://semantic-turkey/skin/images/individual.png"/> -->
+					<label value="Instances"/>
+				</listitem-iconic>
+			</listheader>		
+		</listhead>						
+	</listbox>
+	
+	<popupset>
+		<menupopup id="clipmenulist">
+			<menuitem id="menuItemWebLinks">
+				<menuitem-iconic>
+					<image src="chrome://semantic-turkey/skin/images/world20.png" />
+					<label value="WebLinks" /> 						
+				</menuitem-iconic>
+			</menuitem>
+			<menuitem id="menuItemRenameIndividual" >
+				<menuitem-iconic>
+					<image src=""/>
+					<label value="Rename"/> 						
+				</menuitem-iconic>		 
+			</menuitem>
+			<menuitem id="menuItemRemoveIndividual">
+				<menuitem-iconic >
+					<image src="chrome://semantic-turkey/skin/images/individual_delete.png"/>
+					<label value="Delete"/> 						
+				</menuitem-iconic>	
+			</menuitem>
+		</menupopup>
+	</popupset>
+	
+	<!-- It isn't useful (Manuel Fiorelli 20/03/2010	
+		<splitter orient ="vertical" state="open" collapse="after"
+				  resizeafter="closest"
+				  resizebefore="closest">
+		</splitter>
+		-->
+	<textbox value="Enter query..." id="ontosearch"
+		onfocus="this.style.color='blue'; this.value='';"
+		onblur="this.style.color='black'; this.value='Search element...';" flex="0" />
+</window>
+

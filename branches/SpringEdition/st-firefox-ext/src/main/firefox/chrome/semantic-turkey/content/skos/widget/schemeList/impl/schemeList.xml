@@ -1,0 +1,250 @@
+<?xml version="1.0"?>  
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">  
+	<binding id="schemeList" extends="chrome://semantic-turkey/content/widget/taxonomyTree/impl/taxonomyTree.xml#taxonomyTree">
+		<resources>
+			<stylesheet src="schemeList.css" />
+		</resources>
+		<handlers>
+			<handler event="it.uniroma2.art.semanticturkey.event.widget.tree.dblclick">
+			<![CDATA[
+			if (event.detail.rowIndex == -1) return;
+			
+			if (event.detail.col.element.getAttribute("type") == "checkbox") return;
+			
+			if (!this.mutable) return;
+			
+			var parameters = {
+				sourceElement : null,		// elemento contenente i dati della riga corrente
+				sourceType : "conceptScheme",		// tipo di editor: clss, ..., determina le funzioni custom ed il titolo della finestra
+				sourceElementName : this.selectedScheme,	// nome dell'elemento corrente (quello usato per identificazione: attualmente il qname)
+				sourceParentElementName : "", // nome dell'elemento genitore
+				isFirstEditor : true,		 // l'editor è stato aperto direttamente dall class/... tree o da un altro editor?
+				deleteForbidden : false, 	 // cancellazione vietata 
+				parentWindow : window		 // finestra da cui viene aperto l'editor
+			};
+			window.openDialog(
+					"chrome://semantic-turkey/content/editors/editorPanel.xul",
+					"_blank",
+					"chrome,dependent,dialog,modal=yes,resizable,centerscreen",
+					parameters);
+			]]>
+			</handler>
+		</handlers>
+		<implementation>
+			<constructor>
+			<![CDATA[
+				var bound = this;
+				
+				if (typeof this.art_semanticturkey == "undefined") { 
+					this.art_semanticturkey = {};
+				}
+
+				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Logger.jsm");
+				Components.utils.import("resource://stmodules/PrefUtils.jsm", this.art_semanticturkey);
+				Components.utils.import("resource://stmodules/Preferences.jsm", this.art_semanticturkey);	
+				Components.utils.import("resource://stmodules/ARTResources.jsm", this.art_semanticturkey);
+				
+				//var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+				//                                      .getService(Components.interfaces.mozIJSSubScriptLoader);
+				                                      
+				//mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/utilities/deserializer.js?timestamp="+((new Date()).getTime()), this);			
+				
+				var bound = this;
+				
+				function DataRow(record) {
+					this.__defineGetter__("id", function(){return this.record.name;});
+					this.__defineSetter__("id", function(v){this.record.name = v;});
+					this.record = record;
+					
+					this.isContainer = true;
+					this.isContainerEmpty = true;
+					
+					this.level = 0;
+					this.isContainerOpen = false;
+					
+					this.cache = {};
+				}
+								
+				this._view.sourceAdapter.fetchRoots = function() {
+						var deserializedResponse = null;
+						try{
+							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
+						}catch (e) {
+							return [];
+						}
+						
+						var schemes = parseResponse(deserializedResponse);			
+						return schemes;
+				};
+					
+				this._view.sourceAdapter.fetchChildren = function(id){
+					return [];
+				};
+
+				this._view.provider.getLabel = function(row, col) {
+					if (col.id != "name") {
+						return this._view.__proto__.getLabel(row, col);
+					}
+					
+					if (isHumanReadable) {
+						if (row.record["label"].trim() != "") {
+							return row.record["label"];
+						}
+					}								
+					
+					return row.record["name"];
+				};
+
+				this._view.provider.getImageURL = function(row, col) {
+					if (col.id == "name") {
+						return "chrome://semantic-turkey/skin/images/skosScheme.png";
+					} else {
+						return "";
+					}
+				};
+					
+				var parseResponse = function(collectionValues) {
+					var result = [];
+							
+					//var collectionValues = art_semanticturkey.deserializer.getCollection(responseElement);
+					
+					//var dataElement = responseElement.getElementsByTagName('data')[0];
+					//var schemeList = dataElement.getElementsByTagName("Scheme");
+					
+					for (var i = 0; i < collectionValues.length; ++i) {
+						var uriElem = collectionValues[i];
+						
+						//item = new DataRow({
+				        //                    uri : schemeList[i].getAttribute("uri"), 
+					    //                    label : schemeList[i].getAttribute("label"),
+					    //                    name : schemeList[i].getAttribute("name")							
+					    //                   }); 
+						
+						item = new DataRow({
+											uri : uriElem.getURI(),
+											label : uriElem.getShow(),
+                                            name: uriElem.getURI()
+                                             }); 
+						
+						result.push(item);						
+					}
+					
+					
+					return result;
+				};
+
+				if (!this.columns) {
+					this.columns = "name, uri, label";
+					buildHeading();
+				}
+				
+				this.projectType = "^.*SKOS.*$";
+
+				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
+
+				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
+							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+				
+				this.stEventArray.addEventListenerToArrayAndRegister("skosPrefLabelSet", function(eventId, skosPrefLabelSetObj) {
+					if (skosPrefLabelSetObj.getLang() != bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en")) {
+						return;
+					}
+					
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == skosPrefLabelSetObj.getConceptName()) {
+							bound._view.visibleRows2[i].record.label = skosPrefLabelSetObj.getLabel();
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosPrefLabelRemoved", function(eventId, skosPrefLabelRemovedObj) {
+					if (skosPrefLabelRemovedObj.getLang() != bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en")) {
+						return;
+					}
+					
+					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
+						if (bound._view.visibleRows2[i].id == skosPrefLabelRemovedObj.getConceptName()) {
+							bound._view.visibleRows2[i].record.label = "";
+							bound._view.invalidateRow(i);
+						}
+					}
+				}, null);
+				
+				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeRemoved", function(eventId, skosSchemeRemovedObj) {
+					bound._view.removeRows(skosSchemeRemovedObj.getSchemeName());
+				}, null);
+				this.stEventArray.addEventListenerToArrayAndRegister("skosSchemeAdded", function(eventId, skosSchemeAddedObj) {
+					var n = skosSchemeAddedObj.getSchemeName();
+					var l = skosSchemeAddedObj.getLabel();
+					var u = skosSchemeAddedObj.getURI();
+
+					var row = new DataRow({uri : u, name : n, label : l});
+
+					bound._view.addRow(null, row);
+				}, null);
+
+				var ctxMenu = document.getAnonymousElementByAttribute(this, "ano_id", "ctx");
+				var taxonomyToolbar = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyToolbar");
+
+					this.ctxMenuTracker = new this.art_semanticturkey.MenuPopupTrackerAdapter("skos:scheme*edit", this, ctxMenu);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.ctxMenuTracker);
+					
+					this.toolbarTracker = new this.art_semanticturkey.ToolbarTrackerAdapter("skos:scheme*edit", this, taxonomyToolbar, true);
+					this.art_semanticturkey.CommandBroker.registerTracker(this.toolbarTracker);
+				
+				var isHumanReadable	= false;
+				
+				var setHumanReadable = function(flag) {
+					isHumanReadable = flag;
+					
+					bound._view.invalidate();
+				};
+				
+				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.", function(branch, name){
+					if (name == "skos.humanReadable") {
+						var isReadable = branch.getBoolPref(name);
+						
+						setHumanReadable(isReadable);						
+					} else if (name == "annotprops.defaultlang") {
+						bound._view.reload();
+					}
+				});
+				this.prefListener.register(true);
+			]]>
+			</constructor>
+			<destructor>
+				this.stEventArray.deregisterAllListener();
+				
+				if (typeof this.ctxMenuTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.ctxMenuTracker);			
+				}
+
+				if (typeof this.toolbarTracker != "undefined") {
+					this.art_semanticturkey.CommandBroker.unregisterTracker(this.toolbarTracker);				
+				}
+				
+				this.prefListener.unregister();
+			</destructor>
+			<property name="selectedScheme">
+				<getter>
+					var taxonomyTree = document.getAnonymousElementByAttribute(this, "ano_id", "taxonomyTree");
+					
+					if (taxonomyTree.currentIndex == -1) return null;
+					
+					var row = this._view.getRow(taxonomyTree.currentIndex);
+					
+					return row.id;
+				</getter>
+			</property>
+		</implementation>
+	</binding>  
+</bindings>

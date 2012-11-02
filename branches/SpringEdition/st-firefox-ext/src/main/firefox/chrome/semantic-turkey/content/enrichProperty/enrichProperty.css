@@ -1,0 +1,263 @@
+/*
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License");  you may not use this file except in compliance
+  * with the License.  You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+  * the specific language governing rights and limitations under the License.
+  *
+  * The Original Code is SemanticTurkey.
+  *
+  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+  * All Rights Reserved.
+  *
+  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+  * Current information about SemanticTurkey can be obtained at 
+  * http://semanticturkey.uniroma2.it
+  *
+  */ 
+tree {
+  -moz-user-focus: normal !important;
+  -moz-user-select: text;
+}
+treecol::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); }
+
+/* display folder icons in front of the treecell text */
+treechildren::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(instance) { list-style-image: url("chrome://semantic-turkey/skin/images/individual.png"); } 
+
+treechildren::-moz-tree-image { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(base) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c1) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); }
+treechildren::-moz-tree-image(c2) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c3) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c4) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c5) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c6) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c7) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c8) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c9) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c10) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c11) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c12) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c13) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); } 
+treechildren::-moz-tree-image(c14) { list-style-image: url("chrome://semantic-turkey/skin/images/class.png"); }  
+
+treechildren::-moz-tree-image(basetrue) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c1true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); }
+treechildren::-moz-tree-image(c2true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c3true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c4true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c5true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c6true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c7true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c8true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c9true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c10true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c11true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c12true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c13true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); } 
+treechildren::-moz-tree-image(c14true) { list-style-image: url("chrome://semantic-turkey/skin/images/class_imported.png"); }  
+
+
+treechildren::-moz-tree-column {
+	list-style-image: url("chrome://semantic-turkey/skin/images/class.png");
+  	background-color: #ffffff;
+}
+
+
+treechildren::-moz-tree-cell {
+	/* border-bottom: 1px solid #FF0000; 
+  	background-color: #dddddd; */
+}
+
+treechildren::-moz-tree-cell-text {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(base) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+treechildren::-moz-tree-cell-text(basetrue) {
+	color: #000000;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c1true) {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c2true) {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c3true) {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c4true) {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c5true) {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c6true) {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c7true) {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c8true) {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c9true) {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c10true) {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c11true) {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c12true) {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c13true) {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(c14true) {
+	color: purple;  font-size: 11px; font-weight: bold;
+}
+
+
+
+label.base {
+	 font-size: 11px; font-weight: bold;
+}
+
+label.c1 {
+	color: red;  font-size: 11px; font-weight: bold;
+}
+
+label.c2 {
+	color: aqua;  font-size: 11px; font-weight: bold;
+}
+
+label.c3 {
+	color: green;  font-size: 11px; font-weight: bold;
+}
+
+label.c4 {
+	color: yellow;  font-size: 11px; font-weight: bold;
+}
+
+label.c5 {
+	color: blue;  font-size: 11px; font-weight: bold;
+}
+
+label.c6 {
+	color: gray;  font-size: 11px; font-weight: bold;
+}
+
+label.c7 {
+	color: lime;  font-size: 11px; font-weight: bold;
+}
+
+label.c8 {
+	color: olive;  font-size: 11px; font-weight: bold;
+}
+
+label.c9 {
+	color: navy;  font-size: 11px; font-weight: bold;
+}
+
+label.c10 {
+	color: fuchsia;  font-size: 11px; font-weight: bold;
+}
+
+label.c11 {
+	color: maroon;  font-size: 11px; font-weight: bold;
+}
+
+label.c12 {
+	color: teal;  font-size: 11px; font-weight: bold;
+}
+
+label.c13 {
+	color: silver;  font-size: 11px; font-weight: bold;
+}
+
+label.c14 {
+	color: purple;  font-size: 11px; font-weight: bold;
+}

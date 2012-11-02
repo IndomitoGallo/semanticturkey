@@ -1,0 +1,378 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>it.uniroma2.art.semanticturkey</groupId>
+		<artifactId>semanticturkey</artifactId>
+		<version>${st.version}</version>
+	</parent>
+
+	<artifactId>st-core-pluginmanager</artifactId>
+	<name>Semantic Turkey Plugin Manager</name>
+	<description>Semantic Turkey main project. It contains the core business logic of the system.</description>
+
+	<developers>
+		<developer>
+			<id>starred</id>
+			<name>Armando Stellato</name>
+			<email>stellato@info.uniroma2.it</email>
+			<url>http://art.uniroma2.it/stellato</url>
+			<organization>ART Group, University of Rome, Tor Vergata</organization>
+			<organizationUrl>http://art.uniroma2.it</organizationUrl>
+		</developer>
+	</developers>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>copy1</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>../${dist.dir}/container/Start</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.configadmin</artifactId>
+									<version>1.4.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.core</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.aop</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.context.support</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.fileinstall</artifactId>
+									<version>3.2.4</version>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>spring-web</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.springframework.osgi</groupId>
+									<artifactId>spring-osgi-core</artifactId>
+									<version>1.2.0</version>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>net.sourceforge.cglib</groupId>
+									<artifactId>com.springsource.net.sf.cglib</artifactId>
+									<version>2.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>spring-asm</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>spring-expression</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework.osgi</groupId>
+									<artifactId>spring-osgi-io</artifactId>
+									<version>1.2.0</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework.osgi</groupId>
+									<artifactId>spring-osgi-extender</artifactId>
+									<version>1.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.beans</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.context</artifactId>
+									<version>3.1.2.RELEASE</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.aopalliance</groupId>
+									<artifactId>com.springsource.org.aopalliance</artifactId>
+									<version>1.0.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework</groupId>
+									<artifactId>org.springframework.web.servlet</artifactId>
+									<version>3.1.2.RELEASE</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.el</groupId>
+									<artifactId>com.springsource.javax.el</artifactId>
+									<version>1.0.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.servlet</groupId>
+									<artifactId>com.springsource.javax.servlet.jsp</artifactId>
+									<version>2.1.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.servlet</groupId>
+									<artifactId>com.springsource.javax.servlet.jsp.jstl</artifactId>
+									<version>1.1.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.taglibs</groupId>
+									<artifactId>com.springsource.org.apache.taglibs.standard</artifactId>
+									<version>1.1.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javax.servlet</groupId>
+									<artifactId>com.springsource.javax.servlet</artifactId>
+									<version>2.5.0</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.springframework.osgi</groupId>
+									<artifactId>org.springframework.osgi.web</artifactId>
+									<version>1.2.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-jetty-bundle</artifactId>
+									<version>1.1.4</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.web</groupId>
+									<artifactId>pax-web-extender-war</artifactId>
+									<version>1.1.4</version>
+
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>../${dist.dir}/container/Dependency</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<artifactItems>
+
+								<artifactItem>
+									<groupId>org.jsoup</groupId>
+									<artifactId>com.springsource.org.jsoup</artifactId>
+									<version>1.5.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.joda</groupId>
+									<artifactId>com.springsource.org.joda.time</artifactId>
+									<version>1.6.0</version>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.hibernate</groupId>
+									<artifactId>com.springsource.org.hibernate.validator</artifactId>
+									<version>4.2.0.Final</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.logging</groupId>
+									<artifactId>pax-logging-service</artifactId>
+									<version>1.6.9</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.logging</groupId>
+									<artifactId>pax-logging-api</artifactId>
+									<version>1.6.9</version>
+
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.compendium</artifactId>
+									<version>4.2.0</version>
+
+								</artifactItem>
+								<artifactItem>
+									<groupId>log4j</groupId>
+									<artifactId>log4j</artifactId>
+									<version>1.2.17</version>
+
+								</artifactItem>
+
+
+
+
+								<artifactItem>
+									<groupId>javax.validation</groupId>
+									<artifactId>com.springsource.javax.validation</artifactId>
+									<version>1.0.0.GA</version>
+
+
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>javax.inject</groupId>
+									<artifactId>com.springsource.javax.inject</artifactId>
+									<version>1.0.0</version>
+
+
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>javax.persistence</groupId>
+									<artifactId>com.springsource.javax.persistence</artifactId>
+									<version>2.0.0</version>
+
+
+								</artifactItem>
+
+
+
+								<artifactItem>
+									<groupId>org.springframework.osgi</groupId>
+									<artifactId>org.springframework.osgi.extensions.annotation</artifactId>
+									<version>1.2.0</version>
+
+
+								</artifactItem>
+
+
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>../${dist.dir}</outputDirectory>
+							<includeEmptyDirs>true</includeEmptyDirs>
+							<resources>
+								<resource>
+									<directory>src/main/build</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<!-- 1.3 (version not specified) does not work -->
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<!-- See: http://maven.apache.org/plugins/maven-antrun-plugin/examples/classpaths.html -->
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<property name="runtime_classpath" refid="maven.runtime.classpath" />
+								<property name="test_classpath" refid="maven.test.classpath" />
+								<property name="plugin_classpath" refid="maven.plugin.classpath" />
+
+								<ant antfile="st-build.xml" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>jetty</groupId>
+			<artifactId>jetty</artifactId>
+			<version>5.1.10</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.wcohen.ss.art.uniroma2.it</groupId>
+			<artifactId>secondstring</artifactId>
+			<version>2006.06.15</version>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.owlart</groupId>
+			<artifactId>owlart-api</artifactId>
+			<version>2.0.4-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>2.0.1</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.shell</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.shell.tui</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.bundlerepository</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>org.apache.felix.framework</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+	</dependencies>
+
+</project>

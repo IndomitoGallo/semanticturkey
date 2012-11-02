@@ -1,0 +1,73 @@
+package ${packageName};
+
+
+public class ${className}_gen {
+
+    protected static Logger logger = LoggerFactory.getLogger(${className}.class);
+    
+    
+    public Logger getLogger() {
+	  return logger;
+	}
+	
+	
+
+    public static class Req {
+      #foreach($method in $methods)
+      public static final String ${method.simpleName} = "${method.simpleName}";	
+	  #end		
+    }
+    
+    
+    public static class Par {
+      #foreach($method in $methods)
+       #set ($index = 0)
+        #foreach($parameter in $method.Parameters)
+          public static final ${parameter.ClassName} ${parameter} = "${parameter}";
+         #set ($index = $index+1)
+	    #end	
+	  #end	
+    }
+    
+    
+    public static class Par {
+      #foreach($method in $methods)
+       #set ($index = 0)
+        #foreach($parameter in $method.TypeParameters)
+          public static final ${parameter.ClassName} ${parameter} = "${parameter}";
+         #set ($index = $index+1)
+	    #end	
+	  #end	
+    }
+
+    
+    
+    
+
+
+    
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+		logger.debug("${className}");
+
+		Response response = null;
+		
+		if (request == null) return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+			
+	    #foreach($method in $methods)
+			
+		if (request.equals(Req.${method.simpleName})) {
+		    response = ${method.simpleName}(#foreach($parameter in $method.parameters)#end);     
+		    logger.debug("${className}.${method.simpleName}:" + response);
+		 }		    
+		 else		   
+		    
+		#end		 
+		return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+		return response;				
+		}
+			
+							
+			
+
+}
