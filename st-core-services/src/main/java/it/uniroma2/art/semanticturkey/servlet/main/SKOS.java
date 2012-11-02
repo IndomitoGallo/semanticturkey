@@ -39,6 +39,7 @@ import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFLiteral;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
@@ -57,11 +58,17 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+
+
+@Component
 
 public class SKOS extends Resource {
 
@@ -127,8 +134,8 @@ public class SKOS extends Resource {
 		final static public String targetScheme = "targetScheme";
 		final static public String treeView = "treeView";
 	}
-
-	public SKOS(String id) {
+@Autowired
+	public SKOS(@Value("Skos") String id) {
 		super(id);
 	}
 
@@ -137,6 +144,7 @@ public class SKOS extends Resource {
 	}
 
 	@Override
+	
 	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to skos");
 

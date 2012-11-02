@@ -35,6 +35,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -48,8 +49,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+@Component
 
 public class Statement extends ServiceAdapter {
 
@@ -84,7 +89,7 @@ public class Statement extends ServiceAdapter {
 	public final static String literalXMLValue = "lit";
 	public final static String bnodeXMLValue = "bn";
 
-	public Statement(String id) {
+	@Autowired public Statement(@Value("Statement")String id) {
 		super(id);
 	}
 
@@ -93,7 +98,7 @@ public class Statement extends ServiceAdapter {
 	}
 
 	@Override
-	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(Req.getStatementsRequest) || request.equals(Req.hasStatementRequest)) {
 			String subject = setHttpPar(Par.subjectPar);
 			String predicate = setHttpPar(Par.predicatePar);

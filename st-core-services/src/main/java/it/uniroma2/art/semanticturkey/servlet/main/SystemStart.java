@@ -31,6 +31,7 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -47,7 +48,15 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 import org.w3c.dom.Element;
+
+
+
+@Component
 
 public class SystemStart extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(SystemStart.class);
@@ -68,17 +77,18 @@ public class SystemStart extends ServiceAdapter {
 	// response tags
 	public final static String baseuriTag = "baseuri";
 
-	public SystemStart(String id) {
+	@Autowired
+	public SystemStart(@Value("systemStart")String id) {
 		super(id);
 	}
-
 	public Logger getLogger() {
 		return logger;
 	}
 
 	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
 	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
-	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+
+		public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(startRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String ontModelImpl = setHttpPar(ontmanagerPar);

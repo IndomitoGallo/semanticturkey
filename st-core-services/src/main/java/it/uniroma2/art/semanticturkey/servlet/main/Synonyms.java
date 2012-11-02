@@ -35,6 +35,7 @@ import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
@@ -51,6 +52,9 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -59,6 +63,8 @@ import org.w3c.dom.NodeList;
 /**
  * @author Donato Griesi Contributor(s): Andrea Turbati
  */
+@Component
+
 public class Synonyms extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Synonyms.class);
@@ -66,11 +72,14 @@ public class Synonyms extends ServiceAdapter {
 	public static final String getSynonymsRequest = "getSynonyms";
 	public static final String addSynonymRequest = "addSynonym";
 
-	public Synonyms(String id) {
+	@Autowired
+	public Synonyms(@Value("Synonyms") String id) {
 		super(id);
 	}
 
-	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	
+	public Response getPreCheckedResponse(String request)
+			throws HTTPParameterUnspecifiedException {
 
 		fireServletEvent();
 		if (request.equals(getSynonymsRequest))
@@ -78,13 +87,14 @@ public class Synonyms extends ServiceAdapter {
 		else if (request.equals(addSynonymRequest))
 			return addSynonym();
 		else
-			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
+			return ServletUtilities.getService()
+					.createNoSuchHandlerExceptionResponse(request);
 	}
 
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	public Response getSynonyms() {
 
 		String request = getSynonymsRequest;
@@ -93,9 +103,11 @@ public class Synonyms extends ServiceAdapter {
 
 		BufferedReader reader = null;
 		try {
-			reader = ((HttpServiceRequestWrapper) _oReq).getHttpRequest().getReader();
+			reader = ((HttpServiceRequestWrapper) _oReq).getHttpRequest()
+					.getReader();
 		} catch (IOException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(
+					request, e.getMessage());
 		}
 
 		String line = null;
@@ -104,11 +116,13 @@ public class Synonyms extends ServiceAdapter {
 				xml = xml.concat(line);
 			}
 		} catch (IOException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(
+					request, e.getMessage());
 		}
 
 		RDFModel ontModel = ProjectManager.getCurrentProject().getOntModel();
-		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService()
+				.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		String language = null;
 
@@ -126,43 +140,59 @@ public class Synonyms extends ServiceAdapter {
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node node = nodeList.item(i);
 				NamedNodeMap namedNodeMap = node.getAttributes();
-				String value = namedNodeMap.getNamedItem("value").getNodeValue();
+				String value = namedNodeMap.getNamedItem("value")
+						.getNodeValue();
 				ARTURIResource cls;
-				cls = ontModel.createURIResource(ontModel.expandQName(servletUtilities.encodeLabel(value)));
+				cls = ontModel.createURIResource(ontModel
+						.expandQName(servletUtilities.encodeLabel(value)));
 
 				if (cls != null) {
 					Element concept = XMLHelp.newElement(root, "Concept");
 					concept.setAttribute("name", value);
-					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(cls, ontModel
-							.createURIResource(RDFS.LABEL + " " + XmlSchema.LANGUAGE + "=\"" + language
+					ARTNodeIterator it = ontModel.listValuesOfSubjPredPair(
+							cls,
+							ontModel.createURIResource(RDFS.LABEL + " "
+									+ XmlSchema.LANGUAGE + "=\"" + language
 									+ "\""), true);
 					while (it.streamOpen()) {
-						Element synonym = XMLHelp.newElement(concept, "Synonym");
+						Element synonym = XMLHelp
+								.newElement(concept, "Synonym");
 						synonym.setAttribute("name", it.next().toString());
 					}
 					// Collection<ARTResource> explicitInstances =
-					// RDFIterators.getCollectionFromIterator(ontModel.listInstances(cls, false,
+					// RDFIterators.getCollectionFromIterator(ontModel.listInstances(cls,
+					// false,
 					// NodeFilters.MAINGRAPH));
 					Collection<ARTResource> list = RDFIterators
-							.getCollectionFromIterator(((DirectReasoning) ontModel).listDirectSubClasses(cls));
+							.getCollectionFromIterator(((DirectReasoning) ontModel)
+									.listDirectSubClasses(cls));
 					for (ARTResource subCls : list) {
-						if (subCls.isURIResource()) { // TODO waiting for unnamed resources support
-							Element subconcept = XMLHelp.newElement(concept, "SubConcept");
-							subconcept.setAttribute("name", servletUtilities.decodeLabel(subCls
-									.asURIResource().getLocalName()));
-							it = ontModel.listValuesOfSubjPredPair(subCls, ontModel
-									.createURIResource(RDFS.LABEL + " " + XmlSchema.LANGUAGE + "=\""
+						if (subCls.isURIResource()) { // TODO waiting for
+														// unnamed resources
+														// support
+							Element subconcept = XMLHelp.newElement(concept,
+									"SubConcept");
+							subconcept.setAttribute("name", servletUtilities
+									.decodeLabel(subCls.asURIResource()
+											.getLocalName()));
+							it = ontModel.listValuesOfSubjPredPair(
+									subCls,
+									ontModel.createURIResource(RDFS.LABEL + " "
+											+ XmlSchema.LANGUAGE + "=\""
 											+ language + "\""), true);
 							while (it.hasNext()) {
-								Element synonym = XMLHelp.newElement(subconcept, "Synonym");
-								synonym.setAttribute("name", it.next().toString());
+								Element synonym = XMLHelp.newElement(
+										subconcept, "Synonym");
+								synonym.setAttribute("name", it.next()
+										.toString());
 							}
 						}
 					}
 				}
 			}
 		} catch (ModelAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(request, e);
+			return ServletUtilities.getService().createExceptionResponse(
+					request, e);
 		}
 		this.fireServletEvent();
 		return response;
@@ -176,25 +206,29 @@ public class Synonyms extends ServiceAdapter {
 		try {
 			addSynonym(encodedName, synonym, language);
 		} catch (ModelAccessException e) {
-			logger.error("unable to expand qname for class: " + encodedName + "\n" + e.getMessage(), e);
-			return servletUtilities.createExceptionResponse(addSynonymRequest, "problems in adding label: "
-					+ e.getMessage());
+			logger.error("unable to expand qname for class: " + encodedName
+					+ "\n" + e.getMessage(), e);
+			return servletUtilities.createExceptionResponse(addSynonymRequest,
+					"problems in adding label: " + e.getMessage());
 		} catch (ModelUpdateException e) {
 			logger.error("problems in adding label: " + e.getMessage(), e);
-			return servletUtilities.createExceptionResponse(addSynonymRequest, "problems in adding label: "
-					+ e.getMessage());
+			return servletUtilities.createExceptionResponse(addSynonymRequest,
+					"problems in adding label: " + e.getMessage());
 		}
 
-		ResponseREPLY response = ServletUtilities.getService().createReplyResponse(addSynonymRequest,
-				RepliesStatus.ok, "synonym added correctly");
+		ResponseREPLY response = ServletUtilities.getService()
+				.createReplyResponse(addSynonymRequest, RepliesStatus.ok,
+						"synonym added correctly");
 		fireServletEvent();
 		return response;
 	}
 
-	public void addSynonym(String classQName, String synonym, String language) throws ModelAccessException,
-			ModelUpdateException {
-		RDFSModel ontModel = (RDFSModel)ProjectManager.getCurrentProject().getOntModel();
-		ARTResource cls = ontModel.createURIResource(ontModel.expandQName(classQName));
+	public void addSynonym(String classQName, String synonym, String language)
+			throws ModelAccessException, ModelUpdateException {
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject()
+				.getOntModel();
+		ARTResource cls = ontModel.createURIResource(ontModel
+				.expandQName(classQName));
 		ontModel.addLabel(cls, synonym, language);
 	}
 

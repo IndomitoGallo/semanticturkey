@@ -28,10 +28,10 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -42,23 +42,24 @@ import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
-import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
-import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import org.w3c.dom.Element;
 
 /**
  * 
  * 
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class Delete extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Delete.class);
 	private static PropertyChainsTree deletePropertyPropagationTree;
@@ -67,14 +68,15 @@ public class Delete extends ServiceAdapter {
 	public final static String removeInstanceRequest = "removeInstance";
 	public final static String removeClassRequest = "removeClass";
 
-	public Delete(String id) {
+	@Autowired
+	public Delete(@Value("Delete") String id) {
 		super(id);
 	}
 
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	private void initializeDeletePropertyPropagationTree() {
 		deletePropertyPropagationTree = new PropertyChainsTree();
 		deletePropertyPropagationTree.addChainedProperty(SemAnnotVocab.Res.annotation).addChainedProperty(

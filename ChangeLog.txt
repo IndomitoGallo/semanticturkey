@@ -1,3 +1,6 @@
+version 0.9.0 (branched from 0.8.6)
+  * introduced Spring framework!
+
 version 0.8.6-SNAPSHOT
 date: 22-05-2012
   * introduced standard (and homogeneous) serialization of RDF objects

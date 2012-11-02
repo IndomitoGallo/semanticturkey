@@ -26,6 +26,7 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.resources.Config;
@@ -51,11 +52,15 @@ import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class Administration extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Administration.class);
 	static int webUpdate = 0;
@@ -66,15 +71,16 @@ public class Administration extends ServiceAdapter {
 	protected static String deleteOntMirrorEntry = "deleteOntMirrorEntry";
 	protected static String updateOntMirrorEntry = "updateOntMirrorEntry";
 
-	public Administration(String id) {
+	@Autowired
+	public Administration(@Value("Administration") String id) {
 		super(id);
 	}
 
 	public Logger getLogger() {
 		return logger;
 	}
-	
-	public Response getPreCheckedResponse(String request) {
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		fireServletEvent();
 		if (request.equals(setAdminLevel))
 			return setAdminLevel(setHttpPar("adminLevel"));
@@ -165,7 +171,8 @@ public class Administration extends ServiceAdapter {
 				"mirror entry removed");
 	}
 
-	// TODO transform MirroredOntologyFile into an extended class for java.io.File
+	// TODO transform MirroredOntologyFile into an extended class for
+	// java.io.File
 	/**
 	 * updates an entry (and its associated physical file) from the Ontology Mirror
 	 * 
@@ -179,8 +186,7 @@ public class Administration extends ServiceAdapter {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirrorFileName);
 		try {
 			if (updateType == webUpdate) { // use first a temporary file, just in case the download brokes in
-				// the middle, then copies the temporary to the destination in the
-				// mirror
+				// the middle, then copies the temporary to the destination in the mirror
 				OntTempFile tempFile = STOntologyManager.getTempFileEntry();
 				Utilities.download(new URL(location), tempFile.getAbsolutePath());
 				Utilities.copy(tempFile.getAbsolutePath(), mirFile.getAbsolutePath());
@@ -226,9 +232,8 @@ public class Administration extends ServiceAdapter {
 	 * 
 	 * OntologiesMirror.addCachedOntologyEntry(baseURI, new MirroredOntologyFile(newCacheFileLocalName));
 	 * 
-	 * } catch (IOException e) { e.printStackTrace(); return
-	 * ServletUtilities.getService().documentError("problems in updating file name for mirrored ontology file:\n"
-	 * + e.getMessage()); }
+	 * } catch (IOException e) { e.printStackTrace(); return ServletUtilities.getService().documentError(
+	 * "problems in updating file name for mirrored ontology file:\n" + e.getMessage()); }
 	 * 
 	 * Document xml = new DocumentImpl(); Element treeElement = xml.createElement("Tree");
 	 * treeElement.setAttribute("type","AckMsg"); Element ackElem = XMLHelp.newElement(treeElement, "Msg");

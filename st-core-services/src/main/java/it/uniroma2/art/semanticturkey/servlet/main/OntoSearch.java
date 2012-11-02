@@ -34,6 +34,7 @@ import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
@@ -57,6 +58,9 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -64,6 +68,7 @@ import org.w3c.dom.Element;
 /**
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class OntoSearch extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(OntoSearch.class);
 	// public String XSLpath = Profile.getUserDataPath() + "/components/lib/xsl/search.xsl";
@@ -71,7 +76,8 @@ public class OntoSearch extends ServiceAdapter {
 
 	public static String searchOntologyRequest = "searchOntology";
 
-	public OntoSearch(String id) {
+	@Autowired
+	public OntoSearch(@Value("OntoSearch") String id) {
 		super(id);
 	}
 

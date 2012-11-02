@@ -47,6 +47,7 @@ import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
@@ -66,6 +67,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -80,6 +84,7 @@ import com.google.common.collect.Iterators;
  * @author Armando Stellato
  * @author Andrea Turbati
  */
+@Component
 public class Property extends Resource {
 
 	public static class Req {
@@ -136,7 +141,8 @@ public class Property extends Resource {
 	final public static String template = "template";
 	protected static Logger logger = LoggerFactory.getLogger(Property.class);
 
-	public Property(String id) {
+	@Autowired
+	public Property(@Value("Property") String id) {
 		super(id);
 	}
 
