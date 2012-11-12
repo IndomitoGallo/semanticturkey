@@ -56,7 +56,6 @@ window.onload = function() {
 						.indexOf('('));
 	}*/
 
-	alert("dentro load editor e sourceType = "+sourceType);
 	art_semanticturkey.init(sourceType, sourceElementName,
 			sourceParentElementName, sourceElement);
 
@@ -534,7 +533,7 @@ art_semanticturkey.getPropertyDescription_RESPONSE = function(responseElement) {
 	art_semanticturkey.parsingSuperTypes(responseElement, request);
 	art_semanticturkey.parsingDomains(domainNodeList, parentBox);
 	art_semanticturkey.parsingRanges(responseElement, sourceType, parentBox);
-	if (sourceType.indexOf("ObjectProperty") != -1) {
+	if (sourceType.toLowerCase().indexOf("objectproperty") != -1) {
 		art_semanticturkey.parsingFacets(responseElement, rowsBox);
 	}
 	// NScarpato add property
@@ -1551,7 +1550,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							}
 						}
 						
-						if (valueType.indexOf("DatatypeProperty") != -1) {
+						if (valueType.toLowerCase().indexOf("datatypeproperty") != -1) {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/skin/images/prop_delete.png");
@@ -1565,7 +1564,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 												"chrome://semantic-turkey/skin/images/propDatatype20x20.png");
 							}
 							
-						} else if (valueType.indexOf("ObjectProperty") != -1) {
+						} else if (valueType.toLowerCase().indexOf("objectproperty") != -1) {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/skin/images/prop_delete.png");
@@ -1579,7 +1578,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 												"chrome://semantic-turkey/skin/images/propObject20x20.png");
 							}
 							
-						} else if (valueType.indexOf("AnnotationProperty") != -1) {
+						} else if (valueType.toLowerCase().indexOf("annotationproperty") != -1) {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/skin/images/prop_delete.png");
@@ -1593,7 +1592,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 												"chrome://semantic-turkey/skin/images/propAnnotation20x20.png");
 							}
 							
-						} else if (valueType.indexOf("Property") != -1) {
+						} else if (valueType.toLowerCase().indexOf("property") != -1) {
 							propButton
 									.setAttribute("image",
 											"chrome://semantic-turkey/skin/images/prop_delete.png");
@@ -1799,7 +1798,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 				rangeCounter++;
 			}	
 	}
-	if (sourceType.indexOf("AnnotationProperty") != -1) {
+	if (sourceType.toLowerCase().indexOf("annotationproperty") != -1) {
 		return;
 	} else if (rangeCounter > 3) {
 		var separator = document.createElement("separator");
@@ -1890,7 +1889,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		typeButton2.addEventListener("click", art_semanticturkey.insertRange,
 				true);
 		typeButton2.setAttribute("tooltiptext", "Add Range");
-		if (sourceType.indexOf("DatatypeProperty") != -1
+		if (sourceType.toLowerCase().indexOf("datatypeproperty") != -1
 				&& rangeList.length != 0) {
 			typeButton2.setAttribute("disabled", true);
 		}
@@ -2193,7 +2192,7 @@ art_semanticturkey.insertRange = function() {
 	var mytype = window.arguments[0].sourceType;
 	var rangeName = "";
 	var parameters = new Object();
-	if (mytype.indexOf("ObjectProperty") != -1) {
+	if (mytype.toLowerCase().indexOf("objectproperty") != -1) {
 		parameters.source = "range";
 		parameters.parentWindow = window.arguments[0].parentWindow;
 		parameters.rangeName = rangeName;
