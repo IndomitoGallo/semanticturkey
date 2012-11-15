@@ -160,10 +160,10 @@ public class Individual extends Resource {
 					individual, graphs);
 
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
-			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, individual, RDFResourceRolesEnum.individual, 
-					servletUtilities.checkWritable(ontModel, individual, wgraph),
-					false);
-			setRendering(ontModel, stIndividual, graphs);
+			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, individual, 
+					ModelUtilities.getResourceRole(individual, ontModel), 
+					servletUtilities.checkWritable(ontModel, individual, wgraph), false);
+			Cls.setRendering(ontModel, stIndividual, null, null, graphs);
 			RDFXMLHelp.addRDFNode(instanceElement, stIndividual);
 			
 			Element typesElement = XMLHelp.newElement(dataElement, "Types");
@@ -171,10 +171,10 @@ public class Individual extends Resource {
 			while (directTypesIterator.streamOpen()) {
 				ARTResource type = directTypesIterator.getNext();
 				if (type.isURIResource()) {
-					STRDFResource stType = STRDFNodeFactory.createSTRDFResource(ontModel, type, RDFResourceRolesEnum.cls, 
-							servletUtilities.checkWritable(ontModel, type, wgraph),
-							false);
-					setRendering(ontModel, stType, graphs);
+					STRDFResource stType = STRDFNodeFactory.createSTRDFResource(ontModel, type, 
+							ModelUtilities.getResourceRole(type, ontModel), 
+							servletUtilities.checkWritable(ontModel, type, wgraph), false);
+					Cls.setRendering(ontModel, stType, null, null, graphs);
 					types.add(stType);
 				}
 			}
@@ -219,17 +219,17 @@ public class Individual extends Resource {
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
 			ARTResource wgraph = getWorkingGraph();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(model, typeCls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(model, typeCls, wgraph),
-					false);
-			setRendering(model, stClass, graphs);
+					ModelUtilities.getResourceRole(typeCls, model), 
+					servletUtilities.checkWritable(model, typeCls, wgraph), false);
+			Cls.setRendering(model, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(typeElement, stClass);
 			
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
 			ARTURIResource instanceRes = model.createURIResource(model.expandQName(indQName));
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(model, instanceRes,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(model, instanceRes, wgraph),
-					false);
-			setRendering(model, stInstance, graphs);
+					ModelUtilities.getResourceRole(instanceRes, model), 
+					servletUtilities.checkWritable(model, instanceRes, wgraph), false);
+			Cls.setRendering(model, stInstance, null, null, graphs);
 			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
 			
 			return response;
@@ -278,18 +278,18 @@ public class Individual extends Resource {
 			Element typeElement = XMLHelp.newElement(dataElement, "Type");
 			ARTResource wgraph = getWorkingGraph();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(model, typeCls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(model, typeCls, wgraph),
-					false);
-			setRendering(model, stClass, graphs);
-			decorateWithNumberOfIstances(model, stClass);
+					ModelUtilities.getResourceRole(typeCls, model), 
+					servletUtilities.checkWritable(model, typeCls, wgraph), false);
+			Cls.setRendering(model, stClass, null, null, graphs);
+			Cls.decorateWithNumberOfIstances(model, stClass, graphs);
 			RDFXMLHelp.addRDFNode(typeElement, stClass);
 			
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
 			ARTURIResource instanceRes = model.createURIResource(model.expandQName(indQName));
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(model, instanceRes,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(model, instanceRes, wgraph),
-					false);
-			setRendering(model, stInstance, graphs);
+					ModelUtilities.getResourceRole(instanceRes, model), 
+					servletUtilities.checkWritable(model, instanceRes, wgraph), false);
+			Cls.setRendering(model, stInstance, null, null, graphs);
 			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
 			
 			return response;
@@ -310,21 +310,6 @@ public class Individual extends Resource {
 		ARTResourceIterator it = model.listTypes(individual, true, graphs);
 		if (!it.streamOpen())
 			model.addType(individual, OWL.Res.THING, getWorkingGraph());
-	}
-	
-	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
-			throws ModelAccessException {
-
-		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
-
-		individual.setRendering(rendering);
-	}
-
-	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
-			throws ModelAccessException, NonExistingRDFResourceException {
-		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
-				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
-		subClass.setInfo("numInst", Integer.toString(numInst));
 	}
 	
 }

@@ -25,8 +25,6 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
-import it.uniroma2.art.owlart.filter.RootClassesResourcePredicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -41,23 +39,19 @@ import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
-import it.uniroma2.art.owlart.navigation.RDFIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
-import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
-import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.resources.Config;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
@@ -76,8 +70,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 
 /**
@@ -311,7 +303,9 @@ public class Annotation extends ServiceAdapter {
 			while (filteredIterator.hasNext()) {
 				ARTURIResource resource = filteredIterator.next();
 				
-				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(resource, RDFResourceRolesEnum.concept, true, ontModel.getQName(resource.getURI()));
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(resource, 
+						ModelUtilities.getResourceRole(resource, ontModel), 
+						true, ontModel.getQName(resource.getURI()));
 				topicCollection.add(stResource);
 			}
 			
@@ -648,18 +642,18 @@ public class Annotation extends ServiceAdapter {
 			ARTResource wgraph = getWorkingGraph();
 			ARTResource[] graphs = getUserNamedGraphs();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stClass);
-			setRendering(ontModel, stClass, null, null, graphs);
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
+			Cls.setRendering(ontModel, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(clsElement, stClass);
 			
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
 			ARTURIResource instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceName));
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, instanceRes,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, instanceRes, wgraph),
-					false);
-			setRendering(ontModel, stInstance, null, null, graphs);
+					ModelUtilities.getResourceRole(instanceRes, ontModel), 
+					servletUtilities.checkWritable(ontModel, instanceRes, wgraph), false);
+			Cls.setRendering(ontModel, stInstance, null, null, graphs);
 			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
 			return response;
 		} catch (ModelAccessException e) {
@@ -860,7 +854,9 @@ public class Annotation extends ServiceAdapter {
 			Collection<STRDFResource> topicCollection = STRDFNodeFactory.createEmptyResourceCollection();
 
 			for(ARTURIResource topic : topics) {				
-				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(topic, RDFResourceRolesEnum.concept, true, ontModel.getQName(topic.getURI()));
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(topic, 
+						ModelUtilities.getResourceRole(topic, ontModel), 
+						true, ontModel.getQName(topic.getURI()));
 				topicCollection.add(stResource);
 			}
 			
@@ -1002,145 +998,4 @@ public class Annotation extends ServiceAdapter {
 		return semanticAnnotationInstanceID.toString();
 	}
 
-	
-	//methods copied from the service Cls
-	
-	private void setRendering(RDFSModel model, STRDFResource subClass, ARTURIResource labelProp,
-			String requestedISOLang, ARTResource[] graphs) throws ModelAccessException {
-
-		String label = null;
-		if (labelProp != null) {
-			ARTNodeIterator it = model.listValuesOfSubjPredPair((ARTResource) subClass.getARTNode(),
-					labelProp, false, graphs);
-
-			if (it.streamOpen()) {
-				ARTNode nodeLabel = it.getNext();
-				logger.debug("nodeLabel: " + nodeLabel);
-				// if node is not a Literal, then get its String representation as the label for the
-				// class, else if there is no specified iso-language code, get the label from the
-				// literal else get the first value whose language matches the specified iso-language
-				if (nodeLabel.isLiteral()) {
-					if (requestedISOLang == null) {
-						label = nodeLabel.asLiteral().getLabel();
-						logger.debug("no preferred ISO language, getting first available label: " + label);
-					} else {
-						// the rationale behind this odd nested loop is to avoid all other checks
-						// (such as the availability of the requestedISOLang or checking the nature of
-						// the nodeLabel) to be repeated for each value of the label property
-						while (label == null) {
-							ARTLiteral literalLabel = nodeLabel.asLiteral();
-							String gotISOLang = literalLabel.getLanguage();
-							logger.debug("iso lang for " + nodeLabel + ": " + gotISOLang);
-							if (gotISOLang.equals(requestedISOLang)) {
-								label = literalLabel.getLabel();
-							}
-							if (it.streamOpen())
-								nodeLabel = it.getNext();
-							else
-								break;
-						}
-					}
-				} else
-					label = nodeLabel.toString();
-			}
-		}
-		String rendering = null;
-		if (label != null)
-			rendering = label;
-		else {
-			// isn't that some facility for getting this automatically?
-			if (subClass.isBlank())
-				rendering = subClass.toNT();
-			else
-				rendering = model.getQName(subClass.getARTNode().asURIResource().getURI());
-		}
-
-		subClass.setRendering(rendering);
-	}
-
-	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException,
-			NonExistingRDFResourceException {
-		/*ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
-				getUserNamedGraphs());
-		if (it.streamOpen()) {
-			subClass.setInfo("more", "1");
-
-		} else
-			subClass.setInfo("more", "0");
-		it.close();*/
-		RDFIterator<ARTURIResource> subSubClassesIterator = new SubClassesForTreeIterator(model,
-				subClass.getARTNode().asURIResource(), getUserNamedGraphs());
-		if (subSubClassesIterator.hasNext())
-			subClass.setInfo("more", "1"); // the subclass has further subclasses
-		else
-			subClass.setInfo("more", "0"); // the subclass has no subclasses itself
-		subSubClassesIterator.close();
-	}
-
-	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
-			throws ModelAccessException, NonExistingRDFResourceException {
-		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
-				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
-		subClass.setInfo("numInst", Integer.toString(numInst));
-	}
-	
-	/**
-	 * An iterator which retrieves subclasses of a class for the specific case of populating a class tree.<br/>
-	 * This means the subclasses are limited to URI resources (e.g. not class descriptions coded as bnodes)
-	 * 
-	 * @author Armando Stellato &lt;stellato@info.uniroma2.it&gt; -Xmx400m
-	 * 
-	 */
-	private class SubClassesForTreeIterator implements RDFIterator<ARTURIResource> {
-
-		RDFIterator<? extends ARTResource> subClassesIterator;
-		Iterator<? extends ARTResource> finalIterator;
-
-		SubClassesForTreeIterator(RDFSModel ontModel, ARTResource superCls, ARTResource... graphs)
-				throws ModelAccessException {
-			// to check that even with a non-owl reasoning triple-store, root classes are computed as children
-			// of owl:Thing
-			if (superCls.equals(OWL.Res.THING)) {
-				logger.debug("looking for subclasses of owl:Thing, using method for retrieving root classes");
-				Predicate<ARTResource> exclusionPredicate;
-				if (Config.isAdminStatus())
-					exclusionPredicate = NoLanguageResourcePredicate.nlrPredicate;
-				else
-					exclusionPredicate = DomainResourcePredicate.domResPredicate;
-
-				Predicate<ARTResource> rootUserClsPred = Predicates.and(new RootClassesResourcePredicate(
-						ontModel), exclusionPredicate);
-
-				subClassesIterator = ontModel.listNamedClasses(true, graphs);
-				finalIterator = Iterators.filter(subClassesIterator, rootUserClsPred);
-
-			} else {
-				subClassesIterator = ((DirectReasoning) ontModel).listDirectSubClasses(superCls, graphs);
-				finalIterator = subClassesIterator;
-			}
-		}
-		public void close() throws ModelAccessException {
-			subClassesIterator.close();
-		}
-
-		public ARTURIResource getNext() throws ModelAccessException {
-			return finalIterator.next().asURIResource();
-		}
-
-		public boolean streamOpen() throws ModelAccessException {
-			return finalIterator.hasNext();
-		}
-
-		public boolean hasNext() {
-			return finalIterator.hasNext();
-		}
-
-		public ARTURIResource next() {
-			return finalIterator.next().asURIResource();
-		}
-
-		public void remove() {
-			subClassesIterator.remove();
-		}
-	}
 }
