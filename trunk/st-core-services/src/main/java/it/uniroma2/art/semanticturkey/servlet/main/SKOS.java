@@ -521,7 +521,7 @@ public class SKOS extends Resource {
 			while (it.hasNext()) {
 				ARTURIResource concept = it.next();
 				STRDFResource stConcept = createSTConcept(skosModel, concept, true, defaultLanguage);
-				decorateForTreeView(skosModel, stConcept);
+				SKOS.decorateForTreeView(skosModel, stConcept, getUserNamedGraphs());
 				concepts.add(stConcept);
 			}
 			it.close();
@@ -805,7 +805,7 @@ public class SKOS extends Resource {
 				ARTURIResource narrower = it.next();
 				STRDFResource stConcept = createSTConcept(skosModel, narrower, true, defaultLanguage);
 				if (TreeView)
-					decorateForTreeView(skosModel, stConcept);
+					SKOS.decorateForTreeView(skosModel, stConcept, getUserNamedGraphs());
 				concepts.add(stConcept);
 			}
 
@@ -1186,10 +1186,11 @@ public class SKOS extends Resource {
 				defaultLanguage);
 	}
 
-	protected void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException,
+	public static void decorateForTreeView(SKOSModel model, STRDFResource concept, ARTResource[] graphs) 
+				throws ModelAccessException,
 			NonExistingRDFResourceException {
 		ARTURIResourceIterator it = model.listNarrowerConcepts((ARTURIResource) concept.getARTNode(), false,
-				true, getUserNamedGraphs());
+				true, graphs);
 		if (it.streamOpen()) {
 			concept.setInfo("more", "1");
 

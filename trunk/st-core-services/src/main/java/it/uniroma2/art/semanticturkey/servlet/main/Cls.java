@@ -272,12 +272,12 @@ public class Cls extends Resource {
 			while (subClassesIterator.streamOpen()) {
 				ARTResource subClass = subClassesIterator.getNext();
 				STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, subClass,
-						RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, subClass, wgraph),
-						false);
+						ModelUtilities.getResourceRole(subClass, ontModel), 
+						servletUtilities.checkWritable(ontModel, subClass, wgraph), false);
 				if (forTree)
-					decorateForTreeView(ontModel, stClass);
+					Cls.decorateForTreeView(ontModel, stClass, getUserNamedGraphs());
 				if (instNum) {
-					decorateWithNumberOfIstances(ontModel, stClass);
+					Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 				}
 				setRendering(ontModel, stClass, labelProp, requestedISOLang, graphs);
 
@@ -342,7 +342,7 @@ public class Cls extends Resource {
 	// of resources. I would create a class for describing "representation makers" with an interface
 	// method for getting the representation. I would also create a factory which returns the
 	// appropriate "repmaker" depending on the passed labelQuery
-	private void setRendering(RDFSModel model, STRDFResource subClass, ARTURIResource labelProp,
+	public static void setRendering(RDFSModel model, STRDFResource subClass, ARTURIResource labelProp,
 			String requestedISOLang, ARTResource[] graphs) throws ModelAccessException {
 
 		String label = null;
@@ -395,18 +395,11 @@ public class Cls extends Resource {
 		subClass.setRendering(rendering);
 	}
 
-	private void decorateForTreeView(RDFSModel model, STRDFResource subClass) throws ModelAccessException,
+	public static void decorateForTreeView(RDFSModel model, STRDFResource subClass, ARTResource[] graphs) 
+				throws ModelAccessException,
 			NonExistingRDFResourceException {
-		/*ARTResourceIterator it = model.listSubClasses((ARTResource) subClass.getARTNode(), true,
-				getUserNamedGraphs());
-		if (it.streamOpen()) {
-			subClass.setInfo("more", "1");
-
-		} else
-			subClass.setInfo("more", "0");
-		it.close();*/
 		RDFIterator<ARTURIResource> subSubClassesIterator = new SubClassesForTreeIterator(model,
-				subClass.getARTNode().asURIResource(), getUserNamedGraphs());
+				subClass.getARTNode().asURIResource(), graphs);
 		if (subSubClassesIterator.hasNext())
 			subClass.setInfo("more", "1"); // the subclass has further subclasses
 		else
@@ -414,10 +407,10 @@ public class Cls extends Resource {
 		subSubClassesIterator.close();
 	}
 
-	private void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass)
-			throws ModelAccessException, NonExistingRDFResourceException {
+	public static void decorateWithNumberOfIstances(RDFSModel model, STRDFResource subClass, 
+				ARTResource[] graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		int numInst = ModelUtilities.getNumberOfClassInstances((DirectReasoning) model,
-				(ARTResource) subClass.getARTNode(), true, getUserNamedGraphs());
+				(ARTResource) subClass.getARTNode(), true, graphs);
 		subClass.setInfo("numInst", Integer.toString(numInst));
 	}
 
@@ -446,12 +439,12 @@ public class Cls extends Resource {
 			
 			Element classElement = XMLHelp.newElement(dataElement, "Class");
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-					false);
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
 			setRendering(ontModel, stClass, null, null, graphs);
-			decorateWithNumberOfIstances(ontModel, stClass);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 			if(hasSubClassesRequest)
-				decorateForTreeView(ontModel, stClass);
+				Cls.decorateForTreeView(ontModel, stClass, getUserNamedGraphs());
 			RDFXMLHelp.addRDFNode(classElement, stClass);
 			
 			createInstancesXMLList(ontModel, cls, direct, dataElement, graphs);
@@ -478,9 +471,9 @@ public class Cls extends Resource {
 		Collection<STRDFResource> instances = STRDFNodeFactory.createEmptyResourceCollection();
 		while (instancesIterator.streamOpen()) {
 			ARTResource instance = instancesIterator.getNext();
-			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, instance, RDFResourceRolesEnum.individual, 
-					servletUtilities.checkWritable(ontModel, instance, wgraph),
-					false);
+			STRDFResource stIndividual = STRDFNodeFactory.createSTRDFResource(ontModel, instance, 
+					ModelUtilities.getResourceRole(instance, ontModel), 
+					servletUtilities.checkWritable(ontModel, instance, wgraph), false);
 			setRendering(ontModel, stIndividual, null, null, graphs);
 			instances.add(stIndividual);
 		}
@@ -529,16 +522,17 @@ public class Cls extends Resource {
 			ARTResource wgraph = getWorkingGraph();
 			ARTResource[] graphs = getUserNamedGraphs();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stClass);
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 			setRendering(ontModel, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(clsElement, stClass);
 			
 			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
 			ARTURIResource instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceName));
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, instanceRes,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, instanceRes, wgraph),
+					ModelUtilities.getResourceRole(instanceRes, ontModel), 
+					servletUtilities.checkWritable(ontModel, instanceRes, wgraph),
 					false);
 			setRendering(ontModel, stInstance, null, null, graphs);
 			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
@@ -682,7 +676,7 @@ public class Cls extends Resource {
 	 * @author Armando Stellato &lt;stellato@info.uniroma2.it&gt; -Xmx400m
 	 * 
 	 */
-	private class SubClassesForTreeIterator implements RDFIterator<ARTURIResource> {
+	private static class SubClassesForTreeIterator implements RDFIterator<ARTURIResource> {
 
 		RDFIterator<? extends ARTResource> subClassesIterator;
 		Iterator<? extends ARTResource> finalIterator;
@@ -767,12 +761,12 @@ public class Cls extends Resource {
 				ARTURIResource cls = retrieveExistingURIResource(ontModel, clsQName, graphs);
 
 				STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-						RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-						false);
+						ModelUtilities.getResourceRole(cls, ontModel), 
+						servletUtilities.checkWritable(ontModel, cls, wgraph), false);
 				setRendering(ontModel, stClass, null, null, graphs);
-				decorateForTreeView(ontModel, stClass);
+				Cls.decorateForTreeView(ontModel, stClass, getUserNamedGraphs());
 				if(instNumBool)
-					decorateWithNumberOfIstances(ontModel, stClass);
+					Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 				
 				classes.add(stClass);
 			}
@@ -821,17 +815,17 @@ public class Cls extends Resource {
 			Element clsElement = XMLHelp.newElement(dataElement, "Class");
 			ARTResource wgraph = getWorkingGraph();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stClass);
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 			setRendering(ontModel, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(clsElement, stClass);
 			
 			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
 			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superCls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superCls, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stSuperClass);
+					ModelUtilities.getResourceRole(superCls, ontModel), 
+					servletUtilities.checkWritable(ontModel, superCls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stSuperClass, graphs);
 			setRendering(ontModel, stSuperClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
 			
@@ -881,17 +875,18 @@ public class Cls extends Resource {
 			Element clsElement = XMLHelp.newElement(dataElement, "Class");
 			ARTResource wgraph = getWorkingGraph();
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stClass);
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
 			setRendering(ontModel, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(clsElement, stClass);
 			
 			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
 			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superCls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superCls, wgraph),
+					ModelUtilities.getResourceRole(superCls, ontModel), 
+					servletUtilities.checkWritable(ontModel, superCls, wgraph),
 					false);
-			decorateWithNumberOfIstances(ontModel, stSuperClass);
+			Cls.decorateWithNumberOfIstances(ontModel, stSuperClass, graphs);
 			setRendering(ontModel, stSuperClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
 			
@@ -959,20 +954,20 @@ public class Cls extends Resource {
 			
 			Element clsElement = XMLHelp.newElement(dataElement, "Class");
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, classRes,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, classRes, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stClass);
-			decorateForTreeView(ontModel, stClass);
+					ModelUtilities.getResourceRole(classRes, ontModel), 
+					servletUtilities.checkWritable(ontModel, classRes, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
+			Cls.decorateForTreeView(ontModel, stClass, getUserNamedGraphs() );
 			setRendering(ontModel, stClass, null, null, graphs);
 			RDFXMLHelp.addRDFNode(clsElement, stClass);
 			
 			Element superClsElement = XMLHelp.newElement(dataElement, "SuperClass");
 			STRDFResource stSuperClass = STRDFNodeFactory.createSTRDFResource(ontModel, superClassResource,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, superClassResource, wgraph),
-					false);
-			decorateWithNumberOfIstances(ontModel, stSuperClass);
+					ModelUtilities.getResourceRole(superClassResource, ontModel), 
+					servletUtilities.checkWritable(ontModel, superClassResource, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stSuperClass, graphs);
 			setRendering(ontModel, stSuperClass, null, null, graphs);
-			decorateForTreeView(ontModel, stSuperClass);
+			Cls.decorateForTreeView(ontModel, stSuperClass, getUserNamedGraphs());
 			RDFXMLHelp.addRDFNode(superClsElement, stSuperClass);
 			
 			return response;

@@ -48,6 +48,7 @@ import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
@@ -811,7 +812,7 @@ public class Resource extends ServiceAdapter {
 		for (ARTResource superType : directSuperTypes) {
 			STRDFResource res = STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
 					directExplicitSuperTypes.contains(superType), true);
-			setRendering(ontModel, res, graphs);
+			Cls.setRendering(ontModel, res, null, null, graphs);
 			superTypes.add(res);
 		}
 
@@ -843,7 +844,7 @@ public class Resource extends ServiceAdapter {
 		while (topConcepts.streamOpen()) {
 			ARTURIResource topConcept = topConcepts.getNext();
 			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, topConcept,
-					RDFResourceRolesEnum.concept, true, true));
+					ModelUtilities.getResourceRole(topConcept, ontModel), true, true));
 		}
 		topConcepts.close();
 
@@ -861,7 +862,7 @@ public class Resource extends ServiceAdapter {
 		for (ARTURIResource importedOntology : imports) {
 
 			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, importedOntology,
-					RDFResourceRolesEnum.ontology, true, true));
+					ModelUtilities.getResourceRole(importedOntology, ontModel), true, true));
 
 		}
 		RDFXMLHelp.addRDFNodes(importsElem, topSTConcepts);
@@ -879,14 +880,6 @@ public class Resource extends ServiceAdapter {
 		else
 			// if (proj.getOntologyType().equals(OntologyType.SKOS))
 			return ((SKOSModel) model).getOWLModel();
-	}
-	
-	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
-			throws ModelAccessException {
-
-		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
-
-		individual.setRendering(rendering);
 	}
 
 }

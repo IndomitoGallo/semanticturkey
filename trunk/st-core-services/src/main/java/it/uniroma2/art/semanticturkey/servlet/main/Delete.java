@@ -153,9 +153,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph),
 					false);
-			setRendering(ontModel, stClass, graphs);
+			Cls.setRendering(ontModel, stClass, null, null, graphs);
 			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, cls); // 1) removes all the incoming edges
 			// beware! only applicable if the application has already checked
 			// that the class has no subclasses nor instances!, otherwise some
@@ -187,9 +188,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, resource,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, resource, wgraph),
+					ModelUtilities.getResourceRole(resource, ontModel), 
+					servletUtilities.checkWritable(ontModel, resource, wgraph),
 					false);
-			setRendering(ontModel, stInstance, graphs);
+			Cls.setRendering(ontModel, stInstance, null, null,graphs);
 			if (deletePropertyPropagationTree == null)
 				initializeDeletePropertyPropagationTree();
 			ModelUtilities.deepDeleteIndividual(resource, ontModel, deletePropertyPropagationTree);
@@ -223,9 +225,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stProperty = STRDFNodeFactory.createSTRDFResource(ontModel, property,
-					RDFResourceRolesEnum.property, servletUtilities.checkWritable(ontModel, property, wgraph),
+					ModelUtilities.getResourceRole(property, ontModel), 
+					servletUtilities.checkWritable(ontModel, property, wgraph),
 					false);
-			setRendering(ontModel, stProperty, graphs);
+			Cls.setRendering(ontModel, stProperty, null, null, graphs);
 			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, property); // 1) removes all the incoming
 			// edges //beware! only applicable if the application
 			// has already checked that the class has no subclasses nor
@@ -259,12 +262,4 @@ public class Delete extends ServiceAdapter {
 		Delete.deletePropertyPropagationTree = deletePropertyPropagationTree;
 	}
 
-	
-	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
-			throws ModelAccessException {
-
-		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
-
-		individual.setRendering(rendering);
-	}
 }
