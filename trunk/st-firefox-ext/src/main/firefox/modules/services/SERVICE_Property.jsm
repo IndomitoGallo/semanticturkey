@@ -71,7 +71,7 @@ function getAnnotationPropertiesTree() {
 function removeProperty(name) {
 	var myName = "name=" + name;
 	var myType = "type=Property";
-	return Deserializer.getURI(HttpMgr.GET(deleteServiceName, deleteService.removePropertyRequest, myName, myType));
+	return Deserializer.createURI(HttpMgr.GET(deleteServiceName, deleteService.removePropertyRequest, myName, myType));
 }
 
 /**
@@ -87,7 +87,7 @@ function addProperty(propertyQName, propertyType) {
 	var myPropertyType = "propertyType=" + propertyType;
 	var reply = HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType);
 	var resArray = new Array();
-	resArray["property"] = Deserializer.getURI(reply.getElementsByTagName("Property")[0]);
+	resArray["property"] = Deserializer.createURI(reply.getElementsByTagName("Property")[0]);
 	return resArray;
 }
 
@@ -109,8 +109,8 @@ function addSubProperty(propertyQName, propertyType, superPropertyQName) {
 	var reply = HttpMgr.GET(serviceName, service.addPropertyRequest, myPropertyQName, myPropertyType,
 			mySuperPropertyQName);
 	var resArray = new Array();
-	resArray["property"] = Deserializer.getURI(reply.getElementsByTagName("Property")[0]);
-	resArray["superProperty"] = Deserializer.getURI(reply.getElementsByTagName("SuperProperty")[0]);
+	resArray["property"] = Deserializer.createURI(reply.getElementsByTagName("Property")[0]);
+	resArray["superProperty"] = Deserializer.createURI(reply.getElementsByTagName("SuperProperty")[0]);
 	return resArray;
 }
 

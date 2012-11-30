@@ -21,7 +21,7 @@
  */
 
 /** NScarpato */
-netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 

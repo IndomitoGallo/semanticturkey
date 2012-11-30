@@ -42,7 +42,7 @@ Components.utils.import("resource://stmodules/ARTResources.jsm", art_semantictur
 art_semanticturkey.eventListenerArrayObject = null;
 
 window.onload = function() {
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	document.getElementById("buttonModify").addEventListener("command",
 			art_semanticturkey.rename, true);
 	document.getElementById("close").addEventListener("command",
@@ -545,7 +545,7 @@ art_semanticturkey.getPropertyDescription_RESPONSE = function(responseElement) {
 art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 	var superTypes = responseElement.getElementsByTagName('SuperTypes');
 	//var superTypeList = superTypes[0].getElementsByTagName('SuperType');
-	var superTypeList = art_semanticturkey.Deserializer.getCollection(superTypes[0]);
+	var superTypeList = art_semanticturkey.Deserializer.createRDFArray(superTypes[0]);
 	// NScarpato 26/11/2007 change types visualization added add type and remove
 	// type
 	var parentBox = document.getElementById("parentBoxRows");
@@ -816,7 +816,7 @@ art_semanticturkey.parsingSuperTypes = function(responseElement, request) {
 art_semanticturkey.parsingType = function(responseElement, request) {
 	var types = responseElement.getElementsByTagName('Types');
 	//var typeList = types[0].getElementsByTagName('Type');
-	var typeList = art_semanticturkey.Deserializer.getCollection(types[0]);
+	var typeList = art_semanticturkey.Deserializer.createRDFArray(types[0]);
 	var parentBox = document.getElementById("parentBoxRows");
 	if (typeList.length > 3) {
 		var typeToolbox = document.createElement("toolbox");

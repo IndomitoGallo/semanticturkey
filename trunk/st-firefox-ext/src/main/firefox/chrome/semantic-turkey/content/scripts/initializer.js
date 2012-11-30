@@ -289,7 +289,7 @@ art_semanticturkey.treeDragDrop = function(event, parentWindow) {
 	event.stopPropagation(); // This line was in an example, will test if
 	// we
 	// need it later...
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 	var ds = Components.classes["@mozilla.org/widget/dragservice;1"]
 			.getService(Components.interfaces.nsIDragService);
@@ -541,7 +541,7 @@ art_semanticturkey.treeDragDropFurtherAnn = function(event, parentWindow) {
 	event.stopPropagation(); // This line was in an example, will test if
 	// we
 	// need it later...
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 	var ds = Components.classes["@mozilla.org/widget/dragservice;1"]
 			.getService(Components.interfaces.nsIDragService);

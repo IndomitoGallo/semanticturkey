@@ -20,7 +20,7 @@ var serviceName = service.serviceName;
 function searchOntology(inputString,types){
 	var inputString = "inputString="+inputString;
 	var types = "types="+types;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.searchOntologyRequest,inputString,types));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.searchOntologyRequest,inputString,types));
 }
 //OntoSearch SERVICE INITIALIZATION
 service.searchOntology = searchOntology;

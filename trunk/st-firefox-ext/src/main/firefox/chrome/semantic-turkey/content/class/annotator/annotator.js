@@ -32,7 +32,7 @@ Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_sema
 Components.utils.import("resource://stservices/SERVICE_Property.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
-netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 window.onload = function() {
 	document.getElementById("checkAll").addEventListener("command", art_semanticturkey.showAllProperties,
