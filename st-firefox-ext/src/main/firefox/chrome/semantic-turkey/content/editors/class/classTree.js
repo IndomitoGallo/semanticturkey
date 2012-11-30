@@ -26,7 +26,7 @@ Components.utils.import("resource://stservices/SERVICE_Cls.jsm",
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
 window.onload = function() {
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onCancel, true);
 	try {

@@ -109,7 +109,7 @@
 				var parseResponse = function(collectionValues) {
 					var result = [];
 							
-					//var collectionValues = art_semanticturkey.deserializer.getCollection(responseElement);
+					//var collectionValues = art_semanticturkey.deserializer.createRDFArray(responseElement);
 					
 					//var dataElement = responseElement.getElementsByTagName('data')[0];
 					//var schemeList = dataElement.getElementsByTagName("Scheme");

@@ -24,10 +24,11 @@ ARTNode = function(){
 
 /********** ARTLiteral *******************/
 
-ARTLiteral = function(label, datatype, lang){
+ARTLiteral = function(label, datatype, lang, isTypedLiteral){
 	var label = label;
 	var datatype = datatype;
 	var lang = lang;
+	var isTypedLiteral = isTypedLiteral;
 	
 	this.getLabel = function(){
 		return label;	
@@ -44,6 +45,10 @@ ARTLiteral = function(label, datatype, lang){
 	this.isLiteral = function(){
 		return true;
 	};
+	
+	this.isTypedLiteral = function(){
+		return isTypedLiteral;
+	}
 };
 
 ARTLiteral.prototype = new ARTNode();

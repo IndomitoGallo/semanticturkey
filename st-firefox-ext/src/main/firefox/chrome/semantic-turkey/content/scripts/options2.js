@@ -25,7 +25,7 @@
 			art_semanticturkey);
 	Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
-	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 	.getService(Components.interfaces.nsIPrefBranch);

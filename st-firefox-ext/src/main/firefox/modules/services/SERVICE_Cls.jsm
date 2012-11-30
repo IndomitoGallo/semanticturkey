@@ -33,7 +33,7 @@ function getClassesInfoAsRootsForTree(instNum, clsqnames) {
 	var clsesqnames = "clsesqnames=" + clsqnames;
 	for ( var i = 2; i < arguments.length; i++)
 		clsesqnames += "|_|" + arguments[i];
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getClassesInfoAsRootsForTreeRequest, clsesqnames, instNum));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getClassesInfoAsRootsForTreeRequest, clsesqnames, instNum));
 }
 
 /**
@@ -72,7 +72,7 @@ function getSubClasses(clsName, tree, instNum) {
 	var className = "clsName=" + clsName;
 	var tree = "tree=" + tree;
 	var instNum = "instNum=" + instNum;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getSubClassesRequest, className, tree, instNum));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getSubClassesRequest, className, tree, instNum));
 }
 
 /**
@@ -105,8 +105,8 @@ function getClassAndInstancesInfo(clsName, hasSubClasses) {
 		var reply = HttpMgr.GET(serviceName, service.getClassAndInstancesInfoRequest, clsName,hasSubClasses)
 	}
 	var reply = HttpMgr.GET(serviceName, service.getClassAndInstancesInfoRequest, clsName);
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["instances"] = Deserializer.getCollection(reply.getElementsByTagName("Instances")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["instances"] = Deserializer.createRDFArray(reply.getElementsByTagName("Instances")[0]);
 	return resArray;
 }
 
@@ -119,7 +119,7 @@ function getClassAndInstancesInfo(clsName, hasSubClasses) {
 function removeClass(name) {
 	var myName = "name=" + name;
 	var myType = "type=Class";
-	return Deserializer.getURI(HttpMgr.GET(deleteServiceName, deleteService.removeClassRequest, myName, myType));
+	return Deserializer.createURI(HttpMgr.GET(deleteServiceName, deleteService.removeClassRequest, myName, myType));
 }
 
 /**
@@ -162,8 +162,8 @@ function addIndividual(clsName, instanceName) {
 	var instanceName = "instanceName=" + instanceName;
 	var reply = HttpMgr.GET(serviceName, service.createInstanceRequest, clsName, instanceName);
 	var resArray = new Array();
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["instance"] = Deserializer.getURI(reply.getElementsByTagName("Instance")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["instance"] = Deserializer.createURI(reply.getElementsByTagName("Instance")[0]);
 	return resArray;
 }
 
@@ -181,8 +181,8 @@ function addSubClass(newClassName, superClassName) {
 	var newClassName = "newClassName=" + newClassName;
 	var reply =  HttpMgr.GET(serviceName, service.createClassRequest, superClassName, newClassName);
 	var resArray = new Array();
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["superClass"] = Deserializer.getURI(reply.getElementsByTagName("SuperClass")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["superClass"] = Deserializer.createURI(reply.getElementsByTagName("SuperClass")[0]);
 	return resArray;
 }
 
@@ -223,8 +223,8 @@ function addType(clsqname, typeqname) {
 	var typeqname = "typeqname=" + typeqname;
 	var reply = HttpMgr.GET(serviceName, service.addTypeRequest, clsqname, typeqname);
 	var resArray = new Array();
-	resArray["type"] = Deserializer.getURI(reply.getElementsByTagName("Type")[0]);
-	resArray["instance"] = Deserializer.getURI(reply.getElementsByTagName("Instance")[0]);
+	resArray["type"] = Deserializer.createURI(reply.getElementsByTagName("Type")[0]);
+	resArray["instance"] = Deserializer.createURI(reply.getElementsByTagName("Instance")[0]);
 	return resArray;
 }
 
@@ -241,8 +241,8 @@ function removeType(clsqname, typeqname) {
 	var typeqname = "typeqname=" + typeqname;
 	var reply = HttpMgr.GET(serviceName, service.removeTypeRequest, clsqname, typeqname);
 	var resArray = new Array();
-	resArray["type"] = Deserializer.getURI(reply.getElementsByTagName("Type")[0]);
-	resArray["instance"] = Deserializer.getURI(reply.getElementsByTagName("Instance")[0]);
+	resArray["type"] = Deserializer.createURI(reply.getElementsByTagName("Type")[0]);
+	resArray["instance"] = Deserializer.createURI(reply.getElementsByTagName("Instance")[0]);
 	return resArray;
 }
 
@@ -260,8 +260,8 @@ function addSuperCls(clsqname, superclsqname) {
 	var superclsqname = "superclsqname=" + superclsqname;
 	var reply = HttpMgr.GET(serviceName, service.addSuperClsRequest, clsqname, superclsqname);
 	var resArray = new Array();
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["superClass"] = Deserializer.getURI(reply.getElementsByTagName("SuperClass")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["superClass"] = Deserializer.createURI(reply.getElementsByTagName("SuperClass")[0]);
 	return resArray;
 }
 
@@ -279,8 +279,8 @@ function removeSuperCls(clsqname, superclsqname) {
 	var superclsqname = "superclsqname=" + superclsqname;
 	var reply = HttpMgr.GET(serviceName, service.removeSuperClsRequest, clsqname, superclsqname);
 	var resArray = new Array();
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["superClass"] = Deserializer.getURI(reply.getElementsByTagName("SuperClass")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["superClass"] = Deserializer.createURI(reply.getElementsByTagName("SuperClass")[0]);
 	return resArray;
 }
 
@@ -293,7 +293,7 @@ function removeSuperCls(clsqname, superclsqname) {
  */
 function getSuperClasses(clsName) {
 	var clsName = "clsName=" + clsName;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getSuperClassesRequest, clsName));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getSuperClassesRequest, clsName));
 }
 
 // Class SERVICE INITIALIZATION
