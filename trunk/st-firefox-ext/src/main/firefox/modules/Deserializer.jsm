@@ -102,7 +102,7 @@ function createRDFNode(response) {
 		return createURI(response);
 	} else if(tagName == 'bnode'){
 		return createBlankNode(response);
-	} else if(tabName == 'plainLiteral' || tabName == 'typedLiteral'){ 
+	} else if(tagName == 'plainLiteral' || tagName == 'typedLiteral'){ 
 		return createLiteral(response);
 	} else {
 		//ERROR
