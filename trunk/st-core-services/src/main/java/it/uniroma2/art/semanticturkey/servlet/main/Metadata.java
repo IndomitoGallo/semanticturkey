@@ -25,6 +25,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.io.RDFFormat;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
@@ -118,6 +119,7 @@ public class Metadata extends Resource {
 	public static final String prefixPar = "prefix";
 	public static final String localFilePathPar = "localFilePath";
 	public static final String alturlPar = "alturl";
+	public static final String rdfFormatPar = "rdfFormat";
 
 	// response tags
 	public static final String baseuriTag = "BaseURI";
@@ -194,16 +196,18 @@ public class Metadata extends Resource {
 			String toImport = setHttpPar(baseuriPar);
 			String destLocalFile = setHttpPar(mirrorFilePar);
 			String altURL = setHttpPar(alturlPar);
+			String rdfFormat = setHttpPar(rdfFormatPar);			
 			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-			return addOntImport(fromWebToMirror, toImport, altURL, destLocalFile, addFromWebToMirrorRequest);
+			return addOntImport(fromWebToMirror, toImport, altURL, destLocalFile, rdfFormat, addFromWebToMirrorRequest);
 		}
 		// downloads and imports an ontology from the web; next time the turkey is started, the ontology
 		// will be imported again
 		if (request.equals(addFromWebRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String altURL = setHttpPar(alturlPar);
+			String rdfFormat = setHttpPar(rdfFormatPar);
 			checkRequestParametersAllNotNull(baseuriPar);
-			return addOntImport(fromWeb, baseuri, altURL, null, addFromWebRequest);
+			return addOntImport(fromWeb, baseuri, altURL, null, rdfFormat, addFromWebRequest);
 		}
 		// downloads and imports an ontology from a local file; caching it into a local file in the
 		// ontology mirror location
@@ -211,15 +215,19 @@ public class Metadata extends Resource {
 			String baseuri = setHttpPar(baseuriPar);
 			String localFilePath = setHttpPar(localFilePathPar);
 			String mirrorFile = setHttpPar(mirrorFilePar);
+			// String rdfFormat = setHttpPar(rdfFormatPar); commented, unless able to specifiy it even in OntManager
 			checkRequestParametersAllNotNull(baseuriPar, localFilePathPar, mirrorFilePar);
-			return addOntImport(fromLocalFile, baseuri, localFilePath, mirrorFile, addFromLocalFileRequest);
+			return addOntImport(fromLocalFile, baseuri, localFilePath, mirrorFile, null,
+					addFromLocalFileRequest);
 		}
 		// imports an ontology which is already present in the ontology mirror location
 		if (request.equals(addFromOntologyMirrorRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String mirrorFile = setHttpPar(mirrorFilePar);
+			// String rdfFormat = setHttpPar(rdfFormatPar); commented, unless able to specifiy it even in OntManager
 			checkRequestParametersAllNotNull(baseuriPar, mirrorFilePar);
-			return addOntImport(fromOntologyMirror, baseuri, null, mirrorFile, addFromOntologyMirrorRequest);
+			return addOntImport(fromOntologyMirror, baseuri, null, mirrorFile, null,
+					addFromOntologyMirrorRequest);
 		}
 
 		// the next four invocations deal with inherited imported ontologies (they are declared imports of
@@ -553,7 +561,8 @@ public class Metadata extends Resource {
 			ontManager.removeNSPrefixMapping(namespace);
 		} catch (ModelUpdateException e) {
 			e.printStackTrace();
-			return servletUtilities.createExceptionResponse(request,
+			return servletUtilities.createExceptionResponse(
+					request,
 					"prefix-namespace mapping update failed on the loaded ontology!\n\nreason: "
 							+ e.getMessage());
 		} catch (NSPrefixMappingUpdateException e) {
@@ -680,7 +689,7 @@ public class Metadata extends Resource {
 	 * 
 	 */
 	public Response addOntImport(int method, String baseUriToBeImported, String sourceForImport,
-			String destLocalFile, String requestString) {
+			String destLocalFile, String rdfFormatName, String requestString) {
 
 		logger.debug("Import Request; method: " + method + ", baseuritobeimported: " + baseUriToBeImported
 				+ "\nsourceForImport: " + sourceForImport + ", destLocalFile: " + destLocalFile + ", req: "
@@ -690,12 +699,12 @@ public class Metadata extends Resource {
 		ServletUtilities servletUtilities = new ServletUtilities();
 		String msg = null;
 		String oldCache;
-		STOntologyManager<? extends RDFModel> repMgr = ProjectManager.getCurrentProject()
+		STOntologyManager<? extends RDFModel> ontMgr = ProjectManager.getCurrentProject()
 				.getOntologyManager();
 
 		// CHECKS THAT THE ONTOLOGY IS NOT ALREADY IMPORTED
 		// previously used ImportMem, now deprecated
-		ImportStatus impStatus = repMgr.getImportStatus(baseUriToBeImported);
+		ImportStatus impStatus = ontMgr.getImportStatus(baseUriToBeImported);
 		if ((impStatus != null))
 			if ((impStatus.getValue() == ImportStatus.Values.LOCAL)
 					|| (impStatus.getValue() == ImportStatus.Values.WEB))
@@ -715,6 +724,8 @@ public class Metadata extends Resource {
 		// IMPORT METHOD SWITCHER
 		String request = null;
 		try {
+			RDFFormat rdfFormat = (rdfFormatName != null) ? RDFFormat.parseFormat(rdfFormatName) : null;
+
 			if (method == fromWebToMirror) {
 				request = addFromWebToMirrorRequest;
 				String url;
@@ -722,7 +733,7 @@ public class Metadata extends Resource {
 					url = sourceForImport;
 				else
 					url = baseUriToBeImported;
-				repMgr.addOntologyImportFromWebToMirror(baseUriToBeImported, url, destLocalFile, null);
+				ontMgr.addOntologyImportFromWebToMirror(baseUriToBeImported, url, destLocalFile, rdfFormat);
 			} else if (method == fromWeb) {
 				request = addFromWebRequest;
 				String url;
@@ -730,13 +741,13 @@ public class Metadata extends Resource {
 					url = sourceForImport;
 				else
 					url = baseUriToBeImported;
-				repMgr.addOntologyImportFromWeb(baseUriToBeImported, url, null);
+				ontMgr.addOntologyImportFromWeb(baseUriToBeImported, url, rdfFormat);
 			} else if (method == fromLocalFile) {
 				request = addFromLocalFileRequest;
-				repMgr.addOntologyImportFromLocalFile(baseUriToBeImported, sourceForImport, destLocalFile);
+				ontMgr.addOntologyImportFromLocalFile(baseUriToBeImported, sourceForImport, destLocalFile);
 			} else if (method == fromOntologyMirror) {
 				request = addFromOntologyMirrorRequest;
-				repMgr.addOntologyImportFromMirror(baseUriToBeImported, destLocalFile);
+				ontMgr.addOntologyImportFromMirror(baseUriToBeImported, destLocalFile);
 			} else
 				request = "noCorrectRequestGiven!!!"; // we should never incur into it because it is filtered
 			// by the getResponse switch method

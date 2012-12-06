@@ -508,7 +508,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		// and the ontology is NOT loaded in a named graph in the quad store...
 		else if (mirroredOntologyEntry == null && !availableNG(importedOntology)) {
 			logger.debug("NO_MIRROR & NO_NG for graph: " + importedOntology);
-			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative download
+			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative
+																			// download
 			// locations for files from web in the
 			// project, this could be handled
 			// automatically by the application
@@ -520,7 +521,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		else if (mirroredOntologyEntry == null && availableNG(importedOntology)) {
 			logger.debug("NO_MIRROR & NG for graph: " + importedOntology);
 			owlModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, importedOntology);
-			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative download
+			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative
+																			// download
 			// locations for files from web in the
 			// project, this could be handled
 			// automatically by the application
@@ -664,8 +666,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirFileString);
 		File physicalMirrorFile = new File(mirFile.getAbsolutePath());
 		try {
-			owlModel.addRDF(physicalMirrorFile, baseURI, RDFFormat.RDFXML,
-					owlModel.createURIResource(baseURI));
+			owlModel.addRDF(physicalMirrorFile, baseURI,
+					RDFFormat.guessRDFFormatFromFile(physicalMirrorFile), owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
 				importsStatusMap.put(owlModel.createURIResource(baseURI),
@@ -1089,7 +1091,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		checkImportFailed(baseURI);
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(baseURI), baseURI, null, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			throw new ModelUpdateException(e);
 		}
@@ -1109,7 +1111,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			ModelUpdateException, ImportManagementException {
 		checkImportFailed(baseURI);
 		try {
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(baseURI), baseURI, null, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			throw new ModelUpdateException(e);
 		}
