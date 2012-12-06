@@ -722,7 +722,7 @@ public class Metadata extends Resource {
 					url = sourceForImport;
 				else
 					url = baseUriToBeImported;
-				repMgr.addOntologyImportFromWebToMirror(baseUriToBeImported, url, destLocalFile);
+				repMgr.addOntologyImportFromWebToMirror(baseUriToBeImported, url, destLocalFile, null);
 			} else if (method == fromWeb) {
 				request = addFromWebRequest;
 				String url;
@@ -730,7 +730,7 @@ public class Metadata extends Resource {
 					url = sourceForImport;
 				else
 					url = baseUriToBeImported;
-				repMgr.addOntologyImportFromWeb(baseUriToBeImported, url);
+				repMgr.addOntologyImportFromWeb(baseUriToBeImported, url, null);
 			} else if (method == fromLocalFile) {
 				request = addFromLocalFileRequest;
 				repMgr.addOntologyImportFromLocalFile(baseUriToBeImported, sourceForImport, destLocalFile);
