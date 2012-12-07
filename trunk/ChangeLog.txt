@@ -1,6 +1,7 @@
 version 0.8.6-SNAPSHOT
 date: 22-05-2012
   * introduced standard (and homogeneous) serialization of RDF objects
+  * fixed web import for non-inferrable-from-file_extension rdf formats
 
 version 0.8.5.1
 date: 22-05-2012
