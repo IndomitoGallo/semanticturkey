@@ -130,9 +130,13 @@ public class Metadata_UT extends ServiceUTFixture {
 	@Test
 	public void importFromWebWithCompletelyWrongURITest() {
 		// real declared URI of the ontology is http://usefulinc.com/ns/doap#, so including the Hash
-		String wrongURI = "http://art.uniroma2.it/ontologies/heritage";
-		String correctURI = "http://ai-nlp.info.uniroma2.it/ontologies/heritage";
-
+		
+		//String wrongURI = "http://art.uniroma2.it/ontologies/heritage";
+		//String correctURI = "http://ai-nlp.info.uniroma2.it/ontologies/heritage";
+		
+		 String wrongURI = "http://purl.org/vocommons/voaf#";  // used only in a test, need to reenable heritage
+		 String correctURI = "http://purl.org/vocommons/voaf";
+		
 		Response resp = serviceTester.metadataService.makeRequest(Metadata.addFromWebRequest,
 				par(Metadata.baseuriPar, wrongURI));
 		assertResponseREPLY(resp);

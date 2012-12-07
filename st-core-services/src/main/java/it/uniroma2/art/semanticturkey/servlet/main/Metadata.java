@@ -724,7 +724,9 @@ public class Metadata extends Resource {
 		// IMPORT METHOD SWITCHER
 		String request = null;
 		try {
+			logger.debug("rdf format specified by user as: " + rdfFormatName);
 			RDFFormat rdfFormat = (rdfFormatName != null) ? RDFFormat.parseFormat(rdfFormatName) : null;
+			logger.debug("selected rdf format: " + rdfFormat);
 
 			if (method == fromWebToMirror) {
 				request = addFromWebToMirrorRequest;
