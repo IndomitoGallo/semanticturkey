@@ -67,6 +67,20 @@ public class Property_UT extends ServiceUTFixture {
 				"propertyRanges.owl");
 	}
 
+	@Test
+	public void createPropertyTest() {
+
+		Response resp = serviceTester.propertyService.makeRequest(Property.Req.addPropertyRequest, 
+				par(Property.Par.propertyQNamePar, "myProp"),
+				par("propertyType", "owl:DatatypeProperty")
+		);
+		assertAffirmativeREPLY(resp);
+
+		System.out.println("resp for: addProperty\n" + resp);
+
+		//assertEquals(RDFTypesEnum.literal.toString(), rngType);
+	}
+	
 
 	@Test
 	public void getEmptyRangePropertyDescriptionTest() {

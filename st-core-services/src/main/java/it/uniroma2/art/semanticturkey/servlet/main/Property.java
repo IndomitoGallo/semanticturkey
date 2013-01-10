@@ -575,31 +575,30 @@ public class Property extends Resource {
 				if (superPropertyQName != null)
 					superProperty = ontModel.createURIResource(ontModel.expandQName(superPropertyQName));
 
-				// erm....
-				/*RDFResourceRolesEnum role;
+				// RDFResourceRolesEnum role;
 				if (propertyType.equals("rdf:Property")){
 					ontModel.addProperty(propertyURI, superProperty);
-					role = RDFResourceRolesEnum.property;
+					// role = RDFResourceRolesEnum.property;
 				}
 				else if (propertyType.equals("owl:ObjectProperty")){
 					ontModel.addObjectProperty(propertyURI, superProperty);
-					role = RDFResourceRolesEnum.objectProperty;
+					// role = RDFResourceRolesEnum.objectProperty;
 				}
 				else if (propertyType.equals("owl:DatatypeProperty")){
 					ontModel.addDatatypeProperty(propertyURI, superProperty);
-					role = RDFResourceRolesEnum.datatypeProperty;
+					// role = RDFResourceRolesEnum.datatypeProperty;
 				}
 				else if (propertyType.equals("owl:AnnotationProperty")){
 					ontModel.addAnnotationProperty(propertyURI, superProperty);
-					role = RDFResourceRolesEnum.annotationProperty;
+					// role = RDFResourceRolesEnum.annotationProperty;
 				}
 				else if (propertyType.equals("owl:OntologyProperty")){
 					ontModel.addOntologyProperty(propertyURI, superProperty);
-					role = RDFResourceRolesEnum.ontologyProperty;
+					// role = RDFResourceRolesEnum.ontologyProperty;
 				}
 				else
 					return servletUtilities.createExceptionResponse(request, propertyType
-							+ " is not a recognized property type!");*/
+							+ " is not a recognized property type!");
 				
 				Element dataElement = response.getDataElement();
 				Element propertyElement = XMLHelp.newElement(dataElement, "Property");
