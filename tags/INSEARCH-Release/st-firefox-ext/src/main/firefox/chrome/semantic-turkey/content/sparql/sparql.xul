@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="sparql.css" type="text/css"?>
+<?xml-stylesheet href="codemirror2/lib/codemirror.css" type="text/css"?>
+<?xml-stylesheet href="flint/sparqlcolors.css" type="text/css"?>
+<!--  /*
+	  * The contents of this file are subject to the Mozilla Public License
+	  * Version 1.1 (the "License");  you may not use this file except in compliance
+	  * with the License.  You may obtain a copy of the License at
+	  * http://www.mozilla.org/MPL/
+	  *
+	  * Software distributed under the License is distributed on an "AS IS" basis,
+	  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+	  * the specific language governing rights and limitations under the License.
+	  *
+	  * The Original Code is SemanticTurkey.
+	  *
+	  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+	  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+	  * All Rights Reserved.
+	  *
+	  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+	  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+	  * Current information about SemanticTurkey can be obtained at 
+	  * http://semanticturkey.uniroma2.it
+	  *
+	  */ -->
+
+
+<window id="SPARQLResult" title="SPARQL Dialog" flex="1"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/sparql/sparql.js"/>
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+	<script type="application/x-javascript" 
+		src="codemirror2/lib/modified_codemirror.js"/>
+	<script type="application/x-javascript" 
+		src="flint/sparqlmode_ll1.js"/>
+		
+	<groupbox flex="0">
+		<caption class="header" label=" - Insert Query Data - " image="chrome://semantic-turkey/skin/classic/images/st_favicon.png"/>
+
+		<vbox flex="0">
+			<html:textarea style="font-size:11px;" id="textAreaQuery" class="message"  rows="20"  cols="85" flex="0" />
+		</vbox>
+	</groupbox>
+	
+	<label class="header" value="" id="labelask"/>
+	<label class="header" value="&gt;&gt;&gt;   Results of the query   &gt;&gt;&gt;" id="textAreaResult1" />
+	<tree hidecolumnpicker="false" id="SPARQLTree" seltype="single" flex="1">
+		<treecols id="SPARQLTreeCols" />
+		<treechildren id="SPARQLRootTreechildren" flex="1" />
+	</tree>
+
+	<hbox>
+		<button id="submitQuery" label="Submit Query" flex="0" disabled="true" />
+		<spacer flex="1" />
+		<hbox flex="0" style="font-size: 70%" align="center">
+			<html:a href="http://openuplabs.tso.co.uk/demos/sparqleditor">Powered by Flint SPARQL Editor</html:a> 
+		</hbox>
+	</hbox>
+	<popuplist>
+		<panel id="completionsMenu" style="padding:0;">
+			<listbox style="border:0; margin:0; width: 30em">
+			</listbox>
+		</panel>
+	</popuplist>
+</window>

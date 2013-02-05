@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://semantic-turkey/skin/classic/styles/browser-overlay.css" type="text/css"?>
+<?xml-stylesheet href="page.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://semantic-turkey/locale/browser-overlay.dtd">
+	<!--
+		/* * The contents of this file are subject to the Mozilla Public
+		License * Version 1.1 (the "License"); you may not use this file
+		except in compliance * with the License. You may obtain a copy of the
+		License at * http://www.mozilla.org/MPL/ * * Software distributed
+		under the License is distributed on an "AS IS" basis, * WITHOUT
+		WARRANTY OF ANY KIND, either express or implied. See the License for *
+		the specific language governing rights and limitations under the
+		License. * * The Original Code is SemanticTurkey. * * The Initial
+		Developer of the Original Code is University of Roma Tor Vergata. *
+		Portions created by University of Roma Tor Vergata are Copyright (C)
+		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
+		Artificial Intelligence Research Group * (art.uniroma2.it) at the
+		University of Roma Tor Vergata (ART) * Current information about
+		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
+		* */
+	-->
+<overlay id="semantic-turkey-browser-overlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/browser-overlay.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/stMenu.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/annotation/annotation.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/bookmark/bookmark.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/initializer.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/fileChooser.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/highlighting.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/utilities/utilities.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/system-start/system-start.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/projects/manageProjectsUtilities.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/event/eventObjects.js" />
+
+
+
+	<broadcasterset id="mainBroadcasterSet">
+		<broadcaster id="stOntologySidebar" autoCheck="false"
+			label="Ontology Panel" type="checkbox" group="sidebar"
+			sidebarurl="chrome://semantic-turkey/content/tabs.xul" sidebartitle="Ontology Panel"
+			semanticTurkeyBroadcaster="true" />
+		<broadcaster id="stImportsSidebar" autoCheck="false"
+			label="Metadata Panel" type="checkbox" group="sidebar"
+			sidebarurl="chrome://semantic-turkey/content/metadata/imports.xul"
+			sidebartitle="Metadata Panel" semanticTurkeyBroadcaster="true" />
+		<broadcaster id="stSKOSSidebar" autoCheck="false" label="SKOS Panel"
+			type="checkbox" group="sidebar"
+			sidebarurl="chrome://semantic-turkey/content/skos/tabs.xul"
+			sidebartitle="SKOS Panel" semanticTurkeyBroadcaster="true" />
+	</broadcasterset>
+	<!--
+		For Firefox to recognize this as a standalone toolbar, we need to
+		register it within the toolbar manager
+	-->
+	<toolbox id="navigator-toolbox">
+		<toolbar id="sd-toolbar" class="chromeclass-toolbar"
+			accesskey="S" customizable="true" hidden="false" iconsize="small"
+			inherits="collapsed,hidden" mode="full" persist="collapsed,hidden"
+			toolbarname="SemanticTurkey Toolbar" defaultset="buttonbar">
+			<toolbarbutton id="startSTToolBarButton"
+				image="chrome://semantic-turkey/skin/images/st_favicon20x20.png"
+				tooltiptext="Start Semantic Turkey" />
+			<toolbarbutton id="prjManagementToolBarButton"
+				image="chrome://semantic-turkey/skin/images/folder-open.png"
+				tooltiptext="Open Projects Management" hidden="true" />
+			<toolbarbutton id="SKOSToolBarButton"
+				image="chrome://semantic-turkey/skin/images/skosPanel.png"
+				tooltiptext="Open SKOS Editor" hidden="true" />
+			<toolbarbutton id="ontPanelToolBarButton"
+				image="chrome://semantic-turkey/skin/images/ontpanel.png"
+				tooltiptext="Open Ontology Panel" hidden="true" />
+			<toolbarbutton id="importsToolBarButton"
+				image="chrome://semantic-turkey/skin/images/ontology20.png"
+				tooltiptext="Open Imports and Metadata Manager" hidden="true" />
+			<toolbarbutton id="SPARQLToolBarButton"
+				image="chrome://semantic-turkey/skin/images/sparql.png"
+				tooltiptext="Open SPARQL" hidden="true" />
+			<toolbarbutton id="graphBarButton"
+				image="chrome://semantic-turkey/skin/images/graph_20x20.png"
+				tooltiptext="Open Graph View of the Ontology" hidden="true" />
+			<toolbarbutton id="humanReadableButton"
+				image="chrome://semantic-turkey/skin/images/user.png"
+				tooltiptext="Human readable labels" hidden="true" type="checkbox" autocheck="false" />
+		</toolbar>
+	</toolbox>
+
+	<!--
+		<menupopup id="viewSidebarMenu"> <menu id="local_bar" label="Semantic
+		Turkey" position="1" hidden="false"> <menupopup id="menu_local">
+		<menuitem id="sidebar_openSageSidebar" observes="stOntologySidebar"
+		disabled="true"/> <menuitem id="sidebar_openSageSidebar2"
+		observes="stImportsSidebar" disabled="true"/> <menuitem
+		id="sidebar_normal" label="Normal" disabled="true"/> <menuitem
+		id="sidebar_debug" label="Debug" disabled="true"/> </menupopup>
+		</menu> </menupopup>
+	-->
+	<menupopup id="menu_ToolsPopup">
+		<menu id="Principale" label="Semantic Turkey" position="8"
+			class="menuitem-iconic">
+			<menupopup id="menu_ToolsPopup2" hidden="false">
+				<menuitem id="startSt" label="Start Semantic Turkey" />
+				<menuitem id="key_openSTOntologySidebar" observes="stOntologySidebar"
+					disabled="true" />
+				<menuitem id="key_openSTImportsSidebar" observes="stImportsSidebar"
+					disabled="true" />
+				<menuitem id="SPARQL" label="SPARQL" disabled="true" />
+				<menuitem id="key_openSTSKOSSidebar" observes="stSKOSSidebar"
+					disabled="true" />
+				<menu id="visualization" label="Visualization Level" position="4"
+					disabled="true">
+					<menupopup id="menu_ToolsPopup3">
+						<menuitem id="mode_normal" label="Normal" />
+						<menuitem id="mode_debug" label="Debug" />
+					</menupopup>
+				</menu>
+				<menu id="visualization2" label="Data" position="5" disabled="true">
+					<menupopup id="menu_ToolsPopup3">
+						<menuitem id="export_repository" label="Save RDF" />
+						<menuitem id="load_repository" label="Load RDF" />
+						<menuitem id="clear_repository" label="Clear data" />
+						<menuitem id="mirror_ontologies" label="Ontology Mirror" />
+					</menupopup>
+				</menu>
+				<menu id="projects_ST_Menu" label="Project" position="6"
+					disabled="true">
+					<menupopup id="projects_menu_ToolsPopup">
+						<!--
+							<menu label="Current Project"> <menupopup> <menuitem
+							id="current_project_id" disabled="true" label="no project
+							currently active"/> </menupopup> </menu> <menu label="Manage
+							Current Project"> <menupopup id="currentProjectMenupopu">
+							<menuitem id="save_project" label="Save" /> <menuitem
+							id="save_as_project" label="Save as" /> <menuitem
+							id="export_project" label="Export" /> </menupopup> </menu>
+						-->
+						<menuitem id="save_project" label="Save" disabled="true" />
+						<menuitem id="save_as_project" label="Save as" disabled="true" />
+						<menuitem id="export_project" label="Export" disabled="true" />
+						<menuitem id="manage_all_projects" label="Projects Management" />
+					</menupopup>
+				</menu>
+			</menupopup>
+		</menu>
+
+	</menupopup>
+	<toolbarpalette id="BrowserToolbarPalette">
+		<toolbarbutton id="status_bar_annotation_button" class="toolbarbutton-1"
+			tooltiptext="Annotated Page" />
+	</toolbarpalette>
+	<statusbar id="status-bar">
+		<statusbarpanel id="status-bar-bookmark" collapsed="true"
+			class="statusbarpanel-iconic" tooltiptext="Show Page Topics"
+			src="chrome://browser/skin/places/pageStarred.png" />
+		<statusbarpanel id="status-bar-annotation" collapsed="true"
+			class="statusbarpanel-iconic" tooltiptext="Annotated Page"
+			src="chrome://semantic-turkey/skin/images/highlighter.png" />
+	</statusbar>
+</overlay>	
+	
+	
+
+	
+	
+

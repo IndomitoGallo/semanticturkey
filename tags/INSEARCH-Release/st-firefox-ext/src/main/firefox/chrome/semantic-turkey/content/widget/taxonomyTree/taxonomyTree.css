@@ -1,0 +1,11 @@
+@CHARSET "UTF-8";
+
+@namespace st url('http://semanticturkey.uniroma2.it/xmlns/widget#');
+
+st|taxonomyTree {
+	-moz-binding: url('impl/taxonomyTree.xml#taxonomyTree');
+	display: -moz-box;
+	-moz-box-sizing: border-box;
+	-moz-box-orient: vertical;
+	-moz-box-flex: 1;
+}
