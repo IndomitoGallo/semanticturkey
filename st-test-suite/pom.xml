@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
-		<version>0.8.6-SNAPSHOT</version>
+		<version>0.8.6</version>
 	</parent>
 
 	<artifactId>st-test-suite</artifactId>
@@ -44,12 +44,12 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-core-services</artifactId>
-			<version>0.8.6-SNAPSHOT</version>
+			<version>0.8.6</version>
 		</dependency>
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-sesame2-ontmanager</artifactId>
-			<version>0.8.6-SNAPSHOT</version>
+			<version>0.8.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
