@@ -1,3 +1,7 @@
+version 0.8.7-SNAPSHOT
+date: xx-xx-2013
+
+
 version 0.8.6
 date: 22-05-2013
   * introduced standard (and homogeneous) serialization of RDF objects
