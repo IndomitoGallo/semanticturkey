@@ -1,0 +1,53 @@
+<?xml version="1.0"?>  
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">  
+	<binding id="plainLiteral">
+		<content>
+			<xul:hbox inherits="xul:flex">
+				<xul:textbox ano_id="lexicalFormBox" inherits="xul:flex" /> <xul:menulist ano_id="langTagBox" />
+			</xul:hbox>
+		</content>
+		<implementation>
+			<property name="value">
+				<getter>
+				<![CDATA[
+				Components.utils.import("resource://stmodules/rdfi.jsm");
+				
+				var lexicalFormBox = document.getAnonymousElementByAttribute(this, "ano_id", "lexicalFormBox");
+				var langTagBox = document.getAnonymousElementByAttribute(this, "ano_id", "langTagBox");
+				
+				var value = lexicalFormBox.value;
+				var lang = langTagBox.value == "--" ? null : langTagBox.value;
+				return rdf.Literal(value, lang, null, null);
+				]]>
+				</getter>
+			</property>
+			<constructor>
+			<![CDATA[
+				Components.utils.import("resource://stmodules/Preferences.jsm");
+
+				var lexicalFormBox = document.getAnonymousElementByAttribute(this, "ano_id", "lexicalFormBox");
+				var langTagBox = document.getAnonymousElementByAttribute(this, "ano_id", "langTagBox");
+				
+				var prefs = new Preferences("extensions.semturkey.annotprops.");
+				var langs = prefs.get("langs","en").split(",").sort();
+				var defaultLang = prefs.get("defaultlang","en");
+				
+				langTagBox.appendItem("--", "", "");
+				
+				for (var i = 0 ; i < langs.length ; i++) {
+					langTagBox.appendItem(langs[i], langs[i], "");
+				}
+				
+				var index = langs.indexOf(defaultLang);
+				
+				if (index != -1) {
+					langTagBox.selectedIndex = index + 1;
+				} else {
+					langTagBox.selectedIndex = 0;
+				}
+			]]>
+			</constructor>
+		</implementation>
+	</binding>
+</bindings>
