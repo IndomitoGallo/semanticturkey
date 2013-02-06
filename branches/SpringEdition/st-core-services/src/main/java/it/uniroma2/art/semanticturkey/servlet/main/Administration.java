@@ -27,6 +27,7 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.resources.Config;
@@ -171,8 +172,7 @@ public class Administration extends ServiceAdapter {
 				"mirror entry removed");
 	}
 
-	// TODO transform MirroredOntologyFile into an extended class for
-	// java.io.File
+	// TODO transform MirroredOntologyFile into an extended class for java.io.File
 	/**
 	 * updates an entry (and its associated physical file) from the Ontology Mirror
 	 * 
@@ -186,7 +186,8 @@ public class Administration extends ServiceAdapter {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirrorFileName);
 		try {
 			if (updateType == webUpdate) { // use first a temporary file, just in case the download brokes in
-				// the middle, then copies the temporary to the destination in the mirror
+				// the middle, then copies the temporary to the destination in the
+				// mirror
 				OntTempFile tempFile = STOntologyManager.getTempFileEntry();
 				Utilities.download(new URL(location), tempFile.getAbsolutePath());
 				Utilities.copy(tempFile.getAbsolutePath(), mirFile.getAbsolutePath());
@@ -232,8 +233,9 @@ public class Administration extends ServiceAdapter {
 	 * 
 	 * OntologiesMirror.addCachedOntologyEntry(baseURI, new MirroredOntologyFile(newCacheFileLocalName));
 	 * 
-	 * } catch (IOException e) { e.printStackTrace(); return ServletUtilities.getService().documentError(
-	 * "problems in updating file name for mirrored ontology file:\n" + e.getMessage()); }
+	 * } catch (IOException e) { e.printStackTrace(); return
+	 * ServletUtilities.getService().documentError("problems in updating file name for mirrored ontology file:\n"
+	 * + e.getMessage()); }
 	 * 
 	 * Document xml = new DocumentImpl(); Element treeElement = xml.createElement("Tree");
 	 * treeElement.setAttribute("type","AckMsg"); Element ackElem = XMLHelp.newElement(treeElement, "Msg");

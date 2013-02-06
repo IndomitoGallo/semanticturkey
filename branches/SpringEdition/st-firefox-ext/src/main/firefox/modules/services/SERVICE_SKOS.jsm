@@ -22,7 +22,7 @@ function getTopConcepts(scheme,lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getTopConcepts');
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var lang_p = "lang=" + lang;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p));
 }
 
 /**
@@ -40,7 +40,7 @@ function getNarrowerConcepts(concept, scheme, lang) {
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var treeView_p ="treeView=true";
 	var lang_p = "lang=" + lang;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p));
 }
 
 /**
@@ -53,7 +53,7 @@ function getNarrowerConcepts(concept, scheme, lang) {
 function getAllSchemesList(lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getAllSchemesList: langTag (' + lang + ')');
 	var lang_p = "lang=" + lang;
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, lang_p));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, lang_p));
 }
 
 //TODO fix with the new normalized answer
@@ -178,7 +178,7 @@ function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLang
 	
 	var reply = HttpMgr.GET(serviceName, service.createConceptRequest, concept_p, broaderConcept_p, scheme_p, prefLabel_p, prefLabelLanguage_p);
 
-	var uriValue = Deserializer.getURI(reply);
+	var uriValue = Deserializer.createURI(reply);
 	
 	if (!reply.isFail()) {
 		evtMgr.fireEvent("skosConceptAdded", {
@@ -211,7 +211,7 @@ function createScheme(scheme, prefLabel, prefLabelLanguage) {
 	
 	var reply = HttpMgr.GET(serviceName, service.createSchemeRequest,scheme_p, prefLabel_p,prefLabelLanguage_p);
 	
-	var uriValue = Deserializer.getURI(reply);
+	var uriValue = Deserializer.createURI(reply);
 	
 	if (!reply.isFail()) {
 		evtMgr.fireEvent("skosSchemeAdded", {

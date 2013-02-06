@@ -71,7 +71,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 @Component
-
 public class Projects extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Projects.class);
 
@@ -132,9 +131,7 @@ public class Projects extends ServiceAdapter {
 		return logger;
 	}
 
-	
-	public Response getPreCheckedResponse(String request)
-			throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 
 		if (request.equals(Req.openProjectRequest)) {
 			String projectName = setHttpPar(projectNamePar);
@@ -150,28 +147,26 @@ public class Projects extends ServiceAdapter {
 			String ontManagerConfiguration = setHttpPar(ontMgrConfigurationPar);
 			String cfgPars = setHttpPar(cfgParsPar);
 
-			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar,
-					baseuriPar, ontmanagerPar, ontMgrConfigurationPar);
+			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar, baseuriPar, ontmanagerPar,
+					ontMgrConfigurationPar);
 
-			return newEmptyProject(projectName, ontologyType, baseuri,
-					ontmanager, ontManagerConfiguration, cfgPars);
+			return newEmptyProject(projectName, ontologyType, baseuri, ontmanager, ontManagerConfiguration,
+					cfgPars);
 		}
 
 		else if (request.equals(Req.createNewProjectFromFileRequest)) {
 			String projectName = setHttpPar(projectNamePar);
-			String ontologyType = setHttpPar(ontologyTypePar); // not checked
-																// for existence
+			String ontologyType = setHttpPar(ontologyTypePar); // not checked for existence
 			String baseuri = setHttpPar(baseuriPar);
 			String ontmanager = setHttpPar(ontmanagerPar);
 			String ontManagerConfiguration = setHttpPar(ontMgrConfigurationPar);
 			String cfgPars = setHttpPar(cfgParsPar);
 			String ontFile = setHttpPar(ontFilePar);
 
-			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar,
-					baseuriPar, ontmanagerPar, ontMgrConfigurationPar,
-					ontFilePar);
-			return newProjectFromFile(projectName, ontologyType, baseuri,
-					ontmanager, ontManagerConfiguration, cfgPars, ontFile);
+			checkRequestParametersAllNotNull(projectNamePar, ontologyTypePar, baseuriPar, ontmanagerPar,
+					ontMgrConfigurationPar, ontFilePar);
+			return newProjectFromFile(projectName, ontologyType, baseuri, ontmanager,
+					ontManagerConfiguration, cfgPars, ontFile);
 		}
 
 		else if (request.equals(Req.closeProjectRequest)) {
@@ -243,43 +238,34 @@ public class Projects extends ServiceAdapter {
 		}
 
 		else
-			return servletUtilities
-					.createNoSuchHandlerExceptionResponse(request);
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 	}
 
 	public Response repairProject(String projectName) {
 		String request = Req.repairProjectRequest;
-		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request,
-				RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		try {
 			UpdateRoutines.repairProject(projectName);
 			return resp;
 		} catch (IOException e) {
-			return logAndSendException(request, e,
-					"unable to access property file for project: "
-							+ projectName + " (which seems however to exist)");
+			return logAndSendException(request, e, "unable to access property file for project: "
+					+ projectName + " (which seems however to exist)");
 		} catch (InvalidProjectNameException e) {
 			return logAndSendException(request, e,
 					"UPDATING OLD PROJECT TO NEW FORMAT: strangely, the project name is invalid");
 		} catch (ProjectInexistentException e) {
-			return logAndSendException(
-					request,
-					e,
-					"UPDATING OLD PROJECT TO NEW FORMAT: strangely, project: "
-							+ projectName
-							+ " does not exist, while it has been previously checked for existence");
+			return logAndSendException(request, e, "UPDATING OLD PROJECT TO NEW FORMAT: strangely, project: "
+					+ projectName + " does not exist, while it has been previously checked for existence");
 		} catch (ProjectInconsistentException e) {
 			return logAndSendException(request, e,
-					"the project was in a inconsistent state which I'm unable to repair: "
-							+ e.getMessage());
+					"the project was in a inconsistent state which I'm unable to repair: " + e.getMessage());
 		}
 	}
 
 	public Response getCurrentProject() {
 		String request = Req.getCurrentProjectRequest;
 		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
-		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request,
-				RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		String projName = proj.getName();
@@ -287,8 +273,7 @@ public class Projects extends ServiceAdapter {
 			Element projElem = XMLHelp.newElement(dataElem, projectTag);
 			projElem.setAttribute("exists", "false");
 		} else {
-			Element projElem = XMLHelp.newElement(dataElem, projectTag,
-					projName);
+			Element projElem = XMLHelp.newElement(dataElem, projectTag, projName);
 			projElem.setAttribute("exists", "true");
 		}
 		return resp;
@@ -300,26 +285,20 @@ public class Projects extends ServiceAdapter {
 		Collection<AbstractProject> projects;
 		try {
 			projects = ProjectManager.listProjects();
-			XMLResponseREPLY resp = servletUtilities.createReplyResponse(
-					request, RepliesStatus.ok);
+			XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElem = resp.getDataElement();
 
 			for (AbstractProject absProj : projects) {
-				Element projElem = XMLHelp.newElement(dataElem, projectTag,
-						absProj.getName());
+				Element projElem = XMLHelp.newElement(dataElem, projectTag, absProj.getName());
 				if (absProj instanceof Project<?>) {
 					Project<? extends RDFModel> proj = (Project<? extends RDFModel>) absProj;
 					try {
-						projElem.setAttribute(ontoTypeAttr, ((Project<?>) proj)
-								.getModelType().getName());
-						String ontMgr = ((Project<?>) proj)
-								.getOntologyManagerImplID();
+						projElem.setAttribute(ontoTypeAttr, ((Project<?>) proj).getModelType().getName());
+						String ontMgr = ((Project<?>) proj).getOntologyManagerImplID();
 						projElem.setAttribute(ontMgrAttr, ontMgr);
-						String mConfID = ((Project<?>) proj)
-								.getModelConfigurationID();
+						String mConfID = ((Project<?>) proj).getModelConfigurationID();
 						projElem.setAttribute(modelConfigAttr, mConfID);
-						projElem.setAttribute(typeAttr,
-								((Project<?>) proj).getType());
+						projElem.setAttribute(typeAttr, ((Project<?>) proj).getType());
 
 						projElem.setAttribute(statusAttr, "ok");
 					} catch (DOMException e) {
@@ -337,8 +316,7 @@ public class Projects extends ServiceAdapter {
 			}
 			return resp;
 		} catch (ProjectAccessException e) {
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.toString());
+			return ServletUtilities.getService().createExceptionResponse(request, e.toString());
 		}
 	}
 
@@ -355,8 +333,8 @@ public class Projects extends ServiceAdapter {
 
 		try {
 			Project<?> proj = ProjectManager.openProject(projectName);
-			XMLResponseREPLY response = ServletUtilities.getService()
-					.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
@@ -364,8 +342,7 @@ public class Projects extends ServiceAdapter {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
 	}
@@ -386,12 +363,10 @@ public class Projects extends ServiceAdapter {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
@@ -408,8 +383,7 @@ public class Projects extends ServiceAdapter {
 
 		if (projName != null && !projName.equals(proj.getName())) {
 			// proj = getLoadedProject(projName)
-			// this case will be available when multiple project management will
-			// be activated
+			// this case will be available when multiple project management will be activated
 		}
 
 		if (!(proj instanceof SaveToStoreProject<?>))
@@ -421,12 +395,10 @@ public class Projects extends ServiceAdapter {
 		} catch (ProjectUpdateException e) {
 			logger.error(e.toString());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
@@ -437,21 +409,18 @@ public class Projects extends ServiceAdapter {
 	 */
 	public Response saveProjectAs(String newProjectName) {
 
-		logger.info("requested to save current project as project: "
-				+ newProjectName);
+		logger.info("requested to save current project as project: " + newProjectName);
 
 		String projectName = ProjectManager.getCurrentProject().getName();
 		try {
 
 			if (ProjectManager.existsProject(newProjectName)) {
-				return servletUtilities.createReplyFAIL(
-						Req.saveProjectAsRequest, "project " + newProjectName
-								+ " already exists!");
+				return servletUtilities.createReplyFAIL(Req.saveProjectAsRequest, "project " + newProjectName
+						+ " already exists!");
 			}
 
 			ProjectManager.closeCurrentProject();
-			ProjectManager
-					.cloneProjectToNewProject(projectName, newProjectName);
+			ProjectManager.cloneProjectToNewProject(projectName, newProjectName);
 			ProjectManager.openProject(newProjectName);
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
@@ -471,8 +440,7 @@ public class Projects extends ServiceAdapter {
 					"weird error: ProjectManager reported that it is impossible to clone the current project because it does not exist!");
 		}
 
-		return servletUtilities.createReplyResponse(Req.saveProjectAsRequest,
-				RepliesStatus.ok);
+		return servletUtilities.createReplyResponse(Req.saveProjectAsRequest, RepliesStatus.ok);
 	}
 
 	/**
@@ -487,22 +455,18 @@ public class Projects extends ServiceAdapter {
 		logger.info("requested to export current project");
 
 		try {
-			ProjectManager
-					.cloneProjectToNewProject(projectName, newProjectName);
+			ProjectManager.cloneProjectToNewProject(projectName, newProjectName);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
-	 * exports the current project to a given project file in Semantic Turkey
-	 * project archive format
+	 * exports the current project to a given project file in Semantic Turkey project archive format
 	 * 
 	 * @param projectName
 	 * @return
@@ -518,17 +482,14 @@ public class Projects extends ServiceAdapter {
 		} catch (Exception e) {
 			logger.error(e.toString());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
-	 * exports the current project to a given project file in Semantic Turkey
-	 * project archive format
+	 * exports the current project to a given project file in Semantic Turkey project archive format
 	 * 
 	 * @param projectName
 	 * @return
@@ -543,25 +504,21 @@ public class Projects extends ServiceAdapter {
 			ProjectManager.importProject(projectFile, newProjectName);
 
 		} catch (DuplicatedResourceException e) {
-			return ServletUtilities.getService().createReplyResponse(request,
-					RepliesStatus.fail, e.getMessage());
+			return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.fail,
+					e.getMessage());
 
 		} catch (Exception e) {
 			logger.error(e.toString());
 			e.printStackTrace(System.err);
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
-	private Response recoverFromFailedProjectCreation(String request,
-			String projectName, String intendedMsg) {
+	private Response recoverFromFailedProjectCreation(String request, String projectName, String intendedMsg) {
 		try {
-			logger.error("not able to open project: " + projectName
-					+ "; raised exception: " + intendedMsg);
+			logger.error("not able to open project: " + projectName + "; raised exception: " + intendedMsg);
 
 			logger.error("now deleting project folder");
 			ProjectManager.deleteProject(projectName);
@@ -572,8 +529,7 @@ public class Projects extends ServiceAdapter {
 							request,
 							"a problem raised when creating the project, however, we were not able to delete the folder which has been created for it; please delete it manually");
 		}
-		return ServletUtilities.getService().createExceptionResponse(request,
-				intendedMsg);
+		return ServletUtilities.getService().createExceptionResponse(request, intendedMsg);
 	}
 
 	public static Properties resolveConfigParameters(String configParameters) {
@@ -594,41 +550,34 @@ public class Projects extends ServiceAdapter {
 	 * @param projectName
 	 * @param baseuri
 	 * @param ontmanager
-	 *            the id of the ontmanager implementation which will be used to
-	 *            manage the ontology
+	 *            the id of the ontmanager implementation which will be used to manage the ontology
 	 * @param projectType
-	 *            the string expression for one of the defined
-	 *            {@link ProjectType}s
+	 *            the string expression for one of the defined {@link ProjectType}s
 	 * @return
 	 */
-	public Response newEmptyProject(String projectName, String ontologyType,
-			String baseuri, String ontmanager, String modelConfigurationClass,
-			String configPars) {
+	public Response newEmptyProject(String projectName, String ontologyType, String baseuri,
+			String ontmanager, String modelConfigurationClass, String configPars) {
 
 		String request = Req.createNewProjectRequest;
-		logger.info("requested to create new project with name:  "
-				+ projectName);
+		logger.info("requested to create new project with name:  " + projectName);
 		logger.debug("ontologyType: " + ontologyType);
 		try {
-			Class<? extends RDFModel> modelType = ModelTypeRegistry
-					.getModelClass(ontologyType);
+			Class<? extends RDFModel> modelType = ModelTypeRegistry.getModelClass(ontologyType);
 
 			Properties modelConfiguration = resolveConfigParameters(configPars);
 
-			Project<?> proj = ProjectManager.createProject(projectName,
-					modelType, baseuri, ontmanager, modelConfigurationClass,
-					modelConfiguration);
+			Project<?> proj = ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+					modelConfigurationClass, modelConfiguration);
 
-			XMLResponseREPLY response = ServletUtilities.getService()
-					.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
 
 		} catch (InvalidProjectNameException e) {
 			logger.error(e.getMessage());
-			return servletUtilities.createExceptionResponse(request,
-					e.toString());
+			return servletUtilities.createExceptionResponse(request, e.toString());
 		} catch (RuntimeException e) {
 			e.printStackTrace(System.err);
 			recoverFromFailedProjectCreation(request, projectName, "");
@@ -636,14 +585,12 @@ public class Projects extends ServiceAdapter {
 		} catch (DuplicatedResourceException e) {
 			logger.error(e.getMessage());
 			// if the project already existed, it does need to be deleted!!!
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		} catch (Exception e) {
-			logger.error("exception when creating a new empty project: " + e
-					+ "\nexception type: " + e.getClass());
+			logger.error("exception when creating a new empty project: " + e + "\nexception type: "
+					+ e.getClass());
 			e.printStackTrace(System.err);
-			return recoverFromFailedProjectCreation(request, projectName,
-					e.getMessage());
+			return recoverFromFailedProjectCreation(request, projectName, e.getMessage());
 		}
 	}
 
@@ -657,13 +604,11 @@ public class Projects extends ServiceAdapter {
 	 * @param file
 	 * @return
 	 */
-	public Response newProjectFromFile(String projectName, String ontologyType,
-			String baseuri, String ontmanager, String modelConfigurationClass,
-			String configPars, String file) {
+	public Response newProjectFromFile(String projectName, String ontologyType, String baseuri,
+			String ontmanager, String modelConfigurationClass, String configPars, String file) {
 
 		String request = Req.createNewProjectFromFileRequest;
-		logger.info("requested to create new project with name:  "
-				+ projectName + " from file: " + file);
+		logger.info("requested to create new project with name:  " + projectName + " from file: " + file);
 
 		try {
 			File ontFileToImport = new File(file);
@@ -675,20 +620,17 @@ public class Projects extends ServiceAdapter {
 
 			Properties modelConfiguration = resolveConfigParameters(configPars);
 
-			Project<?> proj = ProjectManager.createProject(projectName,
-					modelType, baseuri, ontmanager, modelConfigurationClass,
-					modelConfiguration);
+			Project<?> proj = ProjectManager.createProject(projectName, modelType, baseuri, ontmanager,
+					modelConfigurationClass, modelConfiguration);
 
-			logger.info("project: " + projectName
-					+ " created, importing rdf data from file: " + file);
+			logger.info("project: " + projectName + " created, importing rdf data from file: " + file);
 			proj.getOntModel().addRDF(ontFileToImport, baseuri,
-					RDFFormat.guessRDFFormatFromFile(ontFileToImport),
-					NodeFilters.MAINGRAPH);
+					RDFFormat.guessRDFFormatFromFile(ontFileToImport), NodeFilters.MAINGRAPH);
 			// RDFFormat.RDFXML, NodeFilters.MAINGRAPH);
 			logger.info("rdf data imported from file: " + file);
 
-			XMLResponseREPLY response = ServletUtilities.getService()
-					.createReplyResponse(request, RepliesStatus.ok);
+			XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			XMLHelp.newElement(dataElement, "type", proj.getType());
 			return response;
@@ -700,13 +642,11 @@ public class Projects extends ServiceAdapter {
 		} catch (DuplicatedResourceException e) {
 			logger.error(e.getMessage());
 			// if the project already existed, it does need to be deleted!!!
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		} catch (Exception e) {
-			logger.error("exception when creating a new empty project: "
-					+ e.getMessage() + "\nexception type: " + e.getClass());
-			return recoverFromFailedProjectCreation(request, projectName,
-					e.getMessage());
+			logger.error("exception when creating a new empty project: " + e.getMessage()
+					+ "\nexception type: " + e.getClass());
+			return recoverFromFailedProjectCreation(request, projectName, e.getMessage());
 		}
 	}
 
@@ -725,24 +665,20 @@ public class Projects extends ServiceAdapter {
 			ProjectManager.closeCurrentProject();
 		} catch (Exception e) {
 			logger.info(e.getMessage());
-			return ServletUtilities.getService().createExceptionResponse(
-					request, e.getMessage());
+			return ServletUtilities.getService().createExceptionResponse(request, e.getMessage());
 		}
 
-		return ServletUtilities.getService().createReplyResponse(request,
-				RepliesStatus.ok);
+		return ServletUtilities.getService().createReplyResponse(request, RepliesStatus.ok);
 	}
 
 	/**
-	 * this service returns values associated to properties of a given project
-	 * returns a response with elements called {@link #propertyTag} with
-	 * attributes {@link #propNameAttr} for property name and
+	 * this service returns values associated to properties of a given project returns a response with
+	 * elements called {@link #propertyTag} with attributes {@link #propNameAttr} for property name and
 	 * 
 	 * @param propNamesCompact
 	 *            a ";" separated list of property names
 	 * @param projName
-	 *            (optional)the project queried for properties (if null, current
-	 *            project is queried)
+	 *            (optional)the project queried for properties (if null, current project is queried)
 	 * @return
 	 */
 	public Response getProjectProperty(String propNamesCompact, String projName) {
@@ -757,8 +693,7 @@ public class Projects extends ServiceAdapter {
 		} else
 			try {
 				for (int i = 0; i < propNames.length; i++)
-					propValues[i] = ProjectManager.getProjectProperty(projName,
-							propNames[i]);
+					propValues[i] = ProjectManager.getProjectProperty(projName, propNames[i]);
 			} catch (IOException e) {
 				return logAndSendException(e);
 			} catch (InvalidProjectNameException e) {
@@ -767,8 +702,8 @@ public class Projects extends ServiceAdapter {
 				return logAndSendException(e);
 			}
 
-		XMLResponseREPLY resp = servletUtilities.createReplyResponse(
-				Req.getProjectPropertyRequest, RepliesStatus.ok);
+		XMLResponseREPLY resp = servletUtilities.createReplyResponse(Req.getProjectPropertyRequest,
+				RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		for (int i = 0; i < propValues.length; i++) {
@@ -783,8 +718,7 @@ public class Projects extends ServiceAdapter {
 
 	}
 
-	// the following service does not allow to modify properties of closed
-	// projects, as that kind of
+	// the following service does not allow to modify properties of closed projects, as that kind of
 	// modification allows for changing even syste, properties
 
 	/**
@@ -795,20 +729,17 @@ public class Projects extends ServiceAdapter {
 	 * @return
 	 */
 	public Response setProjectProperty(String propName, String propValue) {
-		Project<? extends RDFModel> currProj = ProjectManager
-				.getCurrentProject();
+		Project<? extends RDFModel> currProj = ProjectManager.getCurrentProject();
 		try {
 			currProj.setProperty(propName, propValue);
 		} catch (ProjectUpdateException e) {
 			return logAndSendException(e);
 		} catch (ReservedPropertyUpdateException e) {
-			return servletUtilities.createReplyResponse(
-					Req.setProjectPropertyRequest, RepliesStatus.fail,
+			return servletUtilities.createReplyResponse(Req.setProjectPropertyRequest, RepliesStatus.fail,
 					e.getMessage());
 		}
 
-		return servletUtilities.createReplyResponse(
-				Req.setProjectPropertyRequest, RepliesStatus.ok);
+		return servletUtilities.createReplyResponse(Req.setProjectPropertyRequest, RepliesStatus.ok);
 
 	}
 }

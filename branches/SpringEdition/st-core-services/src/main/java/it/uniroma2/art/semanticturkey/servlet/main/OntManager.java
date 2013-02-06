@@ -57,7 +57,6 @@ import org.w3c.dom.Element;
  * @author Armando Stellato
  */
 @Component
-
 public class OntManager extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(OntManager.class);
 
@@ -76,10 +75,9 @@ public class OntManager extends ServiceAdapter {
 		return logger;
 	}
 
-	
-	public Response getPreCheckedResponse(String request)
-			throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		fireServletEvent();
+
 		if (request.equals(getOntManagerParametersRequest)) {
 			String ontMgrID = setHttpPar(ontMgrIDField);
 
@@ -88,8 +86,8 @@ public class OntManager extends ServiceAdapter {
 			return getOntologyManagerParameters(ontMgrID);
 
 		} else
-			return ServletUtilities.getService().createExceptionResponse(
-					request, "no handler for such a request!");
+			return ServletUtilities.getService().createExceptionResponse(request,
+					"no handler for such a request!");
 
 	}
 
@@ -99,29 +97,24 @@ public class OntManager extends ServiceAdapter {
 		try {
 			ontMgrFact = PluginManager.getOntManagerImpl(ontMgrID);
 		} catch (UnavailableResourceException e1) {
-			return servletUtilities.createExceptionResponse(request,
-					e1.getMessage());
+			return servletUtilities.createExceptionResponse(request, e1.getMessage());
 		}
 
 		try {
-			Collection<ModelConfiguration> mConfs = ontMgrFact
-					.getModelConfigurations();
+			Collection<ModelConfiguration> mConfs = ontMgrFact.getModelConfigurations();
 
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(
-					request, RepliesStatus.ok);
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 
 			for (ModelConfiguration mConf : mConfs) {
 
-				Element newConfType = XMLHelp.newElement(dataElement,
-						"configuration");
+				Element newConfType = XMLHelp.newElement(dataElement, "configuration");
 
 				newConfType.setAttribute("type", mConf.getClass().getName());
 
 				newConfType.setAttribute("shortName", mConf.getShortName());
 
-				newConfType.setAttribute("editRequired",
-						Boolean.toString(mConf.hasRequiredParameters()));
+				newConfType.setAttribute("editRequired", Boolean.toString(mConf.hasRequiredParameters()));
 
 				Collection<String> pars = mConf.getConfigurationParameters();
 
@@ -130,8 +123,7 @@ public class OntManager extends ServiceAdapter {
 					Element newPar = XMLHelp.newElement(newConfType, "par");
 					newPar.setAttribute("name", par);
 					newPar.setAttribute("description", parDescr);
-					newPar.setAttribute("required",
-							Boolean.toString(mConf.isRequiredParameter(par)));
+					newPar.setAttribute("required", Boolean.toString(mConf.isRequiredParameter(par)));
 					String contentType = mConf.getParameterContentType(par);
 					if (contentType != null)
 						newPar.setAttribute("type", contentType);
@@ -152,11 +144,9 @@ public class OntManager extends ServiceAdapter {
 									+ e.getMessage());
 		} catch (UnsupportedModelConfigurationException e) {
 			return servletUtilities.createExceptionResponse(request,
-					"strangely, the Model Configuration was not recognized: "
-							+ e.getMessage());
+					"strangely, the Model Configuration was not recognized: " + e.getMessage());
 		} catch (UnloadableModelConfigurationException e) {
-			return servletUtilities.createExceptionResponse(request,
-					e.getMessage());
+			return servletUtilities.createExceptionResponse(request, e.getMessage());
 		}
 
 	}

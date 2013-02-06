@@ -37,7 +37,6 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 @Component
-
 public class SKOSXL extends SKOS {
 
 	protected static Logger logger = LoggerFactory.getLogger(SKOSXL.class);
@@ -60,7 +59,7 @@ public class SKOSXL extends SKOS {
 		// public static final String getSchemesMatrixPerConceptRequest = "getSchemesMatrixPerConceptRequest";
 
 		// IS REQUESTS
-		public static final String isTopConceptRequest = "isTopConcept";
+		//public static final String isTopConceptRequest = "isTopConcept";
 
 		// ADD REQUESTS
 		// public static final String addTopConceptRequest = "addTopConcept";
@@ -111,14 +110,14 @@ public class SKOSXL extends SKOS {
 		// final static public String treeView = "treeView";
 		final static public String mode = "mode";
 	}
-@Autowired
+
+	@Autowired
 	public SKOSXL(@Value("Skosxl") String id) {
 		super(id);
 	}
 
-	
 	@Override
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to SKOS-XL");
 
 		Response response = null;

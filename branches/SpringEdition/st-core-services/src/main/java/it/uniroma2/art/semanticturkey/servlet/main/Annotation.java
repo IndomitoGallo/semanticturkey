@@ -34,6 +34,7 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
@@ -51,6 +52,7 @@ import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
@@ -85,6 +87,7 @@ public class Annotation extends ServiceAdapter {
 
 	public static final String getPageAnnotationsRequest = "getPageAnnotations";
 	public static final String chkAnnotationsRequest = "chkAnnotations";
+	public static final String chkBookmarksRequest = "chkBookmarks";
 	public static final String removeAnnotationRequest = "removeAnnotation";
 	public static final String createAndAnnotateRequest = "createAndAnnotate";
 	public static final String addAnnotationRequest = "addAnnotation";
@@ -94,7 +97,7 @@ public class Annotation extends ServiceAdapter {
 	public static final String getPageTopicsRequest = "getPageTopics";
 	public static final String getAllBookmarksRequest = "getAllBookmarks";
 	public static final String removeBookmarkRequest = "removeBookmark";
-	// parameters
+ 	// parameters
 	public static final String annotQNameString = "annotQName";
 	public static final String textString = "text";
 	public static final String op = "op";
@@ -147,7 +150,6 @@ public class Annotation extends ServiceAdapter {
 	 * 
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()
 	 */
-
 	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		Response response = null;
 
@@ -164,13 +166,13 @@ public class Annotation extends ServiceAdapter {
 			String topicName = setHttpPar(topic);
 			checkRequestParametersAllNotNull(topic);
 			response = getBookmarksByTopic(topicName);
-		} else if (request.equals(removeBookmarkRequest)) {
+		} else if(request.equals(removeBookmarkRequest)) {
 			String urlPage = setHttpPar(urlPageField);
 			String topic = setHttpPar(Annotation.topic);
 			checkRequestParametersAllNotNull(urlPageField, Annotation.topic);
-
+			
 			response = removeBookmark(urlPage, topic);
-		} else if (request.equals(getPageTopicsRequest)) {
+		} else if(request.equals(getPageTopicsRequest)) {
 			String urlPage = setHttpPar(urlPageField);
 			checkRequestParametersAllNotNull(urlPageField);
 			response = getPageTopics(urlPage);
@@ -180,6 +182,10 @@ public class Annotation extends ServiceAdapter {
 			String urlPage = setHttpPar(urlPageField);
 			checkRequestParametersAllNotNull(urlPageField);
 			response = chkPageForAnnotations(urlPage);
+		} else if (request.equals(chkBookmarksRequest)) {
+			String urlPage = setHttpPar(urlPageField);
+			checkRequestParametersAllNotNull(urlPageField);
+			response = chkBookmarks(urlPage);
 		} else if (request.equals(removeAnnotationRequest)) {
 			String annotQName = setHttpPar(annotQNameString);
 			response = removeAnnotation(annotQName);
@@ -228,8 +234,6 @@ public class Annotation extends ServiceAdapter {
 						predicatePropertyName, objectInstanceNameEncoded, annotation, urlPage, title);
 			}
 
-			//
-
 		} else
 			return ServletUtilities.getService().createNoSuchHandlerExceptionResponse(request);
 
@@ -237,14 +241,46 @@ public class Annotation extends ServiceAdapter {
 		return response;
 	}
 
-	static private class NodeToResource implements Function<ARTNode, ARTURIResource> {
+	private Response chkBookmarks(String urlPage) {
+		OWLModel ontModel = getOWLModel();
+
+		XMLResponseREPLY response = createBooleanResponse(false);
+
+		ARTLiteral urlPageLiteral = ontModel.createLiteral(urlPage);
+		ARTResourceIterator collectionIterator;
+		ARTResource webPage = null;
+		try {
+			collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url, urlPageLiteral,
+					true, getUserNamedGraphs());
+			while (collectionIterator.hasNext()) {
+				webPage = (ARTResource) collectionIterator.next();
+			}
+			if (webPage == null) {
+				return response;
+			}
+			
+			boolean hasBookmarks = ontModel.hasTriple(webPage, SemAnnotVocab.Res.topic, NodeFilters.ANY, true, getUserNamedGraphs());
+			
+			if (hasBookmarks) {
+				response = createBooleanResponse(true);
+			}
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		
+		return response;
+	}
+
+	static private class NodeToResource implements Function<ARTNode, ARTURIResource>{
 
 		public ARTURIResource apply(ARTNode arg) {
 			return arg.asURIResource();
 		}
 
 	}
-
+	
 	private Response getPageTopics(String urlPage) {
 		OWLModel ontModel = getOWLModel();
 
@@ -264,29 +300,28 @@ public class Annotation extends ServiceAdapter {
 			if (webPage == null) {
 				return response;
 			}
-
-			ARTNodeIterator topicIterator = ontModel.listValuesOfSubjPredPair(webPage,
-					SemAnnotVocab.Res.topic, true, getUserNamedGraphs());
-			Iterator<ARTURIResource> filteredIterator = Iterators.transform(topicIterator,
-					new NodeToResource());
-
+			
+			ARTNodeIterator topicIterator = ontModel.listValuesOfSubjPredPair(webPage, SemAnnotVocab.Res.topic, true, getUserNamedGraphs());
+			Iterator<ARTURIResource> filteredIterator =  Iterators.transform(topicIterator, new NodeToResource());
+			
 			Collection<STRDFResource> topicCollection = STRDFNodeFactory.createEmptyResourceCollection();
 
 			while (filteredIterator.hasNext()) {
 				ARTURIResource resource = filteredIterator.next();
-
-				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(resource,
-						RDFResourceRolesEnum.concept, true, ontModel.getQName(resource.getURI()));
+				
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(resource, 
+						ModelUtilities.getResourceRole(resource, ontModel), 
+						true, ontModel.getQName(resource.getURI()));
 				topicCollection.add(stResource);
 			}
-
+			
 			RDFXMLHelp.addRDFNodes(dataElement, topicCollection);
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(e);
 		}
-
+		
 		return response;
 	}
 
@@ -305,7 +340,7 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response getPageAnnotations(String urlPage) {
 		OWLModel ontModel = getOWLModel();
-
+		
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 		Element dataElement = response.getDataElement();
@@ -336,13 +371,7 @@ public class Annotation extends ServiceAdapter {
 				ARTResource semanticAnnotation = semanticAnnotationsIterator.getNext().asURIResource();
 				ARTLiteralIterator lexicalizationIterator = ontModel.listValuesOfSubjDTypePropertyPair(
 						semanticAnnotation, SemAnnotVocab.Res.text, true, getUserNamedGraphs());
-				ARTLiteral lexicalization = lexicalizationIterator.getNext(); // there
-																				// is
-																				// at
-																				// least
-																				// one
-																				// and
-																				// no
+				ARTLiteral lexicalization = lexicalizationIterator.getNext(); // there is at least one and no
 				// more than one lexicalization
 				// for each semantic annotation
 				Element annotationElement = XMLHelp.newElement(dataElement, "Annotation");
@@ -352,8 +381,7 @@ public class Annotation extends ServiceAdapter {
 				ARTURIResource annotatedResource = ontModel
 						.listSubjectsOfPredObjPair(SemAnnotVocab.Res.annotation, semanticAnnotation, true,
 								getUserNamedGraphs()).getNext().asURIResource();
-				// there is at least one and no more than one referenced
-				// resource for each semantic annotation
+				// there is at least one and no more than one referenced resource for each semantic annotation
 				annotationElement.setAttribute("resource", ontModel.getQName(annotatedResource.getURI()));
 			}
 		} catch (ModelAccessException e) {
@@ -581,8 +609,7 @@ public class Annotation extends ServiceAdapter {
 		}
 	}
 
-	// TODO this is the copy of the same method present in the Cls servlet.
-	// Factorize it somehow
+	// TODO this is the copy of the same method present in the Cls servlet. Factorize it somehow
 	/**
 	 * @param clsQName
 	 * @param instanceName
@@ -592,7 +619,7 @@ public class Annotation extends ServiceAdapter {
 	 */
 	public Response updateClassOnTree(String clsQName, String instanceName) throws ModelAccessException,
 			NonExistingRDFResourceException {
-		ServletUtilities servletUtilities = new ServletUtilities();
+		/*ServletUtilities servletUtilities = new ServletUtilities();
 		XMLResponseREPLY response = servletUtilities.createReplyResponse(createAndAnnotateRequest,
 				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
@@ -609,7 +636,35 @@ public class Annotation extends ServiceAdapter {
 		clsElement.setAttribute("numTotInst", numTotInst);
 		Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
 		instanceElement.setAttribute("instanceName", servletUtilities.decodeLabel(instanceName));
-		return response;
+		return response;*/
+		RDFSModel ontModel = (RDFSModel) ProjectManager.getCurrentProject().getOntModel();
+		try {
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			
+			Element clsElement = XMLHelp.newElement(dataElement, "Class");
+			String clsURI = ontModel.expandQName(clsQName);
+			ARTResource cls = ontModel.createURIResource(clsURI);
+			ARTResource wgraph = getWorkingGraph();
+			ARTResource[] graphs = getUserNamedGraphs();
+			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph), false);
+			Cls.decorateWithNumberOfIstances(ontModel, stClass, graphs);
+			Cls.setRendering(ontModel, stClass, null, null, graphs);
+			RDFXMLHelp.addRDFNode(clsElement, stClass);
+			
+			Element instanceElement = XMLHelp.newElement(dataElement, "Instance");
+			ARTURIResource instanceRes = ontModel.createURIResource(ontModel.expandQName(instanceName));
+			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, instanceRes,
+					ModelUtilities.getResourceRole(instanceRes, ontModel), 
+					servletUtilities.checkWritable(ontModel, instanceRes, wgraph), false);
+			Cls.setRendering(ontModel, stInstance, null, null, graphs);
+			RDFXMLHelp.addRDFNode(instanceElement, stInstance);
+			return response;
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		}
 	}
 
 	/**
@@ -643,8 +698,7 @@ public class Annotation extends ServiceAdapter {
 		return createReplyResponse(RepliesStatus.ok);
 	}
 
-	// ricordarsi che qui c'è una sola request che gestisce due cose (dipende
-	// dall'op)
+	// ricordarsi che qui c'è una sola request che gestisce due cose (dipende dall'op)
 	/**
 	 * invoked when the user annotates new text which is dragged upon an individual to create a new individual
 	 * which is bound to the first one through a given property
@@ -729,8 +783,7 @@ public class Annotation extends ServiceAdapter {
 					RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			dataElement.setAttribute("op", "bindAnnotToNewInstance");
-			// NScarpato 27/05/2007 add numTotInst attribute (TODO rimuoverlo
-			// dopo aver controllato che non
+			// NScarpato 27/05/2007 add numTotInst attribute (TODO rimuoverlo dopo aver controllato che non
 			// serva da nessuna parte)
 			if (rangeClsRes != null) {
 				Element clsElement = XMLHelp.newElement(dataElement, "Class");
@@ -791,7 +844,7 @@ public class Annotation extends ServiceAdapter {
 		RDFModel ontModel = getOWLModel();
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
-
+		
 		try {
 			ARTResource wgraph = getWorkingGraph();
 			ARTResource[] graphs = getUserNamedGraphs();
@@ -806,12 +859,13 @@ public class Annotation extends ServiceAdapter {
 
 			Collection<STRDFResource> topicCollection = STRDFNodeFactory.createEmptyResourceCollection();
 
-			for (ARTURIResource topic : topics) {
-				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(topic,
-						RDFResourceRolesEnum.concept, true, ontModel.getQName(topic.getURI()));
+			for(ARTURIResource topic : topics) {				
+				STRDFResource stResource = STRDFNodeFactory.createSTRDFResource(topic, 
+						ModelUtilities.getResourceRole(topic, ontModel), 
+						true, ontModel.getQName(topic.getURI()));
 				topicCollection.add(stResource);
 			}
-
+			
 			RDFXMLHelp.addRDFNodes(dataElement, topicCollection);
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
@@ -827,28 +881,26 @@ public class Annotation extends ServiceAdapter {
 	public Response removeBookmark(String urlPage, String topic) {
 		try {
 			XMLResponse response = createReplyResponse(RepliesStatus.ok);
-
+			
 			OWLModel ontModel = getOWLModel();
-
-			ARTResourceIterator collectionIterator = ontModel.listSubjectsOfPredObjPair(
-					SemAnnotVocab.Res.url, ontModel.createLiteral(urlPage), true, getUserNamedGraphs());
-
+			
+			ARTResourceIterator collectionIterator = ontModel.listSubjectsOfPredObjPair(SemAnnotVocab.Res.url,
+					ontModel.createLiteral(urlPage), true, getUserNamedGraphs());
+			
 			ARTURIResource webPageInstanceRes = null;
-
+			
 			if (collectionIterator.streamOpen()) {
 				webPageInstanceRes = collectionIterator.getNext().asURIResource();
 			}
-
+			
 			if (webPageInstanceRes == null) {
 				return createReplyFAIL("Web page <" + urlPage + "> does not exist");
 			}
-
+			
 			ARTURIResource topicResource = ontModel.createURIResource(topic);
-
-			ontModel.deleteStatement(
-					ontModel.createStatement(webPageInstanceRes, SemAnnotVocab.Res.topic, topicResource),
-					getWorkingGraph());
-
+			
+			ontModel.deleteStatement(ontModel.createStatement(webPageInstanceRes, SemAnnotVocab.Res.topic, topicResource), getWorkingGraph());
+		
 			return response;
 		} catch (Exception e) {
 			return logAndSendException(e);

@@ -1,0 +1,21 @@
+Per mantenere allineate le due versioni devo poter:
+
+1) sapere la svn-release corrente del branch a quale versione del trunk è stata allineata
+   l'ultima volta
+   
+2) sapere quali classi del branch sono naturalmente diverse da quelle del trunk e quali invece
+   debbono essere:
+   2a) uguali
+   2b) uguali almeno in alcune sezioni
+
+Riguardo la 2a, le seguenti classi e file sono state modificate appositamente per lo Spring Branch:
+
+st-core-framework:
+PluginManager
+HttpServiceRequestWrapper
+SemanticTurkey
+pom.xml
+
+st-firefox-ext:
+BridgeComponent.js  (credo)
+

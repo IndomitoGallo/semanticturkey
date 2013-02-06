@@ -508,7 +508,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		// and the ontology is NOT loaded in a named graph in the quad store...
 		else if (mirroredOntologyEntry == null && !availableNG(importedOntology)) {
 			logger.debug("NO_MIRROR & NO_NG for graph: " + importedOntology);
-			addOntologyImportFromWeb(baseURI, baseURI, mod, false); // TODO if I save alternative download
+			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative
+																			// download
 			// locations for files from web in the
 			// project, this could be handled
 			// automatically by the application
@@ -520,7 +521,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		else if (mirroredOntologyEntry == null && availableNG(importedOntology)) {
 			logger.debug("NO_MIRROR & NG for graph: " + importedOntology);
 			owlModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, NodeFilters.ANY, importedOntology);
-			addOntologyImportFromWeb(baseURI, baseURI, mod, false); // TODO if I save alternative download
+			addOntologyImportFromWeb(baseURI, baseURI, null, mod, false); // TODO if I save alternative
+																			// download
 			// locations for files from web in the
 			// project, this could be handled
 			// automatically by the application
@@ -664,8 +666,8 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(mirFileString);
 		File physicalMirrorFile = new File(mirFile.getAbsolutePath());
 		try {
-			owlModel.addRDF(physicalMirrorFile, baseURI, RDFFormat.RDFXML,
-					owlModel.createURIResource(baseURI));
+			owlModel.addRDF(physicalMirrorFile, baseURI,
+					RDFFormat.guessRDFFormatFromFile(physicalMirrorFile), owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
 				importsStatusMap.put(owlModel.createURIResource(baseURI),
@@ -686,18 +688,21 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	 * @throws MalformedURLException
 	 * @throws ModelUpdateException
 	 */
-	public void addOntologyImportFromWeb(String baseURI, String sourceURL) throws MalformedURLException,
-			ModelUpdateException {
-		addOntologyImportFromWeb(baseURI, sourceURL, ImportModality.USER, true);
+	public void addOntologyImportFromWeb(String baseURI, String sourceURL, RDFFormat rdfFormat)
+			throws MalformedURLException, ModelUpdateException {
+		addOntologyImportFromWeb(baseURI, sourceURL, rdfFormat, ImportModality.USER, true);
 	}
 
 	/**
 	 * imports an ontology from the Web
 	 * 
 	 * @param baseURI
-	 *            the baseuri of the ontology to be imported
+	 *            the baseuri of the ontology to be imported.
 	 * @param sourceURL
 	 *            the alternative url, in case the baseuri is not the physical location for the ontology
+	 * @param rdfFormat
+	 *            the serialization format of the rdf content to be parsed. <code>null</code> will result in
+	 *            the format being inferred from file extension or mime type, as for OWLART API
 	 * @param modality
 	 *            one of {@link ImportModality#USER} or {@link ImportModality#APPLICATION}
 	 * @param updateImportStatement
@@ -708,12 +713,11 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	 *            <code>WEB import</code>)
 	 * @throws ModelUpdateException
 	 */
-	public void addOntologyImportFromWeb(String baseURI, String sourceURL, ImportModality modality,
-			boolean updateImportStatement) throws ModelUpdateException {
+	public void addOntologyImportFromWeb(String baseURI, String sourceURL, RDFFormat rdfFormat,
+			ImportModality modality, boolean updateImportStatement) throws ModelUpdateException {
 		try {
 			logger.debug("importing: " + baseURI);
-			owlModel.addRDF(new URL(sourceURL), baseURI, RDFFormat.RDFXML,
-					owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(sourceURL), baseURI, rdfFormat, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			// an exception has been thrown
 			if (!updateImportStatement) {
@@ -738,18 +742,22 @@ public abstract class STOntologyManager<T extends RDFModel> {
 	 * @throws MalformedURLException
 	 * @throws ModelUpdateException
 	 */
-	public void addOntologyImportFromWebToMirror(String baseURI, String sourceURL, String toLocalFile)
-			throws MalformedURLException, ModelUpdateException {
-		addOntologyImportFromWebToMirror(baseURI, sourceURL, toLocalFile, ImportModality.USER, true);
+	public void addOntologyImportFromWebToMirror(String baseURI, String sourceURL, String toLocalFile,
+			RDFFormat rdfFormat) throws MalformedURLException, ModelUpdateException {
+		addOntologyImportFromWebToMirror(baseURI, sourceURL, toLocalFile, rdfFormat, ImportModality.USER,
+				true);
 	}
 
+	/**
+	 * as for {@link #addOntologyImportFromWeb(String, String, RDFFormat, ImportModality, boolean)} with the
+	 * exception that the imported ontology is stored in the mirror
+	 */
 	public void addOntologyImportFromWebToMirror(String baseURI, String sourceURL, String toLocalFile,
-			ImportModality modality, boolean updateImportStatement) throws MalformedURLException,
-			ModelUpdateException {
+			RDFFormat rdfFormat, ImportModality modality, boolean updateImportStatement)
+			throws MalformedURLException, ModelUpdateException {
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(new URL(sourceURL), baseURI, RDFFormat.RDFXML,
-					owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(sourceURL), baseURI, rdfFormat, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			if (!updateImportStatement) {
 				importsStatusMap.put(owlModel.createURIResource(baseURI),
@@ -1083,7 +1091,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 		checkImportFailed(baseURI);
 		MirroredOntologyFile mirFile = new MirroredOntologyFile(toLocalFile);
 		try {
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(baseURI), baseURI, null, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			throw new ModelUpdateException(e);
 		}
@@ -1103,7 +1111,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			ModelUpdateException, ImportManagementException {
 		checkImportFailed(baseURI);
 		try {
-			owlModel.addRDF(new URL(baseURI), baseURI, RDFFormat.RDFXML, owlModel.createURIResource(baseURI));
+			owlModel.addRDF(new URL(baseURI), baseURI, null, owlModel.createURIResource(baseURI));
 		} catch (Exception e) {
 			throw new ModelUpdateException(e);
 		}

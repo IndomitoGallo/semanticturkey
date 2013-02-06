@@ -1,9 +1,13 @@
 version 0.9.0 (branched from 0.8.6)
   * introduced Spring framework!
 
-version 0.8.6-SNAPSHOT
-date: 22-05-2012
+version 0.8.7-SNAPSHOT
+date: xx-xx-2013
+
+version 0.8.6
+date: 22-05-2013
   * introduced standard (and homogeneous) serialization of RDF objects
+  * fixed web import for non-inferrable-from-file_extension rdf formats
 
 version 0.8.5.1
 date: 22-05-2012
@@ -13,7 +17,7 @@ version 0.8.5
 date: 22-05-2012
   * SKOS(-XL) officially supported
 
-version 0.8.1-SNAPSHOT
+version 0.8.1
 date: XX-XX-2011
   * completely refactored all ST projects to generate one single project as a maven multi-module project
     - rebuilt the build mechanism to account for project structure changes and to rely more on Maven

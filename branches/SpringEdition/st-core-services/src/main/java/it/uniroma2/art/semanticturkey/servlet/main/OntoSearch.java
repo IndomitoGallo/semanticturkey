@@ -24,21 +24,26 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
+import it.uniroma2.art.owlart.models.SKOSModel;
+import it.uniroma2.art.owlart.models.SKOSXLModel;
+import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
+import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
-import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -124,7 +129,8 @@ public class OntoSearch extends ServiceAdapter {
 		logger.debug("searchString: " + inputString);
 
 		// consistency check on proposed types
-		if (!types.equals("property") && !types.equals("clsNInd"))
+		if (!types.equals("property") && !types.equals("clsNInd") &&
+				!types.equals("skos") && !types.equals("skosxl"))
 			return servletUtilities.createExceptionResponse(request,
 					"\"types\" parameter not correctly specified in GET request");
 
@@ -134,11 +140,11 @@ public class OntoSearch extends ServiceAdapter {
 		String inputStringExpandedQName;
 		try {
 			inputStringExpandedQName = ontModel.expandQName(inputString);
-			URI i;
+			URI uri;
 			boolean wellFormedAndAbsolute = true;
 			try {
-				i = new URI(inputStringExpandedQName);
-				wellFormedAndAbsolute = i.isAbsolute();
+				uri = new URI(inputStringExpandedQName);
+				wellFormedAndAbsolute = uri.isAbsolute();
 			} catch (URISyntaxException e) {
 				wellFormedAndAbsolute = false;
 			}
@@ -152,14 +158,16 @@ public class OntoSearch extends ServiceAdapter {
 				perfectMatchingResource = ontModel.createURIResource(inputStringExpandedQName);
 			if ((perfectMatchingResource != null)
 					&& (ontModel.existsResource(perfectMatchingResource))) {
-				if ((ontModel instanceof RDFSModel)
+				results.add(new Struct(ModelUtilities.getResourceRole(perfectMatchingResource, ontModel), 
+						perfectMatchingResource, null, 1));
+				/*if ((ontModel instanceof RDFSModel)
 						&& ((RDFSModel) ontModel).isClass(perfectMatchingResource))
 					results.add(new Struct(RDFResourceRolesEnum.cls, perfectMatchingResource, null, 1));
 				else if (ontModel.isProperty(perfectMatchingResource))
 					results.add(new Struct(RDFResourceRolesEnum.property, perfectMatchingResource, null, 1));
-				else
+				else if(ontModel instanceof OWLModel && ((OWLModel)ontModel).is)
 					results.add(new Struct(RDFResourceRolesEnum.individual, perfectMatchingResource, null,
-							1));
+							1));*/
 			} else {
 
 				String searchStringNamespace = null;
@@ -194,7 +202,9 @@ public class OntoSearch extends ServiceAdapter {
 							+ searchStringNamespace
 							+ " associated to prefix: "
 							+ searchStringPrefix
-							+ " is not recognized in this ontology, please use an existing prefix to restrict your search or do not use a prefix at all to search the whole ontology");
+							+ " is not recognized in this ontology, please use an existing prefix to "
+							+ "restrict your search or do not use a prefix at all to search the "
+							+ "whole ontology");
 					if (prefixGiven)
 						return servletUtilities
 								.createExceptionResponse(
@@ -203,14 +213,18 @@ public class OntoSearch extends ServiceAdapter {
 												+ searchStringNamespace
 												+ " associated to prefix: "
 												+ searchStringPrefix
-												+ " is not recognized in this ontology, please use an existing prefix to restrict your search or do not use a prefix at all to search the whole ontology");
+												+ " is not recognized in this ontology, please use an "
+												+ "existing prefix to restrict your search or do not use "
+												+ " a prefix at all to search the whole ontology");
 					else
 						return servletUtilities
 								.createExceptionResponse(
 										request,
 										"namespace: "
 												+ searchStringNamespace
-												+ " is not recognized in this ontology, please use an existing namespace to restrict your search or do not use a namespace at all to search the whole ontology");
+												+ " is not recognized in this ontology, please use an "
+												+ "existing namespace to restrict your search or do not "
+												+ "use a namespace at all to search the whole ontology");
 				}
 
 				if (types.equals("clsNInd")) {
@@ -219,40 +233,43 @@ public class OntoSearch extends ServiceAdapter {
 						searchedResources = ((RDFSModel) ontModel).listNamedClasses(true,
 								NodeFilters.MAINGRAPH);
 						logger.debug("collectResults for classes: ");
-						collectResults(searchedResources, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven, RDFResourceRolesEnum.cls);
+						collectResults(searchedResources, ontModel, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven);
 					}
 					logger.debug("collectResults for instances: ");
 					searchedResources = ontModel.listNamedInstances();
-					collectResults(searchedResources, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, RDFResourceRolesEnum.individual);
-				} else { // property
+					collectResults(searchedResources, ontModel, results, searchStringNamespace, 
+							searchStringLocalName, namespaceGiven);
+				} else if(types.equals("property")){ // property
 					ARTURIResourceIterator searchedProperties;
 
 					if (ontModel instanceof OWLModel) {
 
 						searchedProperties = ((OWLModel) ontModel).listObjectProperties(true,
 								NodeFilters.MAINGRAPH);
-						collectResults(searchedProperties, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven, RDFResourceRolesEnum.objectProperty);
+						collectResults(searchedProperties, ontModel, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven);
 
 						searchedProperties = ((OWLModel) ontModel).listDatatypeProperties(true,
 								NodeFilters.MAINGRAPH);
-						collectResults(searchedProperties, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven,
-								RDFResourceRolesEnum.datatypeProperty);
+						collectResults(searchedProperties, ontModel, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven);
 
 						searchedProperties = ((OWLModel) ontModel).listAnnotationProperties(true,
 								NodeFilters.MAINGRAPH);
-						collectResults(searchedProperties, results, searchStringNamespace,
-								searchStringLocalName, namespaceGiven,
-								RDFResourceRolesEnum.annotationProperty);
+						collectResults(searchedProperties, ontModel, results, searchStringNamespace,
+								searchStringLocalName, namespaceGiven);
 
 					}
 
 					searchedProperties = ontModel.listProperties(NodeFilters.MAINGRAPH);
-					collectResults(searchedProperties, results, searchStringNamespace, searchStringLocalName,
-							namespaceGiven, RDFResourceRolesEnum.property);
+					collectResults(searchedProperties, ontModel, results, searchStringNamespace, 
+							searchStringLocalName, namespaceGiven);
+				} else if(types.equals("skos") || types.equals("skosxl")){
+					ARTURIResourceIterator searchedConcepts;
+					searchedConcepts = ((SKOSModel) ontModel).listConcepts(true, NodeFilters.MAINGRAPH);
+					collectResults(searchedConcepts, ontModel, results, searchStringNamespace, 
+							searchStringLocalName,  namespaceGiven);
 				}
 
 			}
@@ -280,10 +297,10 @@ public class OntoSearch extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			Collection<STRDFResource> resultsCollection = STRDFNodeFactory.createEmptyResourceCollection();
 			for (Struct result : results) {
-				STRDFResource stResult = STRDFNodeFactory.createSTRDFResource(rep, result._resource, result._type, 
-						servletUtilities.checkWritable(rep, result._resource, wgraph),
+				STRDFResource stResult = STRDFNodeFactory.createSTRDFResource(rep, result._resource, 
+						result._type,  servletUtilities.checkWritable(rep, result._resource, wgraph),
 						false);
-				setRendering(rep, stResult, graphs);
+				Cls.setRendering((RDFSModel)rep, stResult, null, null, graphs);
 				resultsCollection.add(stResult);
 			}
 			RDFXMLHelp.addRDFNodes(response, resultsCollection);
@@ -298,16 +315,68 @@ public class OntoSearch extends ServiceAdapter {
 		return response;
 	}
 
-	private void collectResults(Iterator<ARTURIResource> searchedResources, ArrayList<Struct> results,
-			String searchStringNamespace, String searchStringLocalName, boolean namespaceGiven, RDFResourceRolesEnum type) {
+	private void collectResults(Iterator<ARTURIResource> searchedResources, RDFModel ontModel, 
+			ArrayList<Struct> results,  String searchStringNamespace, String searchStringLocalName, 
+			boolean namespaceGiven)  throws ModelAccessException {
 		double match;
 		while (searchedResources.hasNext()) {
-			ARTURIResource nextClass = searchedResources.next();
-			System.out.println("comparing resource: " + nextClass);
-			if (checkNS(namespaceGiven, nextClass.getNamespace(), searchStringNamespace))
+			ARTURIResource nextRes = searchedResources.next();
+			System.out.println("comparing resource: " + nextRes);
+			if (checkNS(namespaceGiven, nextRes.getNamespace(), searchStringNamespace))
 				if ((match = CompareNames
-						.compareSimilarNames(nextClass.getLocalName(), searchStringLocalName)) >= THRESHOLD)
-					results.add(new Struct(type, nextClass, null, match));
+						.compareSimilarNames(nextRes.getLocalName(), searchStringLocalName)) >= THRESHOLD)
+					results.add(new Struct(ModelUtilities.getResourceRole(nextRes, ontModel), 
+							nextRes, null, match));
+			
+			//in skos/skoskl search also inside the labels/xlabels
+			if(ontModel instanceof SKOSXLModel){
+				SKOSXLModel skosxlModel = ((SKOSXLModel)ontModel);
+				//check the Preferred labels and the Alternative Labels
+				ARTResourceIterator labelIter;
+				//Preferred XLabels
+				labelIter = skosxlModel.listPrefXLabels(nextRes, NodeFilters.MAINGRAPH);
+				while(labelIter.hasNext()){
+					ARTURIResource prefLabelRes = labelIter.next().asURIResource();
+					ARTLiteral labelLiteral = skosxlModel.getLiteralForm(prefLabelRes, NodeFilters.MAINGRAPH);
+					String label = labelLiteral.getLabel();
+					if ((match = CompareNames
+							.compareSimilarNames(label, searchStringLocalName)) >= THRESHOLD)
+						results.add(new Struct(ModelUtilities.getResourceRole(nextRes, ontModel), 
+								nextRes, null, match));
+				}
+				//Alternative XLabels
+				labelIter = skosxlModel.listAltXLabels(nextRes, NodeFilters.MAINGRAPH);
+				while(labelIter.hasNext()){
+					ARTURIResource prefLabelRes = labelIter.next().asURIResource();
+					ARTLiteral labelLiteral = skosxlModel.getLiteralForm(prefLabelRes, NodeFilters.MAINGRAPH);
+					String label = labelLiteral.getLabel();
+					if ((match = CompareNames
+							.compareSimilarNames(label, searchStringLocalName)) >= THRESHOLD)
+						results.add(new Struct(ModelUtilities.getResourceRole(nextRes, ontModel), 
+								nextRes, null, match));
+				}
+			} else if(ontModel instanceof SKOSModel){
+				SKOSModel skosModel = (SKOSModel)ontModel;
+				ARTLiteralIterator labelIter;
+				//Preferred Label
+				labelIter = skosModel.listPrefLabels(nextRes, true, NodeFilters.MAINGRAPH);
+				while(labelIter.hasNext()){
+					String label = labelIter.next().getLabel();
+					if ((match = CompareNames
+							.compareSimilarNames(label, searchStringLocalName)) >= THRESHOLD)
+						results.add(new Struct(ModelUtilities.getResourceRole(nextRes, ontModel), 
+								nextRes, null, match));
+				}
+				//Alternative Label
+				labelIter = ((SKOSModel)ontModel).listAltLabels(nextRes, true, NodeFilters.MAINGRAPH);
+				while(labelIter.hasNext()){
+					String label = labelIter.next().getLabel();
+					if ((match = CompareNames
+							.compareSimilarNames(label, searchStringLocalName)) >= THRESHOLD)
+						results.add(new Struct(ModelUtilities.getResourceRole(nextRes, ontModel), 
+								nextRes, null, match));
+				}
+			}
 		}
 	}
 
@@ -327,21 +396,15 @@ public class OntoSearch extends ServiceAdapter {
 			return true;
 	}
 
-	private void setRendering(RDFModel model, STRDFResource individual, ARTResource[] graphs) 
-			throws ModelAccessException {
-
-		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
-
-		individual.setRendering(rendering);
-	}
-	
+		
 	private class Struct {
 		public RDFResourceRolesEnum _type;
 		public ARTURIResource _resource;
 		// public String _lexicalization;
 		public double _value;
 
-		public Struct(RDFResourceRolesEnum type, ARTURIResource resource, String lexicalization, double value) {
+		public Struct(RDFResourceRolesEnum type, ARTURIResource resource, String lexicalization, 
+				double value) {
 			_type = type;
 			_resource = resource;
 			// _lexicalization = lexicalization;

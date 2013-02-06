@@ -55,7 +55,6 @@ import org.w3c.dom.Element;
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
 @Component
-
 public class Page extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Page.class);
@@ -63,7 +62,8 @@ public class Page extends ServiceAdapter {
 	public static String instanceNameString = "instanceName";
 	public static String getBookmarksRequest = "getBookmarks";
 
-	@Autowired public Page(@Value("Page")String id) {
+	@Autowired
+	public Page(@Value("Page") String id) {
 		super(id);
 	}
 
@@ -76,7 +76,7 @@ public class Page extends ServiceAdapter {
 	 * 
 	 * @see it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter#getResponse()
 	 */
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		String instanceQName = setHttpPar(instanceNameString);
 		checkRequestParametersAllNotNull(instanceNameString);
 		this.fireServletEvent();

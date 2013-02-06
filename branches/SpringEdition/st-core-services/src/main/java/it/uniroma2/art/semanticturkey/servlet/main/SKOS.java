@@ -67,9 +67,7 @@ import org.w3c.dom.Element;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 
-
 @Component
-
 public class SKOS extends Resource {
 
 	protected static Logger logger = LoggerFactory.getLogger(SKOS.class);
@@ -134,7 +132,8 @@ public class SKOS extends Resource {
 		final static public String targetScheme = "targetScheme";
 		final static public String treeView = "treeView";
 	}
-@Autowired
+
+	@Autowired
 	public SKOS(@Value("Skos") String id) {
 		super(id);
 	}
@@ -144,7 +143,6 @@ public class SKOS extends Resource {
 	}
 
 	@Override
-	
 	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to skos");
 
@@ -529,7 +527,7 @@ public class SKOS extends Resource {
 			while (it.hasNext()) {
 				ARTURIResource concept = it.next();
 				STRDFResource stConcept = createSTConcept(skosModel, concept, true, defaultLanguage);
-				decorateForTreeView(skosModel, stConcept);
+				SKOS.decorateForTreeView(skosModel, stConcept, getUserNamedGraphs());
 				concepts.add(stConcept);
 			}
 			it.close();
@@ -813,7 +811,7 @@ public class SKOS extends Resource {
 				ARTURIResource narrower = it.next();
 				STRDFResource stConcept = createSTConcept(skosModel, narrower, true, defaultLanguage);
 				if (TreeView)
-					decorateForTreeView(skosModel, stConcept);
+					SKOS.decorateForTreeView(skosModel, stConcept, getUserNamedGraphs());
 				concepts.add(stConcept);
 			}
 
@@ -1194,10 +1192,11 @@ public class SKOS extends Resource {
 				defaultLanguage);
 	}
 
-	protected void decorateForTreeView(SKOSModel model, STRDFResource concept) throws ModelAccessException,
+	public static void decorateForTreeView(SKOSModel model, STRDFResource concept, ARTResource[] graphs) 
+				throws ModelAccessException,
 			NonExistingRDFResourceException {
 		ARTURIResourceIterator it = model.listNarrowerConcepts((ARTURIResource) concept.getARTNode(), false,
-				true, getUserNamedGraphs());
+				true, graphs);
 		if (it.streamOpen()) {
 			concept.setInfo("more", "1");
 

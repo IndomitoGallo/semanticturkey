@@ -24,7 +24,7 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
@@ -94,8 +94,8 @@ public class PluginTest extends SystemStartTest {
 		resp = projectsService.makeRequest(Projects.Req.closeProjectRequest);
 		System.out.println(resp);
 		
-		// resp = projectsService.makeRequest(Projects.Req.openMainProjectRequest);
-		// System.out.println(resp);
+		resp = projectsService.makeRequest(Projects.Req.openMainProjectRequest);
+		System.out.println(resp);
 		
 		resp = pluginsService.makeRequest(Plugins.Req.getPluginsForProjectRequest);
 	}

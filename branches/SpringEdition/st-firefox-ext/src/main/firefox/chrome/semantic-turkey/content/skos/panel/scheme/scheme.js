@@ -25,8 +25,8 @@ art_semanticturkey.init = function() {
 
 		var response = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme");
 		
-		var selSc = art_semanticturkey.Deserializer.getPropertyValue(response);
-		//var collectionValues = art_semanticturkey.deserializer.getCollection(response);
+		var selSc = art_semanticturkey.Deserializer.createPropertyValue(response);
+		//var collectionValues = art_semanticturkey.deserializer.createRDFArray(response);
 		var roots = predefRoots();
 		for (var i = 0 ; i < roots.length ; i++) {
 			if (roots[i].id == selSc) {

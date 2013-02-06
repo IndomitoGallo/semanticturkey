@@ -24,14 +24,9 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
-import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.main.Cls;
-import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
-import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
@@ -40,41 +35,15 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class TempTest2 extends ServiceTest {
+public class SERVERUP extends ServiceTest {
 
-	public void doTest() {
 
-		Response resp = systemStartService.makeRequest(SystemStart.startRequest,
-				par(SystemStart.baseuriPar,"http://art.uniroma2.it/ontologies/myont")
-		);
-		System.out.println(resp);
-		
-		resp = clsService.makeRequest(Cls.getSubClassesRequest,
-				par(Cls.clsQNameField, "owl:Thing"),
-				par(Cls.treePar, "true")
-		);
-		System.out.println(resp);
-		
-		resp = metadataService.makeRequest(Metadata.getNSPrefixMappingsRequest);
-		System.out.println(resp);
-		
+	public static void main(String[] args) throws IOException, STInitializationException {
+		ServiceTest tester = new SERVERUP();
+		tester.initialize(true);
+		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");		
+		tester.pause();
 	}
-
-	public static void main(String[] args) throws ModelUpdateException, STInitializationException,
-			IOException {
-
-		String testType;
-
-		if (args.length > 0)
-			testType = args[0];
-		else
-			testType = "direct";
-			testType = "http";
-
-		TempTest2 test = new TempTest2();
-		test.deleteWorkingFiles();
-		test.initialize(testType);
-		test.doTest();
-	}
+	
 
 }

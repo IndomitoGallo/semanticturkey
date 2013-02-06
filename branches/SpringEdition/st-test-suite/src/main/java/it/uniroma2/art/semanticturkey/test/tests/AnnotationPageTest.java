@@ -24,7 +24,7 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
@@ -67,16 +67,16 @@ public class AnnotationPageTest extends SystemStartTest {
 		resp = annotationService.makeRequest(Annotation.createAndAnnotateRequest,
 				par(Annotation.clsQNameField, "Person"),
 				par(Annotation.instanceQNameField, "ArmandoStellato"),
-				par(Annotation.urlPageField, "http://art.uniroma2.it/stellato"),
-				par(Annotation.titleField, "Armando Stellato Home Page")
+				par(Annotation.urlPageString, "http://art.uniroma2.it/stellato"),
+				par(Annotation.titleString, "Armando Stellato Home Page")
 		);
 		System.out.println(resp);
 		
 		resp = annotationService.makeRequest(Annotation.addAnnotationRequest,				
 				par(Annotation.textString, "Odnamar Starred"),
 				par(Annotation.instanceQNameField, "ArmandoStellato"),
-				par(Annotation.urlPageField, "http://art.uniroma2.it/stellato"),
-				par(Annotation.titleField, "Armando Stellato Home Page")
+				par(Annotation.urlPageString, "http://art.uniroma2.it/stellato"),
+				par(Annotation.titleString, "Armando Stellato Home Page")
 		);
 		System.out.println(resp);
 		
