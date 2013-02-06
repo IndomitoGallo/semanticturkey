@@ -24,14 +24,16 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
-import it.uniroma2.art.semanticturkey.servlet.main.InputOutput;
-import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
+import it.uniroma2.art.semanticturkey.servlet.main.ModifyName;
+import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
+import it.uniroma2.art.semanticturkey.servlet.main.Property.Req;
+import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
 
@@ -39,54 +41,30 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class InputOutputTest extends SystemStartTest {
+public class ModifyNameTest extends ServiceTest {
 
-	String stxOntologyURI = "http://art.uniroma2.it/ontologies/st_example";
-	
-	
-	public void doTest() {		
+	public void doTest() {
+
+		Response resp = systemStartService.makeRequest(SystemStart.startRequest,
+				par(SystemStart.baseuriPar, "http://art.uniroma2.it/ontologies/myont")
+		);
+		System.out.println(resp);
 		
-		super.doTest();
-				
-		Response resp = clsService.makeRequest(Cls.createClassRequest,
-				par(Cls.newClassNamePar, "Persona"),
+		resp = clsService.makeRequest(Cls.getClassTreeRequest);
+		System.out.println(resp);
+		
+		resp = propertyService.makeRequest(Req.getPropertiesTreeRequest);
+		System.out.println(resp);
+		
+		resp = clsService.makeRequest(Cls.createClassRequest,
+				par(Cls.newClassNamePar, "Person"),
 				par(Cls.superClassNamePar, "owl:Thing")
 		);
-		System.out.println(resp);				
-		
-		/*
-		resp = metadataService.makeRequest(Metadata.addFromWebRequest,
-				par(Metadata.baseuriPar, stxOntologyURI)
-		);
-		System.out.println(resp);
-		*/
-		
-		resp = metadataService.makeRequest(Metadata.addFromWebToMirrorRequest,
-				par(Metadata.baseuriPar, stxOntologyURI),
-				par(Metadata.mirrorFilePar, "stx.owl")
-		);
 		System.out.println(resp);
 		
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
 		
-		resp = inputOutputService.makeRequest(InputOutput.saveRDFRequest,
-				par(InputOutput.filePar, "./testOutput/export.owl")
-		);
-		System.out.println(resp);
-		
-		
-		resp = inputOutputService.makeRequest(InputOutput.clearDataRequest);
-		System.out.println(resp);
-		
-		pause();
-		
-		super.doTest();
-		
-		resp = clsService.makeRequest(Cls.getClassTreeRequest);
-		System.out.println(resp);
-		
-		/*
 		resp = modifyNameService.makeRequest(ModifyName.renameRequest, par(ModifyName.Pars.oldName, "Person"),
 				par(ModifyName.Pars.newName, "Personaggio")
 		);
@@ -94,24 +72,13 @@ public class InputOutputTest extends SystemStartTest {
 		
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
-		*/
-		
-		/*
-		resp = deleteService.makeRequest(Delete.removeClassRequest,
-				par("name", "Persona")
-		);
-		System.out.println(resp);
-		
-		resp = clsService.makeRequest(Cls.getClassTreeRequest);
-		System.out.println(resp);
-		*/
 		
 		/*
 		 * askServer("cls", Cls.createClassRequest, "superClassName=owl:Thing", "newClassName=Person");
 		 * 
 		 * askServer("cls", Cls.getClassTreeRequest);
 		 * 
-		 * // non contiene request (pippo) perchï¿½ non la si richiede, quindi il parametro viene scartato //
+		 * // non contiene request (pippo) perchè non la si richiede, quindi il parametro viene scartato //
 		 * askServer("service=cls&clsName=Person&instanceName=Armando"); askServer("cls",
 		 * Cls.createInstanceRequest, "clsName=Person", "instanceName=Armando");
 		 * 
@@ -143,9 +110,8 @@ public class InputOutputTest extends SystemStartTest {
 			testType = args[0];
 		else
 			testType = "direct";
-//			testType = "http";
 
-		InputOutputTest test = new InputOutputTest();
+		ModifyNameTest test = new ModifyNameTest();
 		test.deleteWorkingFiles();
 		test.initialize(testType);
 		test.doTest();

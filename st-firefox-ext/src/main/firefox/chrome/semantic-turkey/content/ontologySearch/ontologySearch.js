@@ -153,11 +153,7 @@ art_semanticturkey.selectElementClass = function(myTree, resNameShow) {
 			var current = treeitemLists[index];
 			var treerow = current.getElementsByTagName('treerow')[0];
 			var treecell = treerow.getElementsByTagName('treecell')[0];
-			//var classShow = treecell.getAttribute("label");
 			var classShow = treecell.getAttribute("show");
-			/*if (label.indexOf('(') > -1) {
-				label = label.substring(0, label.indexOf('('));
-			}*/
 			if (classShow == resNameShow) {
 				var pi = current;
 				var pTreecell = treecell;
@@ -175,12 +171,13 @@ art_semanticturkey.selectElementClass = function(myTree, resNameShow) {
 				return;
 			}
 		}
-		var parentName = resNameShow;
+		// the selected class is not visible, so ask its superclasses, select the first one
+		// and check if it is visible
+		var parentNameShow = resNameShow;
 		var pvisible = false;
 		while (pvisible == false) {
 			var responseCollection = art_semanticturkey.STRequests.Cls
-					.getSuperClasses(parentName);
-			//var parentNameList = responseCollection.getElementsByTagName('SuperType');
+					.getSuperClasses(parentNameShow);
 			parentNameShow = responseCollection[0].getShow();
 			parentURI = responseCollection[0].getURI();
 			var treeitemLists = myTree.getElementsByTagName("treeitem");
@@ -191,11 +188,6 @@ art_semanticturkey.selectElementClass = function(myTree, resNameShow) {
 				var treecell = treerow.getElementsByTagName('treecell')[0];
 				var treechildern = current.getElementsByTagName("treechildren")[0];
 				var show = treecell.getAttribute("show");
-				//var label = treecell.getAttribute("label");
-				//if (label.indexOf('(') > -1) {
-				//	label = label.substring(0, label.indexOf('('));
-				//}
-				//if (label == parentName) 
 				if(show == parentNameShow) {
 					current.setAttribute("open", true);
 					var responseXML = art_semanticturkey.STRequests.Cls

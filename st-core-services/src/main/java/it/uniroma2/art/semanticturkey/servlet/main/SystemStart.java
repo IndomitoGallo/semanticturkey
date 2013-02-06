@@ -54,10 +54,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.w3c.dom.Element;
 
-
-
 @Component
-
 public class SystemStart extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(SystemStart.class);
 	ServletUtilities servletUtilities = new ServletUtilities();
@@ -78,17 +75,17 @@ public class SystemStart extends ServiceAdapter {
 	public final static String baseuriTag = "baseuri";
 
 	@Autowired
-	public SystemStart(@Value("systemStart")String id) {
+	public SystemStart(@Value("systemStart") String id) {
 		super(id);
 	}
+
 	public Logger getLogger() {
 		return logger;
 	}
 
 	// TODO COSTRUIRE LA RISPOSTA XML NEI CASI DI START E FIRST START, non dare errore se nn tutto è segnato,
 	// ma dire cosa manca di modo che il client può fare ulteriri richieste all'utente
-
-		public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(startRequest)) {
 			String baseuri = setHttpPar(baseuriPar);
 			String ontModelImpl = setHttpPar(ontmanagerPar);

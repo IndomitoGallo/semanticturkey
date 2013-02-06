@@ -22,8 +22,8 @@ function createAndAnnotate(clsQName, instanceQName, urlPage, title) {
 	var title = "title=" + title;
 	var reply = HttpMgr.GET(serviceName, service.createAndAnnotateRequest, clsQName, instanceQName, urlPage, title);
 	var resArray = new Array();
-	resArray["class"] = Deserializer.getURI(reply.getElementsByTagName("Class")[0]);
-	resArray["instance"] = Deserializer.getURI(reply.getElementsByTagName("Instance")[0]);
+	resArray["class"] = Deserializer.createURI(reply.getElementsByTagName("Class")[0]);
+	resArray["instance"] = Deserializer.createURI(reply.getElementsByTagName("Instance")[0]);
 	return resArray;
 }
 
@@ -305,13 +305,13 @@ function bookmarkPage(urlPage, title, topics){
 		topics_p += topics[i];
 	}
 	
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.bookmarkPageRequest,urlPage_p,title_p,topics_p));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.bookmarkPageRequest,urlPage_p,title_p,topics_p));
 }
 
 function getPageTopics(urlPage) {
 	var urlPage_p = "urlPage=" + urlPage;
 	
-	return Deserializer.getCollection(HttpMgr.GET(serviceName, service.getPageTopicsRequest,urlPage_p));
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getPageTopicsRequest,urlPage_p));
 }
 
 function getBookmarksByTopic(topic) {

@@ -57,23 +57,20 @@ import org.slf4j.LoggerFactory;
  * <li>loading the Ontology Manager OSGi bundles</li>
  * </ul>
  * 
- * @author Armando Stellato <a
- *         href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a><br/>
- *         Contributor: Andrea Turbati <a
- *         href="mailto:turbati@info.uniroma2.it">turbati@info.uniroma2.it</a>
+ * @author Armando Stellato <a href="mailto:stellato@info.uniroma2.it">stellato@info.uniroma2.it</a><br/>
+ *         Contributor: Andrea Turbati <a href="mailto:turbati@info.uniroma2.it">turbati@info.uniroma2.it</a>
  * 
  */
 public class SemanticTurkey implements BundleActivator {
-	public final static VersionNumber versionNumber = new VersionNumber(0, 8, 2);
+	public final static VersionNumber versionNumber = new VersionNumber(0, 9, 0);
 	static protected HttpServer s_httpServer;
-	protected static Logger logger = LoggerFactory
-			.getLogger(SemanticTurkey.class);
+	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
 	private final static int port = 1979;
 	private static HttpServer server = null;
 
 	/**
-	 * main initialization method which is invoked by the Semantic Turkey
-	 * javascript client through Java/JavaScript XPCOM Bridge
+	 * main initialization method which is invoked by the Semantic Turkey javascript client through
+	 * Java/JavaScript XPCOM Bridge
 	 * 
 	 * @param extensionPath
 	 *            path to the installed Semantic Turkey extension
@@ -115,12 +112,12 @@ public class SemanticTurkey implements BundleActivator {
 		return null;
 	}
 
-//	public static void main(String[] args) {
-//		String extensionDir = new File(System.getProperty("user.dir")).toURI()
-//				.toString();
-//		System.out.println("ext dir: " + extensionDir);
-//		initialize(extensionDir);
-//	}
+	// public static void main(String[] args) {
+	// String extensionDir = new File(System.getProperty("user.dir")).toURI()
+	// .toString();
+	// System.out.println("ext dir: " + extensionDir);
+	// initialize(extensionDir);
+	// }
 
 	/**
 	 * return the server instance
@@ -132,8 +129,7 @@ public class SemanticTurkey implements BundleActivator {
 	}
 
 	/**
-	 * this method builds up the HTTP Server in charge of replying to user
-	 * requests
+	 * this method builds up the HTTP Server in charge of replying to user requests
 	 */
 	// public static void createWebServer() {
 	// server = new HttpServer();
@@ -186,8 +182,7 @@ public class SemanticTurkey implements BundleActivator {
 	// logger.debug("Server starting...");
 	// }
 
-	public static void initializeVocabularies(RDFModel repo)
-			throws VocabularyInitializationException {
+	public static void initializeVocabularies(RDFModel repo) throws VocabularyInitializationException {
 		// RDF.Res.initialize(repo);
 		// RDFS.Res.initialize(repo);
 		// OWL.Res.initialize(repo);
@@ -196,8 +191,7 @@ public class SemanticTurkey implements BundleActivator {
 
 	public void start(BundleContext arg0) throws Exception {
 		PluginManager.setContext(arg0);
-		String extensionDir = new File(System.getProperty("user.dir")).toURI()
-				.toString();
+		String extensionDir = new File(System.getProperty("user.dir")).toURI().toString();
 		System.out.println("ext dir: " + extensionDir);
 		initialize(extensionDir);
 

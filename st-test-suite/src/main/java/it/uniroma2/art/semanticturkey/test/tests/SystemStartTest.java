@@ -24,13 +24,14 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.main.Cls;
-import it.uniroma2.art.semanticturkey.servlet.main.OntoSearch;
+import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
+import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
+import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
 
@@ -38,39 +39,26 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class OntoSearchTest extends SystemStartTest {
+public class SystemStartTest extends ServiceTest {
 
 	public void doTest() {
 
-		super.doTest();
+		Response resp = systemStartService.makeRequest(SystemStart.startRequest, par(SystemStart.baseuriPar,
+				"http://art.uniroma2.it/ontologies/myont"));
+		System.out.println(resp);
+	}
 
-		importSTExample();
+	protected void importSTExample() {
+		String stxOntologyURI = "http://art.uniroma2.it/ontologies/st_example";
 
-		Response
-		
-		resp = clsService.makeRequest(Cls.createInstanceRequest,
-				par(Cls.instanceNamePar, "ArmandoStellato"),
-				par(Cls.clsQNameField, "st_example:Person")
+		Response resp = metadataService.makeRequest(Metadata.addFromLocalFileRequest,
+				par(Metadata.baseuriPar, stxOntologyURI),
+				par(Metadata.localFilePathPar, "testInput/st_example.owl"),
+				par(Metadata.mirrorFilePar, "st_example.owl")
 		);
 		System.out.println(resp);
 
-		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
-				par("inputString", "Person"),
-				par("types", "clsNInd")
-		);
-		System.out.println(resp);
-		
-		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
-				par("inputString", "ArmandoStellato"),
-				par("types", "clsNInd")
-		);
-		System.out.println(resp);
-		
-		
-		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
-				par("inputString", "works"),
-				par("types", "property")
-		);
+		resp = metadataService.makeRequest(Metadata.getNSPrefixMappingsRequest);
 		System.out.println(resp);
 	}
 
@@ -82,10 +70,10 @@ public class OntoSearchTest extends SystemStartTest {
 		if (args.length > 0)
 			testType = args[0];
 		else
-			testType = "direct";
-		// testType = "http";
+			// testType = "direct";
+			testType = "http";
 
-		OntoSearchTest test = new OntoSearchTest();
+		SystemStartTest test = new SystemStartTest();
 		test.deleteWorkingFiles();
 		test.initialize(testType);
 		test.doTest();

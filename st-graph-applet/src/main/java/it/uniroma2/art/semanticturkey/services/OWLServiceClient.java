@@ -167,10 +167,10 @@ public class OWLServiceClient extends HttpServiceClient implements RepositorySer
 
 		List<Edge> edgeList = new ArrayList<Edge>();
 		Document doc = response.getResponseObject();
-		NodeList nl = doc.getElementsByTagName("Instance");
+		NodeList nl = ((Element)doc.getElementsByTagName("Instances").item(0)).getElementsByTagName("uri");
 		for (int i = 0; i < nl.getLength(); ++i) {
 			Node n = nl.item(i);
-			Node attr = n.getAttributes().getNamedItem("name");
+			Node attr = n.getAttributes().getNamedItem("show");
 			OWLVertex startVertex = (OWLVertex) completeVertexMap.get(attr.getNodeValue());
 			if (startVertex == null){
 				startVertex = new OWLVertex(attr.getNodeValue(), vertex, false, OWLVertex.OWL_NODE_TYPE.INDIVIDUAL);

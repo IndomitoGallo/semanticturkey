@@ -24,17 +24,14 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
+import it.uniroma2.art.semanticturkey.servlet.main.Delete;
 import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
-import it.uniroma2.art.semanticturkey.servlet.main.Property.Req;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
@@ -43,7 +40,7 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class GenericTest extends ServiceTest {
+public class DeleteTest extends ServiceTest {
 
 	public void doTest() {
 
@@ -58,14 +55,8 @@ public class GenericTest extends ServiceTest {
 		);
 		System.out.println(resp);
 		
-		resp = clsService.makeRequest(Cls.getClassTreeRequest);
-		System.out.println(resp);
-		
-		resp = propertyService.makeRequest(Req.getPropertiesTreeRequest);
-		System.out.println(resp);
-		
 		resp = clsService.makeRequest(Cls.createClassRequest,
-				par(Cls.newClassNamePar, "Person"),
+				par(Cls.newClassNamePar, "Persona"),
 				par(Cls.superClassNamePar, "owl:Thing")
 		);
 		System.out.println(resp);
@@ -73,17 +64,30 @@ public class GenericTest extends ServiceTest {
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
 		
-		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
-		ARTURIResource ont = ontModel.createURIResource("http://starred.it/mario");
-		String ns = ont.getNamespace();
-		System.err.println(ns);
+		/*
+		resp = modifyNameService.makeRequest(ModifyName.renameRequest, par(ModifyName.Pars.oldName, "Person"),
+				par(ModifyName.Pars.newName, "Personaggio")
+		);
+		System.out.println(resp);
+		
+		resp = clsService.makeRequest(Cls.getClassTreeRequest);
+		System.out.println(resp);
+		*/
+		
+		resp = deleteService.makeRequest(Delete.removeClassRequest,
+				par("name", "Persona")
+		);
+		System.out.println(resp);
+		
+		resp = clsService.makeRequest(Cls.getClassTreeRequest);
+		System.out.println(resp);
 		
 		/*
 		 * askServer("cls", Cls.createClassRequest, "superClassName=owl:Thing", "newClassName=Person");
 		 * 
 		 * askServer("cls", Cls.getClassTreeRequest);
 		 * 
-		 * // non contiene request (pippo) perchï¿½ non la si richiede, quindi il parametro viene scartato //
+		 * // non contiene request (pippo) perchè non la si richiede, quindi il parametro viene scartato //
 		 * askServer("service=cls&clsName=Person&instanceName=Armando"); askServer("cls",
 		 * Cls.createInstanceRequest, "clsName=Person", "instanceName=Armando");
 		 * 
@@ -117,7 +121,7 @@ public class GenericTest extends ServiceTest {
 //			testType = "direct";
 			testType = "http";
 
-		GenericTest test = new GenericTest();
+		DeleteTest test = new DeleteTest();
 		test.deleteWorkingFiles();
 		test.initialize(testType);
 		test.doTest();

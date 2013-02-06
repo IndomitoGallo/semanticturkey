@@ -49,8 +49,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
-@Component
 
+@Component
 public class Plugins extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Plugins.class);
 	ServletUtilities servletUtilities = ServletUtilities.getService();
@@ -68,8 +68,8 @@ public class Plugins extends ServiceAdapter {
 	public final static String pluginTag = "plugin";
 	public final static String activeStatusTag = "active";
 
-	@Autowired 
-	public Plugins(@Value("Plugins")String id) {
+	@Autowired
+	public Plugins(@Value("Plugins") String id) {
 		super(id);
 	}
 
@@ -77,7 +77,7 @@ public class Plugins extends ServiceAdapter {
 		return logger;
 	}
 
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(Req.getPluginListRequest)) {
 
 			// remove this once it is being used by at least one request

@@ -54,8 +54,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
-@Component
 
+@Component
 public class Statement extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Statement.class);
@@ -89,7 +89,8 @@ public class Statement extends ServiceAdapter {
 	public final static String literalXMLValue = "lit";
 	public final static String bnodeXMLValue = "bn";
 
-	@Autowired public Statement(@Value("Statement")String id) {
+	@Autowired
+	public Statement(@Value("Statement") String id) {
 		super(id);
 	}
 
@@ -98,7 +99,7 @@ public class Statement extends ServiceAdapter {
 	}
 
 	@Override
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		if (request.equals(Req.getStatementsRequest) || request.equals(Req.hasStatementRequest)) {
 			String subject = setHttpPar(Par.subjectPar);
 			String predicate = setHttpPar(Par.predicatePar);

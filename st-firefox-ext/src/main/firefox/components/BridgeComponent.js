@@ -237,7 +237,7 @@ BridgeComponent.prototype.initialize = function(packageLoader, trace) {
 		 * Initialization through a static method
 		 */
 		this._trace("Initialize: "
-			+ this._packages.getClass("it.uniroma2.art.semanticturkey.pluginmanager.PluginManager").m("initialize")("")); // was (extensionPath) instead of ""
+			+ this._packages.getClass("it.uniroma2.art.semanticturkey.pluginmanager.PluginManager").m("initialize")("")); // before Spring was (extensionPath) instead of ""
 
 		/*
 		 * Create a sample Java object

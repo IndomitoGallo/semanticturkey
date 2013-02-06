@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */
 @Component
-
 public class ModifyName extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(ModifyName.class);
 	public String XSLpath = Resources.getXSLDirectoryPath() + "createClassForm.xsl";
@@ -68,8 +67,9 @@ public class ModifyName extends ServiceAdapter {
 	}
 
 	public static String renameRequest = "rename";
-@Autowired
-	public ModifyName(@Value("ModifyName")String id) {
+
+	@Autowired
+	public ModifyName(@Value("ModifyName") String id) {
 		super(id);
 	}
 

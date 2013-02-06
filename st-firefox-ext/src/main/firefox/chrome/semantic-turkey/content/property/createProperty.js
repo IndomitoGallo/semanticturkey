@@ -23,7 +23,7 @@
  * NScarpato 16/10/2007 File che contiene le funzioni di Riempimento del
  * Pannello create Property
  */
-netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 var ptype = "";
 
 if (typeof art_semanticturkey == 'undefined')

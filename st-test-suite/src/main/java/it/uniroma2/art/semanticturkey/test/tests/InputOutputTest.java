@@ -24,15 +24,14 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.main.Cls;
-import it.uniroma2.art.semanticturkey.servlet.main.Delete;
-import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
-import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
+import it.uniroma2.art.semanticturkey.servlet.main.InputOutput;
+import it.uniroma2.art.semanticturkey.servlet.main.Metadata;
 
 import java.io.IOException;
 
@@ -40,26 +39,49 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class DeleteTest extends ServiceTest {
+public class InputOutputTest extends SystemStartTest {
 
-	public void doTest() {
-
-		Response resp = systemStartService.makeRequest(SystemStart.startRequest);
-		System.out.println(resp);
+	String stxOntologyURI = "http://art.uniroma2.it/ontologies/st_example";
+	
+	
+	public void doTest() {		
 		
-		resp = systemStartService.makeRequest(SystemStart.listTripleStoresRequest);
-		System.out.println(resp);
+		super.doTest();
 				
-		resp = systemStartService.makeRequest(SystemStart.startRequest,
-				par(SystemStart.baseuriPar, "http://art.uniroma2.it/ontologies/myont")
-		);
-		System.out.println(resp);
-		
-		resp = clsService.makeRequest(Cls.createClassRequest,
+		Response resp = clsService.makeRequest(Cls.createClassRequest,
 				par(Cls.newClassNamePar, "Persona"),
 				par(Cls.superClassNamePar, "owl:Thing")
 		);
+		System.out.println(resp);				
+		
+		/*
+		resp = metadataService.makeRequest(Metadata.addFromWebRequest,
+				par(Metadata.baseuriPar, stxOntologyURI)
+		);
 		System.out.println(resp);
+		*/
+		
+		resp = metadataService.makeRequest(Metadata.addFromWebToMirrorRequest,
+				par(Metadata.baseuriPar, stxOntologyURI),
+				par(Metadata.mirrorFilePar, "stx.owl")
+		);
+		System.out.println(resp);
+		
+		resp = clsService.makeRequest(Cls.getClassTreeRequest);
+		System.out.println(resp);
+		
+		resp = inputOutputService.makeRequest(InputOutput.saveRDFRequest,
+				par(InputOutput.filePar, "./testOutput/export.owl")
+		);
+		System.out.println(resp);
+		
+		
+		resp = inputOutputService.makeRequest(InputOutput.clearDataRequest);
+		System.out.println(resp);
+		
+		pause();
+		
+		super.doTest();
 		
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
@@ -74,6 +96,7 @@ public class DeleteTest extends ServiceTest {
 		System.out.println(resp);
 		*/
 		
+		/*
 		resp = deleteService.makeRequest(Delete.removeClassRequest,
 				par("name", "Persona")
 		);
@@ -81,13 +104,14 @@ public class DeleteTest extends ServiceTest {
 		
 		resp = clsService.makeRequest(Cls.getClassTreeRequest);
 		System.out.println(resp);
+		*/
 		
 		/*
 		 * askServer("cls", Cls.createClassRequest, "superClassName=owl:Thing", "newClassName=Person");
 		 * 
 		 * askServer("cls", Cls.getClassTreeRequest);
 		 * 
-		 * // non contiene request (pippo) perchï¿½ non la si richiede, quindi il parametro viene scartato //
+		 * // non contiene request (pippo) perchè non la si richiede, quindi il parametro viene scartato //
 		 * askServer("service=cls&clsName=Person&instanceName=Armando"); askServer("cls",
 		 * Cls.createInstanceRequest, "clsName=Person", "instanceName=Armando");
 		 * 
@@ -118,10 +142,10 @@ public class DeleteTest extends ServiceTest {
 		if (args.length > 0)
 			testType = args[0];
 		else
-//			testType = "direct";
-			testType = "http";
+			testType = "direct";
+//			testType = "http";
 
-		DeleteTest test = new DeleteTest();
+		InputOutputTest test = new InputOutputTest();
 		test.deleteWorkingFiles();
 		test.initialize(testType);
 		test.doTest();

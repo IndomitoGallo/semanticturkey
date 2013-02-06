@@ -73,7 +73,7 @@ public class SPARQL extends ServiceAdapter {
 	 * 
 	 * @return
 	 */
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		SerializationType ser_type = _oReq.getAcceptContent();
 
 		if (request.equals(resolveQueryRequest)) {

@@ -28,10 +28,10 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
-import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
@@ -39,12 +39,15 @@ import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
+import it.uniroma2.art.semanticturkey.generation.annotation.GenerateController;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
+import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 import it.uniroma2.art.semanticturkey.vocabulary.SemAnnotVocab;
 
 import org.slf4j.Logger;
@@ -53,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.w3c.dom.Element;
 
 /**
  * 
@@ -76,7 +80,7 @@ public class Delete extends ServiceAdapter {
 	public Logger getLogger() {
 		return logger;
 	}
-
+	
 	private void initializeDeletePropertyPropagationTree() {
 		deletePropertyPropagationTree = new PropertyChainsTree();
 		deletePropertyPropagationTree.addChainedProperty(SemAnnotVocab.Res.annotation).addChainedProperty(
@@ -155,9 +159,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stClass = STRDFNodeFactory.createSTRDFResource(ontModel, cls,
-					RDFResourceRolesEnum.cls, servletUtilities.checkWritable(ontModel, cls, wgraph),
+					ModelUtilities.getResourceRole(cls, ontModel), 
+					servletUtilities.checkWritable(ontModel, cls, wgraph),
 					false);
-			setRendering(ontModel, stClass, graphs);
+			Cls.setRendering(ontModel, stClass, null, null, graphs);
 			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, cls); // 1) removes all the incoming edges
 			// beware! only applicable if the application has already checked
 			// that the class has no subclasses nor instances!, otherwise some
@@ -189,9 +194,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stInstance = STRDFNodeFactory.createSTRDFResource(ontModel, resource,
-					RDFResourceRolesEnum.individual, servletUtilities.checkWritable(ontModel, resource, wgraph),
+					ModelUtilities.getResourceRole(resource, ontModel), 
+					servletUtilities.checkWritable(ontModel, resource, wgraph),
 					false);
-			setRendering(ontModel, stInstance, graphs);
+			Cls.setRendering(ontModel, stInstance, null, null,graphs);
 			if (deletePropertyPropagationTree == null)
 				initializeDeletePropertyPropagationTree();
 			ModelUtilities.deepDeleteIndividual(resource, ontModel, deletePropertyPropagationTree);
@@ -225,9 +231,10 @@ public class Delete extends ServiceAdapter {
 			ARTResource[] graphs = getUserNamedGraphs();
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 			STRDFResource stProperty = STRDFNodeFactory.createSTRDFResource(ontModel, property,
-					RDFResourceRolesEnum.property, servletUtilities.checkWritable(ontModel, property, wgraph),
+					ModelUtilities.getResourceRole(property, ontModel), 
+					servletUtilities.checkWritable(ontModel, property, wgraph),
 					false);
-			setRendering(ontModel, stProperty, graphs);
+			Cls.setRendering(ontModel, stProperty, null, null, graphs);
 			ontModel.deleteTriple(NodeFilters.ANY, NodeFilters.ANY, property); // 1) removes all the incoming
 			// edges //beware! only applicable if the application
 			// has already checked that the class has no subclasses nor
@@ -261,12 +268,4 @@ public class Delete extends ServiceAdapter {
 		Delete.deletePropertyPropagationTree = deletePropertyPropagationTree;
 	}
 
-	
-	private void setRendering(RDFSModel model, STRDFResource individual, ARTResource[] graphs) 
-			throws ModelAccessException {
-
-		String rendering = model.getQName(individual.getARTNode().asURIResource().getURI());
-
-		individual.setRendering(rendering);
-	}
 }

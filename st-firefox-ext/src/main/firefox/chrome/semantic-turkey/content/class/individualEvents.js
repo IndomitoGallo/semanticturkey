@@ -19,7 +19,7 @@
  * http://semanticturkey.uniroma2.it
  * 
  */
-netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 art_semanticturkey.associateEventsOnIndividualGraphicElements = function() {
 

@@ -24,7 +24,7 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;

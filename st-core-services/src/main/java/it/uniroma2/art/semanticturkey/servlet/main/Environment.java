@@ -44,20 +44,20 @@ import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
-@Component
 
+@Component
 public class Environment extends ServiceAdapter {
 
 	public static String systemPropertiesRequest = "systemprops";
 
 	protected static Logger logger = LoggerFactory.getLogger(Environment.class);
+
 	@Autowired
-	public Environment(@Value("Environment")String id) {
+	public Environment(@Value("Environment") String id) {
 		super(id);
 	}
 
 	@Override
-	
 	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		Response response = null;
 

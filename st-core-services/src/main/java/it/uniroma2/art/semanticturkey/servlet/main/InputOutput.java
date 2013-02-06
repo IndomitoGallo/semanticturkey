@@ -52,13 +52,11 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
- * This service allows for ontology save/load/clean functionalities for Semantic
- * Turkey
+ * This service allows for ontology save/load/clean functionalities for Semantic Turkey
  * 
  * @author Armando Stellato <stellato@info.uniroma2.it>
  */
 @Component
-
 public class InputOutput extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(InputOutput.class);
 
@@ -79,9 +77,8 @@ public class InputOutput extends ServiceAdapter {
 	public InputOutput(@Value("InputOutput") String id) {
 		super(id);
 	}
-	
-	public Response getPreCheckedResponse(String request)
-			throws HTTPParameterUnspecifiedException {
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		this.fireServletEvent();
 		if (request.equals(saveRDFRequest)) {
 			String outPutFile = setHttpPar(filePar);
@@ -101,29 +98,25 @@ public class InputOutput extends ServiceAdapter {
 		}
 
 		else
-			return servletUtilities
-					.createNoSuchHandlerExceptionResponse(request);
+			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 	}
 
 	/**
 	 * answers with an ack on the result of saving the ontModel to a local file.
 	 * 
-	 * <Tree type="save_ontModel"> <result level="ok"/> //oppure "failed" <msg
-	 * content="bla bla bla"/> </Tree>
+	 * <Tree type="save_ontModel"> <result level="ok"/> //oppure "failed" <msg content="bla bla bla"/> </Tree>
 	 * 
 	 * 
-	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports
-	 * after a setOntologyImports because an imported ontology may contain other
-	 * prefix mappings to be imported
+	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports after a setOntologyImports
+	 * because an imported ontology may contain other prefix mappings to be imported
 	 * 
 	 */
 	public Response saveRDF(File outPutFile, boolean allNGs) {
 
 		String request = saveRDFRequest;
 		try {
-			RDFModel model = ProjectManager.getCurrentProject()
-					.getOntologyManager().getOntModel();
+			RDFModel model = ProjectManager.getCurrentProject().getOntologyManager().getOntModel();
 			RDFFormat format = RDFFormat.guessRDFFormatFromFile(outPutFile);
 			if (format == null)
 				format = RDFFormat.RDFXML;
@@ -133,12 +126,11 @@ public class InputOutput extends ServiceAdapter {
 				model.writeRDF(outPutFile, format, getWorkingGraph());
 
 		} catch (Exception e) {
-			return logAndSendException("problems in saving the ontModel\n"
-					+ e.getMessage());
+			return logAndSendException("problems in saving the ontModel\n" + e.getMessage());
 		}
 
-		XMLResponseREPLY response = ServletUtilities.getService()
-				.createReplyResponse(request, RepliesStatus.ok);
+		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
+				RepliesStatus.ok);
 		Element dataElement = response.getDataElement();
 		Element element = XMLHelp.newElement(dataElement, "result");
 		element.setAttribute("level", "ok");
@@ -148,16 +140,13 @@ public class InputOutput extends ServiceAdapter {
 	}
 
 	/**
-	 * answers with an ack on the result of loading the ontModel from a local
-	 * file.
+	 * answers with an ack on the result of loading the ontModel from a local file.
 	 * 
-	 * <Tree type="load_ontModel"> <result level="ok"/> //oppure "failed" <msg
-	 * content="bla bla bla"/> </Tree>
+	 * <Tree type="load_ontModel"> <result level="ok"/> //oppure "failed" <msg content="bla bla bla"/> </Tree>
 	 * 
 	 * 
-	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports
-	 * after a setOntologyImports because an imported ontology may contain other
-	 * prefix mappings to be imported
+	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports after a setOntologyImports
+	 * because an imported ontology may contain other prefix mappings to be imported
 	 * 
 	 */
 	public Response loadRDF(File inputFile, String baseURI, String formatName) {
@@ -169,26 +158,20 @@ public class InputOutput extends ServiceAdapter {
 				rdfFormat = RDFFormat.parseFormat(formatName);
 			}
 			if (rdfFormat == null) {
-				logger.debug("guessing format from extension of file to be loaded: "
-						+ formatName);
+				logger.debug("guessing format from extension of file to be loaded: " + formatName);
 				rdfFormat = RDFFormat.guessRDFFormatFromFile(inputFile);
 			}
 			if (rdfFormat == null) {
 				return logAndSendException("rdf file format cannot be established neither from file extension nor from user preference (if it has been provided)");
 			}
-			ProjectManager
-					.getCurrentProject()
-					.getOntologyManager()
-					.loadOntologyData(inputFile, baseURI, rdfFormat,
-							getWorkingGraph());
+			ProjectManager.getCurrentProject().getOntologyManager()
+					.loadOntologyData(inputFile, baseURI, rdfFormat, getWorkingGraph());
 		} catch (FileNotFoundException e) {
-			return logAndSendException("the file you chose is unavailable: \n"
-					+ e.getMessage());
+			return logAndSendException("the file you chose is unavailable: \n" + e.getMessage());
 		} catch (IOException e) {
 			return logAndSendException("io error: " + e.getMessage(), e);
 		} catch (ModelAccessException e) {
-			return logAndSendException("the file you chose is not accessible: \n"
-					+ e.getMessage());
+			return logAndSendException("the file you chose is not accessible: \n" + e.getMessage());
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
 		} catch (UnsupportedRDFFormatException e) {
@@ -207,27 +190,23 @@ public class InputOutput extends ServiceAdapter {
 	}
 
 	/**
-	 * answers with an ack on the result of loading the ontModel from a local
-	 * file.
+	 * answers with an ack on the result of loading the ontModel from a local file.
 	 * 
-	 * <Tree type="clear_ontModel"> <result level="ok"/> //oppure "failed" <msg
-	 * content="bla bla bla"/> </Tree>
+	 * <Tree type="clear_ontModel"> <result level="ok"/> //oppure "failed" <msg content="bla bla bla"/>
+	 * </Tree>
 	 * 
 	 * 
-	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports
-	 * after a setOntologyImports because an imported ontology may contain other
-	 * prefix mappings to be imported
+	 * HINT for CLIENT: always launch a getNamespaceMappings, getOntologyImports after a setOntologyImports
+	 * because an imported ontology may contain other prefix mappings to be imported
 	 * 
 	 */
 	public Response clearData() {
 		try {
 			ProjectManager.getCurrentProject().getOntologyManager().clearData();
 		} catch (ModelUpdateException e) {
-			return logAndSendException("unable to clear the ontModel: \n"
-					+ e.getMessage());
+			return logAndSendException("unable to clear the ontModel: \n" + e.getMessage());
 		} catch (ModelCreationException e) {
-			return logAndSendException("problems in restarting a new empty ontModel: \n"
-					+ e.getMessage());
+			return logAndSendException("problems in restarting a new empty ontModel: \n" + e.getMessage());
 		}
 
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);

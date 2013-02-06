@@ -24,13 +24,13 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
 import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
 import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.main.Statement;
-import it.uniroma2.art.semanticturkey.servlet.utils.AssertResponses;
+import it.uniroma2.art.semanticturkey.servlet.main.Cls;
+import it.uniroma2.art.semanticturkey.servlet.main.OntoSearch;
 
 import java.io.IOException;
 
@@ -38,7 +38,7 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class StatementTest extends SystemStartTest {
+public class OntoSearchTest extends SystemStartTest {
 
 	public void doTest() {
 
@@ -47,22 +47,31 @@ public class StatementTest extends SystemStartTest {
 		importSTExample();
 
 		Response
-
-		resp = statementService.makeRequest(Statement.Req.getStatementsRequest, par(Statement.Par.subjectPar,
-				"uri$st_example:worksIn"), par(Statement.Par.predicatePar, "any"), par(
-				Statement.Par.objectPar, "any"), par(Statement.Par.inferencePar, "false"), par(
-				Statement.Par.graphsPar, Statement.mainGraphValue + ";"
-						+ "http://art.uniroma2.it/ontologies/st_example"));
+		
+		resp = clsService.makeRequest(Cls.createInstanceRequest,
+				par(Cls.instanceNamePar, "ArmandoStellato"),
+				par(Cls.clsQNameField, "st_example:Person")
+		);
 		System.out.println(resp);
 
-		AssertResponses.assertResponseEquals(null, "getStatements1.xml");
-
-		resp = statementService.makeRequest(Statement.Req.getStatementsRequest, par(Statement.Par.subjectPar,
-				"uri$st_example:worksIn"), par(Statement.Par.predicatePar, "any"), par(
-				Statement.Par.objectPar, "any"), par(Statement.Par.inferencePar, "true"), par(
-				Statement.Par.graphsPar, Statement.mainGraphValue));
+		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
+				par("inputString", "Person"),
+				par("types", "clsNInd")
+		);
 		System.out.println(resp);
-
+		
+		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
+				par("inputString", "ArmandoStellato"),
+				par("types", "clsNInd")
+		);
+		System.out.println(resp);
+		
+		
+		resp = searchOntologyService.makeRequest(OntoSearch.searchOntologyRequest,
+				par("inputString", "works"),
+				par("types", "property")
+		);
+		System.out.println(resp);
 	}
 
 	public static void main(String[] args) throws ModelUpdateException, STInitializationException,
@@ -76,7 +85,7 @@ public class StatementTest extends SystemStartTest {
 			testType = "direct";
 		// testType = "http";
 
-		StatementTest test = new StatementTest();
+		OntoSearchTest test = new OntoSearchTest();
 		test.deleteWorkingFiles();
 		test.initialize(testType);
 		test.doTest();

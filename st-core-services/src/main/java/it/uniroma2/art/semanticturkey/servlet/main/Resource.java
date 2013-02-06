@@ -41,12 +41,14 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
@@ -90,14 +92,15 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
-@Component
 
+@Component
 public class Resource extends ServiceAdapter {
 
 	private ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
 
 	private ArrayList<ARTURIResource> bannedPredicatesForResourceDescription;
-@Autowired
+
+	@Autowired
 	public Resource(@Value("Resource") String id) {
 		super(id);
 		basePropertyPruningPredicates = new ArrayList<Predicate<ARTResource>>();
@@ -139,7 +142,7 @@ public class Resource extends ServiceAdapter {
 		return logger;
 	}
 
-	 public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to Resource");
 
 		Response response = null;
@@ -813,8 +816,10 @@ public class Resource extends ServiceAdapter {
 
 		Collection<STRDFResource> superTypes = STRDFNodeFactory.createEmptyResourceCollection();
 		for (ARTResource superType : directSuperTypes) {
-			superTypes.add(STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
-					directExplicitSuperTypes.contains(superType), true));
+			STRDFResource res = STRDFNodeFactory.createSTRDFResource(ontModel, superType, true,
+					directExplicitSuperTypes.contains(superType), true);
+			Cls.setRendering(ontModel, res, null, null, graphs);
+			superTypes.add(res);
 		}
 
 		RDFXMLHelp.addRDFNodes(superTypesElem, superTypes);
@@ -845,7 +850,7 @@ public class Resource extends ServiceAdapter {
 		while (topConcepts.streamOpen()) {
 			ARTURIResource topConcept = topConcepts.getNext();
 			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, topConcept,
-					RDFResourceRolesEnum.concept, true, true));
+					ModelUtilities.getResourceRole(topConcept, ontModel), true, true));
 		}
 		topConcepts.close();
 
@@ -863,7 +868,7 @@ public class Resource extends ServiceAdapter {
 		for (ARTURIResource importedOntology : imports) {
 
 			topSTConcepts.add(STRDFNodeFactory.createSTRDFResource(ontModel, importedOntology,
-					RDFResourceRolesEnum.ontology, true, true));
+					ModelUtilities.getResourceRole(importedOntology, ontModel), true, true));
 
 		}
 		RDFXMLHelp.addRDFNodes(importsElem, topSTConcepts);

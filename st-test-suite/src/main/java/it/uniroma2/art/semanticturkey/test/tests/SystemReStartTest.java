@@ -24,9 +24,12 @@
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
  */
-package it.uniroma2.art.semanticturkey.test.oldtests;
+package it.uniroma2.art.semanticturkey.test.tests;
 
+import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.STInitializationException;
+import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.main.SystemStart;
 import it.uniroma2.art.semanticturkey.test.fixture.ServiceTest;
 
 import java.io.IOException;
@@ -35,15 +38,31 @@ import java.io.IOException;
  * @author Armando Stellato
  * 
  */
-public class SERVERUP extends ServiceTest {
+public class SystemReStartTest extends ServiceTest {
 
+	public void doTest() {
 
-	public static void main(String[] args) throws IOException, STInitializationException {
-		ServiceTest tester = new SERVERUP();
-		tester.initialize(true);
-		System.err.println("\n\n\nINITIALIZED!!!\n\n\n\n");		
-		tester.pause();
+		Response resp = systemStartService.makeRequest(SystemStart.startRequest
+		);
+		System.out.println(resp);
 	}
-	
+
+	public static void main(String[] args) throws ModelUpdateException, STInitializationException,
+			IOException {
+
+		String testType;
+
+		if (args.length > 0)
+			testType = args[0];
+		else
+			testType = "direct";
+//			testType = "http";
+
+		SystemReStartTest test = new SystemReStartTest();
+		//test.deleteWorkingFiles();
+		test.initialize(testType);
+		test.doTest();
+
+	}
 
 }
