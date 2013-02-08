@@ -1,13 +1,11 @@
 package it.uniroma2.art.semanticturkey.pluginmanager.utils;
 
-import it.uniroma2.art.semanticturkey.pluginmanager.PluginManager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +14,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Scanner;
-
-import javax.swing.text.html.HTMLDocument.Iterator;
 
 import org.apache.felix.framework.util.Util;
 
@@ -49,12 +44,12 @@ public class utils {
 		String cwd = System.getProperty("user.dir");
 		buildExtensionTree();
 		
-		loadToList(oldlist, cwd+"\\extensions\\oldtree.bak");
-		eraseFile(cwd+"\\extensions\\oldtree.bak");
-		saveToFile(newlist,cwd+"\\extensions\\oldtree.bak");
+		loadToList(oldlist, cwd + File.separator + "extensions" + File.separator + "oldtree.bak");
+		eraseFile(cwd + File.separator + "extensions" + File.separator + "oldtree.bak");
+		saveToFile(newlist,cwd + File.separator + "extensions" + File.separator + "oldtree.bak");
 		buildDiff();
-		eraseFile(cwd+"\\extensions\\toDelete.bak");
-		saveToFile(difflist, cwd+"\\extensions\\toDelete.bak");
+		eraseFile(cwd + File.separator + "extensions" + File.separator + "toDelete.bak");
+		saveToFile(difflist, cwd + File.separator + "extensions" + File.separator + "toDelete.bak");
 		createDummyDirs();
 		
 	}
@@ -96,11 +91,11 @@ public class utils {
 		File extdir;
 		if (filesPath != null) {
 			for (String Paths : filesPath) {
-				extdir = new File(dir.getAbsolutePath() + "\\" + Paths + "\\"
-						+ "extensions\\service");
+				extdir = new File(dir.getAbsolutePath() + File.separator + Paths + File.separator
+						+ "extensions" + File.separator + "service");
 				if (extdir.exists()) {
-					newlist.add(dir.getAbsolutePath() + "\\" + Paths + "\\"
-							+ "extensions\\service");
+					newlist.add(dir.getAbsolutePath() + File.separator + Paths + File.separator
+							+ "extensions" + File.separator+ "service");
 				}
 			}
 
@@ -119,7 +114,7 @@ public class utils {
 	{
 		String cwd = System.getProperty("user.dir");
 		ArrayList<String> toDelete=new ArrayList<String>();
-		loadToList(toDelete, cwd+"\\extensions\\toDelete.bak");
+		loadToList(toDelete, cwd + File.separator + "extensions" + File.separator + "toDelete.bak");
 		java.util.Iterator<String> delIterator=toDelete.iterator();
 		while(delIterator.hasNext())
 		{

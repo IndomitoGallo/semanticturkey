@@ -39,10 +39,10 @@ public class PluginManager {
 
 		String cwd = System.getProperty("user.dir");
 		utils.treeOperations();
-		configMap.put("felix.fileinstall.dir", cwd + "\\extensions\\core,"
-				+ cwd + "\\extensions\\ontmanager"+utils.listToConfig());
-		System.out.println("test: "+cwd + "\\extensions\\core,"
-				+ cwd + "\\extensions\\ontmanager"+utils.listToConfig());
+		configMap.put("felix.fileinstall.dir", cwd + File.separator + "extensions" + File.separator + "core,"
+				+ cwd + File.separator + "extensions" + File.separator +"ontmanager"+utils.listToConfig());
+		System.out.println("test: "+cwd + File.separator + "extensions" + File.separator + "core,"
+				+ cwd + File.separator + "extensions" + File.separator +"ontmanager"+utils.listToConfig());
 
 		
 		configMap.put("org.osgi.framework.bootdelegation",
@@ -90,15 +90,15 @@ public class PluginManager {
 		String cwd = System.getProperty("user.dir");
 		System.out.println(cwd);
 		ArrayList<Bundle> StartList = new ArrayList<Bundle>();
-		String[] Dep = utils.getResourceListing(cwd + "\\container\\Dependency");
-		String[] Str = utils.getResourceListing(cwd + "\\container\\Start");
+		String[] Dep = utils.getResourceListing(cwd + File.separator + "container" + File.separator +"Dependency");
+		String[] Str = utils.getResourceListing(cwd + File.separator + "container" + File.separator +"Start");
 		
 		
 		for (int i = 0; i < Dep.length; i++) {
 			if (Dep[i].endsWith(".war") || Dep[i].endsWith(".jar")) {
 				System.out.println(Dep[i]);
 
-				String toLoad = "file:" + cwd + "\\container\\Dependency\\"
+				String toLoad = "file:" + cwd + File.separator + "container" + File.separator + "Dependency" + File.separator
 						+ Dep[i];
 
 				m_felix.getBundleContext().installBundle(toLoad);
@@ -110,7 +110,7 @@ public class PluginManager {
 			if (Str[k].endsWith(".war") || Str[k].endsWith(".jar")) {
 				System.out.println(Str[k]);
 				StartList.add(m_felix.getBundleContext().installBundle(
-						"file:" + cwd + "\\container\\Start\\" + Str[k]));
+						"file:" + cwd + File.separator + "container" + File.separator + "Start" + File.separator + Str[k]));
 
 			}
 		}
