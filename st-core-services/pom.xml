@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
-		<version>${st.version}</version>
+		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>st-core-services</artifactId>		
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-core-framework</artifactId>
-			<version>${st.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-codegen-processor</artifactId>
-			<version>${st.version}</version>
+			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
