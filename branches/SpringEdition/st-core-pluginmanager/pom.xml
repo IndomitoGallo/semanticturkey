@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
-		<version>${st.version}</version>
+		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>st-core-pluginmanager</artifactId>
