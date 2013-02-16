@@ -127,5 +127,11 @@
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 		</dependency>
+<!-- The dependency to javax.validation is required for the definition of constraints and validators -->
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>com.springsource.javax.validation</artifactId>
+			<version>1.0.0.GA</version>
+		</dependency>
 	</dependencies>
 </project>
