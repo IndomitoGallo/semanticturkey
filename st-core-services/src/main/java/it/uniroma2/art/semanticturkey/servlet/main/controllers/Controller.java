@@ -7,14 +7,16 @@ import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
 import it.uniroma2.art.semanticturkey.servlet.JSONResponse;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.STServer;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -34,7 +36,7 @@ import org.w3c.dom.Document;
 @org.springframework.stereotype.Controller
 public class Controller implements ApplicationContextAware {
 	ApplicationContext context;
-	protected static Logger logger = LoggerFactory.getLogger(STServer.class);
+	protected static Logger logger = LoggerFactory.getLogger(Controller.class);
 	// final static private HashMap<String, Class> map = new HashMap<String,
 	// Class>();
 
@@ -217,17 +219,47 @@ public class Controller implements ApplicationContextAware {
 		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq))
 				.getAcceptContent();
 		try {
-			serviceName = serviceName.substring(0, 1).toUpperCase()
-					+ serviceName.substring(1);
-			service = (ServiceInterface) context.getBean(Class
-					.forName("it.uniroma2.art.semanticturkey.servlet.main."
-							+ serviceName));
+//			serviceName = serviceName.substring(0, 1).toUpperCase()
+//					+ serviceName.substring(1);
+//			service = (ServiceInterface) context.getBean(Class
+//					.forName("it.uniroma2.art.semanticturkey.servlet.main."
+//							+ serviceName));
+			Map<String, ServiceInterface> services = context.getBeansOfType(ServiceInterface.class);
+			for (ServiceInterface s : services.values()) {
+				if (s.getId().equalsIgnoreCase(serviceName)) {
+					service = s;
+					break;
+				}
+			}
+			
+			
+			if (service==null) {
+				Object binolo = context.getBean("thirdPartyServices");
+				
+				System.out.println("@@@@@" + binolo);
+				if (binolo!=null) {
+					System.out.println("@@@@@" + binolo.getClass().getCanonicalName());
+					ServiceInterface si = ((List<ServiceInterface>)binolo).get(0);
+					service = si;
+				}
+				
+				
+				
+			}
+			
+			
+			
+			
+			// service = (ServiceInterface) context.getBean(Class.forName(service.getClass().getCanonicalName()));
+			System.out.println(" :" + service.getClass().getCanonicalName());
+			
 		} catch (BeansException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			service = null;
 		}
+//		catch (ClassNotFoundException e1) {
+//			service = null;
+//		}
 		;
 
 		logger.debug("identifying proper service for handling the request..");
@@ -239,7 +271,7 @@ public class Controller implements ApplicationContextAware {
 		} else {
 			try {
 				logger.debug("handling the request.. for service: "
-						+ serviceName);
+						+ serviceName + service.getClass().getCanonicalName());
 				service.setServiceRequest(new HttpServiceRequestWrapper(oReq));
 				response = service.getResponse();
 

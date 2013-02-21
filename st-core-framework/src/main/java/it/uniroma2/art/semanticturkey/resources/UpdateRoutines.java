@@ -163,13 +163,13 @@ public class UpdateRoutines {
 	}
 
 	private static void checkAndInitializeMissingProperty(String projectName, String propertyName,
-			String defaultValue, String STVersion) throws IOException, InvalidProjectNameException,
+			String defaultValue, String stversion) throws IOException, InvalidProjectNameException,
 			ProjectInexistentException {
 		logger.info("checking existence of a value for property: " + propertyName);
 		String propertyValue = ProjectManager.getProjectProperty(projectName, propertyName);
 		if (propertyValue == null) {
 			logger.info(projectName + " is present, though it shows no property: " + propertyName
-					+ ". Since it is a project previous to version: " + STVersion
+					+ ". Since it is a project previous to version: " + stversion
 					+ ", its configuration type is probably (and being set to): " + defaultValue);
 			ProjectManager.setProjectProperty(projectName, propertyName, defaultValue);
 		} else {

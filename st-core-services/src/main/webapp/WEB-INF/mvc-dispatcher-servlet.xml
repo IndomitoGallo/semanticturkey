@@ -22,6 +22,8 @@
 	
 	<osgi:service ref="conversionService" interface="org.springframework.core.convert.ConversionService" />
 	
+	<osgi:list id="thirdPartyServices" cardinality="0..N" interface="it.uniroma2.art.semanticturkey.plugin.extpts.ServiceInterface" />
+	
 	<context:component-scan base-package="it.uniroma2.art.semanticturkey.servlet.main" />
 
 	<bean id="validator"
