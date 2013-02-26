@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
-		<version>0.8.7-SNAPSHOT</version>
+		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>st-sesame2-ontmanager</artifactId>
@@ -29,12 +29,12 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.5</version>
+				<version>2.3.7</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<bundleName>${project.name}</bundleName>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+<!-- 						<bundleName>${project.name}</bundleName> -->
+<!-- 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName> -->
 						<bundleDescription>${project.description}</bundleDescription>
 
 						<Bundle-Activator>it.uniroma2.art.semanticturkey.ontology.sesame2.Sesame2ImplBundle</Bundle-Activator>
@@ -102,8 +102,6 @@
 		</plugins>
 		<finalName>${project.groupId}.${project.artifactId}</finalName>
 	</build>
-	<repositories>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.collections</groupId>
@@ -147,7 +145,7 @@
 		<dependency>
 			<groupId>it.uniroma2.art.semanticturkey</groupId>
 			<artifactId>st-core-framework</artifactId>
-			<version>0.8.7-SNAPSHOT</version>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -34,9 +34,11 @@ import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
 import it.uniroma2.art.owlart.models.conf.ConfParameterNotFoundException;
 import it.uniroma2.art.owlart.models.conf.ModelConfiguration;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.OntologyManagerFactory;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
+import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponse;
@@ -46,11 +48,15 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato
  */
+@Component
 public class OntManager extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(OntManager.class);
 
@@ -60,7 +66,8 @@ public class OntManager extends ServiceAdapter {
 	// PARS
 	static final public String ontMgrIDField = "ontMgrID";
 
-	public OntManager(String id) {
+	@Autowired
+	public OntManager(@Value("OntManager") String id) {
 		super(id);
 	}
 

@@ -37,7 +37,7 @@ public class HttpServiceRequestWrapper implements ServiceRequest {
 
 	HttpServletRequest _oReq;
 	
-	HttpServiceRequestWrapper(HttpServletRequest oReq) {
+	public HttpServiceRequestWrapper(HttpServletRequest oReq) {
 		_oReq = oReq;
 	}
 	

@@ -31,6 +31,7 @@ import it.uniroma2.art.owlart.io.RDFFormat;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -45,6 +46,9 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
@@ -52,6 +56,7 @@ import org.w3c.dom.Element;
  * 
  * @author Armando Stellato <stellato@info.uniroma2.it>
  */
+@Component
 public class InputOutput extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(InputOutput.class);
 
@@ -68,7 +73,8 @@ public class InputOutput extends ServiceAdapter {
 	public static String baseUriPar = "baseUri";
 	public static String formatPar = "format";
 
-	public InputOutput(String id) {
+	@Autowired
+	public InputOutput(@Value("InputOutput") String id) {
 		super(id);
 	}
 

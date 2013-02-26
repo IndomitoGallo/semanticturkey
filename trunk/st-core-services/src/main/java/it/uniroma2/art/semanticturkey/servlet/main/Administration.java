@@ -26,6 +26,8 @@
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.resources.Config;
@@ -51,11 +53,15 @@ import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class Administration extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Administration.class);
 	static int webUpdate = 0;
@@ -66,15 +72,16 @@ public class Administration extends ServiceAdapter {
 	protected static String deleteOntMirrorEntry = "deleteOntMirrorEntry";
 	protected static String updateOntMirrorEntry = "updateOntMirrorEntry";
 
-	public Administration(String id) {
+	@Autowired
+	public Administration(@Value("Administration") String id) {
 		super(id);
 	}
 
 	public Logger getLogger() {
 		return logger;
 	}
-	
-	public Response getPreCheckedResponse(String request) {
+
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		fireServletEvent();
 		if (request.equals(setAdminLevel))
 			return setAdminLevel(setHttpPar("adminLevel"));

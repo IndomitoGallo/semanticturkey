@@ -44,6 +44,7 @@ import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -56,11 +57,15 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class Individual extends Resource {
 	protected static Logger logger = LoggerFactory.getLogger(Individual.class);
 	public String XSLpath = Resources.getXSLDirectoryPath() + "createClassForm.xsl";
@@ -86,7 +91,8 @@ public class Individual extends Resource {
 	public static final String indqnameField = "indqname";
 	public static final String typeqnameField = "typeqname";
 
-	public Individual(String id) {
+	@Autowired
+	public Individual(@Value("Individual") String id) {
 		super(id);
 	}
 

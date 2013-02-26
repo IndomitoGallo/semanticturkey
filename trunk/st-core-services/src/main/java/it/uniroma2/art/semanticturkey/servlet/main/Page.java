@@ -29,6 +29,7 @@ import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -43,6 +44,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 /**
@@ -50,6 +54,7 @@ import org.w3c.dom.Element;
  * 
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class Page extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Page.class);
@@ -57,7 +62,8 @@ public class Page extends ServiceAdapter {
 	public static String instanceNameString = "instanceName";
 	public static String getBookmarksRequest = "getBookmarks";
 
-	public Page(String id) {
+	@Autowired
+	public Page(@Value("Page") String id) {
 		super(id);
 	}
 

@@ -35,6 +35,7 @@ import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
@@ -51,6 +52,9 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -59,6 +63,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author Donato Griesi Contributor(s): Andrea Turbati
  */
+@Component
 public class Synonyms extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(Synonyms.class);
@@ -66,7 +71,8 @@ public class Synonyms extends ServiceAdapter {
 	public static final String getSynonymsRequest = "getSynonyms";
 	public static final String addSynonymRequest = "addSynonym";
 
-	public Synonyms(String id) {
+	@Autowired
+	public Synonyms(@Value("Synonyms") String id) {
 		super(id);
 	}
 

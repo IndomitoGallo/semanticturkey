@@ -28,6 +28,7 @@ package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.PluginInterface;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -44,8 +45,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
+@Component
 public class Plugins extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Plugins.class);
 	ServletUtilities servletUtilities = ServletUtilities.getService();
@@ -63,7 +68,8 @@ public class Plugins extends ServiceAdapter {
 	public final static String pluginTag = "plugin";
 	public final static String activeStatusTag = "active";
 
-	public Plugins(String id) {
+	@Autowired
+	public Plugins(@Value("Plugins") String id) {
 		super(id);
 	}
 

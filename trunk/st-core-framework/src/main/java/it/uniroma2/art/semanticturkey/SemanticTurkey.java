@@ -41,6 +41,8 @@ import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +61,8 @@ import org.slf4j.LoggerFactory;
  *         Contributor: Andrea Turbati <a href="mailto:turbati@info.uniroma2.it">turbati@info.uniroma2.it</a>
  * 
  */
-public class SemanticTurkey {
-	public final static VersionNumber versionNumber = new VersionNumber(0, 8, 2);
+public class SemanticTurkey implements BundleActivator {
+	public final static VersionNumber versionNumber = new VersionNumber(0, 9, 0);
 	static protected HttpServer s_httpServer;
 	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
 	private final static int port = 1979;
@@ -75,16 +77,19 @@ public class SemanticTurkey {
 	 * @return
 	 */
 	public static String initialize(String extensionPath) {
-		// TODO pass also the port to the initialize method, so that user preferences can modify the
+		// TODO pass also the port to the initialize method, so that user
+		// preferences can modify the
 		// server port
 
-		// URL log4jPropertiesFileURL = SemanticTurkey.class.getResource("log4j.properties");
+		// URL log4jPropertiesFileURL =
+		// SemanticTurkey.class.getResource("log4j.properties");
 		// PropertyConfigurator.configure(log4jPropertiesFileURL);
 		File extensionDir = null;
 		try {
 			extensionDir = SemanticTurkeyOperations.uriToFile(extensionPath);
 		} catch (URISyntaxException e) {
-			// TODO catch this error and do something in the client which reports the error
+			// TODO catch this error and do something in the client which
+			// reports the error
 			e.printStackTrace();
 		}
 
@@ -94,23 +99,25 @@ public class SemanticTurkey {
 			Resources.initializeUserResources(extensionDir.getAbsolutePath());
 			XMLHelp.initialize();
 		} catch (Exception e) {
-			// TODO catch this error and do something in the client which reports the error
+			// TODO catch this error and do something in the client which
+			// reports the error
 			e.printStackTrace();
 		}
 
 		logger.debug("userDataPath: " + extensionDir.getAbsolutePath());
 
-		createWebServer();
-		PluginManager.loadOntManagersImpl();
-		// SemanticTurkey.class.getResource("log4j.properties").toString();
+		// createWebServer();
+		// PluginManager.loadOntManagersImpl();
+		// // SemanticTurkey.class.getResource("log4j.properties").toString();
 		return null;
 	}
 
-	public static void main(String[] args) {
-		String extensionDir = new File(System.getProperty("user.dir")).toURI().toString();
-		System.out.println("ext dir: " + extensionDir);
-		initialize(extensionDir);
-	}
+	// public static void main(String[] args) {
+	// String extensionDir = new File(System.getProperty("user.dir")).toURI()
+	// .toString();
+	// System.out.println("ext dir: " + extensionDir);
+	// initialize(extensionDir);
+	// }
 
 	/**
 	 * return the server instance
@@ -124,56 +131,75 @@ public class SemanticTurkey {
 	/**
 	 * this method builds up the HTTP Server in charge of replying to user requests
 	 */
-	public static void createWebServer() {
-		server = new HttpServer();
-
-		SocketListener listener = new SocketListener();
-		listener.setPort(port);
-
-		// BINDING TO A SPECIFIC IP ADDRESS, commented, restore it if it is important for security, maybe
-		// with as an optional branching
-		// try {
-		// listener.setInetAddress(InetAddress.getByName("localhost"));
-		// } catch (UnknownHostException e1) {
-		// logger.error("UnknownHostException", e1);
-		// e1.printStackTrace();
-		// }
-		server.addListener(listener);
-
-		HttpContext context = new HttpContext();
-		context.setContextPath("semantic_turkey/resources/*");
-
-		context.setResourceBase(Resources.getExtensionPath() + "/components/lib/");
-		context.addHandler(new ResourceHandler());
-		// context.setClassLoader(WebSearch.class.getClassLoader());
-		context.setClassLoader(STServer.class.getClassLoader());
-
-		ServletHandler servlets = new ServletHandler();
-		// servlets.addServlet("Websearch", "/*", WebSearch.class.getName());
-		servlets.addServlet("STServer", "/stserver/*", STServer.class.getName());
-		servlets.addServlet("Proxy", "/graph/*", Proxy.class.getName());
-		/*
-		 * try { System.out.println( "\n\n\nTEST RECUPERO SERVLET\n\n" + ( (STServer)
-		 * servlets.getServletHolder("/stserver/*").getServlet()).getServices("systemStart").getId() ); }
-		 * catch (ServletException e1) { // TODO Auto-generated catch block e1.printStackTrace(); }
-		 */
-		context.addHandler(servlets);
-		server.addContext(context);
-
-		try {
-			server.start();
-		} catch (Exception e) {
-			logger.error("Server error start", e);
-			e.printStackTrace();
-		}
-		logger.debug("Server starting...");
-	}
+	// public static void createWebServer() {
+	// server = new HttpServer();
+	//
+	// SocketListener listener = new SocketListener();
+	// listener.setPort(port);
+	//
+	// // BINDING TO A SPECIFIC IP ADDRESS, commented, restore it if it is
+	// important for security, maybe
+	// // with as an optional branching
+	// // try {
+	// // listener.setInetAddress(InetAddress.getByName("localhost"));
+	// // } catch (UnknownHostException e1) {
+	// // logger.error("UnknownHostException", e1);
+	// // e1.printStackTrace();
+	// // }
+	// server.addListener(listener);
+	//
+	// HttpContext context = new HttpContext();
+	// context.setContextPath("semantic_turkey/resources/*");
+	//
+	// context.setResourceBase(Resources.getExtensionPath() +
+	// "/components/lib/");
+	// context.addHandler(new ResourceHandler());
+	// // context.setClassLoader(WebSearch.class.getClassLoader());
+	// context.setClassLoader(STServer.class.getClassLoader());
+	//
+	// ServletHandler servlets = new ServletHandler();
+	// // servlets.addServlet("Websearch", "/*", WebSearch.class.getName());
+	// servlets.addServlet("STServer", "/stserver/*", STServer.class.getName());
+	// servlets.addServlet("Proxy", "/graph/*", Proxy.class.getName());
+	// /*
+	// * try { System.out.println( "\n\n\nTEST RECUPERO SERVLET\n\n" + (
+	// (STServer)
+	// *
+	// servlets.getServletHolder("/stserver/*").getServlet()).getServices("systemStart").getId()
+	// ); }
+	// * catch (ServletException e1) { // TODO Auto-generated catch block
+	// e1.printStackTrace(); }
+	// */
+	// context.addHandler(servlets);
+	// server.addContext(context);
+	//
+	// try {
+	// server.start();
+	// } catch (Exception e) {
+	// logger.error("Server error start", e);
+	// e.printStackTrace();
+	// }
+	// logger.debug("Server starting...");
+	// }
 
 	public static void initializeVocabularies(RDFModel repo) throws VocabularyInitializationException {
 		// RDF.Res.initialize(repo);
 		// RDFS.Res.initialize(repo);
 		// OWL.Res.initialize(repo);
 		SemAnnotVocab.Res.initialize(repo);
+	}
+
+	public void start(BundleContext arg0) throws Exception {
+		PluginManager.setContext(arg0);
+		String extensionDir = new File(System.getProperty("user.dir")).toURI().toString();
+		System.out.println("ext dir: " + extensionDir);
+		initialize(extensionDir);
+
+	}
+
+	public void stop(BundleContext arg0) throws Exception {
+		// TODO Auto-generated method stub
+
 	}
 
 }

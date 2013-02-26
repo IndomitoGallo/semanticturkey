@@ -14,6 +14,7 @@ import it.uniroma2.art.owlart.query.TupleQuery;
 import it.uniroma2.art.owlart.query.io.TupleBindingsWriterException;
 import it.uniroma2.art.owlart.query.io.TupleBindingsWritingFormat;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
@@ -35,6 +36,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,6 +51,8 @@ import org.xml.sax.SAXException;
  * @author Armando Stellato
  * 
  */
+@Component
+
 public class SPARQL extends ServiceAdapter {
 
 	protected static Logger logger = LoggerFactory.getLogger(SPARQL.class);
@@ -59,7 +65,7 @@ public class SPARQL extends ServiceAdapter {
 
 	public final static String resultTypeAttr = "resulttype";
 
-	public SPARQL(String id) {
+	@Autowired public SPARQL(@Value("Sparql") String id) {
 		super(id);
 	}
 

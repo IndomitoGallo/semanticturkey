@@ -31,6 +31,7 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.ProjectAccessException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
 import it.uniroma2.art.semanticturkey.plugin.PluginManager;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
@@ -47,8 +48,13 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 import org.w3c.dom.Element;
 
+@Component
 public class SystemStart extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(SystemStart.class);
 	ServletUtilities servletUtilities = new ServletUtilities();
@@ -68,7 +74,8 @@ public class SystemStart extends ServiceAdapter {
 	// response tags
 	public final static String baseuriTag = "baseuri";
 
-	public SystemStart(String id) {
+	@Autowired
+	public SystemStart(@Value("systemStart") String id) {
 		super(id);
 	}
 
