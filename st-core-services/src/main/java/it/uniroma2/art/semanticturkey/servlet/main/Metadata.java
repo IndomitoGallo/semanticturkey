@@ -39,6 +39,7 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.ImportManagementException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.ImportStatus;
 import it.uniroma2.art.semanticturkey.ontology.NSPrefixMappingUpdateException;
 import it.uniroma2.art.semanticturkey.ontology.STOntologyManager;
@@ -62,6 +63,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import org.w3c.dom.Element;
 
@@ -69,6 +73,7 @@ import org.w3c.dom.Element;
  * @author Armando Stellato <stellato@info.uniroma2.it>
  * @author Andrea Turbati <turbati@info.uniroma2.it>
  */
+@Component
 public class Metadata extends Resource {
 
 	protected static Logger logger = LoggerFactory.getLogger(Metadata.class);
@@ -124,7 +129,8 @@ public class Metadata extends Resource {
 	// response tags
 	public static final String baseuriTag = "BaseURI";
 
-	public Metadata(String id) {
+	@Autowired
+	public Metadata(@Value("Metadata") String id) {
 		super(id);
 	}
 

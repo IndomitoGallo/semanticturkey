@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>it.uniroma2.art.semanticturkey</groupId>
 		<artifactId>semanticturkey</artifactId>
-		<version>0.8.7-SNAPSHOT</version>
+		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>st-core-services</artifactId>
-	<name>Semantic Turkey Core Services</name>
+	<name>Semantic Turkey CORE Services</name>
 	<description>The set of core services bundled with the default Semantic Turkey XPI</description>
 	<packaging>bundle</packaging>
 
@@ -32,22 +32,124 @@
 		</developer>
 	</developers>
 
+
+	<properties>
+		<spring.version>3.1.2.RELEASE</spring.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-core-framework</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-codegen-annotations</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>it.uniroma2.art.semanticturkey</groupId>
+			<artifactId>st-codegen-processor</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
 	<build>
+		
+		<resources>
+			<resource>
+				<!-- we had problems in using standard wab deployment (referencing the WEB-INF/classes from depending wabs)-->
+				<!-- thus we have manually managed the webapp directory and we still put the classes in the . position-->
+				<directory>src/main/webapp</directory>
+			</resource>		
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>		
+		</resources>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.5</version>
+				<version>2.3.7</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>it.uniroma2.art.semanticturkey.servlet.main</Export-Package>
-						<!-- <Private-Package></Private-Package> -->
-						<Bundle-Activator>it.uniroma2.art.semanticturkey.servlet.main.ServletBundle</Bundle-Activator>
-						<!-- <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency> <Embed-Directory>lib</Embed-Directory> -->
+<!-- 						<_wab>src/main/webapp</_wab>  could also use src/main/resources if you like -->
+ 						<Webapp-Context>semantic_turkey</Webapp-Context>
+ 						<Web-ContextPath>semantic_turkey</Web-ContextPath>
+						<Export-Package>
+							<!-- The following is required to make core service classes (SKOS[XL], 
+								...) available for extensions -->
+							{local-packages}
+						</Export-Package>
+						<Import-Package>
+							it.uniroma2.art.semanticturkey,
+							it.uniroma2.art.semanticturkey.exceptions,
+							it.uniroma2.art.semanticturkey.filter,
+							it.uniroma2.art.semanticturkey.ontology,
+							it.uniroma2.art.semanticturkey.ontology.utilities,
+							it.uniroma2.art.semanticturkey.plugin,
+							it.uniroma2.art.semanticturkey.plugin.extpts,
+							it.uniroma2.art.semanticturkey.project,
+							it.uniroma2.art.semanticturkey.resources,
+							it.uniroma2.art.semanticturkey.servlet,
+							it.uniroma2.art.semanticturkey.utilities,
+							it.uniroma2.art.semanticturkey.vocabulary,
+							org.springframework.web.servlet.view,
+							org.springframework.web.servlet,
+							org.springframework.context.*,
+							org.springframework.context.support,
+							org.springframework.context.config,
+							org.springframework.core,
+							org.springframework.web.context,
+							org.springframework.osgi.web.context.support,
+							org.springframework.stereotype,
+							org.springframework.ui,
+							org.springframework.web.bind.annotation,
+							org.springframework.web.servlet.mvc.annotation,
+							org.osgi.framework,
+							org.aopalliance.aop,
+							javax.persistence,
+							javax.validation,
+							net.sf.cglib.proxy,
+							net.sf.cglib.core,
+							net.sf.cglib.reflect,
+							org.springframework.core.convert, <!-- This dependency 
+								is required for the ConversionServiceFactoryBean -->
+							org.springframework.validation.beanvalidation,
+							org.springframework.validation.annotation,
+							org.jsoup,
+							org.springframework.aop.framework,
+							org.springframework.aop,
+							javax.validation.bootstrap,
+							javax.validation.constraints,
+							javax.validation.spi,
+							org.hibernate.validator,
+							org.springframework.validation,
+							javax.inject,
+							org.springframework.beans.factory.config,
+							org.springframework.context.annotation,
+							javax.servlet.http,
+							*;resolution:=optional
+						</Import-Package>
+<!-- 						<Bundle-ClassPath>.</Bundle-ClassPath> -->
 					</instructions>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
@@ -69,14 +171,42 @@
 			</plugin>
 		</plugins>
 		<finalName>${project.groupId}.${project.artifactId}</finalName>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.felix
+										</groupId>
+										<artifactId>
+											maven-bundle-plugin
+										</artifactId>
+										<versionRange>
+											[2.3.5,)
+										</versionRange>
+										<goals>
+											<goal>manifest</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>it.uniroma2.art.semanticturkey</groupId>
-			<artifactId>st-core-framework</artifactId>
-			<version>0.8.7-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 
 </project>

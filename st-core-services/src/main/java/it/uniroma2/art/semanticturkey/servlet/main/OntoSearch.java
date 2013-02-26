@@ -43,6 +43,7 @@ import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
@@ -50,6 +51,7 @@ import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.CompareNames;
+import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -61,12 +63,17 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Element;
 
 /**Classe che effettua la ricerca di una parola all'interno dell'ontologia*/
 /**
  * @author Donato Griesi, Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class OntoSearch extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(OntoSearch.class);
 	// public String XSLpath = Profile.getUserDataPath() + "/components/lib/xsl/search.xsl";
@@ -74,7 +81,8 @@ public class OntoSearch extends ServiceAdapter {
 
 	public static String searchOntologyRequest = "searchOntology";
 
-	public OntoSearch(String id) {
+	@Autowired
+	public OntoSearch(@Value("OntoSearch") String id) {
 		super(id);
 	}
 

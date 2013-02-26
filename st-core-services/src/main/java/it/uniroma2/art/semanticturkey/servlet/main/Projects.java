@@ -41,6 +41,7 @@ import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.ReservedPropertyUpdateException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.ModelTypeRegistry;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.AbstractProject;
@@ -63,9 +64,13 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
+@Component
 public class Projects extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(Projects.class);
 
@@ -117,8 +122,8 @@ public class Projects extends ServiceAdapter {
 	public final static String statusMsgAttr = "stMsg";
 
 	// parameters
-
-	public Projects(String id) {
+	@Autowired
+	public Projects(@Value("Projects") String id) {
 		super(id);
 	}
 

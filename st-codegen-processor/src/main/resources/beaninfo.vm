@@ -1,0 +1,57 @@
+package ${packageName}.controllers;
+
+import ${packageName}.${className};
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Controller;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+public class ${className}Controller 
+    implements ApplicationContextAware {
+    ApplicationContext context;
+    
+	@Override
+	public void setApplicationContext(ApplicationContext arg0)
+			throws BeansException {
+		context=arg0;
+		
+	}
+
+#foreach($method in $methods)
+#set($index = 0)
+#set( $arguments = "" )
+#set( $path = $method.simpleName )
+#set( $subarg = "" )
+#set($comma="")
+
+#foreach($parameter in $method.Parameters)
+#set( $type = $parameter.asType() )
+#set( $arguments = "${arguments} ${comma} "+'@RequestParam(value = "'+"$parameter.simpleName"+'")'+ "$type $parameter.simpleName" )
+#set( $subarg="${subarg} ${comma} $parameter.simpleName")
+#set($comma=",")
+#end
+
+    @RequestMapping(value = "/${className}/${path}", method = RequestMethod.GET)
+	public @ResponseBody String  ${method.simpleName}Published(${arguments}) 
+	{
+		${className} fun = (${className}) context.getBean(${className}.class);
+		try {
+
+			return fun.${method.simpleName}(${subarg}).getResponseContent();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return e.toString();
+		}
+
+    }
+#end
+}

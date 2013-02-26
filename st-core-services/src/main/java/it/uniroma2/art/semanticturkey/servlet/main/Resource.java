@@ -58,6 +58,7 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNode;
@@ -80,6 +81,9 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -89,13 +93,15 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
 
+@Component
 public class Resource extends ServiceAdapter {
 
 	private ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
 
 	private ArrayList<ARTURIResource> bannedPredicatesForResourceDescription;
 
-	public Resource(String id) {
+	@Autowired
+	public Resource(@Value("Resource") String id) {
 		super(id);
 		basePropertyPruningPredicates = new ArrayList<Predicate<ARTResource>>();
 		basePropertyPruningPredicates.add(NoTypePredicate.noTypePredicate);
@@ -136,7 +142,7 @@ public class Resource extends ServiceAdapter {
 		return logger;
 	}
 
-	protected Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
+	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 		logger.debug("request to Resource");
 
 		Response response = null;

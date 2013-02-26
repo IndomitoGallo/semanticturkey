@@ -48,6 +48,7 @@ import it.uniroma2.art.owlart.vocabulary.RDFS;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.DomainResourcePredicate;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
@@ -64,6 +65,9 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -75,13 +79,14 @@ import com.google.common.collect.Iterators;
  * This class provides services for
  * <ul>
  * <li>generating the class tree</li>
- * <li>generating the instance list for a given class (<em> move it to {@link Individual} ?</em>)</li>
- * <li>creating a new instance from a given class(<em> move it to {@link Individual} !</li>
+ * <li>generating the instance list for a given class ( <em> move it to {@link Individual} ?</em>)</li>
+ * <li>creating a new instance from a given class( <em> move it to {@link Individual} !</li>
  * </ul>
  * 
  * @author Armando Stellato, Andrea Turbati, Donato Griesi
  * 
  */
+@Component
 public class Cls extends Resource {
 
 	// GET REQUESTS
@@ -128,7 +133,8 @@ public class Cls extends Resource {
 
 	protected static Logger logger = LoggerFactory.getLogger(Cls.class);
 
-	public Cls(String id) {
+	@Autowired
+	public Cls(@Value("Cls") String id) {
 		super(id);
 	}
 

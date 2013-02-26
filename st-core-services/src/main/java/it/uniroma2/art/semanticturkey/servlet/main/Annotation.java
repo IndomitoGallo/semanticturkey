@@ -47,6 +47,7 @@ import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
@@ -67,6 +68,9 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Function;
@@ -78,6 +82,7 @@ import com.google.common.collect.Iterators;
  * @author Armando Stellato
  * @author Andrea Turbati (moved the service to OSGi extension framework)
  */
+@Component
 public class Annotation extends ServiceAdapter {
 
 	public static final String getPageAnnotationsRequest = "getPageAnnotations";
@@ -125,7 +130,8 @@ public class Annotation extends ServiceAdapter {
 	 * 
 	 * @param id
 	 */
-	public Annotation(String id) {
+	@Autowired
+	public Annotation(@Value("Annotation") String id) {
 		super(id);
 		servletUtilities = ServletUtilities.getService();
 	}
@@ -898,8 +904,9 @@ public class Annotation extends ServiceAdapter {
 			return response;
 		} catch (Exception e) {
 			return logAndSendException(e);
-		}	
+		}
 	}
+
 	public void createLexicalization(RDFModel model, ARTURIResource instance, String lexicalization,
 			String pageURL, String title, ARTResource... graphs) throws ModelUpdateException,
 			ModelAccessException {

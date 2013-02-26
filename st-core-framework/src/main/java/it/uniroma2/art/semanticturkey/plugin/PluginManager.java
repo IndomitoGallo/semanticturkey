@@ -49,6 +49,7 @@ import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.main.Main;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.util.tracker.ServiceTracker;
@@ -61,7 +62,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class PluginManager {
 
 	protected static Logger logger = LoggerFactory.getLogger(PluginManager.class);
-	private static Felix m_felix = null;
+	private static BundleContext m_felix = null;
 
 	private static ArrayList<String> jarPresent = new ArrayList<String>();
 
@@ -83,7 +84,10 @@ public class PluginManager {
 	public static void setDirectAccessTest(boolean test) {
 		PluginManager.directAccessTest = test;
 	}
-
+	public static void setContext(BundleContext toSet)
+	{
+		m_felix=toSet;
+	}
 	public static void setTestOntManagerFactoryImpl(
 			Class<? extends OntologyManagerFactory<ModelConfiguration>> ontmgrcls) {
 		testOntManagerFactoryCls = ontmgrcls;
@@ -92,26 +96,26 @@ public class PluginManager {
 	/**
 	 * this method retrieves all OSGi bundles which are located in firefox extensions
 	 */
-	public static void loadOntManagersImpl() {
-		startFelix();
-
-		File dir = getFirefoxExtensionsApplicationsDir();
-
-		// problema con gli spazi, converto %20 in spazio
-		dir = new File(dir.getAbsolutePath().replace("%20", " "));
-		String[] filesPath = dir.list();
-		if (filesPath != null) {
-			bundleToBeStarted.clear();
-			// Analizzo tutte le directory contenenti le estensioni per firefox
-			for (int i = 0; i < filesPath.length; ++i) {
-				findAndInstallPlugin(dir.getAbsolutePath() + "/" + filesPath[i] + "/"
-						+ ontManagerExtensionsDirName, jarPresent);
-			}
-		}
-
-		// Faccio la start dei bundle appena trovati
-		startAllBundle();
-	}
+//	public static void loadOntManagersImpl() {
+//		startFelix();
+//
+//		File dir = getFirefoxExtensionsApplicationsDir();
+//
+//		// problema con gli spazi, converto %20 in spazio
+//		dir = new File(dir.getAbsolutePath().replace("%20", " "));
+//		String[] filesPath = dir.list();
+//		if (filesPath != null) {
+//			bundleToBeStarted.clear();
+//			// Analizzo tutte le directory contenenti le estensioni per firefox
+//			for (int i = 0; i < filesPath.length; ++i) {
+//				findAndInstallPlugin(dir.getAbsolutePath() + "/" + filesPath[i] + "/"
+//						+ ontManagerExtensionsDirName, jarPresent);
+//			}
+//		}
+//
+//		// Faccio la start dei bundle appena trovati
+//		startAllBundle();
+//	}
 
 	/**
 	 * this method returns the folder where all Firefox extensions are being hosted. This folder is used to
@@ -206,7 +210,7 @@ public class PluginManager {
 		ServiceTracker m_tracker = null;
 		int num = 0;
 
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), OntologyManagerFactory.class.getName(),
+		m_tracker = new ServiceTracker(m_felix, OntologyManagerFactory.class.getName(),
 				null);
 		m_tracker.open();
 
@@ -225,8 +229,7 @@ public class PluginManager {
 	 *            HashMap containing classes which handle client requests
 	 */
 	public static void loadExtensions(STServer stServer) {
-		// faccio partire la piattaforma felix
-		startFelix();
+
 
 		File dir = getFirefoxExtensionsApplicationsDir();
 
@@ -275,69 +278,69 @@ public class PluginManager {
 	 * Funzione che fa partire Felix, nel caso non sia gi� stato fatto partire
 	 * 
 	 */
-	private static void startFelix() {
-
-		if (!felixStarted) {
-			felixStarted = true;
-
-			URL defaultPropertiesURL = Main.class.getClassLoader().getResource("default.properties");
-			Properties defaultProperties = loadProperties(defaultPropertiesURL);
-
-			URL stPopertiesURL = PluginManager.class.getResource("st-osgi.properties");
-			Properties stProperties = loadProperties(stPopertiesURL);
-
-			// System.out.println(defaultProperties.getProperty("org.osgi.framework.system.packages"));
-
-			// Create a case-insensitive configuration property map.
-			Map<String, String> configMap = new HashMap<String, String>();
-
-			// this removal is from Felix 1.4.0 on: felix.embedded.execution is no more needed since
-			// system.exit is never called by the framework (now in charge of the developer
-			// configMap.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
-
-			// Updates the org.osgi.framework.system.packages with Semantic Turkey specific packages
-			// via the system bundle.
-			configMap.put(
-					Constants.FRAMEWORK_SYSTEMPACKAGES,
-					defaultProperties.getProperty("org.osgi.framework.system.packages") + ", "
-							+ stProperties.getProperty("it.uniroma2.art.semanticturkey.osgi.packages"));
-
-			// System.out.println(configMap.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
-
-			// Explicitly specify the directory to use for caching bundles.
-			System.out.println("felix dir: " + Resources.getOSGiPath());
-			// TODO check if this change is correct
-			// configMap.put(BundleCache.CACHE_PROFILE_DIR_PROP, (new File(Resources.getOntologyDir(),
-			// "felix")).getPath() );
-			configMap.put("org.osgi.framework.storage", Resources.getOSGiPath().getPath());
-
-			try {
-
-				m_felix = new Felix(configMap);
-
-				// Now start Felix instance.
-				m_felix.start();
-				logger.info("Felix started"); // da cancellare
-			} catch (Exception ex) {
-				// TODO remove this catch, throw and catch appropriately
-				System.err.println("Could not create framework : " + ex);
-				ex.printStackTrace();
-			}
-		}
-	}
+//	private static void startFelix() {
+//
+//		if (!felixStarted) {
+//			felixStarted = true;
+//
+//			URL defaultPropertiesURL = Main.class.getClassLoader().getResource("default.properties");
+//			Properties defaultProperties = loadProperties(defaultPropertiesURL);
+//
+//			URL stPopertiesURL = PluginManager.class.getResource("st-osgi.properties");
+//			Properties stProperties = loadProperties(stPopertiesURL);
+//
+//			// System.out.println(defaultProperties.getProperty("org.osgi.framework.system.packages"));
+//
+//			// Create a case-insensitive configuration property map.
+//			Map<String, String> configMap = new HashMap<String, String>();
+//
+//			// this removal is from Felix 1.4.0 on: felix.embedded.execution is no more needed since
+//			// system.exit is never called by the framework (now in charge of the developer
+//			// configMap.put(FelixConstants.EMBEDDED_EXECUTION_PROP, "true");
+//
+//			// Updates the org.osgi.framework.system.packages with Semantic Turkey specific packages
+//			// via the system bundle.
+//			configMap.put(
+//					Constants.FRAMEWORK_SYSTEMPACKAGES,
+//					defaultProperties.getProperty("org.osgi.framework.system.packages") + ", "
+//							+ stProperties.getProperty("it.uniroma2.art.semanticturkey.osgi.packages"));
+//
+//			// System.out.println(configMap.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
+//
+//			// Explicitly specify the directory to use for caching bundles.
+//			System.out.println("felix dir: " + Resources.getOSGiPath());
+//			// TODO check if this change is correct
+//			// configMap.put(BundleCache.CACHE_PROFILE_DIR_PROP, (new File(Resources.getOntologyDir(),
+//			// "felix")).getPath() );
+//			configMap.put("org.osgi.framework.storage", Resources.getOSGiPath().getPath());
+//
+//			try {
+//
+//				m_felix = new Felix(configMap);
+//
+//				// Now start Felix instance.
+//				m_felix.start();
+//				logger.info("Felix started"); // da cancellare
+//			} catch (Exception ex) {
+//				// TODO remove this catch, throw and catch appropriately
+//				System.err.println("Could not create framework : " + ex);
+//				ex.printStackTrace();
+//			}
+//		}
+//	}
 
 	// never invoked explicitly by Semantic Turkey, it is useful when debugging, to stop felix, release
 	// control over SemanticTurkeyData dir and delete it
-	public static void stopFelix() {
-		try {
-			m_felix.stop();
-			logger.info("Felix stopped");
-		} catch (BundleException e) {
-			e.printStackTrace();
-			logger.info("unable to stop Felix");
-		}
-
-	}
+//	public static void stopFelix() {
+//		try {
+//			m_felix.stop();
+//			logger.info("Felix stopped");
+//		} catch (BundleException e) {
+//			e.printStackTrace();
+//			logger.info("unable to stop Felix");
+//		}
+//
+//	}
 
 	/**
 	 * this method searches for existing bundles in a given directory
@@ -388,7 +391,7 @@ public class PluginManager {
 		if (bundle == null) { // the bundle is not installed, installing it...
 			try {
 				logger.info("bundle: " + bundleJarFile + " is not in the bundle cache, installing it now");
-				bundle = m_felix.getBundleContext().installBundle(bundleJarFileURIString);
+				bundle = m_felix.installBundle(bundleJarFileURIString);
 				logger.info("bundle: " + bundleJarFile + " loaded, now being activated");
 				// bundle.start();
 				bundleToBeStarted.add(bundle);
@@ -409,7 +412,7 @@ public class PluginManager {
 				try {
 					bundle.stop();
 					bundle.uninstall();
-					bundle = m_felix.getBundleContext().installBundle(bundleJarFileURIString);
+					bundle = m_felix.installBundle(bundleJarFileURIString);
 					bundleToBeStarted.add(bundle);
 					// bundle.start();
 				} catch (BundleException e) {
@@ -430,7 +433,7 @@ public class PluginManager {
 	 * @return null if no bundle corresponds to the given location
 	 */
 	private static Bundle getBundleByLocation(String location) {
-		Bundle bundles[] = m_felix.getBundleContext().getBundles();
+		Bundle bundles[] = m_felix.getBundles();
 		Bundle bundle = null;
 		for (int i = 0; i < bundles.length; ++i) {
 			if (bundles[i].getLocation().equals(location)) {
@@ -449,7 +452,7 @@ public class PluginManager {
 	 *            {@link ArrayList} containing all bundles loaded by the application
 	 */
 	private static void removeOldBundle(ArrayList<String> jarPresent) {
-		Bundle[] bundles = m_felix.getBundleContext().getBundles();
+		Bundle[] bundles = m_felix.getBundles();
 		for (int i = 0; i < bundles.length; ++i) {
 			if (!(jarPresent.contains(bundles[i].getLocation()))
 					&& !(bundles[i].getLocation().equals("System Bundle"))) {
@@ -513,7 +516,7 @@ public class PluginManager {
 	 */
 	private static void installPluginListener(STServer stServer) {
 		ServiceTracker m_tracker = null;
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), ServletListener.class.getName(), null);
+		m_tracker = new ServiceTracker(m_felix, ServletListener.class.getName(), null);
 		m_tracker.open();
 		ServiceInterface service;
 
@@ -567,7 +570,7 @@ public class PluginManager {
 		ServiceTracker m_tracker = null;
 		T repImpl = null;
 
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), type.getName(), null);
+		m_tracker = new ServiceTracker(m_felix, type.getName(), null);
 		m_tracker.open();
 
 		Object[] services = m_tracker.getServices();
@@ -585,7 +588,7 @@ public class PluginManager {
 		ArrayList<String> servletExtensionsList = new ArrayList<String>();
 
 		ServiceTracker m_tracker = null;
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), type.getName(), null);
+		m_tracker = new ServiceTracker(m_felix, type.getName(), null);
 		m_tracker.open();
 
 		Object[] services = m_tracker.getServices();
@@ -602,7 +605,7 @@ public class PluginManager {
 		ArrayList<T> servletExtensionsList = new ArrayList<T>();
 
 		ServiceTracker m_tracker = null;
-		m_tracker = new ServiceTracker(m_felix.getBundleContext(), type.getName(), null);
+		m_tracker = new ServiceTracker(m_felix, type.getName(), null);
 		m_tracker.open();
 
 		Object[] services = m_tracker.getServices();

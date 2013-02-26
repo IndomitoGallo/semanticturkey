@@ -31,9 +31,13 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
@@ -41,13 +45,15 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
+@Component
 public class Environment extends ServiceAdapter {
 
 	public static String systemPropertiesRequest = "systemprops";
 
 	protected static Logger logger = LoggerFactory.getLogger(Environment.class);
-	
-	public Environment(String id) {
+
+	@Autowired
+	public Environment(@Value("Environment") String id) {
 		super(id);
 	}
 

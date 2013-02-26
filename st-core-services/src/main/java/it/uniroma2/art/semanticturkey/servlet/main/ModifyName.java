@@ -29,6 +29,7 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.TransactionBasedModel;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.resources.Resources;
@@ -40,6 +41,9 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import org.w3c.dom.Element;
 
@@ -48,6 +52,7 @@ import org.w3c.dom.Element;
  * 
  * @author Armando Stellato Contributor(s): Andrea Turbati
  */
+@Component
 public class ModifyName extends ServiceAdapter {
 	protected static Logger logger = LoggerFactory.getLogger(ModifyName.class);
 	public String XSLpath = Resources.getXSLDirectoryPath() + "createClassForm.xsl";
@@ -63,7 +68,8 @@ public class ModifyName extends ServiceAdapter {
 
 	public static String renameRequest = "rename";
 
-	public ModifyName(String id) {
+	@Autowired
+	public ModifyName(@Value("ModifyName") String id) {
 		super(id);
 	}
 
