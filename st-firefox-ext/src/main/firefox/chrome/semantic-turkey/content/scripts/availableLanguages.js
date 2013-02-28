@@ -51,6 +51,15 @@ art_semanticturkey.populatePanel = function() {
 };
 
 art_semanticturkey.onAccept = function() {
+	var langlistbox = document.getElementById("languages");
+	var item = langlistbox.selectedItem;
+	
+	if (item != null) {
+		window.arguments[0].lang = item.getAttribute("label");
+	} else {
+		window.arguments[0].lang = "";
+	}
+	
 	close();
 	window.arguments[0].onAccept(window);
 }

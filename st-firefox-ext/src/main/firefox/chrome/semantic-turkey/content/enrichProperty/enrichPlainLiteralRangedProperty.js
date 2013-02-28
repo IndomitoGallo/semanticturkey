@@ -30,6 +30,7 @@ var defaultLangPref = "extensions.semturkey.annotprops.defaultlang";
 if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 
+Components.utils.import("resource://stservices/SERVICE_Property.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
 window.onload = function() {
@@ -76,7 +77,7 @@ art_semanticturkey.setPanel = function() {
 	var defaultLang = prefs.getCharPref(defaultLangPref);
 	langMenulist.selectedItem = document.getElementById(defaultLang);
 	langMenupop.selectedItem = document.getElementById(defaultLang);
-	if (window.arguments[0].predicatePropertyName == "rdfs:comment") {
+	if (window.arguments[0].predicate == "rdfs:comment") {
 		var propValue = document.getElementById("newValue");
 		propValue.setAttribute("multiline", "true");
 		propValue.setAttribute("wrap", "on");
@@ -93,8 +94,8 @@ art_semanticturkey.onAccept = function() {
 		try {
 			var menu = document.getElementById("langMenu");
 			var lang = menu.selectedItem.id;
-			window.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(window.arguments[0].sourceElementName,
-							window.arguments[0].predicatePropertyName, propValue,
+			art_semanticturkey.STRequests.Property.createAndAddPropValue(window.arguments[0].subject,
+							window.arguments[0].predicate, propValue,
 							range, type, lang);
 			close();
 		} catch (e) {

@@ -61,9 +61,11 @@ art_semanticturkey.init = function() {
 
 		var AnnotFunctionList = annComponent.wrappedJSObject.getList();
 
+		var selectedRange = dataTransfer.mozSourceNode.ownerDocument.getSelection().getRangeAt(0);
+		
 		if (AnnotFunctionList[defaultAnnotFun] != null) {
 			//get the function of the selected family for the event drag'n'drop over instance
-			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverSkosConcept");
+			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("selectionOverResource");
 			var count=0;
 			
 			//check how much function are present and enabled
@@ -72,19 +74,11 @@ art_semanticturkey.init = function() {
 					count++;
 				}
 		
-			var event = {target : 
-                {
-                    tagName : "listitem",
-                    getAttribute : function(attrName) {
-                    	if (attrName == "name" || attrName == "label") {
-                    		return conceptTree._view.visibleRows2[index].record.concept;
-                    	}
-                    	
-                    	return "";
-                    }
-                 }
-            };	// no event to pass
-			
+			var event = {};
+			event.name = "selectionOverResource";
+			event.resource = conceptTree._view.visibleRows2[index].record.concept;
+			event.selection = selectedRange;
+			event.document = dataTransfer.mozSourceNode.ownerDocument;
 			event.skos = {};
 			event.skos.selectedScheme = conceptTree.conceptScheme;
 			
@@ -94,16 +88,15 @@ art_semanticturkey.init = function() {
 			//if 1 function is present and enabled execute
 			else if (count == 1) {
 				var fun = FunctionOI[0].getfunct();
-				fun(event, window);
+				fun(event);
 			}
 			//open the choice menu
 			else {
 				var parameters = new Object();
 				parameters.event = event;
-				parameters.parentWindow = window;
 				
 				window.openDialog(
-						"chrome://semantic-turkey/content/DragDrop/dragDropOverSkosConcept.xul",
+						"chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul",
 						"_blank", "modal=yes,resizable,centerscreen",
 						parameters);
 			}

@@ -191,7 +191,7 @@ function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLang
 		});
 	}
 	
-	return reply;
+	return uriValue;
 }
 
 /**

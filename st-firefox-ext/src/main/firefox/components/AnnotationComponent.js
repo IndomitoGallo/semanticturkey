@@ -233,7 +233,8 @@ AnnotationComponent.prototype.Family = function(nameFamily) {
 	eventFunctions["dragDropOverClass"] = new AnnotationComponent.prototype.ClassEvent();
 	eventFunctions["highlightAnnotation"] = new AnnotationComponent.prototype.ClassEvent();
 	eventFunctions["dragDropOverSkosConcept"] = new AnnotationComponent.prototype.ClassEvent();
-	
+	eventFunctions["selectionOverResource"] = new AnnotationComponent.prototype.ClassEvent();
+
 	//add function to family for a given event
 	this.addfunction = function(event, functionObject) {
 		eventFunctions[event].add(functionObject);

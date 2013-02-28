@@ -29,6 +29,7 @@
  
 if (typeof art_semanticturkey == 'undefined') var art_semanticturkey = {};
 
+Components.utils.import("resource://stservices/SERVICE_Property.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
  window.onload = function() {
@@ -98,7 +99,7 @@ art_semanticturkey.setPanel= function() {
 		
 		
 		
-		if (window.arguments[0].predicatePropertyName == "rdfs:comment") {
+		if (window.arguments[0].property == "rdfs:comment") {
 			var propValue = document.getElementById("newValue");
 			propValue.setAttribute("multiline", "true");
 			propValue.setAttribute("wrap", "on");
@@ -125,9 +126,9 @@ art_semanticturkey.onAccept= function() {
 		var propValue = document.getElementById("newValue").value;
 	}
 	try{
-			window.arguments[0].parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					window.arguments[0].sourceElementName,
-					window.arguments[0].predicatePropertyName,
+			art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					window.arguments[0].subject,
+					window.arguments[0].predicate,
 					propValue,
 					range,
 					type

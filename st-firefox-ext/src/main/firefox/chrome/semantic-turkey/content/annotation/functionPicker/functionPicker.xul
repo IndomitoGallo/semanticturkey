@@ -19,12 +19,12 @@
 		* */
 	-->
 
-<window id="dragdropskosconcept" title="Drag n drop over SKOS concept"
+<window id="dragdropskosconcept" title="Choose a function"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	width="250" height="190">
 	
 	<script type="application/x-javascript"
-		src="chrome://semantic-turkey/content/DragDrop/dragDropOverSkosConcept.js" />
+		src="functionPicker.js" />
 
 	<hbox flex="1" orient="vertical" style="overflow:auto">
 		<radiogroup id="group">
