@@ -26,73 +26,33 @@
 	<script type="application/x-javascript"
 			src="chrome://semantic-turkey/content/scripts/options2.js" />
 		
-	<hbox flex="1" orient="vertical">
-		<box flex="1" orient="horizontal">
-			<listbox id="Events" flex="1">
-					<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Events"/>
-									
-							</listitem-iconic>
-						</listheader>		
-					</listhead>		
-			</listbox>
-			
-			<splitter orient="horizontal" state="open" collapse="after"
-				resizeafter="closest">
-			</splitter>
-			
-			<listbox id="fake" hidden="false" flex="1">
+	<hbox flex="1">
+		<listbox id="Events" flex="1">
 				<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Functions"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>	
-			 </listbox>
-			 <listbox id="dragDropOverInstance" hidden="true" flex="1">
-				<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Functions"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>	
-			 </listbox>
-			 <listbox id="dragDropOverClass" hidden="true" flex="1">
-				<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Functions"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>	
-			 </listbox>
-			 <listbox id="dragDropOverSkosConcept" hidden="true" flex="1">
-				<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Functions"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>	
-			 </listbox>
-			 <listbox id="highlightAnnotation" hidden="true" flex="1">
-				<listhead>
-						<listheader>
-							<listitem-iconic>
-								<label value="Functions"/>
-							</listitem-iconic>
-						</listheader>		
-					</listhead>	
-			 </listbox>
-		</box>
-	</hbox>
+					<listheader>
+						<listitem-iconic>
+							<label value="Events"/>
+								
+						</listitem-iconic>
+					</listheader>		
+				</listhead>		
+		</listbox>
+		
+		<splitter orient="horizontal" state="open" collapse="after"
+			resizeafter="closest">
+		</splitter>
+		
+		<listbox id="fake" hidden="false" flex="1">
+			<listhead>
+					<listheader>
+						<listitem-iconic>
+							<label value="Functions"/>
+						</listitem-iconic>
+					</listheader>		
+				</listhead>	
+		 </listbox>
+	</hbox>		 
 	
-	<splitter state="open" collapse="after" resizeafter="closest"/>
-
 	<vbox id="buttonBox" flex="0">
 		<grid flex="1">
 			<columns>

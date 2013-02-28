@@ -34,8 +34,7 @@
 	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 	
-window.onload = function() { 
-	
+window.onload = function() {
 	//register the eventlistener for buttons
 	document.getElementById("ok").addEventListener("click",
 			art_semanticturkey.onAccept, true);
@@ -43,11 +42,11 @@ window.onload = function() {
 			art_semanticturkey.onCancel, true);
 
 	//set the title of window and get family and function of that family
-	var family=window.arguments[0].label;
+	var family = window.arguments[0].label;
 	var title = document.getElementById("options2");
 	title.setAttribute("title", family);
 	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-	var eventList=AnnotFunctionList[family].getArrayEventFunctions();
+	var eventList = AnnotFunctionList[family].getArrayEventFunctions();
 	var listbox = document.getElementById("Events");
 
 	//for each event, create the listbox of function for that event
@@ -59,7 +58,11 @@ window.onload = function() {
 		
 		var FunctionOI = AnnotFunctionList[family].getfunctions(eventName);
 		
-		var listbox1 = document.getElementById(eventName);
+		var listbox1 = document.getElementById("fake");
+		var listbox2 = listbox1.cloneNode();
+		listbox2.setAttribute("id", eventName);
+		listbox2.setAttribute("hidden", "true");
+		listbox1.parentNode.appendChild(listbox2);
 		
 		//each funtion is presented as a checkbox
 		for(var i=0; i<FunctionOI.length; i++)
@@ -71,7 +74,7 @@ window.onload = function() {
 			//if function is enabled the checkbox is set
 			if(FunctionOI[i].isEnabled()){
 				checkbox.setAttribute("checked",true);}
-			listbox1.appendChild(checkbox);
+			listbox2.appendChild(checkbox);
 		}	
 	}
 }; 

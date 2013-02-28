@@ -28,24 +28,25 @@
 	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 	
 window.onload = function() {
-
+	var event = window.arguments[0].event;
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 	.getService(Components.interfaces.nsIPrefBranch);
 	var defaultAnnotFun = prefs
 	.getCharPref("extensions.semturkey.extpt.annotate");
 	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
 	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-
+	
 	//add the eventlistener for the buttons
 	document.getElementById("Ok").addEventListener("click",
 			art_semanticturkey.onAccept, true);
 	document.getElementById("Cancel").addEventListener("click",
 			art_semanticturkey.onCancel, true);
-	    		
+	
 	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
 	
 	//get the functions for the selected family for the event drag'n'drop over instance
-	var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");
+	var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions(event.name);
+	
 	//get the groupbox
 	var groupbox = document.getElementById("group");
 	
@@ -81,7 +82,7 @@ art_semanticturkey.onAccept = function() {
 	
 	if (AnnotFunctionList[defaultAnnotFun] != null) {
 		//get the functions for the event drag'n'drop over instance
-		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("dragDropOverInstance");
+		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions(event.name);
 		//set timeout to close the window
 		//window.setTimeout(function() {window.close();}, 100);
 		

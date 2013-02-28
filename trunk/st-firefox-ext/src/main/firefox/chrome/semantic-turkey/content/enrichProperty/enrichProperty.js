@@ -68,9 +68,17 @@ classHandlers["*"] = new function() {
 			.getItemAtIndex(tree.currentIndex);
 		var selectedObjClsName = currentelement.getAttribute("className");
 
-		var reply = art_semanticturkey.STRequests.Cls.addIndividual(selectedObjClsName, win.arguments[0].objectInstanceName);
+		var reply = art_semanticturkey.STRequests.Cls.addIndividual(selectedObjClsName, win.arguments[0].object);
 		//return reply.getElementsByTagName("Instance")[0].getAttribute("instanceName");
 		return reply['instance'].getURI();
+	}
+	
+	this.getAddLabel = function() {
+		return "Add new annotation for selected instance";		
+	}
+	
+	this.getBindLabel = function() {
+		return "Bind to new individual for selected Class";		
 	}
 };
 classHandlers["skos:Concept"] = new function() {
@@ -112,19 +120,28 @@ classHandlers["skos:Concept"] = new function() {
 				parameters);
 
 		if (typeof parameters.out != "undefined") {
-			var conceptName = win.arguments[0].objectInstanceName;			
+			var conceptName = win.arguments[0].object;			
 			var broaderConcept = parameters.out.selectedConcept;
 			var scheme = selSc;
-			var prefLabel = win.arguments[0].objectInstanceName;
+			var prefLabel = win.arguments[0].lexicalization;
 			var prefLabelLanguage = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
 			
-			var reply = art_semanticturkey.STRequests.SKOS.createConcept(conceptName, broaderConcept, scheme, prefLabel, prefLabelLanguage);
+			var conceptResource = art_semanticturkey.STRequests.SKOS.createConcept(conceptName, broaderConcept, scheme, prefLabel, prefLabelLanguage);
 			
-			return reply.getElementsByTagName("concept")[0].getAttribute("name");
+			return conceptResource.getURI();
 		} else {
 			return undefined;
 		}
 	};
+	
+	
+	this.getAddLabel = function() {
+		return "Add new annotation for selected concept";		
+	}
+	
+	this.getBindLabel = function() {
+		return "Bind to new concept";		
+	}
 };
 
 classHandlers.getCurrentHandler = function() {
@@ -186,22 +203,28 @@ window.onload = function() {
 		if(responseXML.getElementsByTagName("Class").length == 0){
 			document.getElementById("checkAll").checked = true;
 			document.getElementById("checkAll").disabled = true;
+			art_semanticturkey.showAllClasses();
 		}
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);
 	}
-	art_semanticturkey.showAllClasses();
 };
 art_semanticturkey.ep_classesTreeClick = function(e) {
 	// We always need to perform the following operations, otherwise the class tree gets frozen
 	var ep_tree = document.getElementById("ep_classesTree");
 	var ep_list = document.getElementById("ep_IndividualsList");
-	var parentWindow = window.arguments[0].parentWindow;
+//	var parentWindow = window.arguments[0].parentWindow;
 	art_semanticturkey.classesTreeClick(e,ep_tree,ep_list);		
 
 	var clsHandl = classHandlers.getCurrentHandler();
 	clsHandl.showInstances(e);
+	
+	var bindButton = document.getElementById("Bind");
+	bindButton.setAttribute("label", clsHandl.getBindLabel());
+	
+	var addButton = document.getElementById("Add");
+	addButton.setAttribute("label", clsHandl.getAddLabel());
 };
 /**
  * @author NScarpato 10/03/2008 setPanel
@@ -271,7 +294,7 @@ art_semanticturkey.showAllClasses = function() {
 		while (treeChildren.hasChildNodes()) {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
-		var predicatePropertyName = window.arguments[0].predicatePropertyName;
+		var predicatePropertyName = window.arguments[0].predicate;
 		
 		try{
 			var responseXML = art_semanticturkey.STRequests.Property.getRangeClassesTree(predicatePropertyName);
@@ -332,17 +355,17 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 					return;
 				}
 				// Step 2: Add the property value
-				art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subjectInstanceName, win.arguments[0].predicatePropertyName, objectInstanceName, type);
+				art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subject, win.arguments[0].predicate, objectInstanceName, type);
 				 
 				// Step 3: Add the annotation
 	
 				// The annotation has to be applied to the resource, which is the value
 				// of the property assigned before
 				var newParameters = Object.create(win.arguments[0]);
-				newParameters.subjectInstanceName = newParameters.objectInstanceName;
+				newParameters.subject = newParameters.object;
 				 
-				return win.arguments[0].functors.addAnnotation(newParameters);
-	
+				win.arguments[0].functors.addAnnotation(newParameters);
+				close();
 					/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
 							.relateAndAnnotateBindCreate(
 									win.arguments[0].subjectInstanceName,
@@ -354,9 +377,7 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 			}
 		} catch (e) {
 			alert(e.name + ": " + e.message);
-		}
-		
-		close();
+		}		
 	}
 };
 
@@ -368,6 +389,7 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 //	var instanceName = selItem.label;
 	try {
 		if (win.arguments[0].action != null) {
+			//TODO: unmaintained code: please, fix it or remove it
 			/*
 			 * parameters = new Object(); parameters.parentBox =
 			 * win.arguments[0].parentBox; parameters.rowBox =
@@ -397,9 +419,9 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 
 			var newParameters = {};
 			newParameters.__proto__ = win.arguments[0];
-			newParameters.lexicalization = newParameters.objectInstanceName;
-			newParameters.objectInstanceName = instanceName;
-						
+			newParameters.object = instanceName;
+					
+			alert(win.arguments[0].functors.relateAndAnnotateBindAnnot);
 			return win.arguments[0].functors.relateAndAnnotateBindAnnot(newParameters);
 		}
 	} catch (e) {

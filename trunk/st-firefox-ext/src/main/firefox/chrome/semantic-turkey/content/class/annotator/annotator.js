@@ -28,6 +28,7 @@
 
 if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
+
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Property.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
@@ -42,7 +43,7 @@ window.onload = function() {
 	document.getElementById("cancel").addEventListener("click", art_semanticturkey.onCancel, true);
 
 	var objectInstanceName = window.arguments[0].objectInstanceName;
-	var subjectInstanceName = window.arguments[0].subjectInstanceName;
+	var subjectInstanceName = window.arguments[0].event.resource;
 
 	try {
 		var responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
@@ -168,16 +169,20 @@ art_semanticturkey.getParameters = function(tree, index) {
 	var mytree = tree;
 	var currentelement = tree.treeBoxObject.view.getItemAtIndex(index);
 	var parameters = new Object();
-	parameters.winTitle = "Enrichment Property";
 	var treerow = currentelement.getElementsByTagName('treerow')[0];
 	var treecell = treerow.getElementsByTagName('treecell')[0];
-	parameters.propType = treecell.getAttribute("propType");
-	parameters.objectInstanceName = window.arguments[0].objectInstanceName;
-	parameters.subjectInstanceName = window.arguments[0].subjectInstanceName;
-	parameters.urlPage = window.arguments[0].urlPage;
-	parameters.title = window.arguments[0].title;
-	parameters.predicatePropertyName = treecell.getAttribute("label");
-	parameters.parentWindow = window.arguments[0].parentWindow;
+//	parameters.propType = treecell.getAttribute("propType");
+//	parameters.objectInstanceName = window.arguments[0].objectInstanceName;
+//	parameters.subjectInstanceName = window.arguments[0].subjectInstanceName;
+//	parameters.urlPage = window.arguments[0].urlPage;
+//	parameters.title = window.arguments[0].title;
+//	parameters.predicatePropertyName = treecell.getAttribute("label");
+//	parameters.parentWindow = window.arguments[0].parentWindow;
+	
+	var parameters = {};
+	parameters.predicate = treecell.getAttribute("label");
+	parameters.winTitle = "Enrichment Property";
+
 	return parameters;
 };
 
@@ -185,7 +190,7 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 	
 	try {
 		// NScarpato 26/11/2010
-		var responseXML = art_semanticturkey.STRequests.Property.getRange( parameters.predicatePropertyName, "false");
+		var responseXML = art_semanticturkey.STRequests.Property.getRange(parameters.predicate, "false");
 		
 		var ranges = responseXML.getElementsByTagName("ranges")[0];
 		
@@ -199,7 +204,6 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 			if (parameters.oncancel == false) {
 				close();
 			}
-
 		} else if (ranges.getAttribute("rngType").indexOf("plainLiteral") != -1) {
 			var parametersLang = new Object();
 			var lang = "";
@@ -211,10 +215,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					parametersLang);
 			close();
 			
-			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+			art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					null,
 					"plainLiteral",
 					parametersLang.lang
@@ -239,10 +243,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 				}
 			}
 			close();
-			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+			art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					parameters.rangeType,
 					"typedLiteral"
 			);
@@ -274,10 +278,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 								"_blank", "modal=yes,resizable,centerscreen",
 								parametersLang);
 				close();
-				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+				art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					null,
 					"plainLiteral",
 					parametersLang.lang
@@ -302,10 +306,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 						parameters.rangeType = rangeList[i].textContent;
 					}
 				}
-				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+				art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					parameters.rangeType,
 					"typedLiteral"
 			);
@@ -352,10 +356,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					}
 				}
 			}
-			parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+			art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					rangeQName,
 					type
 			);
@@ -377,10 +381,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					"_blank", "modal=yes,resizable,centerscreen",
 					parametersLang);
 				close();
-				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+				art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					null,
 					"plainLiteral",
 					parametersLang.lang
@@ -404,10 +408,10 @@ art_semanticturkey.listDragDropEnrichProp = function(parameters) {
 					}
 				}
 				close();
-				parameters.parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
-					parameters.subjectInstanceName,
-					parameters.predicatePropertyName,
-					parameters.objectInstanceName,
+				parentWindow.art_semanticturkey.STRequests.Property.createAndAddPropValue(
+					parameters.subject,
+					parameters.predicate,
+					parameters.lexicalization,
 					parameters.rangeType,
 					"typedLiteral"
 			);
