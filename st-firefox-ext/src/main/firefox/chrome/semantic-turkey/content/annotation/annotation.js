@@ -93,7 +93,7 @@ art_semanticturkey.viewAnnotationOnPage = function() {
 		
 		if (AnnotFunctionList[defaultAnnotFun] != null) {
 			//get the function of the selected family for the event highlight function
-			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("highlightAnnotation");
+			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("highlightAnnotations");
 			var count=0;
 			var index;
 			
@@ -109,7 +109,7 @@ art_semanticturkey.viewAnnotationOnPage = function() {
 				alert("Non ci sono funzioni registrate o abilitate per questo evento");
 			//if 1 function is present and enabled execute
 			else if (count == 1) {
-				var fun = FunctionOI[index].getfunct();
+				var fun = FunctionOI[0].getfunct();
 				fun();
 			}
 			//open the choice menu
