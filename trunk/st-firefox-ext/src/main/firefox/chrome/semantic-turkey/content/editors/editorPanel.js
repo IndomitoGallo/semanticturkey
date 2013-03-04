@@ -2524,10 +2524,10 @@ art_semanticturkey.createAndAddPropValue = function(propertyQName, typeValue,
 	var instanceQName = document.getElementById("name")
 			.getAttribute("actualValue");
 	var parameters = new Object();
-	parameters.predicatePropertyName = propertyQName;
+	parameters.predicate = propertyQName;
 	parameters.winTitle = "Add Property Value";
 	parameters.action = "createAndAddPropValue";
-	parameters.sourceElementName = instanceQName;
+	parameters.subject = instanceQName;
 	parameters.parentBox = document.getElementById("parentBoxRows");;
 	parameters.rowBox = document.getElementById("rowsBox");
 	parameters.typeValue = typeValue;

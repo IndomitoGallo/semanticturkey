@@ -197,14 +197,14 @@ window.onload = function() {
 	document.getElementById("Bind").addEventListener("click",art_semanticturkey.bind, true);
 	document.getElementById("Add").addEventListener("click",art_semanticturkey.annotateInst, true);
 	
-	var predicatePropertyName = window.arguments[0].predicatePropertyName;
+	var predicatePropertyName = window.arguments[0].predicate;
 	try{
 		var responseXML = art_semanticturkey.STRequests.Property.getRangeClassesTree(predicatePropertyName);
 		if(responseXML.getElementsByTagName("Class").length == 0){
 			document.getElementById("checkAll").checked = true;
 			document.getElementById("checkAll").disabled = true;
-			art_semanticturkey.showAllClasses();
 		}
+		art_semanticturkey.showAllClasses();
 	}
 	catch (e) {
 		alert(e.name + ": " + e.message);
@@ -220,20 +220,25 @@ art_semanticturkey.ep_classesTreeClick = function(e) {
 	var clsHandl = classHandlers.getCurrentHandler();
 	clsHandl.showInstances(e);
 	
-	var bindButton = document.getElementById("Bind");
-	bindButton.setAttribute("label", clsHandl.getBindLabel());
-	
-	var addButton = document.getElementById("Add");
-	addButton.setAttribute("label", clsHandl.getAddLabel());
+	if (typeof window.arguments[0].action == "undefined") {
+		var bindButton = document.getElementById("Bind");
+		bindButton.setAttribute("label", clsHandl.getBindLabel());
+		
+		var addButton = document.getElementById("Add");
+		addButton.setAttribute("label", clsHandl.getAddLabel());
+	}
 };
 /**
  * @author NScarpato 10/03/2008 setPanel
  * @param {}
  */
 art_semanticturkey.setPanel = function() {
-	document.getElementById("properties").setAttribute("title", window.arguments[0].winTitle);
+	if (typeof window.arguments[0].winTitle == "string") {
+		document.getElementById("properties").setAttribute("title", window.arguments[0].winTitle);
+	}
+
 	if (window.arguments[0].action != null) {
-		var sourceElementName = window.arguments[0].sourceElementName;
+//		var sourceElementName = window.arguments[0].sourceElementName;
 		document.getElementById('Bind').setAttribute("label", "Create and add Property Value");
 		document.getElementById('Add').setAttribute("label", "Add Existing Property Value");
 	}
@@ -295,7 +300,6 @@ art_semanticturkey.showAllClasses = function() {
 			treeChildren.removeChild(treeChildren.lastChild);
 		}
 		var predicatePropertyName = window.arguments[0].predicate;
-		
 		try{
 			var responseXML = art_semanticturkey.STRequests.Property.getRangeClassesTree(predicatePropertyName);
 			art_semanticturkey.getClassTree_RESPONSE(responseXML,document.getElementById("ep_rootClassTreeChildren"));
@@ -333,8 +337,8 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 					parameters.propValue = propValue;
 					return art_semanticturkey.STRequests.Property
 							.createAndAddPropValue(
-									win.arguments[0].sourceElementName,
-									win.arguments[0].predicatePropertyName,
+									win.arguments[0].subject,
+									win.arguments[0].predicate,
 									propValue, selectedObjClsName, type);
 				}
 			} else {
@@ -389,7 +393,6 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 //	var instanceName = selItem.label;
 	try {
 		if (win.arguments[0].action != null) {
-			//TODO: unmaintained code: please, fix it or remove it
 			/*
 			 * parameters = new Object(); parameters.parentBox =
 			 * win.arguments[0].parentBox; parameters.rowBox =
@@ -398,20 +401,20 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 			 * win.arguments[0].sourceElementName;
 			 */
 			var responseXML = art_semanticturkey.STRequests.Property.getRange(
-					win.arguments[0].predicatePropertyName, "false");
+					win.arguments[0].predicate, "false");
 			var ranges = responseXML.getElementsByTagName("ranges")[0];
 			var type = (ranges.getAttribute("rngType"));
 			
 			win.close();
 			if(type =="undetermined"){
 				return art_semanticturkey.STRequests.Property
-					.addExistingPropValue(win.arguments[0].sourceElementName,
-							win.arguments[0].predicatePropertyName,
+					.addExistingPropValue(win.arguments[0].subject,
+							win.arguments[0].predicate,
 							instanceName, win.arguments[0].rangeType);
 			}else{
 				return art_semanticturkey.STRequests.Property
-					.addExistingPropValue(win.arguments[0].sourceElementName,
-							win.arguments[0].predicatePropertyName,
+					.addExistingPropValue(win.arguments[0].subject,
+							win.arguments[0].predicate,
 							instanceName, type);
 			}
 		} else {
@@ -421,7 +424,6 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 			newParameters.__proto__ = win.arguments[0];
 			newParameters.object = instanceName;
 					
-			alert(win.arguments[0].functors.relateAndAnnotateBindAnnot);
 			return win.arguments[0].functors.relateAndAnnotateBindAnnot(newParameters);
 		}
 	} catch (e) {
