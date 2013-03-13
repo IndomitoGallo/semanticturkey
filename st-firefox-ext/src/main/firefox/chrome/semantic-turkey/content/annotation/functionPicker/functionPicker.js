@@ -53,7 +53,7 @@ window.onload = function() {
 	for(var i=0; i<FunctionOI.length; i++)
 	{
 		//if function is enabled show it else skip
-		if(FunctionOI[i].isEnabled()) {
+		if(annComponent.wrappedJSObject.isFunctionApplicable(FunctionOI[i], event)) {
 			var radiobox = document.createElement("radio");
 			radiobox.setAttribute("id",i);
 			radiobox.setAttribute("label",FunctionOI[i].getdescription());

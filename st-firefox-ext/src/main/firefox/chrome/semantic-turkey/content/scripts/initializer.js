@@ -53,7 +53,7 @@ art_semanticturkey.annotationRegister = function() {
 		.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
 		
 		// initialize family object
-		var family = new annComponent.wrappedJSObject.Family("bookmarking");
+		var bookmarkingFamily = new annComponent.wrappedJSObject.Family("bookmarking");
 		
 		// initialize function object
 
@@ -64,14 +64,23 @@ art_semanticturkey.annotationRegister = function() {
 		var highlightAnnotations = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnotations,"Highlight annotations");
 
 		// add function to family
-		family.addfunction("selectionOverResource", furtherAnn);
-		family.addfunction("selectionOverResource", valueForProp);
-		family.addfunction("selectionOverResource", createConcept);
-		family.addfunction("selectionOverResource", createInstance);
-		family.addfunction("highlightAnnotations",highlightAnnotations);
+		bookmarkingFamily.addfunction("selectionOverResource", furtherAnn);
+		bookmarkingFamily.addfunction("selectionOverResource", valueForProp);
+		bookmarkingFamily.addfunction("selectionOverResource", createConcept);
+		bookmarkingFamily.addfunction("selectionOverResource", createInstance);
+		bookmarkingFamily.addfunction("highlightAnnotations",highlightAnnotations);
 
 		// register bookmarking annotation family
-		annComponent.wrappedJSObject.register(family);
+		annComponent.wrappedJSObject.register(bookmarkingFamily);
+		
+		// initialize family object
+		var oaCorsefamily = new annComponent.wrappedJSObject.Family("open annotation (coarse grain)");
+		annComponent.wrappedJSObject.register(oaCorsefamily);
+
+		// initialize family object
+		var oaFinefamily = new annComponent.wrappedJSObject.Family("open annotation (fine grain)");
+		annComponent.wrappedJSObject.register(oaFinefamily);
+
 		
 	} catch (e) {
 		// TODO change this code with a unique object (module) to be invoked for
@@ -90,7 +99,7 @@ art_semanticturkey.furtherAnn = function(event) {
 	var doc = event.document;
 	var selection = event.selection;
 	try {
-		var responseXML = art_semanticturkey.STRequests.Annotation.createFurtherAnnotation(resource, selection.toString(), doc.documentURI, doc.title);
+		var responseXML = art_semanticturkey.STRequests.Annotation.createFurtherAnnotation(resource.getURI(), selection.toString(), doc.documentURI, doc.title);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
 	}
@@ -99,7 +108,7 @@ art_semanticturkey.furtherAnn = function(event) {
 art_semanticturkey.valueForProperty = function(event) {
 	var parameters = {};
 	parameters.event = event;
-	parameters.subject = event.resource;
+	parameters.subject = event.resource.getURI();
 	parameters.object = event.selection.toString();
 	parameters.lexicalization = event.selection.toString();
 	parameters.urlPage = event.document.documentURI;
@@ -155,7 +164,7 @@ art_semanticturkey.createConcept = function(event) {
 	var language = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en");
 			
 	try {
-		var conceptResource = art_semanticturkey.STRequests.SKOS.createConcept(selection.toString(), resource, conceptScheme, selection.toString(), language);
+		var conceptResource = art_semanticturkey.STRequests.SKOS.createConcept(selection.toString(), resource.getURI(), conceptScheme, selection.toString(), language);
 		
 		art_semanticturkey.STRequests.Annotation
 			.createFurtherAnnotation(
@@ -168,31 +177,27 @@ art_semanticturkey.createConcept = function(event) {
 	}
 };
 
+art_semanticturkey.createConcept.accept = function(event) {
+	var resource = event.resource;
+	return ((typeof resource.getRole != "undefined") && (resource.getRole() == "concept"));
+};
+
 art_semanticturkey.createInstance = function(event) {
 	try {		
 		art_semanticturkey.STRequests.Annotation
 			.createAndAnnotate(
-				event.resource,
+				event.resource.getURI(),
 				event.selection.toString(),
 				event.document.documentURI,
 				event.document.title);		
 	} catch(e) {
 		alert(e.name + ": " + e.message);
 	}
-	
-//	try {
-//	var responseArray = parentWindow.art_semanticturkey.STRequests.Annotation
-//			.createAndAnnotate(trecell.parentNode.parentNode
-//							.getAttribute("className"), str,
-//					tabWin, title);
-//} catch (e) {
-//	alert(e.name + ": " + e.message);
-//}
-//
-//if(responseArray != null){
-//	var tree = parentWindow.document.getElementById("classesTree");
-//	parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseArray,tree,true,event);
-//}
+};
+
+art_semanticturkey.createInstance.accept = function(event) {
+	var resource = event.resource;
+	return ((typeof resource.getRole != "undefined") && (resource.getRole() == "cls"));
 };
 
 art_semanticturkey.highlightAnnotations = function() {

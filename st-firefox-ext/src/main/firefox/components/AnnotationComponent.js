@@ -28,13 +28,13 @@ const module = Components.utils.import;
 const error = Components.utils.reportError;
 
 
-//Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+// Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 const NS_ERROR_NO_INTERFACE = Cr.NS_ERROR_NO_INTERFACE;
 const NS_ERROR_FAILURE = Cr.NS_ERROR_FAILURE;
 const NS_ERROR_NO_AGGREGATION = Cr.NS_ERROR_NO_AGGREGATION;
 const NS_ERROR_INVALID_ARG = Cr.NS_ERROR_INVALID_ARG;
 
-//We are using this to xpcom registration
+// We are using this to xpcom registration
 module("resource://gre/modules/XPCOMUtils.jsm");
 /*******************************************************************************
  * constants
@@ -65,104 +65,16 @@ function AnnotationComponent() {
 	 * allows clients to pass to it and receive from it objects of types not
 	 * supported by IDL.
 	 */
-//	we  do need these 3 lines!
+// we do need these 3 lines!
 	this.wrappedJSObject = this;// javascript
 	this._initialized = false;
 	this._packages = null;
 }
 
 
-//  
-//  
-//  to be removed in FF4.0 port we are using XPCOMUtils.jsm to  get registered (FF3.6 and FF4.0)
-//var AnnotationModule = {
-//	_myComponentID : Components.ID("{a4bd5780-fe6f-11dd-87af-0800200c9a66}"),
-//	_myName : "The mange annnotation component",
-//	_myContractID : "@art.uniroma2.it/semanticturkeyannotation;1",
-//	// important this module can be instantiate only one time
-//	_singleton : true,
-//	_myFactory : {
-//		createInstance : function(outer, iid) {
-//			if (outer != null) {
-//				throw Components.results.NS_ERROR_NO_AGGREGATION;
-//			}
-//			var instance = null;
-//
-//			if (this._singleton) {
-//				instance = this.theInstance;
-//			}
-//
-//			if (!(instance)) {
-//				instance = new AnnotationComponent(); // AnnotationComponent
-//				// is declared below
-//			}
-//
-//			if (this._singleton) {
-//				this.theInstance = instance;
-//			}
-//
-//			return instance.QueryInterface(iid);
-//		}
-//	},
-//	registerSelf : function(compMgr, fileSpec, location, type) {
-//		compMgr = compMgr
-//				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-//		compMgr.registerFactoryLocation(this._myComponentID, this._myName,
-//				this._myContractID, fileSpec, location, type);
-//	},
-//
-//	unregisterSelf : function(compMgr, fileSpec, location) {
-//		compMgr = compMgr
-//				.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-//		compMgr.unregisterFactoryLocation(this._myComponentID, fileSpec);
-//	},
-//
-//	getClassObject : function(compMgr, cid, iid) {
-//		if (cid.equals(this._myComponentID)) {
-//			return this._myFactory;
-//		} else if (!iid.equals(Components.interfaces.nsIFactory)) {
-//			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-//		}
-//
-//		throw Components.results.NS_ERROR_NO_INTERFACE;
-//	},
-//
-//	canUnload : function(compMgr) {
-//		/*
-//		 * Do any unloading task you want here
-//		 */
-//		return true;
-//	}
-//};
-
-//To be changed in FF4.0 port
-///**
-// * @author NScarpato return the annotation module
-// * @return Annotation Module
-// */
-//function NSGetModule(compMgr, fileSpec) {
-//	return AnnotationModule;
-//}
-
-
-
-//we don't need this since  XPCOMUtils will generate a QueryInterface for us
-///*
-// * nsISupports.QueryInterface
-// */
-//AnnotationComponent.prototype.QueryInterface = function(iid) {
-//	/*
-//	 * This code specifies that the component supports 2 interfaces:
-//	 * nsISemanticTurkeyAnnotation and nsISupports.
-//	 */
-//	if (!iid.equals(nsISemanticTurkeyAnnotation) && !iid.equals(nsISupports)) {
-//		throw Components.results.NS_ERROR_NO_INTERFACE;
-//	}
-//	return this;
-//};
 
 AnnotationComponent.prototype={
-    //XPCOMUtils.jsm needs these 
+    // XPCOMUtils.jsm needs these
     classDescription:"AnnotationComponent for SemanticTurkey",
     contractID:"@art.uniroma2.it/semanticturkeyannotation;1",
     classID: Components.ID("{a4bd5780-fe6f-11dd-87af-0800200c9a66}"),    
@@ -209,7 +121,7 @@ AnnotationComponent.prototype._trace = function(msg) {
  *            drag_drop on instance and enrichment of a property
  */
 
-//register the family of function
+// register the family of function
 AnnotationComponent.prototype.register = function(newFamily) {
 	var nameFamily = newFamily.getname();
 	AnnotFunctionList[nameFamily] = newFamily;	
@@ -219,20 +131,72 @@ AnnotationComponent.prototype.getList = function() {
 	return AnnotFunctionList;
 };
 
-//add function to an existent family
+// add function to an existent family
 AnnotationComponent.prototype.addToFamily = function(name, event, functionObject) {
 	
 		AnnotFunctionList[name].addfunction(event, functionObject);
 };
 
-//object family
+AnnotationComponent.prototype.isFunctionApplicable = function(fun, event) {
+	if (fun.isEnabled()) {
+		if (typeof fun.getfunct().accept == "undefined") {
+			return true;
+		} else {
+			return fun.getfunct().accept(event);
+		}
+	} else {
+		return false;
+	}
+};
+
+AnnotationComponent.prototype.handleEvent = function(parentWindow, event) {	
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+	                      .getService(Components.interfaces.nsIPrefBranch);
+	var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
+		
+	if (AnnotFunctionList[defaultAnnotFun] != null) {
+		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions(event.name);
+		var count=0;
+		
+		// check how much function are present and enabled
+		for(var j=0; j<FunctionOI.length;j++) {
+			if(this.isFunctionApplicable(FunctionOI[j], event)){
+				count++;
+			}
+		}
+			
+		// if no functions alert the user
+		if(count == 0)
+			parentWindow.alert("No registered or enabled functions for this event");
+		// if 1 function is present and enabled execute
+		else if (count == 1) {
+			var fun = FunctionOI[0].getfunct();
+			fun(event);
+		}
+		// open the choice menu
+		else {
+			var parameters = {};
+			parameters.event = event;
+			var win = parentWindow.openDialog("chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul", "dlg", "modal=yes,resizable,centerscreen", parameters);			
+		}
+	} else {
+		var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                .getService(Components.interfaces.nsIPromptService);
+		prompts.alert(null, defaultAnnotFun
+				+ " annotation type not registered ", defaultAnnotFun
+				+ " not registered annotation type reset to bookmarking");
+		prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
+	}
+};
+
+// object family
 AnnotationComponent.prototype.Family = function(nameFamily) {
 	var name = nameFamily;
 	var eventFunctions = new Array();
 	eventFunctions["selectionOverResource"] = new AnnotationComponent.prototype.ClassEvent();
 	eventFunctions["highlightAnnotations"] = new AnnotationComponent.prototype.ClassEvent();
 
-	//add function to family for a given event
+	// add function to family for a given event
 	this.addfunction = function(event, functionObject) {
 		eventFunctions[event].add(functionObject);
 	};
@@ -248,14 +212,14 @@ AnnotationComponent.prototype.Family = function(nameFamily) {
 		return eventFunctions;
 	};
 	
-	//remove function from a given event
+	// remove function from a given event
 	this.removefunction = function(event,functionObject) {
 		eventFunctions[event].remove(functionObject);
 	};
 	
 };
 
-//object class event
+// object class event
 AnnotationComponent.prototype.ClassEvent = function() {
 	var functions = new Array();
 	
@@ -272,11 +236,12 @@ AnnotationComponent.prototype.ClassEvent = function() {
 	};
 };
 
-//object that represent the funciton stored in family object
+// object that represent the funciton stored in family object
 AnnotationComponent.prototype.functionObject = function(fun, descr) {
-	var funct = fun;			//function to register
-	var description = descr;	//description of function: used for the menu
-	var enabled=true;			//enable field: if false function is not visible in the menu
+	var funct = fun;			// function to register
+	var description = descr;	// description of function: used for the menu
+	var enabled=true;			// enable field: if false function is not
+								// visible in the menu
 	
 	this.isEnabled = function() {
 		return enabled;
@@ -340,12 +305,13 @@ function _printModuleToJSConsole(msg) {
 	 */
 }
 
-if (XPCOMUtils.generateNSGetFactory) {  //we have 2 entry points from FF depending on FF version
+if (XPCOMUtils.generateNSGetFactory) {  // we have 2 entry points from FF
+										// depending on FF version
     var NSGetFactory = XPCOMUtils.generateNSGetFactory([AnnotationComponent]); 
-}//we are in FF4.0
+}// we are in FF4.0
 else {
 function NSGetModule() XPCOMUtils.generateModule([AnnotationComponent]);
 //
-} //we are in FF3.6
+} // we are in FF3.6
 
 

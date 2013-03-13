@@ -43,7 +43,7 @@ window.onload = function() {
 	document.getElementById("cancel").addEventListener("click", art_semanticturkey.onCancel, true);
 
 	var objectInstanceName = window.arguments[0].objectInstanceName;
-	var subjectInstanceName = window.arguments[0].event.resource;
+	var subjectInstanceName = window.arguments[0].subject;
 
 	try {
 		var responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
