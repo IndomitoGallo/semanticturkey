@@ -24,6 +24,8 @@
 if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 
+Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
+
 art_semanticturkey.associatedragDropEventsOnGraphicElements = function() {
 	document.getElementById("classesTree").addEventListener("drop",
 			art_semanticturkey.classDragDrop, true);
@@ -65,72 +67,33 @@ art_semanticturkey.getOutlineItem = function(tree, index) {
 };
 
 art_semanticturkey.classDragDrop = function(domEvent) {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-	.getCharPref("extensions.semturkey.extpt.annotate");
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-
-	var selectedRange = domEvent.dataTransfer.mozSourceNode.ownerDocument.getSelection().getRangeAt(0);
 	
-	if (AnnotFunctionList[defaultAnnotFun] != null) {
-		//get the function of the selected family for the event drag'n'drop over instance
-		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("selectionOverResource");
-		var count=0;
-		
-		//check how much function are present and enabled
-		for(var j=0; j<FunctionOI.length;j++)
-			if(FunctionOI[j].isEnabled()){
-				count++;
-			}
-		
-		var event = {};
-		event.name = "selectionOverResource";
-		var tree = domEvent.target.parentElement;
-		var row = {};
-		var col = {};
-		var child = {};
-		tree.treeBoxObject.getCellAt(domEvent.pageX, domEvent.pageY, row, col,
-				child);
-		
-		if (row.value == -1) {
-			return;
-		}
-		
-		var treeItem = tree.view.getItemAtIndex(row.value);
-		event.resource = treeItem.getAttribute("className");
-		event.selection = selectedRange;
-		event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
-		
-		//if no functions alert the user
-		if(count == 0)
-			alert("No registered or enabled functions for this event");
-		//if 1 function is present and enabled execute
-		else if (count == 1) {
-			var fun = FunctionOI[0].getfunct();
-			fun(event);
-		}
-		//open the choice menu
-		else {
-			var parameters = new Object();
-			parameters.event = event;
+	var selectedRange = domEvent.dataTransfer.mozSourceNode.ownerDocument.getSelection().getRangeAt(0);
 			
-			window.openDialog(
-					"chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul",
-					"_blank", "modal=yes,resizable,centerscreen",
-					parameters);
-		}
-	} else {
-		var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-				.getService(Components.interfaces.nsIPromptService);
-		prompts.alert(null, defaultAnnotFun
-				+ " annotation type not registered ", defaultAnnotFun
-				+ " not registered annotation type reset to bookmarking");
-		prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
-	}	
+	var event = {};
+	event.name = "selectionOverResource";
+	var tree = domEvent.target.parentElement;
+	var row = {};
+	var col = {};
+	var child = {};
+	tree.treeBoxObject.getCellAt(domEvent.pageX, domEvent.pageY, row, col,
+			child);
+	
+	if (row.value == -1) {
+		return;
+	}
+	
+	var treeItem = tree.view.getItemAtIndex(row.value);
+	event.resource = new art_semanticturkey.ARTURIResource(
+			treeItem.getAttribute("show"),
+			"cls",
+			treeItem.getAttribute("className"));
+	event.selection = selectedRange;
+	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
+
+	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
+	                             .getService(Components.interfaces.nsISemanticTurkeyAnnotation);
+	annComponent.wrappedJSObject.handleEvent(window, event);
 };
 
 art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectClass,event) {
@@ -173,60 +136,20 @@ art_semanticturkey.checkAndAnnotate = function(clsName, numInst, node) {
  */
 
 art_semanticturkey.instanceDragDrop = function(domEvent) {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-	.getCharPref("extensions.semturkey.extpt.annotate");
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-
 	var selectedRange = domEvent.dataTransfer.mozSourceNode.ownerDocument.getSelection().getRangeAt(0);
 	
-	if (AnnotFunctionList[defaultAnnotFun] != null) {
-		//get the function of the selected family for the event drag'n'drop over instance
-		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("selectionOverResource");
-		var count=0;
+	if (domEvent.target.tagName != "listitem") return;
 		
-		//check how much function are present and enabled
-		for(var j=0; j<FunctionOI.length;j++)
-			if(FunctionOI[j].isEnabled()){
-				count++;
-			}
-		
-		if (domEvent.target.tagName != "listitem") return;
-		
-		var event = {};
-		event.name = "selectionOverResource";
-		event.resource = domEvent.target.getElementsByTagName("label")[0].getAttribute("id")
-		event.selection = selectedRange;
-		event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
-		
-		//if no functions alert the user
-		if(count == 0)
-			alert("No registered or enabled functions for this event");
-		//if 1 function is present and enabled execute
-		else if (count == 1) {
-			var fun = FunctionOI[0].getfunct();
-			fun(event);
-		}
-		//open the choice menu
-		else {
-			var parameters = new Object();
-			parameters.event = event;
-			
-			window.openDialog(
-					"chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul",
-					"_blank", "modal=yes,resizable,centerscreen",
-					parameters);
-		}
-	} else {
-		var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-				.getService(Components.interfaces.nsIPromptService);
-		prompts.alert(null, defaultAnnotFun
-				+ " annotation type not registered ", defaultAnnotFun
-				+ " not registered annotation type reset to bookmarking");
-		prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
-	}
+	var event = {};
+	event.name = "selectionOverResource";
+	event.resource = new art_semanticturkey.ARTURIResource(
+			domEvent.target.getAttribute("label"),
+			domEvent.target.getAttribute("type"),
+			domEvent.target.getElementsByTagName("label")[0].getAttribute("id"));
+	event.selection = selectedRange;
+	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
+	
+	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
+                                 .getService(Components.interfaces.nsISemanticTurkeyAnnotation);
+	annComponent.wrappedJSObject.handleEvent(window, event);
 };
