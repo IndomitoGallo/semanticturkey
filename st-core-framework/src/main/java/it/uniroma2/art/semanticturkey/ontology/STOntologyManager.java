@@ -830,7 +830,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			// ***************************
 
 			if (method == fromWebToMirror) {
-				Utilities.download(new URL(sourcePath), localFile.getAbsolutePath());
+				Utilities.downloadRDF(new URL(sourcePath), localFile.getAbsolutePath());
 			} else if (method == fromLocalFile)
 				Utilities.copy(sourcePath, localFile.getAbsolutePath());
 
@@ -1188,7 +1188,7 @@ public abstract class STOntologyManager<T extends RDFModel> {
 			if (method == fromWebToMirror || method == toOntologyMirror) { // with previous RepositoryManager,
 				// WEB used local tempFiles and
 				// was also on the check here
-				Utilities.download(new URL(altURL), mirror_cacheFile.getAbsolutePath());
+				Utilities.downloadRDF(new URL(altURL), mirror_cacheFile.getAbsolutePath());
 			} else if (method == fromLocalFile) // wrt previous RepositoryManager, toOntologyMirror has been
 				// moved to previous check, because ontologies are downloaded
 				// from their original site

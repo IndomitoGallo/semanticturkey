@@ -26,6 +26,8 @@
  */
 package it.uniroma2.art.semanticturkey.utilities;
 
+import it.uniroma2.art.owlart.io.RDFFormat;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +39,7 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -96,7 +99,45 @@ public class Utilities {
 	}
 
 	/**
-	 * as for {@link #download(InputStream, String)} by getting the stream of of <code>url</code> with
+	 * as for {@link #download(URL, String, String)} with a preset list of accepted RDF MIME formats
+	 * 
+	 * @param url
+	 * @param acceptedMIMEs
+	 * @param destinationFile
+	 * @throws IOException
+	 */
+	public static void downloadRDF(URL url, String destinationFile) throws IOException {		
+		download(url, RDFFormat.getAllFormatsForContentAcceptHTTPHeader(), destinationFile);
+	}
+
+	/**
+	 * as for {@link #store(InputStream, String)} by getting the stream of of <code>url</code> with
+	 * {@link URL#openStream()}
+	 * 
+	 * @param url
+	 * @param acceptedMIMEs
+	 * @param destinationFile
+	 * @throws IOException
+	 */
+	public static void download(URL url, String acceptedMIMEs, String destinationFile) throws IOException {
+
+		URLConnection c = url.openConnection();
+
+		if (!(c instanceof HttpURLConnection))
+			throw new IOException("sorry only http connections are supported!");
+
+		HttpURLConnection h = (HttpURLConnection) c;
+
+		h.setRequestProperty("Accept", acceptedMIMEs);
+		h.connect();
+
+		InputStream in = h.getInputStream();
+
+		store(in, destinationFile);
+	}
+
+	/**
+	 * as for {@link #store(InputStream, String)} by getting the stream of of <code>url</code> with
 	 * {@link URL#openStream()}
 	 * 
 	 * @param url
@@ -105,7 +146,7 @@ public class Utilities {
 	 */
 	public static void download(URL url, String destinationFile) throws IOException {
 		InputStream is = (InputStream) url.openStream();
-		download(is, destinationFile);
+		store(is, destinationFile);
 	}
 
 	/**
@@ -116,7 +157,7 @@ public class Utilities {
 	 * @param destinationFile
 	 * @throws IOException
 	 */
-	public static void download(InputStream instream, String destinationFile) throws IOException {
+	public static void store(InputStream instream, String destinationFile) throws IOException {
 
 		BufferedInputStream buf = new BufferedInputStream(instream);// for better performance
 		FileOutputStream fout = null;
@@ -365,7 +406,8 @@ public class Utilities {
 		return list;
 	}
 
-	public static List<String> listDirectoryContentAsStrings(File directory, boolean includeFiles, boolean includeDirs, boolean recursive) throws IOException {
+	public static List<String> listDirectoryContentAsStrings(File directory, boolean includeFiles,
+			boolean includeDirs, boolean recursive) throws IOException {
 
 		Stack<String> stack = new Stack<String>();
 		List<String> list = new ArrayList<String>();
@@ -395,10 +437,10 @@ public class Utilities {
 						}
 					} else if (f.isDirectory()) {
 						if (includeDirs)
-							list.add(current + File.separator + entry); 
-							//list.add(current + File.separator + entry);
+							list.add(current + File.separator + entry);
+						// list.add(current + File.separator + entry);
 						if (recursive)
-							stack.push(current + File.separator + f.getName());		
+							stack.push(current + File.separator + f.getName());
 					} else {
 						throw new IOException("Unknown entry: " + f.getPath());
 					}
@@ -407,9 +449,9 @@ public class Utilities {
 		}
 		return list;
 	}
-	
-	
-	public static List<File> listDirectoryContentAsFiles(File directory, boolean includeFiles, boolean includeDirs, boolean recursive) throws IOException {
+
+	public static List<File> listDirectoryContentAsFiles(File directory, boolean includeFiles,
+			boolean includeDirs, boolean recursive) throws IOException {
 
 		Stack<File> stack = new Stack<File>();
 		List<File> list = new ArrayList<File>();
@@ -421,7 +463,7 @@ public class Utilities {
 		}
 
 		// Traverse the directory in width-first manner, no-recursively
-		//String root = directory.getParent();
+		// String root = directory.getParent();
 		stack.push(directory);
 		while (!stack.empty()) {
 			File current = stack.pop();
@@ -437,10 +479,10 @@ public class Utilities {
 						}
 					} else if (entry.isDirectory()) {
 						if (includeDirs)
-							list.add(entry); 
-							//list.add(current + File.separator + entry);
+							list.add(entry);
+						// list.add(current + File.separator + entry);
 						if (recursive)
-							stack.push(entry);		
+							stack.push(entry);
 					} else {
 						throw new IOException("Unknown entry: " + entry.getPath());
 					}

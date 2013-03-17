@@ -189,7 +189,7 @@ public class Administration extends ServiceAdapter {
 				// the middle, then copies the temporary to the destination in the
 				// mirror
 				OntTempFile tempFile = STOntologyManager.getTempFileEntry();
-				Utilities.download(new URL(location), tempFile.getAbsolutePath());
+				Utilities.downloadRDF(new URL(location), tempFile.getAbsolutePath());
 				Utilities.copy(tempFile.getAbsolutePath(), mirFile.getAbsolutePath());
 			} else if (updateType == localUpdate) {
 				Utilities.copy(location, mirFile.getAbsolutePath());
