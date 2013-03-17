@@ -1,9 +1,10 @@
 version 0.9.0
+date: xx-xx-2013
   * introduced Spring framework!
-
+  * improved mirror-caching: now even the downloader for the mirror supports full content-negotiation
 
 version 0.8.6
-date: 22-05-2013
+date: 04-02-2013
   * introduced standard (and homogeneous) serialization of RDF objects
   * fixed web import for non-inferrable-from-file_extension rdf formats
 
