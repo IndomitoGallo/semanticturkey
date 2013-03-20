@@ -37,6 +37,10 @@
 										<include>components/data/sturkey.properties</include>
 									</includes>
 								</resource>
+								<!-- this is to copy all the rest, being sure that we don't copy 
+									again the things which have been processed (filtering=true) for substituting 
+									Maven variables.
+									Thus we have to copy everything, but excluding the elements above -->
 								<resource>
 									<directory>src/main/firefox</directory>
 									<filtering>false</filtering>
