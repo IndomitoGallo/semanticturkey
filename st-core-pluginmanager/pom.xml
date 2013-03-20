@@ -164,6 +164,26 @@
 									<artifactId>pax-web-extender-war</artifactId>
 									<version>1.1.4</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.confman</groupId>
+									<artifactId>pax-confman-propsloader</artifactId>
+									<version>0.2.3</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.webconsole</artifactId>
+									<version>2.0.2</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.logging</groupId>
+									<artifactId>pax-logging-api</artifactId>
+									<version>1.6.9</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.ops4j.pax.logging</groupId>
+									<artifactId>pax-logging-service</artifactId>
+									<version>1.6.9</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
@@ -195,25 +215,12 @@
 									<version>4.2.0.Final</version>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.ops4j.pax.logging</groupId>
-									<artifactId>pax-logging-service</artifactId>
-									<version>1.6.9</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.ops4j.pax.logging</groupId>
-									<artifactId>pax-logging-api</artifactId>
-									<version>1.6.9</version>
-								</artifactItem>
-								<artifactItem>
 									<groupId>org.osgi</groupId>
 									<artifactId>org.osgi.compendium</artifactId>
 									<version>4.2.0</version>
 								</artifactItem>
-								<artifactItem>
-									<groupId>log4j</groupId>
-									<artifactId>log4j</artifactId>
-									<version>1.2.17</version>
-								</artifactItem>
+								<!-- <artifactItem> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
+									<version>1.2.17</version> </artifactItem> -->
 								<artifactItem>
 									<groupId>javax.validation</groupId>
 									<artifactId>com.springsource.javax.validation</artifactId>

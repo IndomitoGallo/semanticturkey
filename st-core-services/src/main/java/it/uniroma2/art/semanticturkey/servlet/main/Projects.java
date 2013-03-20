@@ -41,7 +41,6 @@ import it.uniroma2.art.semanticturkey.exceptions.ProjectInconsistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectInexistentException;
 import it.uniroma2.art.semanticturkey.exceptions.ProjectUpdateException;
 import it.uniroma2.art.semanticturkey.exceptions.ReservedPropertyUpdateException;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.ModelTypeRegistry;
 import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.AbstractProject;
@@ -76,6 +75,7 @@ public class Projects extends ServiceAdapter {
 
 	// requests
 	public static class Req {
+		public final static String isCurrentProjectActiveRequest = "isCurrentProjectActive";
 		public final static String openProjectRequest = "openProject";
 		public final static String createNewProjectRequest = "newProject";
 		public final static String createNewProjectFromFileRequest = "newProjectFromFile";
@@ -133,7 +133,11 @@ public class Projects extends ServiceAdapter {
 
 	public Response getPreCheckedResponse(String request) throws HTTPParameterUnspecifiedException {
 
-		if (request.equals(Req.openProjectRequest)) {
+		if (request.equals(Req.isCurrentProjectActiveRequest)) {
+			return isCurrentProjectActive();
+		}
+		
+		else if (request.equals(Req.openProjectRequest)) {
 			String projectName = setHttpPar(projectNamePar);
 			checkRequestParametersAllNotNull(projectNamePar);
 			return openProject(projectName);
@@ -239,6 +243,14 @@ public class Projects extends ServiceAdapter {
 
 		else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
+	}
+	
+	
+	public Response isCurrentProjectActive() {
+		if (ProjectManager.getCurrentProject()!=null)
+			return createBooleanResponse(true);
+		else
+			return createBooleanResponse(false);	
 	}
 
 	public Response repairProject(String projectName) {

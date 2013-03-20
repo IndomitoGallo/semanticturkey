@@ -65,7 +65,6 @@ public class SemanticTurkey implements BundleActivator {
 	public final static VersionNumber versionNumber = new VersionNumber(0, 9, 0);
 	static protected HttpServer s_httpServer;
 	protected static Logger logger = LoggerFactory.getLogger(SemanticTurkey.class);
-	private final static int port = 1979;
 	private static HttpServer server = null;
 
 	/**
@@ -131,61 +130,7 @@ public class SemanticTurkey implements BundleActivator {
 	/**
 	 * this method builds up the HTTP Server in charge of replying to user requests
 	 */
-	// public static void createWebServer() {
-	// server = new HttpServer();
-	//
-	// SocketListener listener = new SocketListener();
-	// listener.setPort(port);
-	//
-	// // BINDING TO A SPECIFIC IP ADDRESS, commented, restore it if it is
-	// important for security, maybe
-	// // with as an optional branching
-	// // try {
-	// // listener.setInetAddress(InetAddress.getByName("localhost"));
-	// // } catch (UnknownHostException e1) {
-	// // logger.error("UnknownHostException", e1);
-	// // e1.printStackTrace();
-	// // }
-	// server.addListener(listener);
-	//
-	// HttpContext context = new HttpContext();
-	// context.setContextPath("semantic_turkey/resources/*");
-	//
-	// context.setResourceBase(Resources.getExtensionPath() +
-	// "/components/lib/");
-	// context.addHandler(new ResourceHandler());
-	// // context.setClassLoader(WebSearch.class.getClassLoader());
-	// context.setClassLoader(STServer.class.getClassLoader());
-	//
-	// ServletHandler servlets = new ServletHandler();
-	// // servlets.addServlet("Websearch", "/*", WebSearch.class.getName());
-	// servlets.addServlet("STServer", "/stserver/*", STServer.class.getName());
-	// servlets.addServlet("Proxy", "/graph/*", Proxy.class.getName());
-	// /*
-	// * try { System.out.println( "\n\n\nTEST RECUPERO SERVLET\n\n" + (
-	// (STServer)
-	// *
-	// servlets.getServletHolder("/stserver/*").getServlet()).getServices("systemStart").getId()
-	// ); }
-	// * catch (ServletException e1) { // TODO Auto-generated catch block
-	// e1.printStackTrace(); }
-	// */
-	// context.addHandler(servlets);
-	// server.addContext(context);
-	//
-	// try {
-	// server.start();
-	// } catch (Exception e) {
-	// logger.error("Server error start", e);
-	// e.printStackTrace();
-	// }
-	// logger.debug("Server starting...");
-	// }
-
 	public static void initializeVocabularies(RDFModel repo) throws VocabularyInitializationException {
-		// RDF.Res.initialize(repo);
-		// RDFS.Res.initialize(repo);
-		// OWL.Res.initialize(repo);
 		SemAnnotVocab.Res.initialize(repo);
 	}
 
@@ -194,12 +139,10 @@ public class SemanticTurkey implements BundleActivator {
 		String extensionDir = new File(System.getProperty("user.dir")).toURI().toString();
 		System.out.println("ext dir: " + extensionDir);
 		initialize(extensionDir);
-
 	}
 
 	public void stop(BundleContext arg0) throws Exception {
 		// TODO Auto-generated method stub
-
 	}
 
 }
