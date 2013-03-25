@@ -12,16 +12,18 @@ if (typeof annotation == "undefined") {
 }
 
 annotation.commons = {};
-annotation.commons.handlers = {};
-annotation.commons.handlers.furtherAnn = function(event) {
-	this.furtherAnn(event);
-};
 
 /*
  * Common event handlers. They are assumed to be invoked in the context of a family
  * i.e. this instanceof Family). The family is assumed to have the function furtherAnn(event) for the creation
  * of a new annotation of the resource in the event.
  */
+
+annotation.commons.handlers = {};
+annotation.commons.handlers.furtherAnn = function(event) {
+	this.furtherAnn(event);
+};
+
 annotation.commons.handlers.valueForProperty = function(event) {
 	var parameters = {};
 	parameters.event = event;
@@ -40,7 +42,7 @@ annotation.commons.handlers.valueForProperty = function(event) {
 			"modal=yes,resizable,centerscreen", parameters);
 };
 
-annotation.commons.handlers.createConcept = function(event) {
+annotation.commons.handlers.createNarrowerConcept = function(event) {
 	var resource = event.resource;
 	var doc = event.document;
 	var selection = event.selection;
@@ -82,12 +84,11 @@ annotation.commons.handlers.createInstance = function(event) {
 };
 
 annotation.commons.registerCommonHandlers = function(family) {
-		family.addSelectionOverResourceHandler("Further annotation", annotation.commons.handlers.furtherAnn);
-		family.addSelectionOverResourceHandler("Value for property", 
-			annotation.commons.handlers.valueForProperty);
-		family.addSelectionOverResourceHandler("Create concept", annotation.commons.handlers.createConcept,
-				annotation.Preconditions.Role.Concept);
 		family.addSelectionOverResourceHandler("Create instance", annotation.commons.handlers.createInstance,
 				annotation.Preconditions.Role.Cls);
-
+		family.addSelectionOverResourceHandler("Create narrower concept", annotation.commons.handlers.createNarrowerConcept,
+				annotation.Preconditions.Role.Concept);
+		family.addSelectionOverResourceHandler("Value for property", 
+			annotation.commons.handlers.valueForProperty);
+		family.addSelectionOverResourceHandler("Further annotation", annotation.commons.handlers.furtherAnn);
 };
