@@ -25,6 +25,7 @@ if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
 
 art_semanticturkey.associatedragDropEventsOnGraphicElements = function() {
 	document.getElementById("classesTree").addEventListener("drop",
@@ -91,9 +92,7 @@ art_semanticturkey.classDragDrop = function(domEvent) {
 	event.selection = selectedRange;
 	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
 
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-	                             .getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	annComponent.wrappedJSObject.handleEvent(window, event);
+	art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
 };
 
 art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectClass,event) {
@@ -149,7 +148,5 @@ art_semanticturkey.instanceDragDrop = function(domEvent) {
 	event.selection = selectedRange;
 	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
 	
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-                                 .getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	annComponent.wrappedJSObject.handleEvent(window, event);
+	art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
 };

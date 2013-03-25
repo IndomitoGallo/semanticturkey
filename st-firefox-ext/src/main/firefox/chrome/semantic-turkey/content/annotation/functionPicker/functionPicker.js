@@ -19,88 +19,57 @@
  * http://semanticturkey.uniroma2.it
  * 
  */
- if (typeof art_semanticturkey == 'undefined')
-		var art_semanticturkey = {};
-	Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
-			art_semanticturkey);
-	Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+if (typeof art_semanticturkey == 'undefined')
+	var art_semanticturkey = {};
 
-	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-	
+Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+
+// netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+
 window.onload = function() {
 	var event = window.arguments[0].event;
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-	.getCharPref("extensions.semturkey.extpt.annotate");
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	
-	//add the eventlistener for the buttons
-	document.getElementById("Ok").addEventListener("click",
-			art_semanticturkey.onAccept, true);
-	document.getElementById("Cancel").addEventListener("click",
-			art_semanticturkey.onCancel, true);
-	
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-	
-	//get the functions for the selected family for the event drag'n'drop over instance
-	var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions(event.name);
-	
-	//get the groupbox
-	var groupbox = document.getElementById("group");
-	
-	for(var i=0; i<FunctionOI.length; i++)
-	{
-		//if function is enabled show it else skip
-		if(annComponent.wrappedJSObject.isFunctionApplicable(FunctionOI[i], event)) {
-			var radiobox = document.createElement("radio");
-			radiobox.setAttribute("id",i);
-			radiobox.setAttribute("label",FunctionOI[i].getdescription());
-			groupbox.appendChild(radiobox);
-		}
-	}
-	       
-};  
+	var handlers = window.arguments[0].handlers;
 
-//actions performed by Ok button
-art_semanticturkey.onAccept = function() {
-	
-	var sitem = document.getElementById("group").selectedItem;
-	//get the id of the item selected: used it to address the function
-	var sindex = sitem.getAttribute("id");
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-			.getCharPref("extensions.semturkey.extpt.annotate");
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	
-	var event = window.arguments[0].event;
-	var parentWindow = window.arguments[0].parentWindow;
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-	
-	if (AnnotFunctionList[defaultAnnotFun] != null) {
-		//get the functions for the event drag'n'drop over instance
-		var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions(event.name);
-		//set timeout to close the window
-		//window.setTimeout(function() {window.close();}, 100);
-		
-		//execute the selected function
-		var fun = FunctionOI[sindex].getfunct();
-		fun(event,parentWindow);
-	} else {
-		var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-				.getService(Components.interfaces.nsIPromptService);
-		prompts.alert(null, defaultAnnotFun
-				+ " annotation type not registered ", defaultAnnotFun
-				+ " not registered annotation type reset to bookmarking");
-		prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
+	// add the eventlistener for the buttons
+	document.getElementById("Ok").addEventListener("click", art_semanticturkey.onAccept, true);
+	document.getElementById("Cancel").addEventListener("click", art_semanticturkey.onCancel, true);
+
+	// get the functions for the selected family for the event drag'n'drop over
+	// instance
+
+	// get the groupbox
+	var groupbox = document.getElementById("group");
+
+	for ( var i = 0; i < handlers.length; i++) {
+		// if function is enabled show it else skip
+		var radiobox = document.createElement("radio");
+		radiobox.setAttribute("id", i);
+		radiobox.setAttribute("label", handlers[i].getLabel());
+		groupbox.appendChild(radiobox);
 	}
+
+};
+
+// actions performed by Ok button
+art_semanticturkey.onAccept = function() {
+
+	var sitem = document.getElementById("group").selectedItem;
+	// get the id of the item selected: used it to address the function
+	var sindex = sitem.getAttribute("id");
+
+	var event = window.arguments[0].event;
+	var handlers = window.arguments[0].handlers;
+	var parentWindow = window.arguments[0].parentWindow;
+	var fun = handlers[sindex].getBody();
+	
+	var family = window.arguments[0].family;
+	fun.call(family, event, parentWindow);
+
 	close();
 };
 
-//when cancel button is pressed close the window
+// when cancel button is pressed close the window
 art_semanticturkey.onCancel = function() {
 	close();
 };

@@ -270,7 +270,23 @@ function chkBookmarks(urlPage) {
  */
 function getPageAnnotations(urlPage) {
 	var urlPage="urlPage="+urlPage;
-	return HttpMgr.GET(serviceName, service.getPageAnnotationsRequest,urlPage);
+	var reponseXML = HttpMgr.GET(serviceName, service.getPageAnnotationsRequest,urlPage);
+	var annotations = [];
+	var annotationsXML = reponseXML.getElementsByTagName("Annotation");
+	
+	for (var i = 0 ; i < annotationsXML.length ; i++) {
+		var annXML = annotationsXML[i];
+		
+		annotations.push(
+			{
+				id : annXML.getAttribute("id"),
+				resource : annXML.getAttribute("resource"),
+				value : annXML.getAttribute("value")
+			}
+		);
+	}
+	
+	return annotations;
 }
 
 /**

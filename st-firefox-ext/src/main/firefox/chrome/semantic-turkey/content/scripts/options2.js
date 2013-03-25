@@ -21,42 +21,45 @@
  */
  if (typeof art_semanticturkey == 'undefined')
 		var art_semanticturkey = {};
-	Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
-			art_semanticturkey);
-	Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 
-	//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-	
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-	var defaultAnnotFun = prefs
-	.getCharPref("extensions.semturkey.extpt.annotate");
-	var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-	.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-	
-window.onload = function() {
+Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
+		art_semanticturkey);
+Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
+
+//netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+
+var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+.getService(Components.interfaces.nsIPrefBranch);
+var defaultAnnotFun = prefs
+.getCharPref("extensions.semturkey.extpt.annotate");
+
+art_semanticturkey.init = function() {
 	//register the eventlistener for buttons
 	document.getElementById("ok").addEventListener("click",
 			art_semanticturkey.onAccept, true);
 	document.getElementById("cancel").addEventListener("click",
 			art_semanticturkey.onCancel, true);
 
+	var familyId = window.arguments[0].annotationFamilyId;
+	var families = art_semanticturkey.annotation.AnnotationManager.getFamilies();
+	var family = families[familyId];
+
 	//set the title of window and get family and function of that family
-	var family = window.arguments[0].label;
 	var title = document.getElementById("options2");
-	title.setAttribute("title", family);
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-	var eventList = AnnotFunctionList[family].getArrayEventFunctions();
+	title.setAttribute("title", family.getName());
+
+	var eventHandlerMap = family.getEventHandlerMap();
 	var listbox = document.getElementById("Events");
 
 	//for each event, create the listbox of function for that event
-	for (var eventName in eventList) {  
+	for (var eventName in eventHandlerMap) {  
 		var annListItem = document.createElement("listitem");
 		annListItem.setAttribute("label", eventName);
 		annListItem.addEventListener("click",art_semanticturkey.choiceFunction, true);
 		listbox.appendChild(annListItem);
 		
-		var FunctionOI = AnnotFunctionList[family].getfunctions(eventName);
+		var handlers = eventHandlerMap[eventName]
 		
 		var listbox1 = document.getElementById("fake");
 		var listbox2 = listbox1.cloneNode();
@@ -65,14 +68,14 @@ window.onload = function() {
 		listbox1.parentNode.appendChild(listbox2);
 		
 		//each funtion is presented as a checkbox
-		for(var i=0; i<FunctionOI.length; i++)
+		for(var i=0; i < handlers.length; i++)
 		{
 			var checkbox = document.createElement("listitem");
 			checkbox.setAttribute("type","checkbox");
 			checkbox.setAttribute("id",i);
-			checkbox.setAttribute("label",FunctionOI[i].getdescription());
+			checkbox.setAttribute("label",handlers[i].getLabel());
 			//if function is enabled the checkbox is set
-			if(FunctionOI[i].isEnabled()){
+			if(handlers[i].isEnabled()){
 				checkbox.setAttribute("checked",true);}
 			listbox2.appendChild(checkbox);
 		}	
@@ -104,22 +107,21 @@ art_semanticturkey.choiceFunction = function() {
 //action performed when Ok button is clicked
 art_semanticturkey.onAccept = function() {
 	
-	var family=window.arguments[0].label;
-	var AnnotFunctionList = annComponent.wrappedJSObject.getList();
-	var eventList=AnnotFunctionList[family].getArrayEventFunctions();
+	var families = art_semanticturkey.annotation.AnnotationManager.getFamilies();
+	var familyName = window.arguments[0].label;
+	var family = families[familyName];
+	var eventHandlerMap = family.getEventHandlerMap();
 	
 	//for each event check the relative listbox of function
-	for (var eventName in eventList) {  
-		var listbox=document.getElementById(eventName);
+	for (var eventName in eventHandlerMap) {  
+		var listbox = document.getElementById(eventName);
 		listbox.setAttribute("hidden", "false");
-		var FunctionOI = AnnotFunctionList[family].getfunctions(eventName);
+		var handlers = eventHandlerMap[eventName];
+		
 		//for each function if box is checked function is enabled, else it is disabled
 		for(var i=0; i<listbox.getRowCount(); i++) {
 			var app = listbox.getItemAtIndex(i);
-			if(app.hasAttribute("checked"))
-					FunctionOI[i].enable();
-			else
-				FunctionOI[i].disable();
+			handlers[i].setEnabled(app.hasAttribute("checked"));
 		}
 		listbox.setAttribute("hidden", "true");
 	}
@@ -130,3 +132,5 @@ art_semanticturkey.onAccept = function() {
 art_semanticturkey.onCancel = function() {
 	close();
 };
+
+window.addEventListener("load", art_semanticturkey.init, false);

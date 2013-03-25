@@ -20,11 +20,12 @@
  * 
  */
 
-/*************************************************************************************************************
+/*******************************************************************************
  * 
- * this file contains functions related to the "highlighter", that is the two events: 1) when a page is open,
- * if it contains annotations, then the highlighter is shown 2) when the user clicks on the highlighter,
- * annotations are shown on the page
+ * this file contains functions related to the "highlighter", that is the two
+ * events: 1) when a page is open, if it contains annotations, then the
+ * highlighter is shown 2) when the user clicks on the highlighter, annotations
+ * are shown on the page
  * 
  */
 
@@ -36,21 +37,40 @@ Components.utils.import("resource://stservices/SERVICE_Annotation.jsm", art_sema
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
-Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
-
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
 
 /**
- * this function checks if "annotation checking" is enabled, and in affirmative case, checks it there are
- * annotations if there are annotations available in the page
+ * this function checks if "annotation checking" is enabled, and in affirmative
+ * case, checks it there are annotations if there are annotations available in
+ * the page
  * 
  * @param event
  * 
  * @return
  */
-art_semanticturkey.chkAnnotation = function(event) {
+art_semanticturkey.contentLoadedHook = function(event) {
+	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
+
+	if (projectIsNull == false) {
+		var event2 = {
+			name : "contentLoaded",
+			contentId : gBrowser.selectedBrowser.currentURI.spec
+		};
+		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event2, function() {
+			art_semanticturkey.tabSelectHook();
+		});
+	}
+};
+
+art_semanticturkey.tabSelectHook = function(even) {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 	var chkAnn = art_semanticturkey.Preferences.get("extensions.semturkey.annotation.checkAnnotation", true);
-	if (projectIsNull == false && chkAnn == true) {
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+	.getService(Components.interfaces.nsIPrefBranch);	
+	var familyId = prefs.getCharPref("extensions.semturkey.extpt.annotate");
+	var family = art_semanticturkey.annotation.AnnotationManager.getFamily(familyId);
+	
+	if (projectIsNull == false && chkAnn == true && (typeof family.checkAnnotationsForContent != "undefined")) {
 		var doc = gBrowser.contentDocument;
 		var list = doc.getElementsByTagName("div");
 
@@ -58,87 +78,50 @@ art_semanticturkey.chkAnnotation = function(event) {
 		art_semanticturkey.Logger.debug("list: " + list.length);
 
 		var url = gBrowser.selectedBrowser.currentURI.spec;
-		try {
-			var responseXML = art_semanticturkey.STRequests.Annotation.chkAnnotation(url);
-			art_semanticturkey.chkAnnotation_RESPONSE(responseXML);
-		} catch (e) {
-			alert(e.name + ": " + e.message);
-		}
-	}
-};
-
-
-art_semanticturkey.chkAnnotation_RESPONSE = function(responseElement) {
-	var reply = responseElement.getElementsByTagName('reply')[0];
-	var act = reply.getAttribute("status");
-	art_semanticturkey.active(act);
-};
-
-art_semanticturkey.active = function(act) {
-	var statusIcon = document.getElementById("status-bar-annotation");
-	if (act == "ok") {
-		statusIcon.collapsed = false;
-	} else {
-		statusIcon.collapsed = true;
+		var act = family.checkAnnotationsForContent(url);
+		var statusIcon = document.getElementById("status-bar-annotation");
+		statusIcon.collapsed = !act;
 	}
 };
 
 art_semanticturkey.viewAnnotationOnPage = function() {
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefBranch);
-		var defaultAnnotFun = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-			.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-		AnnotFunctionList=annComponent.wrappedJSObject.getList();
-		
-		if (AnnotFunctionList[defaultAnnotFun] != null) {
-			//get the function of the selected family for the event highlight function
-			var FunctionOI = AnnotFunctionList[defaultAnnotFun].getfunctions("highlightAnnotations");
-			var count=0;
-			var index;
-			
-			//check how much function are present and enabled
-			for(var j=0; j<FunctionOI.length;j++)
-				if(FunctionOI[j].isEnabled()){
-					count++;
-					index=j;
-				}
-			
-			//if no functions alert the user
-			if(count == 0)
-				alert("Non ci sono funzioni registrate o abilitate per questo evento");
-			//if 1 function is present and enabled execute
-			else if (count == 1) {
-				var fun = FunctionOI[0].getfunct();
-				fun();
-			}
-			//open the choice menu
-			else {
+	.getService(Components.interfaces.nsIPrefBranch);
+	var familyId = prefs.getCharPref("extensions.semturkey.extpt.annotate");
+	var family = art_semanticturkey.annotation.AnnotationManager.getFamily(familyId);
+	
+	var contentId = gBrowser.selectedBrowser.currentURI.spec;
+	
+	if (typeof family.getAnnotationsForContent != "undefined") {
+		var annotations = family.getAnnotationsForContent(contentId);
 				
-				window.openDialog(
-						"chrome://semantic-turkey/content/DragDrop/highlightFunction.xul",
-						"_blank", "modal=yes,resizable,centerscreen");
-			}
-				
+		if (typeof family.decorateContent != "undefined") {
+			family.decorateContent(gBrowser.contentDocument, annotations);
+		} else {
+			alert("Missing function decorateContent in family \"" + family.getLabel() + "\"");			
 		}
-		else {
-			var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-			prompts.alert(null,defaultAnnotFun+" annotation type not registered ",defaultAnnotFun+" not registered annotation type reset to bookmarking");
-			prefs.setCharPref("extensions.semturkey.extpt.annotate","bookmarking");
-		}
-		
+	} else {
+		alert("Missing function getAnnotationsForContent in family \"" + family.getLabel() + "\"");
+	}
 };
 
 // Adding an event for the changing of a tab
-gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.chkAnnotation, false);
+gBrowser.tabContainer.addEventListener("TabSelect", art_semanticturkey.tabSelectHook, false);
 
-// adding an event for loading of the loading of the page in a tab of the browser
-gBrowser.addEventListener("load", art_semanticturkey.chkAnnotation, true);
+// adding an event for loading of the loading of the page in a tab of the
+// browser
+gBrowser.addEventListener("load", art_semanticturkey.contentLoadedHook, true);
 
-//TODO check this error
-//adding an event for the loading of a project // FF 4.0 says: Error: art_semanticturkey.eventListener is not a constructor Sourcefile: chrome://semantic-turkey/content/annotation/annotation.js Row: 100
-//art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
-//just guessing based on: http://www.quirksmode.org/js/events_advanced.html
+// TODO check this error
+// adding an event for the loading of a project // FF 4.0 says: Error:
+// art_semanticturkey.eventListener is not a constructor Sourcefile:
+// chrome://semantic-turkey/content/annotation/annotation.js Row: 100
+// art_semanticturkey.eventListenerForAnnotationObject = new
+// art_semanticturkey.eventListener("projectOpened",
+// art_semanticturkey.chkAnnotation, null);
+// just guessing based on: http://www.quirksmode.org/js/events_advanced.html
 
-//art_semanticturkey.eventListenerForAnnotationObject = new art_semanticturkey.eventListener("projectOpened", art_semanticturkey.chkAnnotation, null);
+// art_semanticturkey.eventListenerForAnnotationObject = new
+// art_semanticturkey.eventListener("projectOpened",
+// art_semanticturkey.chkAnnotation, null);
 
