@@ -1,18 +1,17 @@
 Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
-Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
-Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Annotation.jsm", art_semanticturkey);
+Components.utils.import("resource://stservices/SERVICE_RangeAnnotation.jsm", art_semanticturkey);
+
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/AnnotationCommons.jsm", art_semanticturkey);
 
 art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	try {
 		/*
 		 * Get a Foo component
 		 */
-		var semTurkeyBridge = art_semanticturkey.JavaFirefoxSTBridge
-				.getSemanticTurkey();
+		var semTurkeyBridge = art_semanticturkey.JavaFirefoxSTBridge.getSemanticTurkey();
 
 		/*
 		 * Initialize it. The trick is to get past its IDL interface and right
@@ -45,43 +44,87 @@ art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 	art_semanticturkey.ST_started.setStatus();
 };
 
-art_semanticturkey.annotationRegister = function() {
+art_semanticturkey.registerAnnotationFamilies = function() {
 	try {
-		// initializes the annotation extension point, registering the
-		// "bookmarking" service (the default one)
-		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-		.getService(Components.interfaces.nsISemanticTurkeyAnnotation);
+		// Bookmarking family
+		var bookmarking = art_semanticturkey.annotation.AnnotationManager
+				.getFamily("it.uniroma2.art.semanticturkey.annotation.bookmarking", true);
+		bookmarking.setName("bookmarking");
+		bookmarking.setDescription("Bookmarking family");
+		// Bind conventional functions
+		bookmarking.checkAnnotationsForContent = function(contentId) {
+			var responseXML = art_semanticturkey.STRequests.Annotation.chkAnnotation(contentId);
+			var reply = responseXML.getElementsByTagName('reply')[0];
+			var act = reply.getAttribute("status");
+			return act == "ok";
+		};
+		bookmarking.getAnnotationsForContent = function(contentId) {
+			return art_semanticturkey.STRequests.Annotation.getPageAnnotations(contentId);
+		};
+		bookmarking.decorateContent = function(annotations) {
+			for ( var i = 0; i < annotations.length; i++) {
+				var valueToHighlight = annotations[i].value;
+				highlightStartTag = "<font style='color:blue; background-color:yellow;'>";
+				highlightEndTag = "</font>";
+				art_semanticturkey.highlightSearchTerms(valueToHighlight, true, true, highlightStartTag,
+						highlightEndTag);
+			}
+		};
+		bookmarking.furtherAnn = function(event) {
+			var resource = event.resource;
+			var doc = event.document;
+			var selection = event.selection;
+			try {
+				var responseXML = art_semanticturkey.STRequests.Annotation.createFurtherAnnotation(resource.getURI(),
+						selection.toString(), doc.documentURI, doc.title);
+			} catch (e) {
+				alert(e.name + ": " + e.message);
+			}
+		};
+		// Register default handlers
+		art_semanticturkey.annotation.commons.registerCommonHandlers(bookmarking);
 		
-		// initialize family object
-		var bookmarkingFamily = new annComponent.wrappedJSObject.Family("bookmarking");
+		var xptrService = Components.classes["@mozilla.org/xpointer-service;1"].getService();
+		xptrService = xptrService.QueryInterface(Components.interfaces.nsIXPointerService);
 		
-		// initialize function object
-
-		var furtherAnn = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.furtherAnn,"Further annotation");
-		var valueForProp = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.valueForProperty,"Value for property");
-		var createConcept = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.createConcept,"Create a concept");
-		var createInstance = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.createInstance,"Create instance");
-		var highlightAnnotations = new annComponent.wrappedJSObject.functionObject(art_semanticturkey.highlightAnnotations,"Highlight annotations");
-
-		// add function to family
-		bookmarkingFamily.addfunction("selectionOverResource", furtherAnn);
-		bookmarkingFamily.addfunction("selectionOverResource", valueForProp);
-		bookmarkingFamily.addfunction("selectionOverResource", createConcept);
-		bookmarkingFamily.addfunction("selectionOverResource", createInstance);
-		bookmarkingFamily.addfunction("highlightAnnotations",highlightAnnotations);
-
-		// register bookmarking annotation family
-		annComponent.wrappedJSObject.register(bookmarkingFamily);
+		// Range annotation family
+		var rangeannotation = art_semanticturkey.annotation.AnnotationManager
+				.getFamily("it.uniroma2.art.semanticturkey.annotation.rangeannotation", true);
+		rangeannotation.setName("range annotation");
+		rangeannotation.setDescription("Range annotation family");
+		// Bind conventional functions
+		rangeannotation.checkAnnotationsForContent = function(contentId) {
+			var responseXML = art_semanticturkey.STRequests.Annotation.chkAnnotation(contentId);
+			var reply = responseXML.getElementsByTagName('reply')[0];
+			var act = reply.getAttribute("status");
+			return act == "ok";
+		};
+		rangeannotation.getAnnotationsForContent = function(contentId) {
+			return art_semanticturkey.STRequests.RangeAnnotation.getPageAnnotations(contentId);
+		};
+		rangeannotation.decorateContent = function(document, annotations) {
+			var mozIJSSubScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+            .getService(Components.interfaces.mozIJSSubScriptLoader);
+			mozIJSSubScriptLoader.loadSubScript("chrome://semantic-turkey/content/scripts/temp.js?time=" + new Date().getTime());
+			temp(document, annotations, this.deleteAnnotation.bind(this));
+		};
+		rangeannotation.deleteAnnotation = art_semanticturkey.STRequests.RangeAnnotation.deleteAnnotation;
+		rangeannotation.furtherAnn = function(event) {
+			var resource = event.resource;
+			var doc = event.document;
+			var selection = event.selection;
+			try {
+				var xptrString = xptrService.createXPointerFromSelection(
+						window._content.getSelection(), window._content.document);
+				var responseXML = art_semanticturkey.STRequests.RangeAnnotation.addAnnotation(resource.getURI(),
+						selection.toString(), doc.documentURI, doc.title, xptrString);
+			} catch (e) {
+				alert(e.name + ": " + e.message);
+			}
+		};
 		
-		// initialize family object
-		var oaCorsefamily = new annComponent.wrappedJSObject.Family("open annotation (coarse grain)");
-		annComponent.wrappedJSObject.register(oaCorsefamily);
-
-		// initialize family object
-		var oaFinefamily = new annComponent.wrappedJSObject.Family("open annotation (fine grain)");
-		annComponent.wrappedJSObject.register(oaFinefamily);
-
-		
+		// Register default handlers
+		art_semanticturkey.annotation.commons.registerCommonHandlers(rangeannotation);
 	} catch (e) {
 		// TODO change this code with a unique object (module) to be invoked for
 		// alerting the user
@@ -89,139 +132,10 @@ art_semanticturkey.annotationRegister = function() {
 				.getService(Components.interfaces.nsIPromptService);
 		prompts.alert(null, "Annotation Extension Point Initialization Error",
 				"an error occurred during initialization of the Annotation Component:\n"
-						// + e.getMessage());
-                                                + e.toString());
+				// + e.getMessage());
+				+ e.toString());
 	}
 };
 
-art_semanticturkey.furtherAnn = function(event) {
-	var resource = event.resource;
-	var doc = event.document;
-	var selection = event.selection;
-	try {
-		var responseXML = art_semanticturkey.STRequests.Annotation.createFurtherAnnotation(resource.getURI(), selection.toString(), doc.documentURI, doc.title);
-	} catch (e) {
-		alert(e.name + ": " + e.message);
-	}
-};
-
-art_semanticturkey.valueForProperty = function(event) {
-	var parameters = {};
-	parameters.event = event;
-	parameters.subject = event.resource.getURI();
-	parameters.object = event.selection.toString();
-	parameters.lexicalization = event.selection.toString();
-	parameters.urlPage = event.document.documentURI;
-	parameters.title = event.document.title;
-//	parameters.subjectInstanceName = listItem.getAttribute("label");
-//	parameters.parentClsName = listItem.getAttribute("parentCls");
-//	parameters.objectInstanceName = str;
-//	parameters.urlPage = tabWin;
-//	parameters.title = title;
-//	parameters.tree = list;
-//	parameters.parentWindow = parentWindow;
-//	parameters.panelTree = document.getElementById("classesTree");
-	parameters.functors = {};
-	
-	if (typeof event.skos != "undefined") {
-		parameters.skos = Object.create(event.skos);
-	}
-
-	parameters.functors.addAnnotation = function(p) {				
-		return art_semanticturkey.STRequests.Annotation.addAnnotation(p.urlPage, p.subject, p.lexicalization,p.title);
-	};
-	
-	parameters.functors.relateAndAnnotateBindAnnot = function(p) {
-		return art_semanticturkey.STRequests.Annotation.relateAndAnnotateBindAnnot(
-				p.subject,
-				p.predicate,
-				p.object,
-				p.urlPage,
-				p.title,
-				p.lexicalization);
-	};
-	
-	window
-			.openDialog(
-					"chrome://semantic-turkey/content/class/annotator/annotator.xul",
-					"_blank", "modal=yes,resizable,centerscreen",
-					parameters);
-};
-
-art_semanticturkey.createConcept = function(event) {
-	var resource = event.resource;
-	var doc = event.document;
-	var selection = event.selection;
-
-	var conceptScheme;
-	
-	if (typeof event.skos != "undefined" && typeof event.skos.conceptScheme != "undefined") {
-		conceptScheme = event.skos.conceptScheme;
-	} else {
-		conceptScheme = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme", null).getElementsByTagName("property")[0].getAttribute("value");
-	}
-	
-	var language = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en");
-			
-	try {
-		var conceptResource = art_semanticturkey.STRequests.SKOS.createConcept(selection.toString(), resource.getURI(), conceptScheme, selection.toString(), language);
-		
-		art_semanticturkey.STRequests.Annotation
-			.createFurtherAnnotation(
-				conceptResource.getURI(),
-				selection.toString(),
-				doc.documentURI,
-				doc.title);		
-	} catch(e) {
-		alert(e.name + ": " + e.message);
-	}
-};
-
-art_semanticturkey.createConcept.accept = function(event) {
-	var resource = event.resource;
-	return ((typeof resource.getRole != "undefined") && (resource.getRole() == "concept"));
-};
-
-art_semanticturkey.createInstance = function(event) {
-	try {		
-		art_semanticturkey.STRequests.Annotation
-			.createAndAnnotate(
-				event.resource.getURI(),
-				event.selection.toString(),
-				event.document.documentURI,
-				event.document.title);		
-	} catch(e) {
-		alert(e.name + ": " + e.message);
-	}
-};
-
-art_semanticturkey.createInstance.accept = function(event) {
-	var resource = event.resource;
-	return ((typeof resource.getRole != "undefined") && (resource.getRole() == "cls"));
-};
-
-art_semanticturkey.highlightAnnotations = function() {
-	// NScarpato add highlith for all occurence of annotations
-	var url = gBrowser.selectedBrowser.currentURI.spec;
-	try {
-		var responseXML = art_semanticturkey.STRequests.Annotation
-				.getPageAnnotations(url);
-		art_semanticturkey.getPageAnnotations_RESPONSE(responseXML);
-	} catch (e) {
-		alert(e.name + ": " + e.message);
-	}
-};
-
-art_semanticturkey.getPageAnnotations_RESPONSE = function(responseElement) {
-	var annotations = responseElement.getElementsByTagName('Annotation');
-	for (var i = 0; i < annotations.length; i++) {
-		var valueToHighlight = annotations[i].getAttribute("value");
-		highlightStartTag = "<font style='color:blue; background-color:yellow;'>";
-		highlightEndTag = "</font>";
-		art_semanticturkey.highlightSearchTerms(valueToHighlight, true, true,
-				highlightStartTag, highlightEndTag);
-	}
-};
-
-art_semanticturkey.annotationRegister();
+art_semanticturkey.registerAnnotationFamilies();
 // art_semanticturkey.JavaFirefoxSTBridge.initialize();

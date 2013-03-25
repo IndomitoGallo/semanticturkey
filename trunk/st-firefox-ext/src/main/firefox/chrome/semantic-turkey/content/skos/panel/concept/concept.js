@@ -6,6 +6,7 @@ Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semant
 Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
 
 art_semanticturkey.init = function() {
 	var conceptTree = document.getElementById("conceptTree");
@@ -66,10 +67,7 @@ art_semanticturkey.init = function() {
 		event.skos = {};
 		event.skos.selectedScheme = conceptTree.conceptScheme;
 
-		var annComponent = Components.classes["@art.uniroma2.it/semanticturkeyannotation;1"]
-                                     .getService(Components.interfaces.nsISemanticTurkeyAnnotation);
-		
-		annComponent.wrappedJSObject.handleEvent(window, event);
+		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
 	};
 	
 	var stEventArray = new art_semanticturkey.eventListenerArrayClass();

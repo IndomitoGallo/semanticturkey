@@ -32,6 +32,7 @@ Components.utils.import("resource://stservices/SERVICE_Property.jsm",art_semanti
 Components.utils.import("resource://stservices/SERVICE_Cls.jsm",art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semanticturkey);
 Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
 
 /*
  * An handler is associated with the class qname. If you want to apply an handler either to subclasses, prefix it
@@ -359,25 +360,19 @@ art_semanticturkey.listDragDropBind = function(win, tree) {
 					return;
 				}
 				// Step 2: Add the property value
-				art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subject, win.arguments[0].predicate, objectInstanceName, type);
+				art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subject, win.arguments[0].predicate, objectInstanceName, "resource");
 				 
 				// Step 3: Add the annotation
 	
 				// The annotation has to be applied to the resource, which is the value
 				// of the property assigned before
-				var newParameters = Object.create(win.arguments[0]);
-				newParameters.subject = newParameters.object;
-				 
-				win.arguments[0].functors.addAnnotation(newParameters);
+				var event2 = Object.create(win.arguments[0].event);
+				event2.resource = new art_semanticturkey.ARTURIResource(
+						objectInstanceName,
+						"undefined",
+						objectInstanceName);				 
+				win.arguments[0].functors.addAnnotation(event2);
 				close();
-					/*return win.arguments[0].parentWindow.art_semanticturkey.STRequests.Annotation
-							.relateAndAnnotateBindCreate(
-									win.arguments[0].subjectInstanceName,
-									win.arguments[0].predicatePropertyName,
-									win.arguments[0].objectInstanceName,
-									win.arguments[0].urlPage,
-									win.arguments[0].title, selectedObjClsName,
-									null, type);*/
 			}
 		} catch (e) {
 			alert(e.name + ": " + e.message);
@@ -406,7 +401,7 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 			var type = (ranges.getAttribute("rngType"));
 			
 			win.close();
-			if(type =="undetermined"){
+			if(type == "undetermined"){
 				return art_semanticturkey.STRequests.Property
 					.addExistingPropValue(win.arguments[0].subject,
 							win.arguments[0].predicate,
@@ -420,11 +415,17 @@ art_semanticturkey.listDragDropAnnotateInstance = function(win, instanceName /*m
 		} else {
 			win.close();
 
-			var newParameters = {};
-			newParameters.__proto__ = win.arguments[0];
-			newParameters.object = instanceName;
+			art_semanticturkey.STRequests.Property.addExistingPropValue(win.arguments[0].subject,
+					win.arguments[0].predicate,
+					instanceName, "resource")
+			
+			var event2 = Object.create(win.arguments[0].event);
+			event2.resource = new art_semanticturkey.ARTURIResource(
+					instanceName,
+					"undefined",
+					instanceName);
 					
-			return win.arguments[0].functors.relateAndAnnotateBindAnnot(newParameters);
+			return win.arguments[0].functors.addAnnotation(event2);
 		}
 	} catch (e) {
 		alert(e.name + ": " + e.message);

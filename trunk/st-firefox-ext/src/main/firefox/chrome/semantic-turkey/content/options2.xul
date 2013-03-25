@@ -32,7 +32,6 @@
 					<listheader>
 						<listitem-iconic>
 							<label value="Events"/>
-								
 						</listitem-iconic>
 					</listheader>		
 				</listhead>		
@@ -46,7 +45,7 @@
 			<listhead>
 					<listheader>
 						<listitem-iconic>
-							<label value="Functions"/>
+							<label value="Handlers"/>
 						</listitem-iconic>
 					</listheader>		
 				</listhead>	

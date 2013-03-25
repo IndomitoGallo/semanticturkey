@@ -19,6 +19,12 @@ STRequests.Annotate = new Object();
  * @class
  */
 STRequests.Annotation = new Object();    
+
+/**
+ * @class
+ */
+STRequests.RangeAnnotation = new Object();    
+
 /**
  * @class
  */
@@ -170,6 +176,13 @@ STRequests.Annotation.bookmarkPageRequest = "bookmarkPage";
 STRequests.Annotation.getPageTopicsRequest = "getPageTopics";
 STRequests.Annotation.getBookmarksByTopicRequest = "getBookmarksByTopic";
 STRequests.Annotation.removeBookmarkRequest = "removeBookmark";
+
+//rangeannotation service request
+STRequests.RangeAnnotation.serviceName = "rangeannotation";
+STRequests.RangeAnnotation.chkAnnotationsRequest = "chkAnnotations";
+STRequests.RangeAnnotation.getPageAnnotationsRequest = "getPageAnnotations";
+STRequests.RangeAnnotation.addAnnotationRequest = "addAnnotation";
+STRequests.RangeAnnotation.deleteAnnotationRequest = "deleteAnnotation";
 
 // individual service request
 STRequests.Individual.serviceName = "individual";
