@@ -5,6 +5,7 @@ Components.utils.import("resource://stservices/SERVICE_Cls.jsm");
 Components.utils.import("resource://stservices/SERVICE_SKOS.jsm");
 
 Components.utils.import("resource://stmodules/AnnotationManager.jsm");
+Components.utils.import("resource://stmodules/Preferences.jsm");
 
 
 if (typeof annotation == "undefined") {
@@ -56,7 +57,7 @@ annotation.commons.handlers.createNarrowerConcept = function(event) {
 				null).getElementsByTagName("property")[0].getAttribute("value");
 	}
 
-	var language = art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
+	var language = Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
 
 	try {
 		var conceptResource = STRequests.SKOS.createConcept(selection.toString(), resource
