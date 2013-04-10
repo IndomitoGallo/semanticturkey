@@ -671,7 +671,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 		 */
 		if (resultType == "tuple") {
 			var cols = response.getElementsByTagName("variable");
-			for ( var i = 0; i < cols.length; i++) {
+			for (var i = 0; i < cols.length; i++) {
 				var colName = cols[i].getAttribute("name");
 				var treecol = document.createElement("treecol");
 				treecol.setAttribute("label", colName);
@@ -680,7 +680,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 				treecols.appendChild(treecol);
 				var results = response.getElementsByTagName("result");
 				var resultsArray = new Array();
-				for ( var y = 0; y < results.length; y++) {
+				for (var y = 0; y < results.length; y++) {
 					var result = new Array();
 					var bindings = results[y].getElementsByTagName("binding");
 					for ( var h = 0; h < bindings.length; h++) {
@@ -808,7 +808,7 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 			var cols = response.stresponse.data.sparql.head.vars;
 
 			var resultsArray = new Array();
-			for ( var i = 0; i < cols.length; i++) {
+			for (var i = 0; i < cols.length; i++) {
 				var variable_name = cols[i];
 				var treecol = document.createElement("treecol");
 				treecol.setAttribute("label", variable_name);
@@ -819,40 +819,45 @@ art_semanticturkey.resolveQuery_RESPONSE = function(response) {
 
 			var bindings = response.stresponse.data.sparql.results.bindings;
 
-			for ( var bind in bindings) {
+			for (var bind in bindings) {
 				var ti = document.createElement("treeitem");
 				var tr = document.createElement("treerow");
 
-				for ( var i = 0; i < cols.length; i++) {
+				for (var i = 0; i < cols.length; i++) {
 					var variable_name = cols[i];
 					var element = (bindings[bind])[variable_name];
 
-					var lblValue = "";
-					var type = "";
-
-					if (element.type == "uri") {
-						lblValue = element.value;
-					} else if (element.type == "literal") {
-						lblValue = element.value;
-						if (element["xml:lang"] != null) {
-							lblValue = lblValue + " (" + element["xml:lang"]
-									+ ")";
+					if (typeof element != "undefined") {
+						var lblValue = "";
+						var type = "";
+	
+						if (element.type == "uri") {
+							lblValue = element.value;
+						} else if (element.type == "literal") {
+							lblValue = element.value;
+							if (element["xml:lang"] != null) {
+								lblValue = lblValue + " (" + element["xml:lang"]
+										+ ")";
+							}
+						} else if (element.type == "typed-literal") {
+							lblValue = element.value;
+						} else if (element.type == "bnode") {
+							lblValue = element.value;
 						}
-					} else if (element.type == "typed-literal") {
-						lblValue = element.value;
-					} else if (element.type == "bnode") {
-						lblValue = element.value;
+	
+						var tc = document.createElement("treecell");
+						tc.setAttribute("label", lblValue);
+						tc.setAttribute("type", element.type);
+						
+						tr.appendChild(tc);
+					} else {
+						var tc = document.createElement("treecell");
+						tc.setAttribute("properties", "unbound");
+						tr.appendChild(tc);
 					}
-
-					var tc = document.createElement("treecell");
-					tc.setAttribute("label", lblValue);
-					tc.setAttribute("type", element.type);
-
-					tr.appendChild(tc);
-					ti.appendChild(tr);
-					rootTreechildren.appendChild(ti);
 				}
-
+				ti.appendChild(tr)
+				rootTreechildren.appendChild(ti);
 			}
 
 		} else if (resultType == "graph") {
