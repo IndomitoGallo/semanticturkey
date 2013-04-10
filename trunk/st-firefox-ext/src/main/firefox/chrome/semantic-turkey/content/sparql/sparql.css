@@ -21,13 +21,23 @@
   *
   */
 tree {
-  -moz-user-focus: normal !important;
-  -moz-user-select: text;
+	-moz-user-focus: normal !important;
+	-moz-user-select: text;
 }
 
-
 treechildren::-moz-tree-cell-text {
-	color: #000000;  font-size: 11px; font-weight: bold;
+	color: #000000;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+/*
+ * Cells for unbound variables are given a striped background. The "sprite" is embedded with a data URL
+ */
+treechildren::-moz-tree-cell(unbound) {
+	background:
+		url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAXGjEh8YyD7LEwAzAFJggTgHJAAAE+uAzjGgU3wAAAAAElFTkSuQmCC)
+		repeat;
 }
 
 .CodeMirror-gutter {
