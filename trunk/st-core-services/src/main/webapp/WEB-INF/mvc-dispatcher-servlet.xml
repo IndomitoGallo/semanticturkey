@@ -15,7 +15,12 @@
 	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
 		<property name="converters">
 			<list>
-				<bean id="toArtNodesConverter" class="it.uniroma2.art.semanticturkey.converters.ToARTNodes" />
+<!-- 				<bean id="toArtNodesConverter" class="it.uniroma2.art.semanticturkey.converters.ToARTNodes" /> -->
+				<bean id="StringToARTBNodeConverter" class="it.uniroma2.art.semanticturkey.converters.StringToARTBNodeConverter" />
+				<bean id="StringToARTLiteralConverter" class="it.uniroma2.art.semanticturkey.converters.StringToARTLiteralConverter" />
+				<bean id="StringToARTNodeConverter" class="it.uniroma2.art.semanticturkey.converters.StringToARTNodeConverter" />
+				<bean id="StringToARTResourceConverter" class="it.uniroma2.art.semanticturkey.converters.StringToARTResourceConverter" />
+				<bean id="StringToARTURIResourceConverter" class="it.uniroma2.art.semanticturkey.converters.StringToARTURIResourceConverter" />
 			</list>
 		</property>
 	</bean>

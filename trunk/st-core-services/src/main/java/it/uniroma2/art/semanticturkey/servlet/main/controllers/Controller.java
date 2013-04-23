@@ -7,13 +7,12 @@ import it.uniroma2.art.semanticturkey.servlet.HttpServiceRequestWrapper;
 import it.uniroma2.art.semanticturkey.servlet.JSONResponse;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.SerializationType;
+import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.w3c.dom.Document;
 
 @org.springframework.stereotype.Controller
