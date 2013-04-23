@@ -39,15 +39,16 @@ import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
+import it.uniroma2.art.owlart.query.TupleBindings;
+import it.uniroma2.art.owlart.query.TupleBindingsIterator;
+import it.uniroma2.art.owlart.query.TupleQuery;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.PropertyChainsTree;
-import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
@@ -86,6 +87,7 @@ import com.google.common.collect.Iterators;
 public class Annotation extends ServiceAdapter {
 
 	public static final String getPageAnnotationsRequest = "getPageAnnotations";
+	public static final String getAnnotatedContentResourcesRequest = "getAnnotatedContentResources";
 	public static final String chkAnnotationsRequest = "chkAnnotations";
 	public static final String chkBookmarksRequest = "chkBookmarks";
 	public static final String removeAnnotationRequest = "removeAnnotation";
@@ -98,22 +100,26 @@ public class Annotation extends ServiceAdapter {
 	public static final String getAllBookmarksRequest = "getAllBookmarks";
 	public static final String removeBookmarkRequest = "removeBookmark";
  	// parameters
-	public static final String annotQNameString = "annotQName";
-	public static final String textString = "text";
-	public static final String op = "op";
-	public static final String topic = "topic";
-	public static final String topicsList = "topics";
-
-	public static final String clsQNameField = "clsQName";
-	public static final String instanceQNameField = "instanceQName";
-	public static final String objectClsNameField = "objectClsName";
-	public static final String objectQNameField = "objectQName";
-	public static final String urlPageField = "urlPage";
-	public static final String titleField = "title";
-	public static final String propertyQNameField = "propertyQName";
-	public static final String langField = "lang";
-	public static final String valueType = "type";
-
+	public static class Pars {
+		public static final String annotQNameString = "annotQName";
+		public static final String textString = "text";
+		public static final String op = "op";
+		public static final String topic = "topic";
+		public static final String topicsList = "topics";
+	
+		public static final String clsQNameField = "clsQName";
+		public static final String instanceQNameField = "instanceQName";
+		public static final String objectClsNameField = "objectClsName";
+		public static final String objectQNameField = "objectQName";
+		public static final String urlPageField = "urlPage";
+		public static final String titleField = "title";
+		public static final String propertyQNameField = "propertyQName";
+		public static final String langField = "lang";
+		public static final String valueType = "type";
+		public static final String id = "id";
+		public static final String lexicalization = "lexicalization";
+		public static final String resource = "resource";
+	}
 	// parameter values
 	public static final String bindCreate = "bindCreate";
 	public static final String bindAnnot = "bindAnnot";
@@ -154,82 +160,88 @@ public class Annotation extends ServiceAdapter {
 		Response response = null;
 
 		if (request.equals(getPageAnnotationsRequest)) {
-			String urlPage = setHttpPar(urlPageField);
+			String urlPage = setHttpPar(Pars.urlPageField);
 			response = getPageAnnotations(urlPage);
+		} else if(request.equals(getAnnotatedContentResourcesRequest)) {
+			String resource = setHttpPar(Pars.resource);
+			checkRequestParametersAllNotNull(Pars.resource);
+			
+			response = getAnnotatedContentResources(resource);
 		} else if (request.equals(bookmarkPageRequest)) {
-			String pageURL = setHttpPar(urlPageField);
-			String title = setHttpPar(titleField);
-			String topics = setHttpPar(topicsList);
-			checkRequestParametersAllNotNull(urlPageField, titleField, topicsList);
+			String pageURL = setHttpPar(Pars.urlPageField);
+			String title = setHttpPar(Pars.titleField);
+			String topics = setHttpPar(Pars.topicsList);
+			checkRequestParametersAllNotNull(Pars.urlPageField, Pars.titleField, Pars.topicsList);
 			response = bookmarkPage(pageURL, title, topics);
 		} else if (request.equals(getBookmarksByTopicRequest)) {
-			String topicName = setHttpPar(topic);
-			checkRequestParametersAllNotNull(topic);
+			String topicName = setHttpPar(Pars.topic);
+			checkRequestParametersAllNotNull(Pars.topic);
 			response = getBookmarksByTopic(topicName);
 		} else if(request.equals(removeBookmarkRequest)) {
-			String urlPage = setHttpPar(urlPageField);
-			String topic = setHttpPar(Annotation.topic);
-			checkRequestParametersAllNotNull(urlPageField, Annotation.topic);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			String topic = setHttpPar(Pars.topic);
+			checkRequestParametersAllNotNull(Pars.urlPageField, Pars.topic);
 			
 			response = removeBookmark(urlPage, topic);
 		} else if(request.equals(getPageTopicsRequest)) {
-			String urlPage = setHttpPar(urlPageField);
-			checkRequestParametersAllNotNull(urlPageField);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			checkRequestParametersAllNotNull(Pars.urlPageField);
 			response = getPageTopics(urlPage);
 		} else if (request.equals(getAllBookmarksRequest)) {
 			response = getAllBookmarks();
 		} else if (request.equals(chkAnnotationsRequest)) {
-			String urlPage = setHttpPar(urlPageField);
-			checkRequestParametersAllNotNull(urlPageField);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			checkRequestParametersAllNotNull(Pars.urlPageField);
 			response = chkPageForAnnotations(urlPage);
 		} else if (request.equals(chkBookmarksRequest)) {
-			String urlPage = setHttpPar(urlPageField);
-			checkRequestParametersAllNotNull(urlPageField);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			checkRequestParametersAllNotNull(Pars.urlPageField);
 			response = chkBookmarks(urlPage);
 		} else if (request.equals(removeAnnotationRequest)) {
-			String annotQName = setHttpPar(annotQNameString);
+			String annotQName = setHttpPar(Pars.id);
+			checkRequestParametersAllNotNull(Pars.id);
 			response = removeAnnotation(annotQName);
 		} else if (request.equals(createAndAnnotateRequest)) {
 
-			String clsQName = setHttpPar(clsQNameField);
-			String instanceQName = setHttpPar(instanceQNameField);
+			String clsQName = setHttpPar(Pars.clsQNameField);
+			String instanceQName = setHttpPar(Pars.instanceQNameField);
 
-			String urlPage = setHttpPar(urlPageField);
-			String title = setHttpPar(titleField);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			String title = setHttpPar(Pars.titleField);
 
 			response = dragDropSelectionOverClass(instanceQName, clsQName, urlPage, title);
 
 		} else if (request.equals(addAnnotationRequest)) {
-			String urlPage = setHttpPar(urlPageField);
-			String instanceQName = setHttpPar(instanceQNameField);
-			String text = setHttpPar(textString);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			String instanceQName = setHttpPar(Pars.instanceQNameField);
+			String text = setHttpPar(Pars.textString);
 			String textEncoded = servletUtilities.encodeLabel(text);
-			String title = setHttpPar(titleField);
+			String title = setHttpPar(Pars.titleField);
 
 			response = annotateInstanceWithDragAndDrop(instanceQName, textEncoded, urlPage, title);
 
 		} else if (request.equals(relateAndAnnotateRequest)) {
-			String subjectInstanceQName = setHttpPar(instanceQNameField);
-			String predicatePropertyName = setHttpPar(propertyQNameField);
-			String objectInstanceName = setHttpPar(objectQNameField);
+			String subjectInstanceQName = setHttpPar(Pars.instanceQNameField);
+			String predicatePropertyName = setHttpPar(Pars.propertyQNameField);
+			String objectInstanceName = setHttpPar(Pars.objectQNameField);
 			String objectInstanceNameEncoded = servletUtilities.encodeLabel(objectInstanceName);
-			String urlPage = setHttpPar(urlPageField);
-			String title = setHttpPar(titleField);
-			String valueTypeStr = setHttpPar(valueType);
+			String urlPage = setHttpPar(Pars.urlPageField);
+			String title = setHttpPar(Pars.titleField);
+			String valueTypeStr = setHttpPar(Pars.valueType);
 			RDFTypesEnum type = (valueTypeStr == null) ? null : RDFTypesEnum.valueOf(valueTypeStr);
 			String op = setHttpPar("op");
-			checkRequestParametersAllNotNull(instanceQNameField, propertyQNameField, urlPageField, titleField);
+			checkRequestParametersAllNotNull(Pars.instanceQNameField, Pars.propertyQNameField, Pars.urlPageField, Pars.titleField);
 
 			if (op.equals("bindCreate")) {
-				String rangeClsName = setHttpPar(objectClsNameField);
-				String lang = setHttpPar(langField);
+				String rangeClsName = setHttpPar(Pars.objectClsNameField);
+				String lang = setHttpPar(Pars.langField);
 				return bindAnnotatedObjectToNewInstanceAndRelateToDroppedInstance(subjectInstanceQName,
 						predicatePropertyName, objectInstanceNameEncoded, type, rangeClsName, urlPage, title,
 						lang);
 			}
 
 			if (op.equals("bindAnnot")) {
-				String annotation = setHttpPar("lexicalization");
+				String annotation = setHttpPar(Pars.lexicalization);
 				return addNewAnnotationForSelectedInstanceAndRelateToDroppedInstance(subjectInstanceQName,
 						predicatePropertyName, objectInstanceNameEncoded, annotation, urlPage, title);
 			}
@@ -1004,5 +1016,45 @@ public class Annotation extends ServiceAdapter {
 		} while (semanticAnnotationInstance != null);
 		return semanticAnnotationInstanceID.toString();
 	}
+	
+	private Response getAnnotatedContentResources(String resource) {
+		try {
+			OWLModel ontModel = getOWLModel();
+			ARTURIResource artResource = retrieveExistingURIResource(ontModel, resource, getUserNamedGraphs());
+				
+			TupleQuery tupleQuery = ontModel.createTupleQuery(
+// @formatter:off
+"select distinct ?url ?title {\n" +
+"      ?resource <http://art.uniroma2.it/ontologies/annotation#annotation> ?ann .\n" +
+"	   ?ann a <http://art.uniroma2.it/ontologies/annotation#SemanticAnnotation> .\n" +
+"	   ?ann <http://art.uniroma2.it/ontologies/annotation#location> ?page .\n" +
+"	   ?page <http://art.uniroma2.it/ontologies/annotation#title> ?title .\n" +
+"	   ?page <http://art.uniroma2.it/ontologies/annotation#url> ?url .\n" +
+"	}"			
+// @formatter:on
+			);
+			tupleQuery.setBinding("resource", artResource);
+			
+			TupleBindingsIterator it = tupleQuery.evaluate(true);
 
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			
+			try {
+				while (it.hasNext()) {
+					TupleBindings tuple = it.next();
+					Element urlElement = XMLHelp.newElement(dataElement, "URL");
+					urlElement.setAttribute("value", tuple.getBoundValue("url").asLiteral().getLabel());
+					urlElement.setAttribute("title", tuple.getBoundValue("title").asLiteral().getLabel());
+				}
+			} finally {
+				it.close();
+			}
+			
+			return response;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return logAndSendException(e);
+		}
+	}
 }

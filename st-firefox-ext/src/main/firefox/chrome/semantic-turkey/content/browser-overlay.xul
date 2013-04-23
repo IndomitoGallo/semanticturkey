@@ -37,6 +37,10 @@
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/scripts/highlighting.js" />
 	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/lib/rangy-1.2.3/uncompressed/rangy-core.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/lib/rangy-1.2.3/uncompressed/rangy-cssclassapplier.js" />
+	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/utilities/utilities.js" />
 	<script type="application/x-javascript"
 		src="chrome://semantic-turkey/content/system-start/system-start.js" />

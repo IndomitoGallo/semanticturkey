@@ -37,7 +37,7 @@ Components.utils
 		.import("resource://stmodules/stEvtMgr.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Deserializer.jsm", art_semanticturkey);	
 Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
-
+Components.utils.import("resource://stmodules/AnnotationCommons.jsm", art_semanticturkey);
 
 art_semanticturkey.eventListenerArrayObject = null;
 
@@ -377,25 +377,28 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	// Fill the rest of the editor depending on the type of the resource
 	var parentBox = document.getElementById("parentBoxRows");
 	try {
+		var defaultAnnotationFamily = art_semanticturkey.annotation.AnnotationManager.getDefaultFamily();
+		
 		var responseXML;
 		if (type.toLowerCase() == "cls") {
 			responseXML = art_semanticturkey.STRequests.Cls
 					.getClassDescription(sourceElementName, "templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 			// add all the web link of this class
-			responseXML = art_semanticturkey.STRequests.Page
-					.getBookmarks(sourceElementName);
-			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+			if (typeof defaultAnnotationFamily.getAnnotatedContentResources != "undefined") {
+				var annotatedContentResources = defaultAnnotationFamily.getAnnotatedContentResources(sourceElementName);
+				art_semanticturkey.getWebLinks_RESPONSE(annotatedContentResources);
+			}
 		} else if (type.toLowerCase() == "individual") {
 			responseXML = art_semanticturkey.STRequests.Individual
 					.getIndividualDescription(sourceElementName,
 							"templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 			// add all the web link of this instance
-			responseXML = art_semanticturkey.STRequests.Page
-					.getBookmarks(sourceElementName);
-			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
-
+			if (typeof defaultAnnotationFamily.getAnnotatedContentResources != "undefined") {
+				var annotatedContentResources = defaultAnnotationFamily.getAnnotatedContentResources(sourceElementName);
+				art_semanticturkey.getWebLinks_RESPONSE(annotatedContentResources);
+			}
 		} else if (type.toLowerCase() == "ontology") {
 			responseXML = art_semanticturkey.STRequests.Metadata
 					.getOntologyDescription();
@@ -405,9 +408,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 
 			// add all the web link of this instance
-			responseXML = art_semanticturkey.STRequests.Page
-					.getBookmarks(sourceElementName);
-			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+			if (typeof defaultAnnotationFamily.getAnnotatedContentResources != "undefined") {
+				var annotatedContentResources = defaultAnnotationFamily.getAnnotatedContentResources(sourceElementName);
+				art_semanticturkey.getWebLinks_RESPONSE(annotatedContentResources);
+			}
 			
 			responseXML = art_semanticturkey.STRequests.Annotation.getBookmarksByTopic(sourceElementName);
 			art_semanticturkey.getBookmarksByTopic_RESPONSE(responseXML);
@@ -420,9 +424,10 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 					"templateandvalued");
 			art_semanticturkey.getResourceDescription_RESPONSE(responseXML);
 			// add all the web link of this instance
-			responseXML = art_semanticturkey.STRequests.Page
-					.getBookmarks(sourceElementName);
-			art_semanticturkey.getWebLinks_RESPONSE(responseXML);
+			if (typeof defaultAnnotationFamily.getAnnotatedContentResources != "undefined") {
+				var annotatedContentResources = defaultAnnotationFamily.getAnnotatedContentResources(sourceElementName);
+				art_semanticturkey.getWebLinks_RESPONSE(annotatedContentResources);
+			}
 		} else {
 			responseXML = art_semanticturkey.STRequests.Property
 					.getPropertyDescription(sourceElementName);
@@ -439,16 +444,12 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
  * @param {}
  *            responseElement
  */
-art_semanticturkey.getWebLinks_RESPONSE = function(responseElement) {
+art_semanticturkey.getWebLinks_RESPONSE = function(annotatedContentResources) {
 	document.getElementById("webLink").hidden = false;
-	var bookmarksList = responseElement.getElementsByTagName("URL");
 	var rowsBox = document.getElementById("rowsBoxWebLink");
-	for (var i = 0; i < bookmarksList.length; i++) {
-		var linkTitle = bookmarksList[i].getAttribute("title");
-		linkTitle = linkTitle.substring(1, linkTitle.length - 1);	// strip surrounding quotes
-
-		var linkUrl = bookmarksList[i].getAttribute("value");
-		linkUrl = linkUrl.substring(1, linkUrl.length - 1);	// strip surrounding quotes
+	for (var i = 0; i < annotatedContentResources.length; i++) {
+		var linkTitle = annotatedContentResources[i].title;
+		var linkUrl = annotatedContentResources[i].value;
 
 		var row = document.createElement("row");
 

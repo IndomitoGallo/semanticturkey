@@ -71,6 +71,7 @@ function addAnnotation(resource, lexicalization, urlPage, title, range) {
 
 	return responseXML;
 }
+
 /**
  * 
  * @member STRequests.RangeAnnotation
@@ -85,7 +86,7 @@ function deleteAnnotation(id) {
 	if (!responseXML.isFail()) {
 		var annotation;
 		
-		evtMgr.fireEvent("rangeAnnotationDeleted", {
+		evtMgr.fireEvent("annotationDeleted", {
 			getId : function(){return id;}
 		});
 	}
@@ -93,8 +94,35 @@ function deleteAnnotation(id) {
 	return responseXML;
 }
 
+/**
+ * 
+ * @member STRequests.RangeAnnotation
+ * @param resource
+ * @return
+ */
+function getAnnotatedContentResources(resource) {
+	var resource_p = "resource=" + resource;
+
+	var responseXML = HttpMgr.GET(serviceName, service.getAnnotatedContentResourcesRequest, resource_p);
+	
+	var response = [];
+	
+	var urlElements = responseXML.getElementsByTagName("URL");
+	
+	for (var i = 0 ; i < urlElements.length ; i++) {
+		var obj = {};
+		obj.title = urlElements[i].getAttribute("title");
+		obj.value = urlElements[i].getAttribute("value");
+		
+		response.push(obj);
+	}
+
+	return response;
+}
+
 // Range Annotation SERVICE INITIALIZATION
 service.chkAnnotation = chkAnnotation;
 service.getPageAnnotations = getPageAnnotations;
 service.addAnnotation = addAnnotation;
 service.deleteAnnotation = deleteAnnotation;
+service.getAnnotatedContentResources = getAnnotatedContentResources;
