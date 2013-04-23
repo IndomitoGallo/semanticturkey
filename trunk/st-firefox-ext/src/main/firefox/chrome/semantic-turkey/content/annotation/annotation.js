@@ -49,59 +49,59 @@ Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semant
  * @return
  */
 art_semanticturkey.contentLoadedHook = function(event) {
-	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
+	try {
+		var projectIsNull = art_semanticturkey.CurrentProject.isNull();
 
-	if (projectIsNull == false) {
-		var event2 = {
-			name : "contentLoaded",
-			contentId : gBrowser.selectedBrowser.currentURI.spec
-		};
-		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event2, function() {
-			art_semanticturkey.tabSelectHook();
-		});
+		if (projectIsNull == false) {
+			var event2 = {
+				name : "contentLoaded",
+				document : gBrowser.contentDocument
+			};
+			art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event2);
+			art_semanticturkey.checkAnnotationsForContent_RESPONSE(event2.document);
+		}
+	} catch (e) {
+		alert(e.message);
 	}
 };
 
-art_semanticturkey.tabSelectHook = function(even) {
+art_semanticturkey.tabSelectHook = function(event) {
+	art_semanticturkey.checkAnnotationsForContent_RESPONSE(event.target);
+};
+
+art_semanticturkey.checkAnnotationsForContent_RESPONSE = function(doc) {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
-	var chkAnn = art_semanticturkey.Preferences.get("extensions.semturkey.annotation.checkAnnotation", true);
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);	
-	var familyId = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-	var family = art_semanticturkey.annotation.AnnotationManager.getFamily(familyId);
-	
-	if (projectIsNull == false && chkAnn == true && (typeof family.checkAnnotationsForContent != "undefined")) {
-		var doc = gBrowser.contentDocument;
-		var list = doc.getElementsByTagName("div");
 
-		art_semanticturkey.Logger.debug("doc: " + gBrowser.selectedBrowser.currentURI.spec);
-		art_semanticturkey.Logger.debug("list: " + list.length);
-
-		var url = gBrowser.selectedBrowser.currentURI.spec;
-		var act = family.checkAnnotationsForContent(url);
+	if (projectIsNull == false && (doc.getUserData("stAnnotationsExist") == "true")) {
 		var statusIcon = document.getElementById("status-bar-annotation");
-		statusIcon.collapsed = !act;
+		statusIcon.collapsed = false;
+	} else {
+		var statusIcon = document.getElementById("status-bar-annotation");
+		statusIcon.collapsed = true;
 	}
 };
 
 art_semanticturkey.viewAnnotationOnPage = function() {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-	var familyId = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-	var family = art_semanticturkey.annotation.AnnotationManager.getFamily(familyId);
-	
-	var contentId = gBrowser.selectedBrowser.currentURI.spec;
-	
-	if (typeof family.getAnnotationsForContent != "undefined") {
-		var annotations = family.getAnnotationsForContent(contentId);
-				
-		if (typeof family.decorateContent != "undefined") {
-			family.decorateContent(gBrowser.contentDocument, annotations);
+	try {
+		var defaultFamily = art_semanticturkey.annotation.AnnotationManager.getDefaultFamily();
+
+		var contentId = gBrowser.selectedBrowser.currentURI.spec;
+
+		if (typeof defaultFamily.getAnnotationsForContent != "undefined") {
+			var annotations = defaultFamily.getAnnotationsForContent(contentId);
+
+			if (typeof defaultFamily.decorateContent != "undefined") {
+				defaultFamily.decorateContent(gBrowser.contentDocument, annotations);
+			} else {
+				throw new Error("Missing function decorateContent in family \"" + defaultFamily.getLabel()
+						+ "\"");
+			}
 		} else {
-			alert("Missing function decorateContent in family \"" + family.getLabel() + "\"");			
+			throw new Error("Missing function getAnnotationsForContent in family \""
+					+ defaultFamily.getLabel() + "\"");
 		}
-	} else {
-		alert("Missing function getAnnotationsForContent in family \"" + family.getLabel() + "\"");
+	} catch (e) {
+		alert(e.message);
 	}
 };
 

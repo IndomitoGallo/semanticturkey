@@ -92,7 +92,11 @@ art_semanticturkey.classDragDrop = function(domEvent) {
 	event.selection = selectedRange;
 	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
 
-	art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
+	try {
+		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
+	} catch(e) {
+		alert(e.message);
+	}
 };
 
 art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectClass,event) {
@@ -148,5 +152,9 @@ art_semanticturkey.instanceDragDrop = function(domEvent) {
 	event.selection = selectedRange;
 	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
 	
-	art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
+	try {
+		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
+	} catch(e) {
+		alert(e.message);
+	}
 };

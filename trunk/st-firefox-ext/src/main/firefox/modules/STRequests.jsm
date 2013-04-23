@@ -176,6 +176,8 @@ STRequests.Annotation.bookmarkPageRequest = "bookmarkPage";
 STRequests.Annotation.getPageTopicsRequest = "getPageTopics";
 STRequests.Annotation.getBookmarksByTopicRequest = "getBookmarksByTopic";
 STRequests.Annotation.removeBookmarkRequest = "removeBookmark";
+STRequests.Annotation.removeAnnotationRequest = "removeAnnotation";
+STRequests.Annotation.getAnnotatedContentResourcesRequest = "getAnnotatedContentResources";
 
 //rangeannotation service request
 STRequests.RangeAnnotation.serviceName = "rangeannotation";
@@ -183,6 +185,7 @@ STRequests.RangeAnnotation.chkAnnotationsRequest = "chkAnnotations";
 STRequests.RangeAnnotation.getPageAnnotationsRequest = "getPageAnnotations";
 STRequests.RangeAnnotation.addAnnotationRequest = "addAnnotation";
 STRequests.RangeAnnotation.deleteAnnotationRequest = "deleteAnnotation";
+STRequests.RangeAnnotation.getAnnotatedContentResourcesRequest = "getAnnotatedContentResources";
 
 // individual service request
 STRequests.Individual.serviceName = "individual";

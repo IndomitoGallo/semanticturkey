@@ -1,6 +1,7 @@
 EXPORTED_SYMBOLS = [ "annotation" ];
 
 Components.utils.import("resource://stmodules/Logger.jsm");
+Components.utils.import("resource://stmodules/Preferences.jsm");
 
 if (typeof annotation == "undefined") {
 	var annotation = {};
@@ -10,107 +11,114 @@ annotation.AnnotationManager = (function() {
 	var self = {};
 
 	var families = {};
+	
+	self.createFamily = function(familyId) {
+		if (typeof families[familyId] == "undefined") {
+			var family = new annotation.Family(familyId);
+			families[familyId] = family;
+			return family;
+		} else {
+			throw new Error("Cannot create family \"" + familyId
+					+ "\". A family with that name already exists");
+		}
+	};
 
-	self.getFamily = function(familyId, creationAllowed) {
-		Logger.debug("Requested family \"" + familyId + "\"");
+	self.getFamily = function(familyId) {
 
 		var family = families[familyId];
-		
-		if (typeof family == "undefined" && creationAllowed) {
-			family = families[familyId] = new annotation.Family(familyId);
-			Logger.debug("Created new family");
+
+		if (typeof family == "undefined") {
+			throw new Error("Family \"" + familyId + "\" does not exist");
 		}
 		
 		return family;
 	};
-	
+
 	self.getFamilies = function() {
 		return families;
 	};
 	
-	self.handleEvent = function(parentWindow, event, fallback) {	
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-		                      .getService(Components.interfaces.nsIPrefBranch);
-		var familyId = prefs.getCharPref("extensions.semturkey.extpt.annotate");
-		
-		if (typeof families[familyId] != "undefined") {
-			var family = families[familyId];
-			var handlers = getSuitableHandlers(familyId, event);
+	self.getDefaultFamily = function() {
+		var defaultFamilyId = Preferences.get("extensions.semturkey.extpt.annotate");
 
-			if (handlers.length == 0) {
-				if (typeof fallback != "undefined") {
-					fallback(event);
-				} else {
-					parentWindow.alert("No registered or enabled functions for this event");
-				}
-			} else if (handlers.length == 1) {
-				var fun = handlers[0].getBody();
-				fun.call(family, event, parentWindow);
-			} else {
-					var parameters = {};
-					parameters.event = event;
-					parameters.family = family;
-					parameters.handlers = handlers;
-					var win = parentWindow.openDialog("chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul", "dlg", "modal=yes,resizable,centerscreen", parameters);			
-			}
+		if (typeof defaultFamilyId == "undefined") {
+			throw new Error("No default annotation family has been set");
+		}
+		
+		var family = families[defaultFamilyId];
+		
+		if (typeof family == "undefined") {
+			throw new Error("Default family \"" + defaultFamilyId + "\" has not been registered");
+		}
+		
+		return family;
+	};
+
+	self.handleEvent = function(parentWindow, event, fallback) {
+		var family = self.getDefaultFamily();
+
+		var handlers = getSuitableHandlers(family, event);
+
+		if (handlers.length == 0) {
+			throw new Error("No registered or enabled functions for this event");			
+		} else if (handlers.length == 1) {
+			var fun = handlers[0].getBody();
+			fun.call(family, event, parentWindow);
 		} else {
-			if (typeof fallback != "undefined") {
-				fallback(event);
-			} else {
-				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-		                                .getService(Components.interfaces.nsIPromptService);
-				prompts.alert(null, familyName
-						+ " annotation family not registered ", familyName
-						+ " not registered annotation type reset to bookmarking");
-				prefs.setCharPref("extensions.semturkey.extpt.annotate", "bookmarking");
-			}
+			var parameters = {};
+			parameters.event = event;
+			parameters.family = family;
+			parameters.handlers = handlers;
+			var win = parentWindow.openDialog(
+					"chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul",
+					"dlg", "modal=yes,resizable,centerscreen", parameters);
 		}
 	};
-	
-	var getSuitableHandlers = function(familyId, event) {
-		var family = families[familyId];
+
+	var getSuitableHandlers = function(family, event) {
 		var eventHandlerMap = family.getEventHandlerMap();
 		var candidateHandlers = eventHandlerMap[event.name];
-		
+
 		var result = [];
-		
-		for (var i = 0 ; i < candidateHandlers.length ; i++) {
+
+		for ( var i = 0; i < candidateHandlers.length; i++) {
 			var handler = candidateHandlers[i];
-			
+
 			if (handler.isEnabled() && handler.getPrecondition()(event)) {
 				result.push(handler);
 			}
 		}
-		
+
 		return result;
 	};
-	
+
 	return self;
 })();
 
-// Handlers and functions are meant to be invoked in the scope of a family, i.e. this instanceof Family
+// Handlers and functions are meant to be invoked in the scope of a family, i.e.
+// this instanceof Family
 annotation.Family = function(familyId) {
 	var self = {};
 
 	var name;
 	var description;
-	
+
 	self.getLabel = function() {
 		return familyId;
 	};
-	
+
 	self.setName = function(name) {
 		self.name = name;
 	};
-	
+
 	self.getName = function() {
 		return self.name;
 	};
-	
+
 	self.setDescription = function(description) {
 		self.description = description;
 	};
-	
+
 	self.getDescription = function() {
 		return self.description;
 	};
@@ -123,7 +131,7 @@ annotation.Family = function(familyId) {
 	self.addSelectionOverResourceHandler = function(label, body, precondition) {
 		return addEventHandler("selectionOverResource", label, body, precondition);
 	};
-	
+
 	self.addResourceOverContentHandler = function(label, body, precondition) {
 		return addEventHandler("resourceOverContent", label, body, precondition);
 	};
@@ -142,19 +150,19 @@ annotation.Family = function(familyId) {
 		eventHandlerMap[eventName] = eventHandlerMap[eventName].splice(eventHandlerMap[eventName]
 				.indexOf(handler), 1);
 	};
-	
+
 	self.getEventHandlerMap = function() {
 		return eventHandlerMap;
 	};
 
 	self.checkAnnotationsForContent = undefined;
-	
+
 	self.getAnnotationsForContent = undefined;
-	
+
 	self.getAnnotationsForResource = undefined;
-	
+
 	self.decorateContent = undefined;
-	
+
 	self.deleteAnnotation = undefined;
 
 	self.furtherAnn = undefined;
@@ -164,29 +172,29 @@ annotation.Family = function(familyId) {
 
 annotation.EventHandler = function(label, body, precondition) {
 	var enabled = true;
-	
+
 	var self = this;
-	
+
 	if (typeof precondition == "undefined") {
 		var precondition = annotation.Preconditions.Role.Any;
 	}
-	
+
 	this.getLabel = function() {
 		return label;
 	};
-	
+
 	this.isEnabled = function() {
 		return enabled;
 	};
-	
+
 	this.setEnabled = function(isEnabled) {
 		enabled = isEnabled;
 	};
-	
+
 	this.getBody = function() {
 		return body;
 	};
-	
+
 	this.getPrecondition = function() {
 		return precondition;
 	};
@@ -194,13 +202,13 @@ annotation.EventHandler = function(label, body, precondition) {
 
 annotation.Preconditions = {};
 annotation.Preconditions.Role = {
-		Cls : function(event) {
-			return event.resource.getRole() == "cls";
-		},
-		Concept : function(event) {
-			return event.resource.getRole() == "concept";
-		},
-		Any : function(event) {
-			return true;
-		}
+	Cls : function(event) {
+		return event.resource.getRole() == "cls";
+	},
+	Concept : function(event) {
+		return event.resource.getRole() == "concept";
+	},
+	Any : function(event) {
+		return true;
+	}
 };

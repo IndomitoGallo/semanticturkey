@@ -352,6 +352,54 @@ function removeBookmark(urlPage, topic) {
 	return reply;
 }
 
+/**
+ * 
+ * @member STRequests.RangeAnnotation
+ * @param id
+ * @return
+ */
+function removeAnnotation(id) {
+	var id_p = "id=" + id;
+
+	var responseXML = HttpMgr.GET(serviceName, service.removeAnnotationRequest, id_p);
+	
+	if (!responseXML.isFail()) {
+		var annotation;
+		
+		evtMgr.fireEvent("annotationDeleted", {
+			getId : function(){return id;}
+		});
+	}
+
+	return responseXML;
+}
+
+/**
+ * 
+ * @member STRequests.Annotation
+ * @param resource
+ * @return
+ */
+function getAnnotatedContentResources(resource) {
+	var resource_p = "resource=" + resource;
+
+	var responseXML = HttpMgr.GET(serviceName, service.getAnnotatedContentResourcesRequest, resource_p);
+	
+	var response = [];
+	
+	var urlElements = responseXML.getElementsByTagName("URL");
+	
+	for (var i = 0 ; i < urlElements.length ; i++) {
+		var obj = {};
+		obj.title = urlElements[i].getAttribute("title");
+		obj.value = urlElements[i].getAttribute("value");
+		
+		response.push(obj);
+	}
+
+	return response;
+}
+
 // Annotation SERVICE INITIALIZATION
 service.chkAnnotation = chkAnnotation;
 service.chkBookmarks = chkBookmarks;
@@ -365,3 +413,5 @@ service.bookmarkPage=bookmarkPage;
 service.getPageTopics=getPageTopics;
 service.getBookmarksByTopic=getBookmarksByTopic;
 service.removeBookmark=removeBookmark;
+service.removeAnnotation = removeAnnotation;
+service.getAnnotatedContentResources = getAnnotatedContentResources;

@@ -63,9 +63,13 @@ art_semanticturkey.onAccept = function() {
 	var parentWindow = window.arguments[0].parentWindow;
 	var fun = handlers[sindex].getBody();
 	
-	var family = window.arguments[0].family;
-	fun.call(family, event, parentWindow);
-
+	try {
+		var family = window.arguments[0].family;
+		fun.call(family, event, parentWindow);
+	} catch(e) {
+		alert(e.message);
+	}
+	
 	close();
 };
 
