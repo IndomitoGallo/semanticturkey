@@ -210,7 +210,35 @@ window.onload = function() {
 	catch (e) {
 		alert(e.name + ": " + e.message);
 	}
+	
+	// Simulates a click on the first row of the class tree. It turns that this action cannot be performed
+	// within the event handler for the load event. Therefore, the action is delayed until the window is
+	// actually shown, by means of a window.setTimeout(..., 0).
+	window.setTimeout(function(){
+		var ep_tree = document.getElementById("ep_classesTree");
+		art_semanticturkey.simulateClickOnTree(ep_tree, 0);
+	},0);
 };
+
+art_semanticturkey.simulateClickOnTree = function(tree, index) {
+	if (index < tree.view.rowCount) {
+		var x = {}, y = {}, width = {}, height = {};
+		var column = tree.columns[0];
+		tree.boxObject.getCoordsForCellItem(0, column, "text", x, y, width, height );
+		
+		var treeBody = tree.boxObject.treeBody;
+				
+		x = x.value + treeBody.boxObject.x;
+		y = y.value + treeBody.boxObject.y;
+		
+		
+		var req = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+		var utils = req.getInterface(Components.interfaces.nsIDOMWindowUtils);
+		utils.sendMouseEvent("mousedown", x, y, 0, 1, 0);
+		utils.sendMouseEvent("mouseup", x, y, 0, 1, 0);		
+	}
+};
+
 art_semanticturkey.ep_classesTreeClick = function(e) {
 	// We always need to perform the following operations, otherwise the class tree gets frozen
 	var ep_tree = document.getElementById("ep_classesTree");
@@ -227,7 +255,7 @@ art_semanticturkey.ep_classesTreeClick = function(e) {
 		
 		var addButton = document.getElementById("Add");
 		addButton.setAttribute("label", clsHandl.getAddLabel());
-	}
+	}	
 };
 /**
  * @author NScarpato 10/03/2008 setPanel
@@ -309,6 +337,10 @@ art_semanticturkey.showAllClasses = function() {
 			alert(e.name + ": " + e.message);
 		}
 	}
+	
+	// Simulate a click on the first row of the newly created class tree
+	var ep_tree = document.getElementById("ep_classesTree");
+	art_semanticturkey.simulateClickOnTree(ep_tree, 0);
 };
 art_semanticturkey.onCancel = function() {
 	window.arguments[0].oncancel = true;
