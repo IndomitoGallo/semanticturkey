@@ -59,6 +59,10 @@ annotation.commons.handlers.valueForProperty = function(event) {
 
 	parameters.functors.addAnnotation = this.furtherAnn.bind(this);
 
+	// A Browser Window: needed for accessing eventObjects and rangy (because
+	// they are not modules)
+	var window = Services.wm.getMostRecentWindow("navigator:browser");
+
 	window.openDialog("chrome://semantic-turkey/content/class/annotator/annotator.xul", "_blank",
 			"modal=yes,resizable,centerscreen", parameters);
 };

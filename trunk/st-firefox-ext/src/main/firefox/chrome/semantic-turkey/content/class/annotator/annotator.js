@@ -113,7 +113,7 @@ art_semanticturkey.showAllProperties = function() {
 		}
 		try {
 			responseXML = art_semanticturkey.STRequests.Individual.getIndividualDescription(
-					window.arguments[0].subjectInstanceName, "template");
+					window.arguments[0].subject, "template");
 			art_semanticturkey.getIndividualDescription_RESPONSE(responseXML);
 		} catch (e) {
 			alert(e.name + ": " + e.message);
