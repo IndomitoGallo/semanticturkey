@@ -263,7 +263,23 @@ CommandBroker.offerCommand("skos:concept*edit",
 								
 				if (obj.out == null) return;
 				
-				var responseXML=STRequests.SKOS.createConcept(obj.out.name, null, host.conceptScheme, obj.out.prefLabel.valueOf(), obj.out.prefLabel.language);
+				var prefLabel = obj.out.prefLabel.valueOf();
+				var prefLabelLanguage = obj.out.prefLabel.language;
+				
+				prefLabel = prefLabel.trim();
+				
+				if (prefLabel == "") {
+					prefLabel = null;
+					prefLabelLanguage = null;
+				}
+				
+				var language = null;
+				
+				if (Preferences.get("extensions.semturkey.skos.humanReadable", false)) {
+					language = Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
+				}
+				
+				var responseXML=STRequests.SKOS.createConcept(obj.out.name, null, host.conceptScheme, prefLabel, prefLabelLanguage, language);
 			}catch (e) {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
@@ -308,7 +324,23 @@ CommandBroker.offerCommand("skos:concept*edit",
 				
 				if (obj.out == null) return;
 				
-				var responseXML=STRequests.SKOS.createConcept(obj.out.name, conceptQName, host.conceptScheme, obj.out.prefLabel.valueOf(), obj.out.prefLabel.language);
+				var prefLabel = obj.out.prefLabel.valueOf();
+				var prefLabelLanguage = obj.out.prefLabel.language;
+				
+				prefLabel = prefLabel.trim();
+				
+				if (prefLabel == "") {
+					prefLabel = null;
+					prefLabelLanguage = null;
+				}
+				
+				var language = null;
+				
+				if (Preferences.get("extensions.semturkey.skos.humanReadable", false)) {
+					language = Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
+				}
+				
+				var responseXML=STRequests.SKOS.createConcept(obj.out.name, conceptQName, host.conceptScheme, prefLabel, prefLabelLanguage, language);
 			}catch (e) {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);
@@ -403,7 +435,24 @@ CommandBroker.offerCommand("skos:scheme*edit",
 								
 				if (obj.out == null) return;
 				
-				var responseXML=STRequests.SKOS.createScheme(obj.out.name, obj.out.prefLabel.valueOf(), obj.out.prefLabel.language);
+				var prefLabel = obj.out.prefLabel.valueOf();
+				var prefLabelLanguage = obj.out.prefLabel.language;
+				
+				prefLabel = prefLabel.trim();
+				
+				if (prefLabel == "") {
+					prefLabel = null;
+					prefLabelLanguage = null;
+				}
+				
+				var language = null;
+				
+				if (Preferences.get("extensions.semturkey.skos.humanReadable", false)) {
+					language = Preferences.get("extensions.semturkey.annotprops.defaultlang", "en");
+				}
+
+				
+				var responseXML=STRequests.SKOS.createScheme(obj.out.name, prefLabel, prefLabelLanguage, language);
 			}catch (e) {
 				var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
 				prompts.alert(null,"Exception", e.name + ": " + e.message);

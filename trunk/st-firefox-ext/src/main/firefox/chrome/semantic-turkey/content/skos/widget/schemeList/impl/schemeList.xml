@@ -71,7 +71,12 @@
 				this._view.sourceAdapter.fetchRoots = function() {
 						var deserializedResponse = null;
 						try{
-							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en"));
+							var language = null;
+							if (isHumanReadable) {
+								language = bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en");
+							}
+						
+							deserializedResponse=bound.art_semanticturkey.STRequests.SKOS.getAllSchemesList(language);
 						}catch (e) {
 							return [];
 						}
@@ -86,16 +91,18 @@
 
 				this._view.provider.getLabel = function(row, col) {
 					if (col.id != "name") {
-						return this._view.__proto__.getLabel(row, col);
+						return bound._view.__proto__.getLabel(row, col);
 					}
 					
-					if (isHumanReadable) {
-						if (row.record["label"].trim() != "") {
-							return row.record["label"];
-						}
-					}								
-					
-					return row.record["name"];
+//					if (isHumanReadable) {
+//						if (row.record["label"].trim() != "") {
+//							return row.record["label"];
+//						}
+//					}								
+//					
+//					return row.record["name"];
+
+					return row.record["label"];
 				};
 
 				this._view.provider.getImageURL = function(row, col) {
@@ -146,15 +153,32 @@
 				this.stEventArray = new this.art_semanticturkey.eventListenerArrayClass();
 
 				this.stEventArray.addEventListenerToArrayAndRegister("resourceRenamed", function(eventId, resourceRenamedObj) {
+					var newLabel = null;
+					
+					if (!isHumanReadable) {
+						try {
+							newLabel = bound.art_semanticturkey.STRequests.SKOS.getShow(resourceRenamedObj.getNewName());
+						} catch(e) {
+							alert(e);
+						}
+					}
+										
 					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
 						if (bound._view.visibleRows2[i].id == resourceRenamedObj.getOldName()) {
 							bound._view.visibleRows2[i].id = resourceRenamedObj.getNewName();
+							
+							if (newLabel != null) {
+								bound._view.visibleRows2[i].record["label"] = newLabel;
+							}
+							
 							bound._view.invalidateRow(i);
 						}
 					}
 				}, null);
 				
 				this.stEventArray.addEventListenerToArrayAndRegister("skosPrefLabelSet", function(eventId, skosPrefLabelSetObj) {
+					if (!isHumanReadable) return;
+					
 					if (skosPrefLabelSetObj.getLang() != bound.art_semanticturkey.Preferences.get("extensions.semturkey.annotprops.defaultlang" ,"en")) {
 						return;
 					}
@@ -171,9 +195,19 @@
 						return;
 					}
 					
+					if (!isHumanReadable) return;
+					
+					var newLabel = "";
+					try {
+						newLabel = bound.art_semanticturkey.STRequests.SKOS.getShow(skosPrefLabelRemovedObj.getConceptName());
+					} catch(e) {
+						alert(e);
+					}
+					
+					
 					for (var i = 0 ; i < bound._view.visibleRows2.length ; i++) {
 						if (bound._view.visibleRows2[i].id == skosPrefLabelRemovedObj.getConceptName()) {
-							bound._view.visibleRows2[i].record.label = "";
+							bound._view.visibleRows2[i].record["label"] = newLabel;
 							bound._view.invalidateRow(i);
 						}
 					}
@@ -205,8 +239,7 @@
 				
 				var setHumanReadable = function(flag) {
 					isHumanReadable = flag;
-					
-					bound._view.invalidate();
+					bound._view.reload();
 				};
 				
 				this.prefListener = new this.art_semanticturkey.PrefListener("extensions.semturkey.", function(branch, name){

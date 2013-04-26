@@ -32,8 +32,14 @@
 				var prefs = new Preferences("extensions.semturkey.annotprops.");
 				var langs = prefs.get("langs","en").split(",").sort();
 				var defaultLang = prefs.get("defaultlang","en");
+	
+				var delta = 0;
+	
+				if (this.getAttribute("requireslanguage") != "true") {
+					langTagBox.appendItem("--", "", "");
+					delta = 1;
+				}
 				
-				langTagBox.appendItem("--", "", "");
 				
 				for (var i = 0 ; i < langs.length ; i++) {
 					langTagBox.appendItem(langs[i], langs[i], "");
@@ -42,7 +48,7 @@
 				var index = langs.indexOf(defaultLang);
 				
 				if (index != -1) {
-					langTagBox.selectedIndex = index + 1;
+					langTagBox.selectedIndex = index + delta;
 				} else {
 					langTagBox.selectedIndex = 0;
 				}

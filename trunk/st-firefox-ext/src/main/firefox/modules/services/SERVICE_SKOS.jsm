@@ -15,14 +15,15 @@ var serviceName = service.serviceName;
  * 
  * @member STRequests.SKOS
  * @param scheme the concept scheme QName
- * @param lang the default language
+ * @param language the default language
  * @return
  */
-function getTopConcepts(scheme,lang) {
+function getTopConcepts(scheme,language) {
 	Logger.debug('[SERVICE_SKOS.jsm] getTopConcepts');
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
-	var lang_p = "lang=" + lang;
-	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,lang_p));
+	var language_p = language != null ? "language=" + language : "";
+
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,language_p));
 }
 
 /**
@@ -31,29 +32,31 @@ function getTopConcepts(scheme,lang) {
  * @member STRequests.SKOS
  * @param concept the concept QName
  * @param scheme the scheme QName
- * @param lang the default language
+ * @param language the default language
  * @return
  */
-function getNarrowerConcepts(concept, scheme, lang) {
+function getNarrowerConcepts(concept, scheme, language) {
 	Logger.debug('[SERVICE_SKOS.jsm] getNarrowerConcepts');
 	var concept_p = "concept=" + concept;
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var treeView_p ="treeView=true";
-	var lang_p = "lang=" + lang;
-	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, lang_p));
+	var language_p = language != null ? "language=" + language : "";
+
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, language_p));
 }
 
 /**
  * Gets the list of all schemes.
  * 
  * @member STRequests.SKOS
- * @param lang the default language
+ * @param language the default language
  * @return
  */
-function getAllSchemesList(lang) {
-	Logger.debug('[SERVICE_SKOS.jsm] getAllSchemesList: langTag (' + lang + ')');
-	var lang_p = "lang=" + lang;
-	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, lang_p));
+function getAllSchemesList(language) {
+	Logger.debug('[SERVICE_SKOS.jsm] getAllSchemesList');
+	var language_p = language != null ? "language=" + language : "";
+
+	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, language_p));
 }
 
 //TODO fix with the new normalized answer
@@ -166,17 +169,19 @@ function removeTopConcept(scheme, concept) {
  * @param concept the concept QName
  * @param scheme the scheme QName, where the concept will be added to
  * @param prefLabel the preferred label
- * @param prefLabelLanguage the preferred label language
+ * @param prefLabel Language the preferred label language
+ * @param language the default language
  * @return
  */
-function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLanguage) {
+function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLanguage, language) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = (broaderConcept != null) ? ("broaderConcept=" + broaderConcept) : "";
 	var scheme_p = "scheme=" + scheme;
-	var prefLabel_p = "prefLabel=" + prefLabel;
-	var prefLabelLanguage_p = "lang=" + prefLabelLanguage;
+	var prefLabel_p = prefLabel != null ? "prefLabel=" + prefLabel : "";
+	var prefLabelLanguage_p = prefLabelLanguage != null ? "lang=" + prefLabelLanguage : "";
+	var language_p = language != null ? "language=" + language : "";
 	
-	var reply = HttpMgr.GET(serviceName, service.createConceptRequest, concept_p, broaderConcept_p, scheme_p, prefLabel_p, prefLabelLanguage_p);
+	var reply = HttpMgr.GET(serviceName, service.createConceptRequest, concept_p, broaderConcept_p, scheme_p, prefLabel_p, prefLabelLanguage_p, language_p);
 
 	var uriValue = Deserializer.createURI(reply);
 	
@@ -201,15 +206,17 @@ function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLang
  * @param scheme the concept scheme QName
  * @param prefLabel the concept scheme preferred label
  * @param prefLabelLanguage the preferred label language
+ * @param language the default language
  * @return
  */
-function createScheme(scheme, prefLabel, prefLabelLanguage) {
+function createScheme(scheme, prefLabel, prefLabelLanguage, language) {
 	Logger.debug('[SERVICE_SKOS.jsm] createScheme');
 	var scheme_p = "scheme=" + scheme;
-	var prefLabel_p = "prefLabel=" + prefLabel;
-	var prefLabelLanguage_p = "lang=" + prefLabelLanguage;
+	var prefLabel_p = prefLabel != null ? "prefLabel=" + prefLabel : "";
+	var prefLabelLanguage_p = prefLabelLanguage != null ? "lang=" + prefLabelLanguage : "";
+	var language_p = language != null ? "language=" + language : "";
 	
-	var reply = HttpMgr.GET(serviceName, service.createSchemeRequest,scheme_p, prefLabel_p,prefLabelLanguage_p);
+	var reply = HttpMgr.GET(serviceName, service.createSchemeRequest,scheme_p, prefLabel_p,prefLabelLanguage_p, language_p);
 	
 	var uriValue = Deserializer.createURI(reply);
 	
@@ -307,6 +314,16 @@ function removePrefLabel(concept, label, lang) {
 	return reply;
 }
 
+function getShow(resourceName, language) {
+	var resourceName_p = "resourceName=" + resourceName;
+	var language_p = language != null ? "language=" + language : "";	
+	
+	var reply = HttpMgr.GET(serviceName, service.getShowRequest, resourceName_p, language_p);
+	
+	return reply.getElementsByTagName("show")[0].getAttribute("value");
+}
+
+
 // SKOS SERVICE INITIALIZATION
 service.getTopConcepts = getTopConcepts;
 service.getAllSchemesList = getAllSchemesList;
@@ -314,6 +331,7 @@ service.getNarrowerConcepts = getNarrowerConcepts;
 service.getConceptDescription = getConceptDescription;
 service.getConceptSchemeDescription = getConceptSchemeDescription;
 service.getPrefLabel = getPrefLabel;
+service.getShow = getShow;
 
 service.addBroaderConcept = addBroaderConcept;
 service.addTopConcept = addTopConcept;

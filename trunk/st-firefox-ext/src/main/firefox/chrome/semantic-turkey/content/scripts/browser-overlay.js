@@ -724,7 +724,11 @@ art_semanticturkey.skosStateManagemenet.resourceRenamed = function(eventId, reso
 	var newName = resourceRenamedObj.getNewName();
 	
 	if (oldName == art_semanticturkey.skosStateManagemenet.selectedScheme) {
-		art_semanticturkey.STRequests.Projects.setProjectProperty("skos.selected_scheme", newName);
+		art_semanticturkey.STRequests.Projects.setProjectProperty("skos.selected_scheme", newName, {
+			getName : function() {
+				return "rename";
+			}
+		});
 	}
 };
 art_semanticturkey.skosStateManagemenet.schemeRemoved = function(eventId, skosSchemeRemovedObj) {

@@ -217,8 +217,13 @@
 				};
 				
 				this.getCellValue = function(row, col) {
-					if (col.id == "checked") Logger.debug(row + "/" + this.provider.getValue(visibleRows[row], col));
-				
+					if (col.id == "check") {
+						if (typeof visibleRows[row].record["check"] != "undefined") {
+							return visibleRows[row].record["check"];
+						} else {
+							return false;
+						}
+					}		
 					return this.provider.getValue(visibleRows[row], col);
 				};
 				
@@ -292,7 +297,8 @@
 						treeBoxObject.rowCountChanged(0, -delta);						
 					}
 					
-					treeBoxObject.view.selection.clearSelection();					
+					treeBoxObject.view.selection.clearSelection();
+					this.invalidate();				
 				}
 				
 				this.invalidateRow = function(rowIndex) {
