@@ -37,6 +37,8 @@ art_semanticturkey.JavaFirefoxSTBridge.initialize = function() {
 									+ semTurkeyBridge.wrappedJSObject.error);
 		}
 		// art_semanticturkey.evtMgr.fireEvent("st_started");
+		
+		art_semanticturkey.registerAnnotationFamilies();
 	} catch (e) {
 		art_semanticturkey.JavaFirefoxSTBridge._fail(e);
 		art_semanticturkey.Logger.printException(e);
@@ -185,5 +187,4 @@ art_semanticturkey.annotation.rangeannotation.furtherAnn = function(event) {
 
 // //Conventional functions for the range annotation family (END)
 
-art_semanticturkey.registerAnnotationFamilies();
 // art_semanticturkey.JavaFirefoxSTBridge.initialize();
