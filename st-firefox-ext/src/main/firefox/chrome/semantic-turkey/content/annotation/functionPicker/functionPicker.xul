@@ -21,10 +21,12 @@
 
 <window id="dragdropskosconcept" title="Choose a function"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="250" height="190">
+	width="450" height="190">
 	
 	<script type="application/x-javascript"
 		src="functionPicker.js" />
+
+	<label id="headerLabel" value="Use {source-text}" crop="end"/>
 
 	<hbox flex="1" orient="vertical" style="overflow:auto">
 		<radiogroup id="group">
