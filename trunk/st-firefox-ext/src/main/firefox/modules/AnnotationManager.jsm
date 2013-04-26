@@ -128,20 +128,20 @@ annotation.Family = function(familyId) {
 	eventHandlerMap["resourceOverContent"] = [];
 	eventHandlerMap["contentLoaded"] = [];
 
-	self.addSelectionOverResourceHandler = function(label, body, precondition) {
-		return addEventHandler("selectionOverResource", label, body, precondition);
+	self.addSelectionOverResourceHandler = function(label, messageTemplate, body, precondition) {
+		return addEventHandler("selectionOverResource", label, messageTemplate, body, precondition);
 	};
 
-	self.addResourceOverContentHandler = function(label, body, precondition) {
-		return addEventHandler("resourceOverContent", label, body, precondition);
+	self.addResourceOverContentHandler = function(label, messageTemplate, body, precondition) {
+		return addEventHandler("resourceOverContent", label, messageTemplate, body, precondition);
 	};
 
 	self.addContentLoadedHandler = function(label, body, precondition) {
-		return addEventHandler("contentLoaded", label, body, precondition);
+		return addEventHandler("contentLoaded", label, null, body, precondition);
 	};
 
-	var addEventHandler = function(eventName, label, body, precondition) {
-		var handler = new annotation.EventHandler(label, body, precondition);
+	var addEventHandler = function(eventName, label, messageTemplate, body, precondition) {
+		var handler = new annotation.EventHandler(label, messageTemplate, body, precondition);
 		eventHandlerMap[eventName].push(handler);
 		return handler;
 	};
@@ -170,7 +170,7 @@ annotation.Family = function(familyId) {
 	return self;
 };
 
-annotation.EventHandler = function(label, body, precondition) {
+annotation.EventHandler = function(label, messageTemplate, body, precondition) {
 	var enabled = true;
 
 	var self = this;
@@ -197,6 +197,10 @@ annotation.EventHandler = function(label, body, precondition) {
 
 	this.getPrecondition = function() {
 		return precondition;
+	};
+	
+	this.getMessageTemplate = function() {
+		return messageTemplate;
 	};
 }
 

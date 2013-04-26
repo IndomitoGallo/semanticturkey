@@ -24,12 +24,21 @@ if (typeof art_semanticturkey == 'undefined')
 
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/MessageInterpolator.jsm", art_semanticturkey);
 
 // netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
 
 window.onload = function() {
 	var event = window.arguments[0].event;
 	var handlers = window.arguments[0].handlers;
+
+	var bindings = {};
+	bindings["source-text"] = event.selection.toString().quote();
+	bindings["target-resource"] = event.resource.getShow().quote();
+	
+	var headerLabel = document.getElementById("headerLabel");
+	var interpolatedHeader = art_semanticturkey.MessageInterpolator.interpolate(headerLabel.getAttribute("value"), bindings);
+	headerLabel.setAttribute("value", interpolatedHeader);
 
 	// add the eventlistener for the buttons
 	document.getElementById("Ok").addEventListener("click", art_semanticturkey.onAccept, true);
@@ -45,9 +54,12 @@ window.onload = function() {
 		// if function is enabled show it else skip
 		var radiobox = document.createElement("radio");
 		radiobox.setAttribute("id", i);
-		radiobox.setAttribute("label", handlers[i].getLabel());
+		radiobox.setAttribute("label", art_semanticturkey.MessageInterpolator.interpolate(
+				handlers[i].getMessageTemplate(), bindings));
 		groupbox.appendChild(radiobox);
 	}
+
+
 
 };
 

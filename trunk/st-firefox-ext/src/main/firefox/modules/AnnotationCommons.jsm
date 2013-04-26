@@ -273,14 +273,15 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 
 annotation.commons.registerCommonHandlers = function(family) {
 	family.addContentLoadedHandler("Default handler", annotation.commons.handlers.contentLoaded);
-	family.addSelectionOverResourceHandler("Create instance", annotation.commons.handlers.createInstance,
+	family.addSelectionOverResourceHandler("Create instance", "to create a new instance of {target-resource}",
+			annotation.commons.handlers.createInstance,
 			annotation.Preconditions.Role.Cls);
-	family.addSelectionOverResourceHandler("Create narrower concept",
+	family.addSelectionOverResourceHandler("Create narrower concept", "to create a narrower concept of {target-resource}",
 			annotation.commons.handlers.createNarrowerConcept, annotation.Preconditions.Role.Concept);
-	family
-			.addSelectionOverResourceHandler("Value for property",
-					annotation.commons.handlers.valueForProperty);
-	family.addSelectionOverResourceHandler("Further annotation", annotation.commons.handlers.furtherAnn);
+	family.addSelectionOverResourceHandler("Value for property", "as a value for a property of {target-resource}",
+			annotation.commons.handlers.valueForProperty);
+	family.addSelectionOverResourceHandler("Further annotation", "as a further annotation of {target-resource}",
+			annotation.commons.handlers.furtherAnn);
 
 	family.decorateContent = annotation.commons.conventions.decorateContent;
 };
