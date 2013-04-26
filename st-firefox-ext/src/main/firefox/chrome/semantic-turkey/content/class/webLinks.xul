@@ -38,10 +38,13 @@
 		</menupopup>
 	</popupset>
 	
-	<vbox flex="1">
-	<vbox flex="1" id="labelBox" style="overflow:auto">
-		<label class="header" value="WEB PAGES" />
-	</vbox>
+	<label value = "WebLinks:"/>
+	<grid flex="1" style="overflow:auto">
+		<columns flex="5" style="overflow:auto">
+			<column flex="5" style="overflow:auto" />
+		</columns>
+		<rows id="rowsBoxWebLink" flex="1" style="overflow:auto" minheight="100">
+		</rows>
+	</grid>
 	<button id="cancel" label="Cancel" flex="0"/>
-	</vbox>
 </window>

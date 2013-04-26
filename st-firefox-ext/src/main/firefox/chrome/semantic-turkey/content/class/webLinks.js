@@ -26,21 +26,26 @@ if (typeof art_semanticturkey == 'undefined')
 Components.utils.import("resource://stservices/SERVICE_Individual.jsm",
 		art_semanticturkey);
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
 
 window.onload = function() {
-	document.getElementById("web-link-copy")
-		.addEventListener("command", art_semanticturkey.copyWebLink, true);
+	document.getElementById("cancel").addEventListener("click", art_semanticturkey.onClose, true);
 
-	document.getElementById("cancel").addEventListener("click",
-			art_semanticturkey.onClose, true);
+	document.getElementById("web-link-copy").addEventListener("command", art_semanticturkey.copyWebLink, true);
+
 	var instanceName = window.arguments[0].instanceName;
-	try{
-		var responseXML = art_semanticturkey.STRequests.Page
-				.getBookmarks(instanceName);
-		art_semanticturkey.getBookmarks_RESPONSE(responseXML);
-	}
-	catch (e) {
-		alert(e.name + ": " + e.message);
+
+	try {
+		var defaultAnnotationFamily = art_semanticturkey.annotation.AnnotationManager.getDefaultFamily();
+		
+		if (typeof defaultAnnotationFamily.getAnnotatedContentResources != "undefined") {
+			var annotatedContentResources = defaultAnnotationFamily.getAnnotatedContentResources(instanceName);
+			art_semanticturkey.getWebLinks_RESPONSE(annotatedContentResources);
+		}
+
+	
+	} catch(e) {
+		alert(e.name + ":" + e.message);
 	}
 };
 
@@ -49,24 +54,26 @@ window.onload = function() {
  * @date 09-10-2009
  * @description manage getBookmarks response and populate webLinks list
  */
-art_semanticturkey.getBookmarks_RESPONSE = function(responseElement, status) {
-	var labelBox = document.getElementById("labelBox");
-	var bookmarksList = responseElement.getElementsByTagName("URL");
-	for ( var i = 0; i < bookmarksList.length; i++) {
-		var value = bookmarksList[i].getAttribute("value");
-		if(value.charAt(0) == "\"")
-			value = value.substr(1);
-		if(value.charAt(value.length-1) == "\"")
-			value = value.substr(0, value.length-1);
-		var title = bookmarksList[i].getAttribute("title");
-		var pagelbl2 = document.createElement("label");
-		pagelbl2.setAttribute("value", title);
-		pagelbl2.setAttribute("class", "text-link");
-		pagelbl2.setAttribute("href", value);
-		pagelbl2.setAttribute("context", "web-link-context-menu");
-		labelBox.appendChild(pagelbl2);
+art_semanticturkey.getWebLinks_RESPONSE = function(annotatedContentResources) {
+	var rowsBox = document.getElementById("rowsBoxWebLink");
+	for (var i = 0; i < annotatedContentResources.length; i++) {
+		var linkTitle = annotatedContentResources[i].title;
+		var linkUrl = annotatedContentResources[i].value;
+
+		var row = document.createElement("row");
+
+		var label = document.createElement("label");
+		label.setAttribute("value", linkTitle);
+		label.setAttribute("href", linkUrl);
+		label.setAttribute("class", "text-link");
+		label.setAttribute("context", "web-link-context-menu");
+
+		row.appendChild(label);
+
+		rowsBox.appendChild(row);
 	}
 };
+
 
 /**
  * @author NScarpato ATurbati
