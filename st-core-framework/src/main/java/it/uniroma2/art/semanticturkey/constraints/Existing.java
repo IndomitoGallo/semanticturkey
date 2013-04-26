@@ -22,7 +22,7 @@ import javax.validation.Payload;
 @Target( { METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Existing {
- String message() default "Error: the given RDF resource does not exist in the current KB";
+ String message() default "Error: resource " + MsgInterpolationVariables.invalidParamValuePlaceHolder + " does not exist in the current dataset";
  
  Class<?>[] groups() default {};
  

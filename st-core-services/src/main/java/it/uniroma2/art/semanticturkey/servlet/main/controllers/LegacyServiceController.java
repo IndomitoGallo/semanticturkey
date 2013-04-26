@@ -32,9 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.w3c.dom.Document;
 
 @org.springframework.stereotype.Controller
-public class Controller implements ApplicationContextAware {
+public class LegacyServiceController implements ApplicationContextAware {
 	ApplicationContext context;
-	protected static Logger logger = LoggerFactory.getLogger(Controller.class);
+	protected static Logger logger = LoggerFactory.getLogger(LegacyServiceController.class);
 	// final static private HashMap<String, Class> map = new HashMap<String,
 	// Class>();
 

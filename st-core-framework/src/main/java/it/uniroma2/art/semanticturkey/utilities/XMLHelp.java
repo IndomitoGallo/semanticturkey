@@ -39,6 +39,7 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -67,6 +68,7 @@ public class XMLHelp {
 
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		_IdentityTransformer = transformerFactory.newTransformer();
+		// _IdentityTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 	}
 
 	/**
@@ -141,43 +143,11 @@ public class XMLHelp {
 	 * @return
 	 */
 	public static String XML2String(Element xml, boolean indent) {
-		if (xml == null) {
-			return null;
-		} else {
-			ByteArrayOutputStream stringOut = new ByteArrayOutputStream();
-
-			if (indent) {
-
-				Properties outputProps = new Properties();
-				outputProps.setProperty("encoding", "UTF-8");
-				outputProps.setProperty("indent", "yes");
-				outputProps.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-				_IdentityTransformer.setOutputProperties(outputProps);
-
-				DOMSource domSource = new DOMSource(xml);
-				StreamResult streamResult = new StreamResult(stringOut);
-				try {
-					_IdentityTransformer.transform(domSource, streamResult);
-				} catch (TransformerException e) {
-					// don't want to have this method throw an exception, so, considering that exception
-					// should never happen...
-					// ...at least I hope...
-					e.printStackTrace();
-				}
-				return stringOut.toString();
-			} else {
-				DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
-				LSSerializer writer = impl.createLSSerializer();
-				LSOutput output = impl.createLSOutput();
-				output.setByteStream(stringOut);
-				writer.write(xml, output);
-
-			}
-
-			return stringOut.toString();
-
-		}
-
+		StringWriter writer = new StringWriter();
+		StreamResult streamResult = new StreamResult(writer);
+		XML2StreamResult(xml, indent, streamResult);
+		String output = writer.getBuffer().toString(); // .replaceAll("\n|\r", "");
+		return output;
 	}
 
 	/**
@@ -190,6 +160,12 @@ public class XMLHelp {
 	 * @return
 	 */
 	public static void XML2OutputStream(Element xml, boolean indent, OutputStream os) {
+		StreamResult streamResult = new StreamResult(os);
+		XML2StreamResult(xml, indent, streamResult);
+	}
+
+	
+	private static void XML2StreamResult(Element xml, boolean indent, StreamResult streamResult) {
 		Properties outputProps = new Properties();
 		outputProps.setProperty("encoding", "UTF-8");
 		outputProps.setProperty("indent", indent ? "yes" : "no");
@@ -197,7 +173,6 @@ public class XMLHelp {
 		_IdentityTransformer.setOutputProperties(outputProps);
 
 		DOMSource domSource = new DOMSource(xml);
-		StreamResult streamResult = new StreamResult(os);
 		try {
 			_IdentityTransformer.transform(domSource, streamResult);
 		} catch (TransformerException e) {
