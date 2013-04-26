@@ -153,6 +153,9 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 		// Set the event handler for the click
 		document.addEventListener("click", function(e) {
 			if (e.target.classList.contains("st-annotation")) {
+				// Ignores non left-button clicks
+				if (e.button != 0) return;
+				
 				e.preventDefault(); // to avoid that a click on a link causes
 				// the change of page
 				var ann = e.target.stAnnotation;
