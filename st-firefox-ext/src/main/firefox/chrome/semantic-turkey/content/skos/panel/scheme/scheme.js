@@ -44,6 +44,13 @@ art_semanticturkey.init = function() {
 	
 	stEventArray.addEventListenerToArrayAndRegister("projectPropertySet", function(eventId, projectPropertySetObj) {
 		if (projectPropertySetObj.getPropName() == "skos.selected_scheme") {
+			var context = projectPropertySetObj.getContext();
+			
+			// Do not update the list in case of renaming. Let the rename event handler perform the update.
+			if (typeof context != "undefined") {
+				if (context.getName() == "rename") return;				
+			}
+			
 			for (var i = 0 ; i < schemeList._view.visibleRows2.length ; i++) {
 				if (schemeList._view.visibleRows2[i].id == projectPropertySetObj.getPropValue()) {
 					schemeList._view.visibleRows2[i].record.check = true;

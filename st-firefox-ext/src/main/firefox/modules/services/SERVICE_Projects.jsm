@@ -230,7 +230,7 @@ function getProjectProperty(propNames, projectName) {
 	return HttpMgr.GET(serviceName, service.getProjectPropertyRequest, propNames_p, name_p);
 }
 
-function setProjectProperty(propName, propValue) {
+function setProjectProperty(propName, propValue, context) {
 	Logger.debug('[SERVICE_Projects.jsm] setProjectProperty');
 	var propName_p = "name=" + propName;
 	var propValue_p = "value=" + propValue;
@@ -238,7 +238,7 @@ function setProjectProperty(propName, propValue) {
 	var reply = HttpMgr.GET(serviceName, service.setProjectPropertyRequest, propName_p, propValue_p);
 	
 	if (!reply.isFail()) {
-		evtMgr.fireEvent("projectPropertySet", {getPropName : function(){return propName;}, getPropValue : function(){return propValue;}});
+		evtMgr.fireEvent("projectPropertySet", {getPropName : function(){return propName;}, getPropValue : function(){return propValue;}, getContext : function(){return context;}});
 	}
 
 	return reply;

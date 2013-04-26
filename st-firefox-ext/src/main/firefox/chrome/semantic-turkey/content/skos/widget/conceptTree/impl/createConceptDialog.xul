@@ -17,7 +17,7 @@
 	    		<label value="Concept name:" control="conceptName"/> <textbox id="conceptName" xul:flex="1"/>
 	    	</row>
 	    	<row align="center">
-				<label value="skos:prefLabel:" control="prefLabel"/> <st:plainliteral id="prefLabel" xul:flex="1"/>
+				<label value="skos:prefLabel:" control="prefLabel"/> <st:plainliteral id="prefLabel" xul:flex="1" requireslanguage="true" />
 			</row>
 		</rows>
 	</grid>

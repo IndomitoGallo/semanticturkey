@@ -248,6 +248,7 @@ STRequests.SKOS.getAllSchemesListRequest = "getAllSchemesList";
 STRequests.SKOS.getConceptDescriptionRequest = "getConceptDescription";
 STRequests.SKOS.getConceptSchemeDescriptionRequest = "getConceptSchemeDescription";
 STRequests.SKOS.getPrefLabelRequest = "getPrefLabel";
+STRequests.SKOS.getShowRequest = "getShow";
 
 // ADD REQUESTS
 STRequests.SKOS.addBroaderConceptRequest = "addBroaderConcept";
