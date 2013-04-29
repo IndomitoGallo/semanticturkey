@@ -39,7 +39,6 @@ import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFLiteral;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
@@ -124,10 +123,10 @@ public class SKOS extends Resource {
 		final static public String forceDeleteDanglingConcepts = "forceDeleteDanglingConcepts";
 		final static public String setForceDeleteDanglingConcepts = "setForceDeleteDanglingConcepts";
 		final static public String label = "label";
-		final static public String langTag = "lang";
-		final static public String language = "language";
+		final static public String lang = "lang";
 		final static public String newConcept = "newConcept";
 		final static public String prefLabel = "prefLabel";
+		final static public String prefLabelLang = "prefLabelLang";
 		final static public String relatedConcept = "relatedConcept";
 		final static public String semanticRelation = "semanticRelation";
 		final static public String scheme = "scheme";
@@ -156,7 +155,7 @@ public class SKOS extends Resource {
 
 		// GET SKOS METHODS
 		if (request.equals(Req.getAllSchemesListRequest)) {
-			String defaultLanguage = setHttpPar(Par.language);
+			String defaultLanguage = setHttpPar(Par.lang);
 			response = getAllSchemesList(defaultLanguage);
 		} else if (request.equals(conceptDescriptionRequest)) {
 			String conceptName = setHttpPar(Par.concept);
@@ -172,40 +171,40 @@ public class SKOS extends Resource {
 
 		} else if (request.equals(Req.getTopConceptsRequest)) {
 			String schemaURI = setHttpPar(Par.scheme);
-			String defaultLanguage = setHttpPar(Par.language);
+			String defaultLanguage = setHttpPar(Par.lang);
 			response = getTopConcepts(schemaURI, defaultLanguage);
 
 		} else if (request.equals(Req.getNarrowerConceptsRequest)) {
 			String conceptName = setHttpPar(Par.concept);
 			String schemeName = setHttpPar(Par.scheme);
 			boolean treeView = setHttpBooleanPar(Par.treeView);
-			String defaultLanguage = setHttpPar(Par.language);
+			String defaultLanguage = setHttpPar(Par.lang);
 			checkRequestParametersAllNotNull(Par.concept);
 			response = getNarrowerConcepts(conceptName, schemeName, treeView, defaultLanguage);
 
 		} else if (request.equals(Req.getBroaderConceptsRequest)) {
 			String conceptName = setHttpPar(Par.concept);
 			String schemeName = setHttpPar(Par.scheme);
-			String defaultLanguage = setHttpPar(Par.language);
+			String defaultLanguage = setHttpPar(Par.lang);
 			checkRequestParametersAllNotNull(Par.concept);
 			response = getBroaderConcepts(conceptName, schemeName, defaultLanguage);
 
 		} else if (request.equals(Req.getPrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String lang = setHttpPar(Par.lang);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang);
 			response = getPrefLabel(skosConceptName, lang);
 
 		} else if (request.equals(Req.getAltLabelsRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String lang = setHttpPar(Par.lang);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang);
 			response = getAltLabels(skosConceptName, lang);
 
 		} else if (request.equals(Req.getSchemesMatrixPerConceptRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String lang = setHttpPar(Par.lang);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang);
 			response = getSchemesMatrixPerConcept(skosConceptName, lang);
 
 			// IS METHODS
@@ -242,16 +241,16 @@ public class SKOS extends Resource {
 			response = removeTopConcept(scheme, concept);
 		} else if (request.equals(Req.removePrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
+			String lang = setHttpPar(Par.lang);
 			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang, Par.label);
 			response = removePrefLabel(skosConceptName, label, lang);
 
 		} else if (request.equals(Req.removeAltLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
+			String lang = setHttpPar(Par.lang);
 			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang, Par.label);
 			response = removeAltLabel(skosConceptName, label, lang);
 
 		} else if (request.equals(Req.removeConceptFromSchemeRequest)) {
@@ -277,16 +276,16 @@ public class SKOS extends Resource {
 
 		} else if (request.equals(Req.setPrefLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
+			String lang = setHttpPar(Par.lang);
 			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang, Par.label);
 			response = setPrefLabel(skosConceptName, label, lang);
 
 		} else if (request.equals(Req.addAltLabelRequest)) {
 			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
+			String lang = setHttpPar(Par.lang);
 			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(Par.concept, Par.lang, Par.label);
 			response = addAltLabel(skosConceptName, label, lang);
 
 			// CREATE SKOS METHODS
@@ -296,8 +295,8 @@ public class SKOS extends Resource {
 			String broaderConceptName = setHttpPar(Par.broaderConcept);
 			String schemeName = setHttpPar(Par.scheme);
 			String prefLabel = setHttpPar(Par.prefLabel);
-			String prefLabelLanguage = setHttpPar(Par.langTag);
-			String language = setHttpPar(Par.language);
+			String prefLabelLanguage = setHttpPar(Par.prefLabelLang);
+			String language = setHttpPar(Par.lang);
 
 			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
 			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
@@ -306,8 +305,8 @@ public class SKOS extends Resource {
 		} else if (request.equals(Req.createSchemeRequest)) {
 			String schemeName = setHttpPar(Par.scheme);
 			String preferredLabel = setHttpPar(Par.prefLabel);
-			String preferredLabelLanguage = setHttpPar(Par.langTag);
-			String language = setHttpPar(Par.language);
+			String preferredLabelLanguage = setHttpPar(Par.prefLabelLang);
+			String language = setHttpPar(Par.lang);
 
 			checkRequestParametersAllNotNull(Par.scheme);
 			response = createConceptScheme(schemeName, preferredLabel, preferredLabelLanguage, language);
@@ -332,7 +331,7 @@ public class SKOS extends Resource {
 			response = removeBroaderConcept(conceptName, broaderConceptName);
 		} else if (request.equals(Req.getShowRequest)) {
 			String resourceName = setHttpPar(Par.resourceName);
-			String language = setHttpPar(Par.language);
+			String language = setHttpPar(Par.lang);
 
 			checkRequestParametersAllNotNull(Par.resourceName);
 			response = getShow(resourceName, language);
