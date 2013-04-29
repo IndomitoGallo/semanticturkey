@@ -150,8 +150,24 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 
 		// This is the first time the document is highlighted
 
+		function addButton(panel, label, callback) {
+			var b = window.document.createElement("button");
+			b.setAttribute("label", label);
+			panel.appendChild(b);
+			b.addEventListener("command", function() {
+				try {
+					callback();
+				} catch (e) {
+					window.alert(e);
+				}
+				panel.hidePopup();
+			}, false);
+		}
+
 		// Set the event handler for the click
 		document.addEventListener("click", function(e) {
+		
+		
 			if (e.target.classList.contains("st-annotation")) {
 				// Ignores non left-button clicks
 				if (e.button != 0) return;
@@ -163,17 +179,11 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 				if (typeof ann != "undefined" && typeof self.deleteAnnotation != "undefined"
 						&& typeof ann.id != "undefined") {
 					var panel = window.document.createElement("panel");
-					var b = window.document.createElement("button");
-					b.setAttribute("label", "Delete Annotation");
-					panel.appendChild(b);
-					b.addEventListener("command", function() {
-						try {
-							self.deleteAnnotation(ann.id);
-						} catch (e) {
-							alert(e);
-						}
-						panel.hidePopup();
-					}, false);
+					
+					addButton(panel, "Delete Annotation", self.deleteAnnotation.bind(self, ann.id));
+					addButton(panel, "View Annotation",   function()  {window.alert("" + ann.resource);});
+					addButton(panel, "View Resource",     function()  {window.alert("" + ann.resource);});
+					// addButton(panel, "show resource in the tree",  function()  {window.alert("" + ann.resource);});
 
 					panel.onpopuphidden = function(e) {
 						e.target.parentNode.removeChild(e.target);

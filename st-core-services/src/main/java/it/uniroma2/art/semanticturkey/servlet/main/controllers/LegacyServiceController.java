@@ -63,20 +63,21 @@ public class LegacyServiceController implements ApplicationContextAware {
 	public void registerPlugin(String pluginId, PluginInterface plugin) {
 		pluginsMap.put(pluginId, plugin);
 	}
-	@RequestMapping(value="/resources/{test}.jar")
-	public String controlJars(HttpServletRequest oReq, HttpServletResponse oRes,@PathVariable("test") String test)
-	{
+
+	@RequestMapping(value = "/resources/{test}.jar")
+	public String controlJars(HttpServletRequest oReq, HttpServletResponse oRes,
+			@PathVariable("test") String test) {
 		return test;
 	}
-	@RequestMapping(value="/resources/{test}.html")
-	public String controlHtml(HttpServletRequest oReq, HttpServletResponse oRes,@PathVariable("test") String test)
-	{
+
+	@RequestMapping(value = "/resources/{test}.html")
+	public String controlHtml(HttpServletRequest oReq, HttpServletResponse oRes,
+			@PathVariable("test") String test) {
 		return test;
 	}
 
 	/**
-	 * Metodo che cattura la richiesta del servizio e i relativi parametri e
-	 * invia la risposta in formato xml
+	 * Metodo che cattura la richiesta del servizio e i relativi parametri e invia la risposta in formato xml
 	 * 
 	 * @param HttpServletRequest
 	 *            oReq
@@ -84,8 +85,8 @@ public class LegacyServiceController implements ApplicationContextAware {
 	 *            oRes
 	 */
 	@RequestMapping(value = "/resources/stserver/STServer")
-	public void service(HttpServletRequest oReq, HttpServletResponse oRes)
-			throws ServletException, IOException {
+	public void service(HttpServletRequest oReq, HttpServletResponse oRes) throws ServletException,
+			IOException {
 
 		System.out.println("response encoding: " + oRes.getCharacterEncoding());
 		oRes.setCharacterEncoding("UTF-8");
@@ -96,24 +97,19 @@ public class LegacyServiceController implements ApplicationContextAware {
 		String serviceName = oReq.getParameter("service");
 
 		Response response = null;
-		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq))
-				.getAcceptContent();
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		if (serviceName == null) {
 			if (ser_type == SerializationType.json)
 				oRes.setContentType("application/json");
 			else
 				oRes.setContentType("application/xml");
 			out = oRes.getOutputStream();
-			logger.debug(ServletUtilities
-					.getService()
-					.createExceptionResponse("",
-							"you must specify a service to be invoked",
-							ser_type).toString());
-			out.print(ServletUtilities
-					.getService()
-					.createExceptionResponse("",
-							"you must specify a service to be invoked",
-							ser_type).toString());
+			logger.debug(ServletUtilities.getService()
+					.createExceptionResponse("", "you must specify a service to be invoked", ser_type)
+					.toString());
+			out.print(ServletUtilities.getService()
+					.createExceptionResponse("", "you must specify a service to be invoked", ser_type)
+					.toString());
 			return;
 		} else if (serviceName.equals("plugin")) {
 			response = handlePluginRequest(oReq);
@@ -131,11 +127,9 @@ public class LegacyServiceController implements ApplicationContextAware {
 				out.print(response.getResponseContent());
 			} else {
 				oRes.setContentType("application/xml");
-				logger.debug(XMLHelp.XML2String(
-						(Document) response.getResponseObject(), true));
+				logger.debug(XMLHelp.XML2String((Document) response.getResponseObject(), true));
 				out = oRes.getOutputStream();
-				XMLHelp.XML2OutputStream(
-						(Document) response.getResponseObject(), true, out);
+				XMLHelp.XML2OutputStream((Document) response.getResponseObject(), true, out);
 			}
 		} else {
 			if (ser_type == SerializationType.json)
@@ -145,45 +139,35 @@ public class LegacyServiceController implements ApplicationContextAware {
 			out = oRes.getOutputStream();
 			out.print(ServletUtilities
 					.getService()
-					.createErrorResponse(oReq.getParameter("request"),
-							"content of response is null", ser_type)
-					.getResponseContent());
+					.createErrorResponse(oReq.getParameter("request"), "content of response is null",
+							ser_type).getResponseContent());
 		}
 	}
 
 	private Response handlePluginRequest(HttpServletRequest oReq) {
 		Response response = null;
-		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq))
-				.getAcceptContent();
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		if (ser_type != SerializationType.xml)
-			return ServletUtilities.getService().createExceptionResponse(
-					"plugin", "sorry this request can only be served in XML",
-					ser_type);
+			return ServletUtilities.getService().createExceptionResponse("plugin",
+					"sorry this request can only be served in XML", ser_type);
 
 		String pluginName = oReq.getParameter("name");
 		PluginInterface plugin = pluginsMap.get(pluginName);
 		logger.debug("identifying proper plugin...");
 		if (plugin == null) {
-			response = ServletUtilities.getService().createExceptionResponse(
-					"plugin",
-					"Unexpected Error:\n plugin: \"" + pluginName
-							+ "\" has not been loaded into the system",
+			response = ServletUtilities.getService().createExceptionResponse("plugin",
+					"Unexpected Error:\n plugin: \"" + pluginName + "\" has not been loaded into the system",
 					ser_type);
 		} else {
 			String request = oReq.getParameter("request");
 			if (request == null)
-				response = ServletUtilities
-						.getService()
-						.createExceptionResponse(
-								"plugin",
-								"field: \"request\" is missing from current plugin request",
-								ser_type);
+				response = ServletUtilities.getService().createExceptionResponse("plugin",
+						"field: \"request\" is missing from current plugin request", ser_type);
 			else if (request.equals(pluginActivateRequest)) {
 				response = plugin.activate();
 				if (response.isAffirmative()) {
 					try {
-						ProjectManager.getCurrentProject().registerPlugin(
-								pluginName);
+						ProjectManager.getCurrentProject().registerPlugin(pluginName);
 					} catch (Exception e) {
 						((ResponseREPLY) response)
 								.setReplyStatusWARNING("the plugin has been successfully initialized, though there are some warnings reported while associating it to the current project:\n"
@@ -194,8 +178,7 @@ public class LegacyServiceController implements ApplicationContextAware {
 				response = plugin.deactivate();
 				if (response.isAffirmative()) {
 					try {
-						ProjectManager.getCurrentProject().deregisterPlugin(
-								pluginName);
+						ProjectManager.getCurrentProject().deregisterPlugin(pluginName);
 					} catch (Exception e) {
 						((ResponseREPLY) response)
 								.setReplyStatusWARNING("the plugin has been successfully disposed, though there are some warnings reported while deregistering it from the current project:\n"
@@ -203,25 +186,22 @@ public class LegacyServiceController implements ApplicationContextAware {
 					}
 				}
 			} else
-				response = ServletUtilities.getService()
-						.createExceptionResponse("plugin",
-								"unknown plugin request", ser_type);
+				response = ServletUtilities.getService().createExceptionResponse("plugin",
+						"unknown plugin request", ser_type);
 		}
 		return response;
 	}
 
-	private Response handleServiceRequest(String serviceName,
-			HttpServletRequest oReq) throws IOException {
+	private Response handleServiceRequest(String serviceName, HttpServletRequest oReq) throws IOException {
 		ServiceInterface service = null;
 		Response response = null;
-		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq))
-				.getAcceptContent();
+		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		try {
-//			serviceName = serviceName.substring(0, 1).toUpperCase()
-//					+ serviceName.substring(1);
-//			service = (ServiceInterface) context.getBean(Class
-//					.forName("it.uniroma2.art.semanticturkey.servlet.main."
-//							+ serviceName));
+			// serviceName = serviceName.substring(0, 1).toUpperCase()
+			// + serviceName.substring(1);
+			// service = (ServiceInterface) context.getBean(Class
+			// .forName("it.uniroma2.art.semanticturkey.servlet.main."
+			// + serviceName));
 			Map<String, ServiceInterface> services = context.getBeansOfType(ServiceInterface.class);
 			for (ServiceInterface s : services.values()) {
 				if (s.getId().equalsIgnoreCase(serviceName)) {
@@ -229,63 +209,59 @@ public class LegacyServiceController implements ApplicationContextAware {
 					break;
 				}
 			}
-			
-			
-			if (service==null) {
+
+			// TODO at the moment it takes the first extension! just an attempt...we have to filter basing on
+			// the service id
+			if (service == null) {
 				Object binolo = context.getBean("thirdPartyServices");
-				
+
 				System.out.println("@@@@@" + binolo);
-				if (binolo!=null) {
+				if (binolo != null) {
 					System.out.println("@@@@@" + binolo.getClass().getCanonicalName());
-					ServiceInterface si = ((List<ServiceInterface>)binolo).get(0);
+					ServiceInterface si = ((List<ServiceInterface>) binolo).get(0);
 					service = si;
 				}
-				
-				
-				
 			}
-			
-			
-			
-			
-			// service = (ServiceInterface) context.getBean(Class.forName(service.getClass().getCanonicalName()));
-			System.out.println(" :" + service.getClass().getCanonicalName());
-			
+
+			// service = (ServiceInterface)
+			// context.getBean(Class.forName(service.getClass().getCanonicalName()));
+			// System.out.println(" :" + service.getClass().getCanonicalName());
+
 		} catch (BeansException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-//		catch (ClassNotFoundException e1) {
-//			service = null;
-//		}
+		// catch (ClassNotFoundException e1) {
+		// service = null;
+		// }
 		;
 
 		logger.debug("identifying proper service for handling the request..");
 		if (service == null) {
-			response = ServletUtilities.getService().createExceptionResponse(
-					"",
-					"Unexpected Error:\n service: " + serviceName
-							+ " has not been loaded into the system", ser_type);
+			response = ServletUtilities.getService().createExceptionResponse("",
+					"Unexpected Error:\n service: " + serviceName + " has not been loaded into the system",
+					ser_type);
 		} else {
 			try {
-				logger.debug("handling the request.. for service: "
-						+ serviceName + service.getClass().getCanonicalName());
+				logger.debug("handling the request.. for service: " + serviceName
+						+ service.getClass().getCanonicalName());
 				service.setServiceRequest(new HttpServiceRequestWrapper(oReq));
+				logger.debug("with parameters: " + oReq.toString());
 				response = service.getResponse();
 
 			} catch (RuntimeException e) {
 				logger.error(Utilities.printFullStackTrace(e));
 				e.printStackTrace(System.err);
 				String msg = "uncaught java exception: " + e.toString();
-				response = ServletUtilities.getService().createErrorResponse(
-						oReq.getParameter("request"), msg, ser_type);
+				response = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+						msg, ser_type);
 
 			} catch (Error err) {
 				String msg = "java error: " + err.toString();
 				err.printStackTrace(System.err);
 				logger.error(msg);
-				response = ServletUtilities.getService().createErrorResponse(
-						oReq.getParameter("request"), msg, ser_type);
+				response = ServletUtilities.getService().createErrorResponse(oReq.getParameter("request"),
+						msg, ser_type);
 
 			}
 		}
@@ -293,8 +269,7 @@ public class LegacyServiceController implements ApplicationContextAware {
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext arg0)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
 		context = arg0;
 
 	}
