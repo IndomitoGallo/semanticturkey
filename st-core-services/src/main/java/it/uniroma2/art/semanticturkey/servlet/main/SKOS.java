@@ -1242,7 +1242,7 @@ public class SKOS extends Resource {
 		return uris;
 	}
 
-	private STRDFResource createSTScheme(SKOSModel skosModel, ARTURIResource scheme, boolean explicit,
+	protected STRDFResource createSTScheme(SKOSModel skosModel, ARTURIResource scheme, boolean explicit,
 			String defaultLanguage) throws ModelAccessException, NonExistingRDFResourceException {
 		return createSTSKOSResource(skosModel, scheme, RDFResourceRolesEnum.conceptScheme, explicit,
 				defaultLanguage);
