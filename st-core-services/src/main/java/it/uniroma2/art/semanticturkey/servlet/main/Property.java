@@ -122,6 +122,7 @@ public class Property extends Resource {
 		final static public String removeSuperPropertyRequest = "removeSuperProperty";
 		final static public String removePropValueRequest = "removePropValue";
 		final static public String removeValueFromDatarangeRequest = "removeValueFromDatarange";
+		final static public String removeValuesFromDatarangeRequest = "removeValuesFromDatarange";
 	}
 
 	public static class Par {
@@ -274,23 +275,28 @@ public class Property extends Resource {
 			} else if(request.equals(Req.addValueToDatarangeRequest)){
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
-				checkRequestParametersAllNotNull(Par.dataRangePar, Par.dataRangePar);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return addValueToDatarange(datarange, value);
 			} else if(request.equals(Req.addValuesToDatarangeRequest)){
 				String datarange = setHttpPar(Par.dataRangePar);
-				String values = setHttpPar(Par.valuesField);
-				checkRequestParametersAllNotNull(Par.dataRangePar, Par.dataRangePar);
+				String values = setHttpPar(Par.valueField);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return addValuesToDatarange(datarange, values);
 			} else if(request.equals(Req.hasValueInDatarangeRequest)){
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
-				checkRequestParametersAllNotNull(Par.dataRangePar, Par.dataRangePar);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return hasValueInDatarange(datarange, value);
 			} else if(request.equals(Req.removeValueFromDatarangeRequest)){
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
-				checkRequestParametersAllNotNull(Par.dataRangePar, Par.dataRangePar);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return removeValueFromDatarange(datarange, value);
+			} else if(request.equals(Req.removeValuesFromDatarangeRequest)){
+				String datarange = setHttpPar(Par.dataRangePar);
+				String values = setHttpPar(Par.valuesField);
+				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valuesField);
+				return removeValuesFromDatarange(datarange, values);
 			}
 			
 			else
@@ -1034,6 +1040,44 @@ public class Property extends Resource {
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("datarange", datarangeId);
 			superClsElement.setAttribute("value", value);
+			
+		} catch (ModelAccessException e) {
+			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
+		}
+		
+		return response;
+	}
+	
+	public Response removeValuesFromDatarange(String datarangeId, String values) {
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		XMLResponseREPLY response;
+		try {
+			String[] valuesArray = values.split("\\|_\\|");
+			List<ARTLiteral> artLiteralList = new ArrayList<ARTLiteral>();
+			for(int i=0; i< valuesArray.length; ++i){
+				artLiteralList.add(RDFNodeSerializer.createLiteral(valuesArray[i], ontModel));
+			}
+			
+			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
+			Iterator<ARTLiteral> iter = artLiteralList.iterator();
+			while(iter.hasNext()){
+				ARTLiteral literal = iter.next();
+				ontModel.removeValueFromDatarange(datarange, literal, getWorkingGraph());
+			}
+			response = createReplyResponse(RepliesStatus.ok);
+			Element dataElement = response.getDataElement();
+			Element superClsElement = XMLHelp.newElement(dataElement, "property");
+			superClsElement.setAttribute("datarange", datarangeId);
+			iter = artLiteralList.iterator();
+			int cont = 0;
+			while(iter.hasNext()){
+				ARTLiteral literal = iter.next();
+				superClsElement.setAttribute("value"+(++cont), literal.getNominalValue());
+			}
 			
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
