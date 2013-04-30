@@ -19,6 +19,7 @@ import it.uniroma2.art.owlart.model.ARTResource;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.models.SKOSXLModel;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
@@ -33,6 +34,9 @@ import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.servlet.main.SKOS.MissingLanguageException;
+import it.uniroma2.art.semanticturkey.servlet.main.SKOS.Par;
+import it.uniroma2.art.semanticturkey.servlet.main.SKOS.Req;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -71,7 +75,7 @@ public class SKOSXL extends SKOS {
 
 		// CREATE REQUESTS
 		 public static final String createConceptRequest = "createConcept";
-		// public static final String createSchemeRequest = "createScheme";
+		 public static final String createSchemeRequest = "createScheme";
 
 		// REMOVE REQUESTS
 		// public static final String removeTopConceptRequest = "removeTopConcept";
@@ -92,19 +96,19 @@ public class SKOSXL extends SKOS {
 	// PARS
 
 	public static class Par {
-		final static public String broaderConcept = "broaderConcept";
-		final static public String concept = "concept";
+		//*final static public String broaderConcept = "broaderConcept";
+		//*final static public String concept = "concept";
 		// final static public String conceptFrom = "conceptFrom";
 		// final static public String conceptTo = "conceptTo";
 		// final static public String forceDeleteDanglingConcepts = "forceDeleteDanglingConcepts";
 		// final static public String setForceDeleteDanglingConcepts = "setForceDeleteDanglingConcepts";
-		final static public String label = "label";
-		final static public String langTag = "lang";
+		//*final static public String label = "label";
+		//*final static public String langTag = "lang";
 		// final static public String newConcept = "newConcept";
-		 final static public String prefLabel = "prefLabel";
+		//*final static public String prefLabel = "prefLabel";
 		// final static public String relatedConcept = "relatedConcept";
 		// final static public String semanticRelation = "semanticRelation";
-		final static public String scheme = "scheme";
+		//*final static public String scheme = "scheme";
 		// final static public String sourceScheme = "sourceScheme";
 		// final static public String targetScheme = "targetScheme";
 		// final static public String treeView = "treeView";
@@ -128,77 +132,87 @@ public class SKOSXL extends SKOS {
 		// GET SKOS METHODS
 		if (request.equals(Req.getPrefLabelRequest)) {
 			System.err.println("inside SKOSXL");
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang);
 			response = getPrefXLabel(skosConceptName, lang);
 		} else if (request.equals(Req.getAltLabelsRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang);
 			response = getAltXLabels(skosConceptName, lang);
 		} else if (request.equals(Req.getHiddenLabelsRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang);
 			response = getHiddenXLabels(skosConceptName, lang);
 		} else if (request.equals(Req.getLabelsRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang);
 			response = getXLabels(skosConceptName, lang);
 		}
 
 		// ADD/CREATE/SET
 
 		else if (request.equals(Req.createConceptRequest)) {
-			String conceptName = setHttpPar(Par.concept);
-			String broaderConceptName = setHttpPar(Par.broaderConcept);
-			String schemeName = setHttpPar(Par.scheme);
-			String prefLabel = setHttpPar(Par.prefLabel);
-			String prefLabelLanguage = setHttpPar(Par.langTag);
-			checkRequestParametersAllNotNull(Par.concept, Par.scheme);
+			String conceptName = setHttpPar(SKOS.Par.concept);
+			String broaderConceptName = setHttpPar(SKOS.Par.broaderConcept);
+			String schemeName = setHttpPar(SKOS.Par.scheme);
+			String prefLabel = setHttpPar(SKOS.Par.prefLabel);
+			String prefLabelLanguage = setHttpPar(SKOS.Par.prefLabelLang);
+			String language = setHttpPar(SKOS.Par.lang);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.scheme);
 			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
-					prefLabelLanguage);
+					prefLabelLanguage, language);
 
+		}else if (request.equals(Req.createSchemeRequest)) {
+			String schemeName = setHttpPar(SKOS.Par.scheme);
+			String preferredLabel = setHttpPar(SKOS.Par.prefLabel);
+			String preferredLabelLanguage = setHttpPar(SKOS.Par.prefLabelLang);
+			String language = setHttpPar(SKOS.Par.lang);
+
+			checkRequestParametersAllNotNull(SKOS.Par.scheme);
+			response = createConceptScheme(schemeName, preferredLabel, preferredLabelLanguage, language);
+		
 		}else if (request.equals(Req.setPrefLabelRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			String label = setHttpPar(Par.label);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
 			String modeString = setHttpPar(Par.mode);
-			checkRequestParametersAllNotNull(Par.concept, Par.mode, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, Par.mode, SKOS.Par.lang, SKOS.Par.label);
 			XLabelCreationMode xLabelCreationMode = XLabelCreationMode.valueOf(modeString);
 			response = setPrefXLabel(skosConceptName, xLabelCreationMode, label, lang);
 		} else if (request.equals(Req.addAltLabelRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			String label = setHttpPar(Par.label);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
 			String modeString = setHttpPar(Par.mode);
-			checkRequestParametersAllNotNull(Par.concept, Par.mode, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, Par.mode, SKOS.Par.lang, SKOS.Par.label);
 			XLabelCreationMode xLabelCreationMode = XLabelCreationMode.valueOf(modeString);
 			response = addAltXLabel(skosConceptName, xLabelCreationMode, label, lang);
 		} else if (request.equals(Req.addHiddenLabelRequest)) {
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			String label = setHttpPar(Par.label);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
 			String modeString = setHttpPar(Par.mode);
-			checkRequestParametersAllNotNull(Par.concept, Par.mode, Par.langTag, Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, Par.mode, SKOS.Par.lang, SKOS.Par.label);
 			XLabelCreationMode xLabelCreationMode = XLabelCreationMode.valueOf(modeString);
 			response = addHiddenXLabel(skosConceptName, xLabelCreationMode, label, lang);
 		}
 		
 		// REMOVE
 		else if(request.equals(Req.removePrefLabelRequest)){
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
 			response = removePrefXLabel(skosConceptName, label, lang);
 		} else if(request.equals(Req.removeAltLabelRequest)){
-			String skosConceptName = setHttpPar(Par.concept);
-			String lang = setHttpPar(Par.langTag);
-			String label = setHttpPar(Par.label);
-			checkRequestParametersAllNotNull(Par.concept, Par.langTag, Par.label);
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
 			response = removeAltXLabel(skosConceptName, label, lang);
 		}
 		
@@ -430,7 +444,7 @@ public class SKOSXL extends SKOS {
 	
 	
 	public Response createConcept(String conceptName, String superConceptName, String schemeName,
-			String prefLabel, String prefLabelLang) {
+			String prefLabel, String prefLabelLang, String language) {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		logger.debug("conceptName: " + conceptName);
 		logger.debug("schemeName: " + schemeName);
@@ -453,11 +467,11 @@ public class SKOSXL extends SKOS {
 			logger.debug("adding concept to graph: " + wrkGraph);
 			skosxlModel.addConceptToScheme(newConcept.getURI(), superConcept, conceptScheme, wrkGraph);
 			
-			ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, prefLabelLang,
-					getWorkingGraph());
+			ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, 
+					prefLabelLang, getWorkingGraph());
 			skosxlModel.setPrefXLabel(newConcept, prefXLabel, getWorkingGraph());
 
-			RDFXMLHelp.addRDFNode(response, createSTConcept(skosxlModel, newConcept, true, prefLabelLang));
+			RDFXMLHelp.addRDFNode(response, createSTConcept(skosxlModel, newConcept, true, language));
 			RDFXMLHelp.addRDFNode(response, createSTXLabel(skosxlModel, prefXLabel, true));
 
 		} catch (ModelAccessException e) {
@@ -472,6 +486,41 @@ public class SKOSXL extends SKOS {
 		return response;
 	}
 	
+	public Response createConceptScheme(String schemeQName, String prefLabel, String prefLabelLang, 
+			String language) {
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+		logger.debug("new scheme name: " + schemeQName);
+
+		try {
+
+			SKOSXLModel skosxlModel = getSKOSXLModel();
+			ARTURIResource newScheme = createNewResource(skosxlModel, schemeQName, getUserNamedGraphs());
+
+			// add a new concept scheme...
+			skosxlModel.addSKOSConceptScheme(newScheme, getWorkingGraph());
+			
+			// add skos:preferredLabel
+			if (prefLabel != null && prefLabelLang != null) {
+				ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, 
+						prefLabelLang, getWorkingGraph());
+				skosxlModel.setPrefXLabel(newScheme, prefXLabel, getWorkingGraph());
+				
+				//addPrefLabel(skosModel, newScheme, prefLabel, lang);
+			}
+
+			RDFXMLHelp.addRDFNode(response, createSTScheme(skosxlModel, newScheme, true, language));
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (DuplicatedResourceException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
 	
 	/**
 	 * this service sets the preferred label for a given language
