@@ -126,6 +126,7 @@ public class Property extends Resource {
 	}
 
 	public static class Par {
+		final static public String inferencePar = "inference";
 		final static public String nodeTypePar = "nodeType";
 		final static public String dataRangePar = "dataRange";
 		final static public String instanceQNamePar = "instanceQName";
@@ -165,15 +166,20 @@ public class Property extends Resource {
 
 			// PROPERTIES TREE METHODS
 			if (request.equals(Req.getPropertiesTreeRequest)) {
-				return getPropertyTree(true, true, true, true, true);
+				boolean inference = setHttpBooleanPar(Par.inferencePar, true);
+				return getPropertyTree(true, true, true, true, true, inference);
 			} else if (request.equals(Req.getObjPropertiesTreeRequest)) {
-				return getPropertyTree(true, true, false, false, false);
+				boolean inference = setHttpBooleanPar(Par.inferencePar, true);
+				return getPropertyTree(true, true, false, false, false, inference);
 			} else if (request.equals(Req.getDatatypePropertiesTreeRequest)) {
-				return getPropertyTree(false, false, true, false, false);
+				boolean inference = setHttpBooleanPar(Par.inferencePar, true);
+				return getPropertyTree(false, false, true, false, false, inference);
 			} else if (request.equals(Req.getAnnotationPropertiesTreeRequest)) {
-				return getPropertyTree(false, false, false, true, false);
+				boolean inference = setHttpBooleanPar(Par.inferencePar, true);
+				return getPropertyTree(false, false, false, true, false, inference);
 			} else if (request.equals(Req.getOntologyPropertiesTreeRequest)) {
-				return getPropertyTree(false, false, false, false, true);
+				boolean inference = setHttpBooleanPar(Par.inferencePar, true);
+				return getPropertyTree(false, false, false, false, true, inference);
 			}
 
 			// PROPERTY DESCRIPTION METHOD
@@ -379,7 +385,7 @@ public class Property extends Resource {
 	 * @return Response tree
 	 */
 	public Response getPropertyTree(boolean props, boolean objprops, boolean datatypeprops,
-			boolean annotationprops, boolean ontologyprops) {
+			boolean annotationprops, boolean ontologyprops, boolean inference) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(
 				Req.getPropertiesTreeRequest, RepliesStatus.ok);
@@ -402,8 +408,8 @@ public class Property extends Resource {
 			// OBJECT PROPERTIES
 			if (objprops == true) {
 
-				filteredPropsIterator = Iterators.filter(ontModel.listObjectProperties(true,
-						NodeFilters.MAINGRAPH), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(ontModel.listObjectProperties(inference,
+						NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root object properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -412,8 +418,8 @@ public class Property extends Resource {
 
 			// DATATYPE PROPERTIES
 			if (datatypeprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listDatatypeProperties(true,
-						NodeFilters.MAINGRAPH), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(ontModel.listDatatypeProperties(inference,
+						NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root datatype properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -422,8 +428,8 @@ public class Property extends Resource {
 
 			// ANNOTATION PROPERTIES
 			if (annotationprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listAnnotationProperties(true,
-						NodeFilters.MAINGRAPH), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(ontModel.listAnnotationProperties(inference,
+						NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root annotation properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -432,8 +438,8 @@ public class Property extends Resource {
 
 			// ONTOLOGY PROPERTIES
 			if (ontologyprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listOntologyProperties(true,
-						NodeFilters.MAINGRAPH), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(ontModel.listOntologyProperties(inference,
+						NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root annotation properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -444,7 +450,7 @@ public class Property extends Resource {
 			Predicate<ARTURIResource> rdfPropsPredicate = Predicates.and(BaseRDFPropertyPredicate
 					.getPredicate(ontModel), rootUserPropsPred);
 			if (props == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listProperties(NodeFilters.MAINGRAPH),
+				filteredPropsIterator = Iterators.filter(ontModel.listProperties(NodeFilters.ANY),
 						rdfPropsPredicate);
 				logger.debug("\n\nontology root rdf:properties: \n");
 				while (filteredPropsIterator.hasNext())
