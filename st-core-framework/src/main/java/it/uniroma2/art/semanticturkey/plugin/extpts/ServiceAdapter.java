@@ -110,6 +110,19 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	}
 
 	/**
+	 * ad for {@link #setHttpBooleanPar(String)} but allows for the specification of the default value in case
+	 * the parameter has not been specified
+	 * 
+	 * @param parameterName
+	 * @param defaultValue
+	 * @return
+	 */
+	public boolean setHttpBooleanPar(String parameterName, boolean defaultValue) {
+		String strvalue = setHttpPar(parameterName);
+		return (strvalue == null) ? defaultValue : (Boolean.parseBoolean(strvalue));
+	}
+
+	/**
 	 * checks that the http parameters identified by <code>pars</code> have been properly initialized
 	 * 
 	 * @param pars
@@ -205,11 +218,11 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	protected XMLResponseREPLY createBooleanResponse(boolean resp) {
 		return servletUtilities.createBooleanResponse(httpParameters.get("request"), resp);
 	}
-	
+
 	protected XMLResponseREPLY createIntegerResponse(int value) {
 		return servletUtilities.createIntegerResponse(httpParameters.get("request"), value);
 	}
-	
+
 	protected XMLResponseREPLY createReplyResponse(RepliesStatus status) {
 		return servletUtilities.createReplyResponse(httpParameters.get("request"), status);
 	}
@@ -298,7 +311,8 @@ public abstract class ServiceAdapter implements ServiceInterface {
 		return userGraphs;
 	}
 
-	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException, NonExistingRDFResourceException {
+	protected ARTResourceIterator listNamedGraphs() throws ModelAccessException,
+			NonExistingRDFResourceException {
 		RDFModel model = ProjectManager.getCurrentProject().getOntModel();
 		return model.listNamedGraphs();
 	}
@@ -308,13 +322,13 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	}
 
 	protected ARTResource retrieveExistingResource(RDFModel model, String qname, ARTResource... graphs)
-			throws NonExistingRDFResourceException, ModelAccessException {		
+			throws NonExistingRDFResourceException, ModelAccessException {
 		ARTResource res = RDFNodeSerializer.createResource(model, qname);
 		if (model.existsResource(res, graphs))
 			return res;
 		throw new NonExistingRDFResourceException(res, graphs);
 	}
-	
+
 	protected ARTURIResource retrieveExistingURIResource(RDFModel model, String qname, ARTResource... graphs)
 			throws NonExistingRDFResourceException, ModelAccessException {
 		ARTURIResource res = RDFNodeSerializer.createURI(model, qname);
@@ -331,7 +345,8 @@ public abstract class ServiceAdapter implements ServiceInterface {
 	 * 
 	 * @param model
 	 * @param qname
-	 * @param graphs these are the graphs to be checked for existence of the resource
+	 * @param graphs
+	 *            these are the graphs to be checked for existence of the resource
 	 * @return
 	 * @throws NonExistingRDFResourceException
 	 * @throws ModelAccessException
