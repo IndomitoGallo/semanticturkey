@@ -1,72 +1,82 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="enrichProperty.css" type="text/css"?>
-	<!--
-		/* * The contents of this file are subject to the Mozilla Public
-		License * Version 1.1 (the "License"); you may not use this file
-		except in compliance * with the License. You may obtain a copy of the
-		License at * http://www.mozilla.org/MPL/ * * Software distributed
-		under the License is distributed on an "AS IS" basis, * WITHOUT
-		WARRANTY OF ANY KIND, either express or implied. See the License for *
-		the specific language governing rights and limitations under the
-		License. * * The Original Code is SemanticTurkey. * * The Initial
-		Developer of the Original Code is University of Roma Tor Vergata. *
-		Portions created by University of Roma Tor Vergata are Copyright (C)
-		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
-		Artificial Intelligence Research Group * (art.uniroma2.it) at the
-		University of Roma Tor Vergata (ART) * Current information about
-		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
-		* */
-	-->
+<?xml-stylesheet href="chrome://semantic-turkey/content/annotation/preconditions/preconditions.css" type="text/css"?>
+<?xml-stylesheet href="chrome://semantic-turkey/content/annotation/preconditions/codemirror2/lib/codemirror.css" type="text/css"?>
+<?xml-stylesheet href="chrome://semantic-turkey/content/annotation/preconditions/flint/preconditionscolors.css" type="text/css"?>
 
-<window id="options2" title=""
+<!-- /* * The contents of this file are subject to the Mozilla Public License 
+	* Version 1.1 (the "License"); you may not use this file except in compliance 
+	* with the License. You may obtain a copy of the License at * http://www.mozilla.org/MPL/ 
+	* * Software distributed under the License is distributed on an "AS IS" basis, 
+	* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License 
+	for * the specific language governing rights and limitations under the License. 
+	* * The Original Code is SemanticTurkey. * * The Initial Developer of the 
+	Original Code is University of Roma Tor Vergata. * Portions created by University 
+	of Roma Tor Vergata are Copyright (C) 2007. * All Rights Reserved. * * SemanticTurkey 
+	was developed by the Artificial Intelligence Research Group * (art.uniroma2.it) 
+	at the University of Roma Tor Vergata (ART) * Current information about SemanticTurkey 
+	can be obtained at * http://semanticturkey.uniroma2.it * */ -->
+
+<dialog id="options2" title=""
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	width="440" height="400">
+	xmlns:html="http://www.w3.org/1999/xhtml" width="440" height="400"
+	buttons=",">
 
 	<script type="application/x-javascript"
-			src="chrome://semantic-turkey/content/scripts/options2.js" />
-		
+		src="chrome://semantic-turkey/content/annotation/preconditions/codemirror2/lib/modified_codemirror.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/annotation/preconditions/codemirror2/lib/util/runmode.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/annotation/preconditions/flint/preconditions_ll1.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/scripts/options2.js" />
+
 	<hbox flex="1">
 		<listbox id="Events" flex="1">
-				<listhead>
-					<listheader>
-						<listitem-iconic>
-							<label value="Events"/>
-						</listitem-iconic>
-					</listheader>		
-				</listhead>		
+			<listhead>
+				<listheader>
+					<listitem-iconic>
+						<label value="Events" />
+					</listitem-iconic>
+				</listheader>
+			</listhead>
 		</listbox>
-		
+
 		<splitter orient="horizontal" state="open" collapse="after"
 			resizeafter="closest">
 		</splitter>
-		
-		<listbox id="fake" hidden="false" flex="1">
-			<listhead>
-					<listheader>
-						<listitem-iconic>
-							<label value="Handlers"/>
-						</listitem-iconic>
-					</listheader>		
-				</listhead>	
-		 </listbox>
-	</hbox>		 
-	
-	<vbox id="buttonBox" flex="0">
-		<grid flex="1">
-			<columns>
-				<column flex="1" />
-				<column flex="1" />
-			</columns>
-			<rows>
-				<row>
-					<button id="ok" label="Ok" flex="1">
-					</button>
-					<button id="cancel" label="Cancel" flex="1">
-					</button>
-				</row>
-			</rows>
-		</grid>
-	</vbox>
 
-</window>
+		<richlistbox id="fake" hidden="false" flex="1">
+			<listhead flex="1">
+				<listheader flex="1">
+					<listitem-iconic flex="1">
+						<label value="Handlers" flex="1"/>
+					</listitem-iconic>
+				</listheader>
+			</listhead>
+		</richlistbox>
+	</hbox>
+
+
+<!-- 	<vbox id="buttonBox" flex="0"> -->
+<!-- 		<grid flex="1"> -->
+<!-- 			<columns> -->
+<!-- 				<column flex="1" /> -->
+<!-- 				<column flex="1" /> -->
+<!-- 			</columns> -->
+<!-- 			<rows> -->
+<!-- 				<row> -->
+<!-- 					<button id="acceptButton" label="OK" flex="1"> -->
+<!-- 					</button> -->
+<!-- 					<button id="cancelButton" label="Cancel" flex="1"> -->
+<!-- 					</button> -->
+<!-- 				</row> -->
+<!-- 			</rows> -->
+<!-- 		</grid> -->
+<!-- 	</vbox> -->
+	<hbox pack="end">
+		<button id="acceptButton" label="OK" />
+		<button id="cancelButton" label="Cancel" />
+	</hbox>
+</dialog>

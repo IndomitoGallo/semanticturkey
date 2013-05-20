@@ -22,7 +22,7 @@
 const
 langsPrefsEntry = "extensions.semturkey.annotprops.langs";
 const
-defaultLangsPrefsEntry = "extensions.semturkey.annotprops.defaultlang";
+defaultLangPrefsEntry = "extensions.semturkey.annotprops.defaultlang";
 const
 annPrefsEntry = "extensions.semturkey.extpt.annotateList";
 const
@@ -32,48 +32,85 @@ if (typeof art_semanticturkey == 'undefined')
 	var art_semanticturkey = {};
 
 Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/StartST.jsm", art_semanticturkey);
 
 art_semanticturkey.init = function() {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefBranch);
+	if (art_semanticturkey.ST_started.getStatus() == "true") {
+		document.getElementById("familyDeck").selectedIndex = 1;
 
-	var familyMap = art_semanticturkey.annotation.AnnotationManager.getFamilies();
+		var familyMap = art_semanticturkey.annotation.AnnotationManager.getFamilies();
 
-	var annotationFamilyOptionsElement = document.getElementById("annotationFamilyOptions");
+		var annotationFamilyOptionsElement = document.getElementById("annotationFamilyOptions");
 
-	for ( var familyId in familyMap) {
-		var fItem = document.createElement("listitem");
-		fItem.setAttribute("label", familyMap[familyId].getName());
-		fItem.setAttribute("value", familyId);
-		// for each family, add the eventlistener for open the options2 window
-		fItem.addEventListener("dblclick", art_semanticturkey.familyClick, false);
-		annotationFamilyOptionsElement.appendChild(fItem);
+		for ( var familyId in familyMap) {
+			var fItem = document.createElement("listitem");
+			fItem.setAttribute("label", familyMap[familyId].getName());
+			fItem.setAttribute("value", familyId);
+			// for each family, add the eventlistener for open the options2
+			// window
+			fItem.addEventListener("dblclick", art_semanticturkey.familyClick, false);
+			annotationFamilyOptionsElement.appendChild(fItem);
+		}
+
+		var defAnnId = art_semanticturkey.Preferences.get(defaultAnnPrefsEntry, "");
+		var defaultAnnotationFamilyElement = document.getElementById("defaultAnnotationFamily");
+		defaultAnnotationFamilyElement.setAttribute("value", familyMap[defAnnId] ? familyMap[defAnnId]
+				.getName() : "undefined");
 	}
 
-	var defAnnId = prefs.getCharPref(defaultAnnPrefsEntry);
-	var defaultAnnotationFamilyElement = document.getElementById("defaultAnnotationFamily");
-	defaultAnnotationFamilyElement.setAttribute("value", familyMap[defAnnId] ? familyMap[defAnnId].getName()
-			: "undefined");
-
-	var defLang = prefs.getCharPref(defaultLangsPrefsEntry);
+	var defLang = art_semanticturkey.Preferences.get(defaultLangPrefsEntry, "en");
 	var defaultLanguageElement = document.getElementById("defaultLanguage");
 	defaultLanguageElement.setAttribute("value", defLang);
 
-	var langList = prefs.getCharPref(langsPrefsEntry).split(",");
+	var langList = art_semanticturkey.Preferences.get(langsPrefsEntry, "").split(",");
 	var languageOptionsElement = document.getElementById("languageOptions");
 	langList.sort();
 	for ( var y = 0; y < langList.length; y++) {
 		var langListItem = document.createElement("listitem");
 		langListItem.setAttribute("label", langList[y]);
+		langListItem.setAttribute("value", langList[y]);
 		languageOptionsElement.appendChild(langListItem);
 	}
 
-	document.getElementById("addLanguage").addEventListener("click", art_semanticturkey.addLanguage);
-	document.getElementById("removeLanguage").addEventListener("click", art_semanticturkey.removeLanguage);
-	document.getElementById("changeDefaultAnnotationFamily").addEventListener("click",
-			art_semanticturkey.changeDefaultAnnotationFamily);
-	document.getElementById("changeDefaultLanguage").addEventListener("click",
+	document.getElementById("changeDefaultLanguage").addEventListener("command",
 			art_semanticturkey.changeDefaultLanguage);
+	document.getElementById("addLanguage").addEventListener("command", art_semanticturkey.addLanguage);
+	document.getElementById("removeLanguage").addEventListener("command", art_semanticturkey.removeLanguage);
+
+	document.getElementById("changeDefaultAnnotationFamily").addEventListener("command",
+			art_semanticturkey.changeDefaultAnnotationFamily);
+
+	document.getElementById("acceptButton").addEventListener("command", function() {
+		document.documentElement.acceptDialog();
+	}, false);
+	document.getElementById("cancelButton").addEventListener("command", function() {
+		document.documentElement.cancelDialog();
+	}, false);
+
+	document.addEventListener("dialogaccept", art_semanticturkey.onAccept, false);
+	document.addEventListener("dialogcancel", art_semanticturkey.onCancel, false);
+};
+
+art_semanticturkey.onAccept = function(event) {
+	var defaultLanguage = document.getElementById("defaultLanguage").getAttribute("value");
+
+	var langList = "";
+	var languageOptions = document.getElementById("languageOptions");
+	for ( var i = 0; i < languageOptions.getRowCount(); i++) {
+		if (i != 0) {
+			langList = langList + ",";
+		}
+
+		langList = langList + languageOptions.getItemAtIndex(i).getAttribute("value");
+	}
+
+	art_semanticturkey.Preferences.set(defaultLangPrefsEntry, defaultLanguage);
+	art_semanticturkey.Preferences.set(langsPrefsEntry, langList);
+};
+
+art_semanticturkey.onCancel = function(event) {
+	// Nothing to do
 };
 
 art_semanticturkey.changeDefaultLanguage = function() {
@@ -82,6 +119,43 @@ art_semanticturkey.changeDefaultLanguage = function() {
 	if (selectedLangElement != null) {
 		document.getElementById("defaultLanguage").setAttribute("value",
 				selectedLangElement.getAttribute("label"));
+	} else {
+		alert("You must select a language!");
+	}
+};
+
+art_semanticturkey.addLanguage = function() {
+	var newLang = prompt("Insert new language option", "");
+	if (newLang != null) {
+		var langlistbox = document.getElementById("languageOptions");
+
+		var i = 0;
+
+		for (; i < langlistbox.getRowCount(); i++) {
+			var item = langlistbox.getItemAtIndex(i);
+
+			if (newLang < item.getAttribute("value")) {
+				break;
+			}
+		}
+
+		langlistbox.insertItemAt(i, newLang, newLang);
+	}
+};
+
+art_semanticturkey.removeLanguage = function() {
+	var languageOptions = document.getElementById("languageOptions");
+	var selectedItem = languageOptions.selectedItem;
+	var selectedIndex = languageOptions.selectedIndex;
+
+	if (selectedItem != null) {
+
+		var remLang = selectedItem.getAttribute("label");
+		var risp = confirm("Do you really want remove " + remLang + " language?");
+		if (risp) {
+			languageOptions.removeItemAt(selectedIndex);
+		}
+
 	} else {
 		alert("You must select a language!");
 	}
@@ -100,61 +174,6 @@ art_semanticturkey.changeDefaultAnnotationFamily = function() {
 	} else {
 		alert("You must select an annotation family!");
 	}
-};
-
-art_semanticturkey.addLanguage = function() {
-	var newLang = prompt("Insert new language option", "");
-	if (newLang != null) {
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefBranch);
-		var langList = prefs.getCharPref(langsPrefsEntry).split(",");
-		var langlistbox = document.getElementById("languageOptions");
-
-		while (langlistbox.hasChildNodes()) {
-			langlistbox.removeChild(langlistbox.lastChild);
-		}
-
-		var langListItem = document.createElement("listitem");
-		langList.push(newLang);
-		langList.sort();
-		for ( var y = 0; y < langList.length; y++) {
-			langListItem.setAttribute("label", langList[y]);
-			langlistbox.appendChild(langListItem);
-			langListItem = document.createElement("listitem");
-		}
-
-	}
-};
-
-art_semanticturkey.removeLanguage = function() {
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefBranch);
-	var selectedItem = document.getElementById("languageOptions").selectedItem;
-	var selectIndex = document.getElementById("languageOptions").selectedIndex;
-
-	if (selectedItem == null) {
-		return;
-	}
-	var remLang = selectedItem.getAttribute("label");
-	var langList = prefs.getCharPref(langsPrefsEntry).split(",");
-	langList.sort();
-	var risp = confirm("Do you really want remove " + remLang + " language?");
-	if (risp) {
-		var langList = prefs.getCharPref(langsPrefsEntry).split(",");
-		langList.sort();
-		langList.splice(selectIndex, 1);
-		prefs.setCharPref(langsPrefsEntry, langList);
-		var langlistbox = document.getElementById("languageOptions");
-		while (langlistbox.hasChildNodes()) {
-			langlistbox.removeChild(langlistbox.lastChild);
-		}
-		for ( var y = 0; y < langList.length; y++) {
-			var langListItem = document.createElement("listitem");
-			langListItem.setAttribute("label", langList[y]);
-			langlistbox.appendChild(langListItem);
-		}
-	}
-
 };
 
 // function that is called when double click the name of a family
