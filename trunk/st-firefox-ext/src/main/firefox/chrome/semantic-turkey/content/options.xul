@@ -3,20 +3,22 @@
 <prefwindow xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
             title="Semantic Turkey Options"
             width="600" height="300"
-            buttons="cancel">
+            buttons=",">
 	<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/options.js"/>
-    <preferences id="preferences_list">
-		<preference id="annotate" name="extensions.semturkey.extpt.annotate" type="string"/>
-		<preference id="default_language" name="extensions.semturkey.annotprops.defaultlang" type="string"/>
-		<preference id="languages_list" name="extensions.semturkey.annotprops.langs" type="string"/>
-    </preferences>
     <prefpane id="annotationFamilyPane" label="Annotation Family">
-    	<label control="defaultAnnotationFamily" value="Default Family" />
-		<hbox id="default_language_box">
-			<textbox id="defaultAnnotationFamily" readonly="true" /> <button id="changeDefaultAnnotationFamily" label="Change Default Annotation Family" />
-		</hbox>
-    	<label control="annotationFamlyOptions" value="Family Options" />
-		<listbox id="annotationFamilyOptions" />
+    	<deck id="familyDeck">
+    		<vbox align="center" pack="center">
+				<label value="Please, start ST to customize the annotation families" />
+			</vbox>
+    		<vbox>
+    			<label control="defaultAnnotationFamily" value="Default Family" />
+				<hbox id="default_family_box">
+					<textbox id="defaultAnnotationFamily" readonly="true" /> <button id="changeDefaultAnnotationFamily" label="Change Default Annotation Family" />
+				</hbox>
+    			<label control="annotationFamlyOptions" value="Family Options" />
+				<listbox id="annotationFamilyOptions" />
+			</vbox>
+		</deck>
 	</prefpane>
 	<prefpane id="languagePane" label="Label Languages">
 		<label control="defaultLanguage" value="Default Language"/>
@@ -31,4 +33,7 @@
 		<listbox id="languageOptions" rows="5" flex="1">
 		</listbox>
 	</prefpane>
+	<hbox pack="end" flex="1">
+		<button id="acceptButton" label="Ok" /> <button id="cancelButton" label="Cancel" /> 
+	</hbox>
 </prefwindow>

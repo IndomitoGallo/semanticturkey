@@ -66,12 +66,12 @@ art_semanticturkey.contentLoadedHook = function(event) {
 };
 
 art_semanticturkey.tabSelectHook = function(event) {
-	art_semanticturkey.checkAnnotationsForContent_RESPONSE(event.target);
+	art_semanticturkey.checkAnnotationsForContent_RESPONSE(gBrowser.contentDocument);
 };
 
 art_semanticturkey.checkAnnotationsForContent_RESPONSE = function(doc) {
 	var projectIsNull = art_semanticturkey.CurrentProject.isNull();
-
+	
 	if (projectIsNull == false && (doc.getUserData("stAnnotationsExist") == "true")) {
 		var statusIcon = document.getElementById("status-bar-annotation");
 		statusIcon.collapsed = false;

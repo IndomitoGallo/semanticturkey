@@ -129,7 +129,7 @@ annotation.commons.conventions = {};
 
 // Decorates a content resource with annotations attached to it. This
 // conventional functions depends on the availability of the conventional
-// function "annotation2ranges"
+// functions "annotation2ranges", "viewAnnotation" and "viewResource"
 annotation.commons.conventions.decorateContent = function(document, annotations) {
 	// A Browser Window: needed for accessing eventObjects and rangy (because
 	// they are not modules)
@@ -166,12 +166,12 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 
 		// Set the event handler for the click
 		document.addEventListener("click", function(e) {
-		
-		
+
 			if (e.target.classList.contains("st-annotation")) {
 				// Ignores non left-button clicks
-				if (e.button != 0) return;
-				
+				if (e.button != 0)
+					return;
+
 				e.preventDefault(); // to avoid that a click on a link causes
 				// the change of page
 				var ann = e.target.stAnnotation;
@@ -179,11 +179,12 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 				if (typeof ann != "undefined" && typeof self.deleteAnnotation != "undefined"
 						&& typeof ann.id != "undefined") {
 					var panel = window.document.createElement("panel");
-					
+
 					addButton(panel, "Delete Annotation", self.deleteAnnotation.bind(self, ann.id));
-					addButton(panel, "View Annotation",   function()  {window.alert("" + ann.resource);});
-					addButton(panel, "View Resource",     function()  {window.alert("" + ann.resource);});
-					// addButton(panel, "show resource in the tree",  function()  {window.alert("" + ann.resource);});
+					addButton(panel, "View Annotation", self.viewAnnotation.bind(self, ann.id, window));
+					addButton(panel, "View Resource", self.viewResource.bind(self, ann.resource, window));
+					// addButton(panel, "show resource in the tree", function()
+					// {window.alert("" + ann.resource);});
 
 					panel.onpopuphidden = function(e) {
 						e.target.parentNode.removeChild(e.target);
@@ -221,33 +222,35 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 	cssApplier.undoToRange(bodyRange);
 	bodyRange.detach();
 
-	// Highlight annotations
-	for ( var i = 0; i < annotations.length; i++) {
-		var ann = annotations[i];
-		// Get DOM ranges for i-th annotations
-		var ranges = this.annotation2ranges(document, ann);
+	window.setTimeout(function() {
+		// Highlight annotations
+		for ( var i = 0; i < annotations.length; i++) {
+			var ann = annotations[i];
+			// Get DOM ranges for i-th annotations
+			var ranges = this.annotation2ranges(document, ann);
 
-		// Highlight each range
-		for ( var k = 0; k < ranges.length; k++) {
-			var range = ranges[k];
+			// Highlight each range
+			for ( var k = 0; k < ranges.length; k++) {
+				var range = ranges[k];
 
-			var range2 = window.rangy.createRangyRange(document);
-			range2.setStart(range.startContainer, range.startOffset);
-			range2.setEnd(range.endContainer, range.endOffset);
+				var range2 = window.rangy.createRangyRange(document);
+				range2.setStart(range.startContainer, range.startOffset);
+				range2.setEnd(range.endContainer, range.endOffset);
 
-			var cssApplier = window.rangy.createCssClassApplier("st-annotation", {
-				normalize : false,
-				elementProperties : {
-					stAnnotation : ann,
-				}
-			});
+				var cssApplier = window.rangy.createCssClassApplier("st-annotation", {
+					normalize : false,
+					elementProperties : {
+						stAnnotation : ann,
+					}
+				});
 
-			cssApplier.applyToRange(range2);
+				cssApplier.applyToRange(range2);
 
-			range.detach();
-			range2.detach();
+				range.detach();
+				range2.detach();
+			}
 		}
-	}
+	}.bind(this), 0);
 
 	// Register listeners for the deletion of annotations
 	document.stEventArray = new window.art_semanticturkey.eventListenerArrayClass();
@@ -281,17 +284,64 @@ annotation.commons.conventions.decorateContent = function(document, annotations)
 	}, null);
 };
 
+annotation.commons.conventions.viewAnnotation = function(annotationId, window) {
+	var parameters = {
+		sourceElement : null, // elemento contenente i dati della riga
+								// corrente
+		sourceType : "resource", // tipo di editor: clss, ..., determina le
+									// funzioni custom ed il titolo della
+									// finestra
+		sourceElementName : annotationId, // nome dell'elemento corrente
+											// (quello usato per
+											// identificazione: attualmente il
+											// qname)
+		sourceParentElementName : "", // nome dell'elemento genitore
+		isFirstEditor : true, // l'editor è stato aperto direttamente dall
+								// class/... tree o da un altro editor?
+		deleteForbidden : false, // cancellazione vietata
+		parentWindow : window, // finestra da cui viene aperto l'editor
+	// skos : {selectedScheme : this.conceptScheme}
+	};
+	window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul", "_blank",
+			"chrome,dependent,dialog,modal=yes,resizable,centerscreen", parameters);
+};
+
+annotation.commons.conventions.viewResource = function(resourceId, window) {
+	var parameters = {
+		sourceElement : null, // elemento contenente i dati della riga
+								// corrente
+		sourceType : "resource", // tipo di editor: clss, ..., determina le
+									// funzioni custom ed il titolo della
+									// finestra
+		sourceElementName : resourceId, // nome dell'elemento corrente (quello
+										// usato per identificazione:
+										// attualmente il qname)
+		sourceParentElementName : "", // nome dell'elemento genitore
+		isFirstEditor : true, // l'editor è stato aperto direttamente dall
+								// class/... tree o da un altro editor?
+		deleteForbidden : false, // cancellazione vietata
+		parentWindow : window, // finestra da cui viene aperto l'editor
+	// skos : {selectedScheme : this.conceptScheme}
+	};
+	window.openDialog("chrome://semantic-turkey/content/editors/editorPanel.xul", "_blank",
+			"chrome,dependent,dialog,modal=yes,resizable,centerscreen", parameters);
+};
+
 annotation.commons.registerCommonHandlers = function(family) {
 	family.addContentLoadedHandler("Default handler", annotation.commons.handlers.contentLoaded);
-	family.addSelectionOverResourceHandler("Create instance", "to create a new instance of {target-resource}",
-			annotation.commons.handlers.createInstance,
-			annotation.Preconditions.Role.Cls);
-	family.addSelectionOverResourceHandler("Create narrower concept", "to create a narrower concept of {target-resource}",
-			annotation.commons.handlers.createNarrowerConcept, annotation.Preconditions.Role.Concept);
-	family.addSelectionOverResourceHandler("Value for property", "as a value for a property of {target-resource}",
-			annotation.commons.handlers.valueForProperty);
-	family.addSelectionOverResourceHandler("Further annotation", "as a further annotation of {target-resource}",
-			annotation.commons.handlers.furtherAnn);
+	family.addSelectionOverResourceHandler("Create instance",
+			"to create a new instance of {target-resource}", annotation.commons.handlers.createInstance,
+			"Role.Cls");
+	family.addSelectionOverResourceHandler("Create narrower concept",
+			"to create a narrower concept of {target-resource}",
+			annotation.commons.handlers.createNarrowerConcept, "Role.Concept");
+	family.addSelectionOverResourceHandler("Value for property",
+			"as a value for a property of {target-resource}", annotation.commons.handlers.valueForProperty);
+	family.addSelectionOverResourceHandler("Further annotation",
+			"as a further annotation of {target-resource}", annotation.commons.handlers.furtherAnn);
 
 	family.decorateContent = annotation.commons.conventions.decorateContent;
+	family.viewAnnotation = annotation.commons.conventions.viewAnnotation;
+	family.viewResource = annotation.commons.conventions.viewResource;
+
 };

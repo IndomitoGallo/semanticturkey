@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="preconditions.css" type="text/css"?>
+<?xml-stylesheet href="codemirror2/lib/codemirror.css" type="text/css"?>
+<?xml-stylesheet href="flint/preconditionscolors.css" type="text/css"?>
+<!--  /*
+	  * The contents of this file are subject to the Mozilla Public License
+	  * Version 1.1 (the "License");  you may not use this file except in compliance
+	  * with the License.  You may obtain a copy of the License at
+	  * http://www.mozilla.org/MPL/
+	  *
+	  * Software distributed under the License is distributed on an "AS IS" basis,
+	  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+	  * the specific language governing rights and limitations under the License.
+	  *
+	  * The Original Code is SemanticTurkey.
+	  *
+	  * The Initial Developer of the Original Code is University of Roma Tor Vergata.
+	  * Portions created by University of Roma Tor Vergata are Copyright (C) 2007.
+	  * All Rights Reserved.
+	  *
+	  * SemanticTurkey was developed by the Artificial Intelligence Research Group
+	  * (art.uniroma2.it) at the University of Roma Tor Vergata (ART)
+	  * Current information about SemanticTurkey can be obtained at 
+	  * http://semanticturkey.uniroma2.it
+	  *
+	  */ -->
+
+
+<dialog id="SPARQLResult" title="SPARQL Dialog" flex="1"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	width="400px"
+	buttons=","
+	>
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/annotation/preconditions/preconditions.js"/>
+	<script type="application/x-javascript" 
+		src="codemirror2/lib/modified_codemirror.js"/>
+	<script type="application/x-javascript" 
+		src="codemirror2/lib/util/runmode.js"/>
+	<script type="application/x-javascript" 
+		src="flint/preconditions_ll1.js"/>
+	
+	<groupbox id="defaultPreconditionGroupbox">
+		<caption class="header" label=" - Default Precondition - " />
+		<html:div id="divDefaultPrecondition" class="message" />
+	</groupbox>
+	
+	<groupbox id="preconditionRestrictionGroupbox">
+		<caption class="header" label=" - Precondition Refinement - " />
+		<html:textarea id="textAreaPreconditions" class="message" />
+	</groupbox>
+	<hbox pack="end">
+		<button label="OK" id="acceptButton" disabled="true" />
+		<button label="Cancel" id="cancelButton" />
+	</hbox>
+</dialog>
