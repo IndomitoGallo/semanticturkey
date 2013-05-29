@@ -188,8 +188,10 @@ public class Resource extends ServiceAdapter {
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
-			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
-			ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			//ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			//ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			ARTResource resource = model.createURIResource(resourceName);
+			ARTURIResource property = model.createURIResource(propertyName);
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
 
 			Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
@@ -223,8 +225,10 @@ public class Resource extends ServiceAdapter {
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
-			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
-			ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			//ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			//ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
+			ARTResource resource = model.createURIResource(resourceName);
+			ARTURIResource property = model.createURIResource(propertyName);
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, !explicit, graphs);
 
 			Collection<ARTNode> values = RDFIterators.getCollectionFromIterator(it);
