@@ -283,7 +283,8 @@ public abstract class ServiceTest {
 	}
 
 	public void deleteWorkingFiles() {
-		File semTurkeyDataDir = new File(STExtDirName, "/../../SemanticTurkeyData");
+		// File semTurkeyDataDir = new File(STExtDirName, "/../../SemanticTurkeyData");
+		File semTurkeyDataDir = Resources.getSemTurkeyDataDir();
 		try {
 			System.out.println("deleting data dir: " + semTurkeyDataDir.getCanonicalPath());
 		} catch (IOException e) {

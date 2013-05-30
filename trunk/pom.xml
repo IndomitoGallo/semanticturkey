@@ -66,8 +66,22 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 	</developers>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>	
-		<dist.dir>target/dist</dist.dir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dist>target</dist>
+
+		<dist.lib>components/lib</dist.lib>
+
+		<dist.server>${dist}/st-server</dist.server>
+		<dist.server.data>${dist.server}/components/data</dist.server.data>
+		<dist.server.lib>${dist.server}/${dist.lib}</dist.server.lib>
+		<dist.server.extensions>${dist.server}/extensions</dist.server.extensions>
+		<dist.server.extensions.service>${dist.server.extensions}/service</dist.server.extensions.service>
+		<dist.server.extensions.ontmanager>${dist.server.extensions}/ontmanager</dist.server.extensions.ontmanager>
+		<dist.server.extensions.core>${dist.server.extensions}/core</dist.server.extensions.core>
+
+		<dist.client>${dist}/st-client</dist.client>
+		<dist.client.lib>${dist.client}/${dist.lib}</dist.client.lib>
+		<dist.client.applet>${dist.client.lib}/applet</dist.client.applet>
 	</properties>
 
 	<scm>
@@ -86,7 +100,7 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 
 		<module>st-codegen-annotations</module>
 		<module>st-codegen-processor</module>
-		<module>st-core-pluginmanager</module>
+		<module>st-launcher</module>
 		<module>st-core-framework</module>
 		<module>st-core-services</module>
 		<module>st-graph-applet</module>
@@ -116,7 +130,63 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 					</excludes>
 				</configuration>
 			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>org.codehaus.mojo</groupId> -->
+			<!-- <artifactId>properties-maven-plugin</artifactId> -->
+			<!-- <version>1.0-alpha-1</version> -->
+			<!-- <executions> -->
+			<!-- <execution> -->
+			<!-- <phase>initialize</phase> -->
+			<!-- <goals> -->
+			<!-- <goal>read-project-properties</goal> -->
+			<!-- </goals> -->
+			<!-- <configuration> -->
+			<!-- <files> -->
+			<!-- <file>../build.properties</file> -->
+			<!-- </files> -->
+			<!-- </configuration> -->
+			<!-- </execution> -->
+			<!-- </executions> -->
+			<!-- </plugin> -->
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											properties-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.0-alpha-1,)
+										</versionRange>
+										<goals>
+											<goal>
+												read-project-properties
+											</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 	<profiles>

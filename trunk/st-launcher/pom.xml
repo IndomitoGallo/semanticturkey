@@ -8,9 +8,9 @@
 		<version>0.9.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>st-core-pluginmanager</artifactId>
-	<name>Semantic Turkey Plugin Manager</name>
-	<description>Semantic Turkey main project. It contains the core business logic of the system.</description>
+	<artifactId>st-launcher</artifactId>
+	<name>Semantic Turkey Launcher</name>
+	<description>Semantic Turkey Launcher. It starts the core-framework and deploy all the found OSGi extensions.</description>
 
 	<developers>
 		<developer>
@@ -39,7 +39,7 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>../${dist.dir}/container/Start</outputDirectory>
+							<outputDirectory>../${dist.server}/container/Start</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
@@ -194,7 +194,7 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>../${dist.dir}/container/Dependency</outputDirectory>
+							<outputDirectory>../${dist.server}/container/Dependency</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
@@ -258,12 +258,26 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>../${dist.dir}</outputDirectory>
+							<outputDirectory>../${dist.server}</outputDirectory>
 							<includeEmptyDirs>true</includeEmptyDirs>
 							<resources>
 								<resource>
 									<directory>src/main/build</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>components/data/sturkey.properties</include>
+									</includes>
+								</resource>
+								<!-- this is to copy all the rest, being sure that we don't copy 
+									again the things which have been processed (filtering=true) for substituting 
+									Maven variables. Thus we have to copy everything, but excluding the elements 
+									above -->
+								<resource>
+									<directory>src/main/build</directory>
 									<filtering>false</filtering>
+									<excludes>
+										<exclude>components/data/sturkey.properties</exclude>
+									</excludes>
 								</resource>
 							</resources>
 						</configuration>

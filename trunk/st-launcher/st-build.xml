@@ -6,7 +6,7 @@
     |
     +-->
 
-<project default="final" basedir="." name="SemanticTurkeyCoreFramework" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project default="final" basedir="." name="SemanticTurkeyCorePluginManager" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
 	<target name="start" depends="final">
 
@@ -47,7 +47,7 @@
 		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" useScope="runtime" />
 		-->
 		
-		<copy todir="../${dist.lib}">
+		<copy todir="../${dist.server.lib}">
 			<path path="${runtime_classpath}" />
 			<!--
     	  <mapper classpathref="maven-ant-tasks.classpath"
@@ -61,7 +61,7 @@
 	<!-- === Copy resources to distribution directory ============================================ -->
 
 	<target name="copy_jar" depends="buildlib">
-		<copy todir="../${dist.lib}">
+		<copy todir="../${dist.server.lib}">
 			<fileset dir="${project.build.directory}" includes="*.jar" />
 		</copy>
 	</target>

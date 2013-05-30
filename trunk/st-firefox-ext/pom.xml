@@ -25,7 +25,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>../${dist.dir}</outputDirectory>
+							<outputDirectory>../${dist.client}</outputDirectory>
 							<includeEmptyDirs>true</includeEmptyDirs>
 							<resources>
 								<resource>
