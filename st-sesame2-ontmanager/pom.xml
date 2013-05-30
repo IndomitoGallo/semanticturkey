@@ -88,7 +88,7 @@
 						<phase>install</phase>
 						<configuration>
 							<target>
-								<copy todir="../${dist.dir}/extensions/ontmanager">
+								<copy todir="../${dist.server.extensions.ontmanager}">
 									<fileset dir="${project.build.directory}" includes="*.jar" />
 								</copy>
 							</target>

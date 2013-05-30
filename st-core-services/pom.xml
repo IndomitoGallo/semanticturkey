@@ -158,7 +158,7 @@
 						<phase>install</phase>
 						<configuration>
 							<target>
-								<copy todir="../${dist.dir}/extensions/service">
+								<copy todir="../${dist.server.extensions.service}">
 									<fileset dir="${project.build.directory}" includes="*.jar" />
 								</copy>
 							</target>

@@ -1,6 +1,6 @@
-package it.uniroma2.art.semanticturkey.pluginmanager;
+package it.uniroma2.art.semanticturkey.launcher;
 
-import it.uniroma2.art.semanticturkey.pluginmanager.utils.utils;
+import it.uniroma2.art.semanticturkey.launcher.utils.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ import org.apache.felix.framework.Felix;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-public class PluginManager {
+public class SemanticTurkeyLauncher {
 
 	public static void main(String[] args) {
 		initialize("dummy");
@@ -25,7 +25,7 @@ public class PluginManager {
 	public static void initialize(String dummy) {
 		Felix m_felix = null;
 
-		URL stPopertiesURL = PluginManager.class.getResource("st-osgi.properties");
+		URL stPopertiesURL = SemanticTurkeyLauncher.class.getResource("st-osgi.properties");
 		Properties stProperties = utils.loadProperties(stPopertiesURL);
 
 		Map<String, String> configMap = new HashMap<String, String>();

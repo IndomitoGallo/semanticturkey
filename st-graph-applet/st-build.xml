@@ -29,7 +29,7 @@
 		<artifact:pom id="stpom" file="pom.xml" />
 		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" useScope="runtime" />
 		-->
-		<copy todir="../${dist.applet}">
+		<copy todir="../${dist.client.applet}">
 			<path path="${runtime_classpath}" />
 			<!--
     	  <mapper classpathref="maven-ant-tasks.classpath"
@@ -43,10 +43,10 @@
 	<!-- === Copy resources to Semantic Turkey distribution ================================================= -->
 
 	<target name="copy_resources" depends="buildlib">
-		<copy todir="../${dist.lib}">
+		<copy todir="../${dist.client.lib}">
 			<fileset dir="src/main/webapp" includes="*.html" />
 		</copy>
-		<copy todir="../${dist.applet}">
+		<copy todir="../${dist.client.applet}">
 			<fileset dir="${project.build.directory}" includes="*.jar" />
 		</copy>
 	</target>

@@ -32,14 +32,14 @@
 
 		<!-- touch the directory so that firefox registry reloads (helps during development) -->
 		<touch>
-			<fileset dir="../${dist.dir}" />
+			<fileset dir="../${dist.client}" />
 		</touch>
 	</target>
 
 	<!-- === Package The Distribution XPI ================================================= -->
 
 	<target name="xpi" depends="dist" description="Create the XPI extension">
-		<zip zipfile="../${name}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.dir}" includes="**" />
+		<zip zipfile="../${stname}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.client}" includes="**" />
 	</target>
 
 	<!-- === Delete the distribution folder ================================================= -->
@@ -51,9 +51,6 @@
 	<!-- === Final Task ================================================= -->
 
 	<target name="final" depends="delete_dist">
-		<copy toDir="../${dist.dir}" file="../system-resources/server_run.xml"/>
-		<copy toDir="../${dist.dir}" file="../system-resources/server_run.bat"/>
-		<copy toDir="../${dist.dir}" file="../system-resources/server_run.sh"/>
 	</target>
 
 </project>

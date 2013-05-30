@@ -64,7 +64,7 @@
 						<phase>install</phase>
 						<configuration>
 								<target>
-									<copy todir="../${dist.dir}/extensions/core">
+									<copy todir="../${dist.server.extensions.core}">
 										<fileset dir="${project.build.directory}" includes="*.jar" />
 									</copy>
 								</target>

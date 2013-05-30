@@ -1,4 +1,4 @@
-package it.uniroma2.art.semanticturkey.pluginmanager.utils;
+package it.uniroma2.art.semanticturkey.launcher.utils;
 
 
 import java.io.BufferedReader;

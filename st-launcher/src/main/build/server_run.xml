@@ -1,8 +1,8 @@
 <project name="SemanticTurkeyServerStart" basedir="." default="run">
     
     <property name="lib.dir"		value="components/lib"/>
-    <property name="main-class"		value="it.uniroma2.art.semanticturkey.pluginmanager.PluginManager"/>
-    <property name="semturkeyjar"	value="st-core-pluginmanager.jar"/>
+    <property name="main-class"		value="it.uniroma2.art.semanticturkey.launcher.SemanticTurkeyLauncher"/>
+    <property name="semturkeyjar"	value="st-launcher.jar"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>

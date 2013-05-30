@@ -188,9 +188,7 @@ public class Resource extends ServiceAdapter {
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
-			//ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
-			//ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
-			ARTResource resource = model.createURIResource(resourceName);
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			ARTURIResource property = model.createURIResource(propertyName);
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
 
@@ -225,9 +223,7 @@ public class Resource extends ServiceAdapter {
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
-			//ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
-			//ARTURIResource property = retrieveExistingURIResource(model, propertyName, graphs);
-			ARTResource resource = model.createURIResource(resourceName);
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			ARTURIResource property = model.createURIResource(propertyName);
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, !explicit, graphs);
 
