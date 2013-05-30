@@ -78,10 +78,16 @@ An ANT build file allows to package the xpi for Firefox installation (read READM
 		<dist.server.extensions.service>${dist.server.extensions}/service</dist.server.extensions.service>
 		<dist.server.extensions.ontmanager>${dist.server.extensions}/ontmanager</dist.server.extensions.ontmanager>
 		<dist.server.extensions.core>${dist.server.extensions}/core</dist.server.extensions.core>
+		<dist.server.config.log.level>ERROR</dist.server.config.log.level>
+		<dist.server.config.log.level.st>ERROR</dist.server.config.log.level.st>
 
 		<dist.client>${dist}/st-client</dist.client>
 		<dist.client.lib>${dist.client}/${dist.lib}</dist.client.lib>
 		<dist.client.applet>${dist.client.lib}/applet</dist.client.applet>
+		
+		<dist.embedded>${dist}/st-embedded</dist.embedded>
+		<dist.embedded.lib>${dist.embedded}/${dist.lib}</dist.embedded.lib>
+		<dist.embedded.applet>${dist.embedded.lib}/applet</dist.embedded.applet>		
 	</properties>
 
 	<scm>
