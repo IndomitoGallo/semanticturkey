@@ -266,6 +266,7 @@
 									<filtering>true</filtering>
 									<includes>
 										<include>components/data/sturkey.properties</include>
+										<include>configurations/services/org.ops4j.pax.logging.properties</include>
 									</includes>
 								</resource>
 								<!-- this is to copy all the rest, being sure that we don't copy 
@@ -277,6 +278,7 @@
 									<filtering>false</filtering>
 									<excludes>
 										<exclude>components/data/sturkey.properties</exclude>
+										<exclude>configurations/services/org.ops4j.pax.logging.properties</exclude>
 									</excludes>
 								</resource>
 							</resources>

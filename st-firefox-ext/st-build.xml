@@ -38,13 +38,30 @@
 
 	<!-- === Package The Distribution XPI ================================================= -->
 
-	<target name="xpi" depends="dist" description="Create the XPI extension">
+	<target name="xpi_client" depends="dist" description="Create the XPI extension">
 		<zip zipfile="../${stname}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.client}" includes="**" />
+	</target>
+	
+	<!-- === Package The Distribution XPI ================================================= -->
+
+	<target name="create_embedded" depends="xpi_client" description="Create the EMBEDDED distribution folder">
+		<copy todir="../${dist.embedded}">
+			<fileset dir="../${dist.server}"/>
+			<!-- <mapper type="glob" /> -->
+		</copy>
+		<copy todir="../${dist.embedded}">
+			<fileset dir="../${dist.client}"/>
+			<!-- <mapper type="glob" /> -->
+		</copy>			
+		<copy todir="../${dist.embedded}">
+			<fileset dir="src/main/build"/>
+			<!-- <mapper type="glob" /> -->
+		</copy>			
 	</target>
 
 	<!-- === Delete the distribution folder ================================================= -->
 
-	<target name="delete_dist" depends="xpi" description="deletes the distribution folder">
+	<target name="delete_dist" depends="create_embedded" description="deletes the distribution folder">
 		<!-- <delete dir="../${dist}" /> -->
 	</target>
 	
