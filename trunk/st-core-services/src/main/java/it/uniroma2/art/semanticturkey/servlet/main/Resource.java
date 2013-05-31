@@ -27,6 +27,7 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.filter.DatatypePropertyValueTriple;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.NoSubclassPredicate;
 import it.uniroma2.art.owlart.filter.NoSubpropertyPredicate;
@@ -76,6 +77,7 @@ import it.uniroma2.art.semanticturkey.vocabulary.STVocabUtilities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -127,6 +129,7 @@ public class Resource extends ServiceAdapter {
 		public static final String getPropertyValuesCountRequest = "getPropertyValuesCount";
 		public static final String getValuesOfPropertiesRequest = "getValuesOfProperties";
 		public static final String getValuesOfPropertiesCountRequest = "getValuesOfPropertiesCount";
+		public static final String getValuesOfDatatypePropertiesRequest = "getValuesOfDatatypeProperties";
 	}
 
 	public static class Par {
@@ -136,6 +139,7 @@ public class Resource extends ServiceAdapter {
 		public static final String explicit = "explicit";
 		public static final String subProp = "subProp";
 		public static final String excludeSuperProp = "excludeSuperProp";
+		public static final String excludedProps = "excludedProps";
 	}
 
 	protected Logger getLogger() {
@@ -161,22 +165,27 @@ public class Resource extends ServiceAdapter {
 			boolean explicit = setHttpBooleanPar(Par.explicit);
 			checkRequestParametersAllNotNull(Par.resource, Par.property);
 			response = getPropertyValuesCount(resourceName, propertyName, explicit);
-		} else if(request.equals(Req.getValuesOfPropertiesRequest)){
+		} else if (request.equals(Req.getValuesOfPropertiesRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			boolean excludeSuperProp = setHttpBooleanPar(Par.excludeSuperProp);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludeSuperProp);
-		} else if(request.equals(Req.getValuesOfPropertiesCountRequest)){
+		} else if (request.equals(Req.getValuesOfPropertiesCountRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			boolean excludeSuperProp = setHttpBooleanPar(Par.excludeSuperProp);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties, excludeSuperProp);
-		}
-		else
+			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties,
+					excludeSuperProp);
+		} else if (request.equals(Req.getValuesOfDatatypePropertiesRequest)) {
+			String resourceName = setHttpPar(Par.resource);
+			String excludedProps = setHttpPar(Par.excludedProps);
+			checkRequestParametersAllNotNull(Par.resource);
+			response = getValuesOfDatatypeProperties(resourceName, excludedProps);
+		} else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
@@ -203,7 +212,7 @@ public class Resource extends ServiceAdapter {
 				boolean explicit;
 				if (explicitValues.contains(next))
 					explicit = true;
-				else 
+				else
 					explicit = false;
 				values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
 			}
@@ -217,7 +226,7 @@ public class Resource extends ServiceAdapter {
 			return logAndSendException(e);
 		}
 	}
-	
+
 	public Response getPropertyValuesCount(String resourceName, String propertyName, boolean explicit) {
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -238,8 +247,9 @@ public class Resource extends ServiceAdapter {
 			return logAndSendException(e);
 		}
 	}
-	
-	public Response getValuesOfProperties(String resourceName, String propertiesNames, boolean subProp, boolean excludeSuperProp) {
+
+	public Response getValuesOfProperties(String resourceName, String propertiesNames, boolean subProp,
+			boolean excludeSuperProp) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -247,81 +257,17 @@ public class Resource extends ServiceAdapter {
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-			
+
 			Element dataElement = response.getDataElement();
-						
-			
-			for(String propName : propsNames){
-				
-				ARTURIResource property = retrieveExistingURIResource(model, propName, graphs);
-				getValuesOfSubProperties(resource, property, subProp, excludeSuperProp, graphs, model, dataElement);
+
+			for (String propName : propsNames) {
+
+				ARTURIResource property = model.createURIResource(model.expandQName(propName));
+				getValuesOfSubProperties(resource, property, subProp, excludeSuperProp, graphs, model,
+						dataElement);
 			}
 			return response;
-			
-		} catch (ModelAccessException e) {
-			return logAndSendException(e);
-		} catch (NonExistingRDFResourceException e) {
-			return logAndSendException(e);
-		}
-	}
-	
-	private void getValuesOfSubProperties(ARTResource resource, ARTURIResource property, boolean subProp, boolean excludeProp, 
-			ARTResource[] graphs, OWLModel model, Element dataElement) throws NonExistingRDFResourceException, ModelAccessException{
-		Element extCollection = XMLHelp.newElement(dataElement, "collection");
-		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
-		
-		Element propElem = XMLHelp.newElement(propValuesElem, "property");
-		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
-		
-		if(excludeProp == false){
-			Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
-			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
-			Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
-					.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
-			
-			Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
-			while (it.streamOpen()) {
-				ARTNode next = it.getNext();
-				boolean explicit;
-				if (explicitValues.contains(next))
-					explicit = true;
-				else 
-					explicit = false;
-				values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
-			}
-			it.close();
-			RDFXMLHelp.addRDFNodes(valuesElem, values);
-		}
-		
-		if(subProp){
-			ARTURIResourceIterator iter = ((DirectReasoning)model).listDirectSubProperties(property, graphs);
-			while(iter.hasNext()){
-				ARTURIResource subPropRes = iter.next();
-				getValuesOfSubProperties(resource, subPropRes, subProp, false, graphs, model, propValuesElem);
-			}
-			
-		}
-	}
-	
-	
-	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp, boolean excludeSuperProp ) {
-		String[] propsNames = propertiesNames.split("\\|_\\|");
-		OWLModel model = getOWLModel();
-		ARTResource[] graphs;
-		try {
-			graphs = getUserNamedGraphs();
-			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
-			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-			
-			Element dataElement = response.getDataElement();
-						
-			
-			for(String propName : propsNames){
-				ARTURIResource property = retrieveExistingURIResource(model, propName, graphs);
-				getValuesOfPropertiesCount(resource, property, subProp, excludeSuperProp, graphs, model, dataElement);
-			}
-			return response;
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
 		} catch (NonExistingRDFResourceException e) {
@@ -329,47 +275,151 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	
-	private void getValuesOfPropertiesCount(ARTResource resource, ARTURIResource property, boolean subProp, boolean excludeProp, 
-			ARTResource[] graphs, OWLModel model, Element outerElement) throws ModelAccessException{
+	private void getValuesOfSubProperties(ARTResource resource, ARTURIResource property, boolean subProp,
+			boolean excludeProp, ARTResource[] graphs, OWLModel model, Element dataElement)
+			throws NonExistingRDFResourceException, ModelAccessException {
+		Element extCollection = XMLHelp.newElement(dataElement, "collection");
+		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
+
+		Element propElem = XMLHelp.newElement(propValuesElem, "property");
+		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
+
+		if (excludeProp == false) {
+			Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
+			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
+			Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
+					.listValuesOfSubjPredPair(resource, property, false, getWorkingGraph()));
+
+			Collection<STRDFNode> values = STRDFNodeFactory.createEmptyNodeCollection();
+			while (it.streamOpen()) {
+				ARTNode next = it.getNext();
+				boolean explicit;
+				if (explicitValues.contains(next))
+					explicit = true;
+				else
+					explicit = false;
+				values.add(STRDFNodeFactory.createSTRDFNode(model, next, true, explicit, true));
+			}
+			it.close();
+			RDFXMLHelp.addRDFNodes(valuesElem, values);
+		}
+
+		if (subProp) {
+			ARTURIResourceIterator iter = ((DirectReasoning) model).listDirectSubProperties(property, graphs);
+			while (iter.hasNext()) {
+				ARTURIResource subPropRes = iter.next();
+				getValuesOfSubProperties(resource, subPropRes, subProp, false, graphs, model, propValuesElem);
+			}
+
+		}
+	}
+
+	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp,
+			boolean excludeSuperProp) {
+		String[] propsNames = propertiesNames.split("\\|_\\|");
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+			Element dataElement = response.getDataElement();
+
+			for (String propName : propsNames) {
+				ARTURIResource property = model.createURIResource(model.expandQName(propName));
+				getValuesOfPropertiesCount(resource, property, subProp, excludeSuperProp, graphs, model,
+						dataElement);
+			}
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+
+	private void getValuesOfPropertiesCount(ARTResource resource, ARTURIResource property, boolean subProp,
+			boolean excludeProp, ARTResource[] graphs, OWLModel model, Element outerElement)
+			throws ModelAccessException {
 		Element extCollection = XMLHelp.newElement(outerElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
-		
+
 		Element propElem = XMLHelp.newElement(propValuesElem, "property");
-		
+
 		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
-		
+
 		ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
 		Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
 				.listValuesOfSubjPredPair(resource, property, false, graphs));
-		
+
 		int contAll = 0;
 		int contExplicit = 0;
-		
-		if(excludeProp == false){
+
+		if (excludeProp == false) {
 			while (it.streamOpen()) {
 				ARTNode artNode = it.getNext();
 				++contAll;
 				if (explicitValues.contains(artNode))
 					++contExplicit;
 			}
-			XMLHelp.newElement(propValuesElem, "valuesCount", contAll+"");
-			XMLHelp.newElement(propValuesElem, "valuesExplicitCount", contExplicit+"");
-			
+			XMLHelp.newElement(propValuesElem, "valuesCount", contAll + "");
+			XMLHelp.newElement(propValuesElem, "valuesExplicitCount", contExplicit + "");
+
 			it.close();
 		}
-		
-		
-		if(subProp){
-			ARTURIResourceIterator iter = ((DirectReasoning)model).listDirectSubProperties(property, graphs);
-			while(iter.hasNext()){
+
+		if (subProp) {
+			ARTURIResourceIterator iter = ((DirectReasoning) model).listDirectSubProperties(property, graphs);
+			while (iter.hasNext()) {
 				ARTURIResource subPropRes = iter.next();
-				getValuesOfPropertiesCount(resource, subPropRes, subProp, false, graphs, model, propValuesElem);
+				getValuesOfPropertiesCount(resource, subPropRes, subProp, false, graphs, model,
+						propValuesElem);
 			}
 		}
 	}
-	
-	
+
+	protected Response getValuesOfDatatypeProperties(String resourceName, String excludedProps) {
+		String[] excludedPropNames = excludedProps.split("\\|_\\|");
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+			HashMultimap<ARTURIResource, ARTNode> predicateObjectValues = HashMultimap.create();
+
+			ARTStatementIterator inferredFilteredOnDatatypedTriples = model.listStatements(resource,
+					NodeFilters.ANY, NodeFilters.ANY, true, graphs);
+			Iterators
+					.filter(inferredFilteredOnDatatypedTriples, DatatypePropertyValueTriple.getFilter(model));
+
+			ARTStatementIterator allExplicitTriples = model.listStatements(resource, NodeFilters.ANY,
+					NodeFilters.ANY, false, getWorkingGraph());
+
+			inferredFilteredOnDatatypedTriples.close();
+			allExplicitTriples.close();
+
+			/*
+			 * prendere tutti i valori da reasoning/filtrati e schiaffarli nella hashedmultimap prendere tutti
+			 * gli statement espliciti e schiaffarne coppie in una hashmap navigare poi la multimap e
+			 * schiaffare, per ogni datatype property, gli elementi nella risposta, verificando prima se
+			 * esistono nella hashmap degli espliciti
+			 */
+
+			Element dataElement = response.getDataElement();
+
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+
 	/**
 	 * 
 	 * 
@@ -394,13 +444,16 @@ public class Resource extends ServiceAdapter {
 			resource = retrieveExistingURIResource(ontModel, resourceQName, graphs);
 			HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
 
-			// TEMPLATE PROPERTIES (properties which can be shown since the selected instance has at least a
+			// TEMPLATE PROPERTIES (properties which can be shown since the
+			// selected instance has at least a
 			// type which falls in their domain)
 			extractTemplateProperties(owlModel, resource, properties, graphs);
 
-			// VALUED PROPERTIES (properties over which the selected instance has one or more values)
+			// VALUED PROPERTIES (properties over which the selected instance
+			// has one or more values)
 			Multimap<ARTURIResource, ARTNode> propertyValuesMap = HashMultimap.create();
-			// if I want the collection of values for each property to be a set, i could use MultiValueMap,
+			// if I want the collection of values for each property to be a set,
+			// i could use MultiValueMap,
 			// and define an HashSet Factory
 			if (method.equals(templateandvalued)) {
 				extractValuedProperties(owlModel, restype, resource, properties, propertyValuesMap, graphs);
@@ -433,7 +486,8 @@ public class Resource extends ServiceAdapter {
 		ARTResourceIterator types = ontModel.listTypes(resource, true, graphs);
 
 		// TYPES FILTER preparation
-		// gets only domain types, no rdf/rdfs/owl language classes cited in the types nor, if in userStatus,
+		// gets only domain types, no rdf/rdfs/owl language classes cited in the
+		// types nor, if in userStatus,
 		// any type class from any application ontology
 		Predicate<ARTResource> typesFilter = NoLanguageResourcePredicate.nlrPredicate;
 		typesFilter = Predicates.and(typesFilter, NoSystemResourcePredicate.noSysResPred);
@@ -612,12 +666,18 @@ public class Resource extends ServiceAdapter {
 				} else if (owlModel.isProperty(prop, graphs)) {
 					propertyElem.setAttribute("type", "rdf:Property");
 				} else {
-					propertyElem.setAttribute("type", "unknown"); // this is just a safe exit for discovering
+					propertyElem.setAttribute("type", "unknown"); // this is
+																	// just a
+																	// safe exit
+																	// for
+																	// discovering
 					// bugs, all of them should fall into one
 					// of the above 4 property types
 				}
 
-				if (propertyValuesMap.containsKey(prop)) // if the property has a a value, which has been
+				if (propertyValuesMap.containsKey(prop)) // if the property has
+															// a a value, which
+															// has been
 					// collected before
 					for (ARTNode value : (Collection<ARTNode>) propertyValuesMap.get(prop)) {
 						logger.debug("resource viewer: writing value: " + value + " for property: " + prop);
@@ -652,7 +712,8 @@ public class Resource extends ServiceAdapter {
 			throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
-		// TODO clearly reasoning=true requires the sole main graph (which contains reasoned triples too) but,
+		// TODO clearly reasoning=true requires the sole main graph (which
+		// contains reasoned triples too) but,
 		// what to do when the wgraph is not the main graph?
 		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, wgraph);
 		Iterator<ARTResource> filteredDomains = Iterators.filter(domains, URIResourcePredicate.uriFilter);
@@ -662,7 +723,8 @@ public class Resource extends ServiceAdapter {
 		while (filteredDomains.hasNext()) {
 			ARTResource nextDomain = filteredDomains.next();
 			logger.debug("checking domain: " + nextDomain);
-			if (nextDomain.isURIResource()) { // TODO waiting for anonymous resources support
+			if (nextDomain.isURIResource()) { // TODO waiting for anonymous
+												// resources support
 				Element domainElement = XMLHelp.newElement(domainsElement, "domain");
 				domainElement.setAttribute("name", ontModel.getQName(nextDomain.asURIResource().getURI()));
 				if (explicitDomains.contains(nextDomain))
@@ -810,7 +872,8 @@ public class Resource extends ServiceAdapter {
 					resource.asURIResource(), false, true, graphs));
 			directExplicitSuperTypes = RDFIterators.getCollectionFromIterator(((SKOSModel) ontModel)
 					.listBroaderConcepts(resource.asURIResource(), false, false, wgraph));
-			// TODO check if to be implemented better. For the moment, we retrieve only explicit, so all of
+			// TODO check if to be implemented better. For the moment, we
+			// retrieve only explicit, so all of
 			// them are explicit
 		}
 
