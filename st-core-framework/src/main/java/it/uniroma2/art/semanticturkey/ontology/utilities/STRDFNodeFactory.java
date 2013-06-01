@@ -46,7 +46,7 @@ import org.w3c.dom.DOMException;
 public class STRDFNodeFactory {
 
 	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit) {
-		return new STRDFLiteralImpl(node, explicit, null);
+		return new STRDFLiteralImpl(node, explicit);
 	}
 
 	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit, String show) {

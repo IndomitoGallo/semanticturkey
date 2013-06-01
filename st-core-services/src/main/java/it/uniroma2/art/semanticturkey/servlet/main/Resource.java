@@ -60,6 +60,8 @@ import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
 import it.uniroma2.art.semanticturkey.generation.annotation.STService;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectList;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectListFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNode;
@@ -80,6 +82,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +97,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 @Component
 public class Resource extends ServiceAdapter {
@@ -381,35 +385,39 @@ public class Resource extends ServiceAdapter {
 	}
 
 	protected Response getValuesOfDatatypeProperties(String resourceName, String excludedProps) {
-		String[] excludedPropNames = excludedProps.split("\\|_\\|");
+
 		OWLModel model = getOWLModel();
-		ARTResource[] graphs;
+
 		try {
+
+			HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
+			;
+			if (excludedProps != null) {
+				for (String excludedPropName : excludedProps.split("\\|_\\|"))
+					excludedPropSet.add(model.createURIResource(model.expandQName(excludedPropName)));
+			}
+
+			ARTResource[] graphs;
+
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
-			HashMultimap<ARTURIResource, ARTNode> predicateObjectValues = HashMultimap.create();
+			// getting inferred triples but filtered
+			ARTStatementIterator inferredDatatypedTriples = model.listStatements(resource, NodeFilters.ANY,
+					NodeFilters.ANY, true, graphs);
+			Iterator<ARTStatement> inferredFilteredOnDatatypedTriples = Iterators.filter(
+					inferredDatatypedTriples, DatatypePropertyValueTriple.getFilter(model));
 
-			ARTStatementIterator inferredFilteredOnDatatypedTriples = model.listStatements(resource,
-					NodeFilters.ANY, NodeFilters.ANY, true, graphs);
-			Iterators
-					.filter(inferredFilteredOnDatatypedTriples, DatatypePropertyValueTriple.getFilter(model));
-
-			ARTStatementIterator allExplicitTriples = model.listStatements(resource, NodeFilters.ANY,
+			ARTStatementIterator explicitStatements = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, false, getWorkingGraph());
 
-			inferredFilteredOnDatatypedTriples.close();
-			allExplicitTriples.close();
+			PredicateObjectList predObjList = PredicateObjectListFactory.createPredicateObjectList(model,
+					RDFResourceRolesEnum.datatypeProperty,
+					RDFIterators.createARTStatementIterator(inferredFilteredOnDatatypedTriples),
+					explicitStatements);
 
-			/*
-			 * prendere tutti i valori da reasoning/filtrati e schiaffarli nella hashedmultimap prendere tutti
-			 * gli statement espliciti e schiaffarne coppie in una hashmap navigare poi la multimap e
-			 * schiaffare, per ogni datatype property, gli elementi nella risposta, verificando prima se
-			 * esistono nella hashmap degli espliciti
-			 */
-
-			Element dataElement = response.getDataElement();
+			RDFXMLHelp.addPredicateObjectList(response, predObjList);
 
 			return response;
 

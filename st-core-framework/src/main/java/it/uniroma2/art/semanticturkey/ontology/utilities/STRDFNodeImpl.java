@@ -101,4 +101,7 @@ public abstract class STRDFNodeImpl implements STRDFNode {
 		return info;
 	}
 	
+	public String toString() {
+		return getRendering();
+	}
 }
