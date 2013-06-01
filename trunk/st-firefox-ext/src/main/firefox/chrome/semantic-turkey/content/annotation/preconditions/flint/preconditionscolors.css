@@ -14,44 +14,19 @@ html {
   margin: 0;
 }
 
-span.cm-sp-keyword {
-  color: #92a;
-}
-
-span.cm-sp-prefixed {
-  color: #f80;
-}
-
-span.cm-sp-var {
+span.cm-prec-atom {
   color: #00c;
 }
 
-span.cm-sp-comment {
-  color: #a70;
-}
-
-span.cm-sp-literal {
-  color: #a22;
-}
-
-span.cm-sp-uri {
-  color: #292;
-}
-
-span.cm-sp-operator {
+span.cm-prec-punc {
   color: #088;
 }
 
-span.cm-sp-punc {
-  color: #088;
+span.cm-prec-invalid {
+	color: red;
 }
 
-span.cm-sp-number {
-  color: #a22;
-}
-
-
-span.cm-sp-error {
+span.cm-prec-error {
   /* color:rgb(0,255,255); */
   /* background-color:rgb(255,0,0); */
   /* text-decoration: underline; */

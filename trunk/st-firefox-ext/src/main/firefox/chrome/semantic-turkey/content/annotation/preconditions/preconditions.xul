@@ -27,7 +27,7 @@
 	  */ -->
 
 
-<dialog id="SPARQLResult" title="SPARQL Dialog" flex="1"
+<dialog id="PreconditionEditor" title="Precondition Editor"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	width="400px"
@@ -50,6 +50,7 @@
 		<caption class="header" label=" - Precondition Refinement - " />
 		<html:textarea id="textAreaPreconditions" class="message" />
 	</groupbox>
+	<spacer />
 	<hbox pack="end">
 		<button label="OK" id="acceptButton" disabled="true" />
 		<button label="Cancel" id="cancelButton" />

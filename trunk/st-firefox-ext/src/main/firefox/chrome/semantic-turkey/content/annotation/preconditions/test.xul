@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<window title="Precondition Parser Test"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	style="overflow: auto">
+	<script type="application/javascript">
+	<![CDATA[
+	window.addEventListener("load", function(){		
+		Components.utils.import("resource://stmodules/AnnotationManager.jsm");
+				
+		var testCases = [
+			{
+				input : "",
+				expected : "True"
+			},
+			{
+				input : "True and True",
+				expected : "(True and True)"
+			},
+			{
+				input : "True and True and True",
+				expected : "((True and True) and True)"
+			},
+			{
+				input : "True and (True and True)",
+				expected : "(True and (True and True))"
+			},
+			{
+				input : "True and True or True",
+				expected : "((True and True) or True)"
+			},
+			{
+				input : "True or True and True",
+				expected : "(True or (True and True))"
+			},
+			{
+				input : "(True or True) and True",
+				expected : "((True or True) and True)"
+			},
+			{
+				input : "not True",
+				expected : "(not True)"
+			},
+			{
+				input : "not not True",
+				expected : "(not (not True))"
+			},
+			{
+				input : "not True and True",
+				expected : "((not True) and True)"
+			},
+			{
+				input : "True and not True",
+				expected : "(True and (not True))"
+			},
+			{
+				input : "not (True and True or not (True) and (True and True))",
+				expected : "(not ((True and True) or ((not True) and (True and True))))"
+			}
+		];
+		
+		var container = document.getElementById("container");
+		
+		for (var i = 0 ; i < testCases.length ; i++) {
+			var tc = testCases[i];
+			
+			var groupBoxElement = document.createElement("groupbox");
+			groupBoxElement.setAttribute("id", "testCase" + i);
+			var captionElement = document.createElement("caption");
+			captionElement.setAttribute("label", "Test " + (i + 1) + " of " + testCases.length);
+			
+			var inputHBoxElement = document.createElement("hbox");
+			var inputLabelElement = document.createElement("label");
+			inputLabelElement.setAttribute("value", "Input");
+			inputLabelElement.setAttribute("control", "testCase" + i + "Input");
+			var inputTextBoxElement = document.createElement("textbox");
+			inputTextBoxElement.setAttribute("id", "testCase" + i + "Input");
+			inputTextBoxElement.setAttribute("value", tc.input);
+			inputTextBoxElement.setAttribute("readonly", "true");
+			
+			var expectedHBoxElement = document.createElement("hbox");
+			var expectedLabelElement = document.createElement("label");
+			expectedLabelElement.setAttribute("value", "Expected");
+			expectedLabelElement.setAttribute("control", "testCase" + i + "Expected");
+			var expectedTextBoxElement = document.createElement("textbox");
+			expectedTextBoxElement.setAttribute("id", "testCase" + i + "Expected");
+			expectedTextBoxElement.setAttribute("value", tc.expected || "");
+			expectedTextBoxElement.setAttribute("readonly", "true");
+			
+			var notesHBoxElement = document.createElement("hbox");
+			var notesLabelElement = document.createElement("label");
+			notesLabelElement.setAttribute("value", "Notes");
+			notesLabelElement.setAttribute("control", "testCase" + i + "Notes");
+
+			var notesTextBoxElement = document.createElement("textbox");
+			notesTextBoxElement.setAttribute("id", "testCase" + i + "Notes");
+			notesTextBoxElement.setAttribute("readonly", "true");
+			
+			groupBoxElement.appendChild(captionElement);
+			
+			inputHBoxElement.appendChild(inputLabelElement);
+			inputHBoxElement.appendChild(inputTextBoxElement);
+			groupBoxElement.appendChild(inputHBoxElement);
+
+			expectedHBoxElement.appendChild(expectedLabelElement);
+			expectedHBoxElement.appendChild(expectedTextBoxElement);
+			groupBoxElement.appendChild(expectedHBoxElement);
+
+			notesHBoxElement.appendChild(notesLabelElement);
+			notesHBoxElement.appendChild(notesTextBoxElement);
+			groupBoxElement.appendChild(notesHBoxElement);
+
+			
+			document.documentElement.appendChild(groupBoxElement);
+		}
+		
+		var passedCount = 0;
+		for (var i = 0 ; i < testCases.length ; i++) {
+			var tc = testCases[i];
+			
+			var passed = false;
+			
+			try {
+				var parsed = annotation.testHook.parsePrecondition(tc.input, true);
+				passed = parsed === tc.expected;
+			} catch(e) {
+				document.getElementById("testCase" + i + "Notes").setAttribute("value", e.message);
+				passed = !tc.expected;
+			}
+			
+			if (passed) passedCount++;
+			
+			var tcGroup = document.getElementById("testCase" + i);
+			tcGroup.getElementsByTagName("caption")[0].setAttribute("style", "background-color: " + (passed ? "green" : "red"));
+		}
+		
+		document.getElementById("testPercentage").setAttribute("value", (passedCount / testCases.length) * 100);		
+		document.getElementById("testPercentage2").setAttribute("value", "Passed " + passedCount + " of " + testCases.length); 
+	}, false);
+	]]>
+	</script>
+	<hbox>
+		<textbox id="testPercentage2" readonly="true" />
+		<progressmeter id="testPercentage" flex="1" />
+	</hbox>
+</window>

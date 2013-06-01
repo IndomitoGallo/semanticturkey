@@ -91,7 +91,7 @@ art_semanticturkey.classDragDrop = function(domEvent) {
 			treeItem.getAttribute("className"));
 	event.selection = selectedRange;
 	event.document = domEvent.dataTransfer.mozSourceNode.ownerDocument;
-
+		
 	try {
 		art_semanticturkey.annotation.AnnotationManager.handleEvent(window, event);
 	} catch(e) {
@@ -102,9 +102,10 @@ art_semanticturkey.classDragDrop = function(domEvent) {
 art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectClass,event) {
 	var childList = tree.getElementsByTagName("treeitem");
 	var clsName = responseArray['class'].getURI();
+	var clsShow = responseArray['class'].getShow();
 	var numInst = responseArray['class'].numInst;
 	for ( var i = 0; i < childList.length; i++) {
-		art_semanticturkey.checkAndAnnotate(clsName, numInst,
+		art_semanticturkey.checkAndAnnotate(clsName, clsShow, numInst,
 				childList[i]);
 	}
 	if(typeof event != 'undefined' && selectClass){
@@ -120,13 +121,13 @@ art_semanticturkey.classDragDrop_RESPONSE = function(responseArray, tree,selectC
 };
 
 
-art_semanticturkey.checkAndAnnotate = function(clsName, numInst, node) {
+art_semanticturkey.checkAndAnnotate = function(clsName, clsShow, numInst, node) {
 	var className = node.getAttribute("className");
 	if (className == clsName) {
 		node.getElementsByTagName("treecell")[0]
 				.setAttribute("numInst",numInst);
 		var newLabel = "";
-		newLabel = clsName + "(" + numInst + ")";
+		newLabel = clsShow + "(" + numInst + ")";
 		node.getElementsByTagName("treecell")[0].setAttribute("label", newLabel);
 	}
 };

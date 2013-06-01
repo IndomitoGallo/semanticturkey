@@ -45,14 +45,15 @@ annotation.commons.handlers.contentLoaded = function(event) {
 // Sets the value for a property. This common handler depends on the
 // availability
 // of the common function "furtherAnn".
-annotation.commons.handlers.valueForProperty = function(event) {
+annotation.commons.handlers.valueForProperty = function(event, parentWindow) {
 	var parameters = {};
 	parameters.event = event;
 	parameters.subject = event.resource.getURI();
 	parameters.object = event.selection.toString();
 	parameters.lexicalization = event.selection.toString();
 	parameters.functors = {};
-
+	parameters.parentWindow = parentWindow;
+	
 	if (typeof event.skos != "undefined") {
 		parameters.skos = Object.create(event.skos);
 	}
@@ -96,11 +97,17 @@ annotation.commons.handlers.createNarrowerConcept = function(event) {
 
 // Creates an instance. This common handler depends on the availability
 // of the common function "furtherAnn".
-annotation.commons.handlers.createInstance = function(event) {
+annotation.commons.handlers.createInstance = function(event, parentWindow) {
 	var response1 = STRequests.Cls.addIndividual(event.resource.getURI(), event.selection.toString());
 	var event2 = Object.create(event);
 	event2.resource = response1.instance;
-
+	
+	// We assume that additional information is provided by the caller
+	var tree = parentWindow.document.getElementById("classesTree");
+	if (tree != null) {
+		parentWindow.art_semanticturkey.classDragDrop_RESPONSE(response1,tree,false);	
+	}
+	
 	this.furtherAnn(event2);
 };
 

@@ -169,7 +169,7 @@ art_semanticturkey.openPreconditionEditor = function(event) {
 		var spec = div.getAttributeNS("http://semanticturkey.uniroma2.it/ns/", "defaultPreconditionSpec");
 
 		if (parameters.out != "") {
-			spec = spec + " && (" + parameters.out + ")";
+			spec = spec + " and (" + parameters.out + ")";
 		}
 
 		div.setAttributeNS("http://semanticturkey.uniroma2.it/ns/", "preconditionSpec", spec);

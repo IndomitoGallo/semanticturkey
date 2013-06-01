@@ -71,9 +71,9 @@ window.onload = function() {
 			var state = cm.getStateAfter();
 			
 			markers = state.errorMarkers.map(function(m){
-				return cm.markText(m.begin, m.end, "cm-sp-error");
+				return cm.markText(m.begin, m.end, "cm-prec-error");
 			});
-			
+						
 			art_semanticturkey.enableAcceptButton(state.isValid());
 		}
 		// End of error marking code
@@ -94,56 +94,55 @@ window.onload = function() {
 			var cur = cm.getCursor(false);
 			var cur1 = {
 				line : cur.line,
-				ch : cur.ch
+				ch : cur.ch - 1
 			};
 	
-			// Before cursor
-			var charBefore = cm.getRange({
-				line : cur.line,
-				ch : cur.ch - 1
-			}, {
-				line : cur.line,
-				ch : cur.ch
-			});
-	
-			// Cursor position on the far left (ch=0) is problematic
-			// - if we ask CodeMirror for token at this position, we don't
-			// get back the token at the beginning of the line
-			// - hence use adjusted position cur1 to recover this token.
-			if (cur1.ch == 0 && cm.lineInfo(cur1.line).text.length > 0)
-				cur1.ch = 1;
-	
-			var token = cm.getTokenAt(cur1);
-			
-			if (token.className != "sp-var" && token.end != cur.ch) {
-				return;
+			var token = cm.getTokenAt(cur);
+						
+			if (token.end != cur.ch) {
+				return; // completion is activated only when curson is at the end of a token
 			}
 			
 			var completions = [];
 			var tempCompletions = token.state.getPossibles();
-						
-			for (var i = 0 ; i < tempCompletions.length ; i++) {
-				if (tempCompletions[i] != 'ATOM') {
-					completions.push({label : tempCompletions[i], value : tempCompletions[i]});
-				} else {
-					atoms.forEach(function(v){completions.push({label : v, value : v})});					
+			
+			var cur2 = Object.create(cur);
+			cur2.ch = token.start.ch;
+			
+			var previousPossibles = cm.getTokenAt(cur2).state.getPossibles();
+			var backPort = [];
+			for (var i = 0 ; i < previousPossibles.length ; i++) {
+				if (previousPossibles[i] != 'ATOM') {
+					if (previousPossibles[i].startsWith(token.string) && token.string.length != previousPossibles[i].length) {
+						completions.push({label : previousPossibles[i], replace : true});
+						backPort.push(previousPossibles[i]);
+					}
 				}
 			}
 			
-			if (token.className == "sp-invalid") {
-				completions = completions.filter(function(v){return v.value.startsWith(token.string);});
-			} else if(token.className == "sp-var") {
-				completions = atoms.filter(function(a){return a.startsWith(token.string) && a != token.string;}).map(function(a) {return {label : a, value : a}}).concat(completions);
+			for (var i = 0 ; i < tempCompletions.length ; i++) {
+				if (tempCompletions[i] != 'ATOM') {
+					if(backPort.indexOf(tempCompletions[i]) == -1) {
+						completions.push({label : tempCompletions[i], replace : false});
+					}
+				} else {
+					atoms.forEach({label : tempCompletions[i], replace : false});					
+				}
+			}			
+			if (token.className == "prec-atom") {
+				completions = atoms.filter(function(a){return a.startsWith(token.string) && a != token.string;}).map(function(a) {return {label : a, replace : true}}).concat(completions);
 			}
+			
 			
 			if (completions.length == 0) {
 				return;
 			}
 			
 			if (completions.length == 1) {
-				insertReplacement(completions[0].value);
+				insertReplacement(completions[0]);
 				return;
 			}
+			
 
 			// Build the select widget
 			var pos = cm.cursorCoords();
@@ -165,7 +164,7 @@ window.onload = function() {
 			for (var i = 0; i < completions.length; ++i) {
 				var item = document.createElement("listitem");
 				item.setAttribute("label", completions[i].label);
-				item.setAttribute("value", completions[i].value);
+				item.obj = completions[i];
 				listbox.appendChild(item);
 			}
 	
@@ -212,7 +211,7 @@ window.onload = function() {
 			var item = lb.selectedItem;
 			
 			if (item != null) {
-				var replacement = item.getAttribute("value");
+				var replacement = item.obj;
 				completionsMenu.hidePopup();
 				insertReplacement(replacement);
 				setTimeout(function() {
@@ -236,6 +235,14 @@ window.onload = function() {
 				line : cur.line,
 				ch : cur.ch
 			});
+			
+			var charAfter = cm.getRange({
+				line : cur.line,
+				ch : cur.ch
+			}, {
+				line : cur.line,
+				ch : cur.ch + 1
+			});
 	
 			// Cursor position on the far left (ch=0) is problematic
 			// - if we ask CodeMirror for token at this position, we don't
@@ -246,10 +253,20 @@ window.onload = function() {
 	
 			var token = cm.getTokenAt(cur1);
 			
-			if (token.className == "sp-invalid" || (token.className == "sp-var" && replacement.startsWith(token.string))) {
-				cm.replaceRange(replacement, {line : cur.line, ch : token.start}, {line : cur.line, ch : token.end});
+			if (replacement.replace) {
+				cm.replaceRange(replacement.label, {line : cur.line, ch : token.start}, {line : cur.line, ch : token.end});
 			} else {
-				cm.replaceRange(replacement, {line : cur.line, ch : cur.ch});
+				var label = replacement.label;
+
+				if (charBefore.match(/[A-Za-z\\.]+/) && label.substring(0,1).match(/[A-Za-z\\.]+/)) {
+					label = " " + label;
+				}
+				
+				if (charAfter.match(/[A-Za-z\\.]+/) && label.substring(label.length - 1).match(/[A-Za-z\\.]+/)) {
+					label = label + " ";
+				}
+				
+				cm.replaceRange(label, {line : cur.line, ch : cur.ch});
 			}
 		}
 	

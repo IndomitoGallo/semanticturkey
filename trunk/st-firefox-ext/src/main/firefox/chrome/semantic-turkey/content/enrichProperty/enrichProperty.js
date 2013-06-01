@@ -71,6 +71,15 @@ classHandlers["*"] = new function() {
 
 		var reply = art_semanticturkey.STRequests.Cls.addIndividual(selectedObjClsName, win.arguments[0].object);
 		//return reply.getElementsByTagName("Instance")[0].getAttribute("instanceName");
+		
+		if (typeof window.arguments[0].parentWindow == "object") {
+			var classesTree = window.arguments[0].parentWindow.document.getElementById("classesTree");
+		
+			if (classesTree != null){
+				window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(reply,classesTree,false);
+			}
+		}
+		
 		return reply['instance'].getURI();
 	}
 	
@@ -190,6 +199,9 @@ classHandlers.getCurrentHandler = function() {
 }
 
 window.onload = function() {
+	alert("" + window.arguments[0].parentWindow);
+	alert("" + window.arguments[0].action);
+	
 	art_semanticturkey.setPanel();
 	document.getElementById("checkAll").addEventListener("command",art_semanticturkey.showAllClasses,true);
 	document.getElementById("ep_classesTree").addEventListener("click",
@@ -281,18 +293,20 @@ art_semanticturkey.setPanel = function() {
 // NScarpato 24/05/2007 add new annotation AND new instance bind function ("bind
 // to new individual for selected class")
 art_semanticturkey.bind = function() {
-			
-			var tree = document.getElementById("ep_classesTree");
-			var responseXML = art_semanticturkey.listDragDropBind(window,tree);
-			if(responseXML != null){
-				var mainTree = window.arguments[0].parentWindow.document.getElementById("classesTree");
-				close();
-				if (mainTree != null) {
-					window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
-					
+		var tree = document.getElementById("ep_classesTree");
+		var responseXML = art_semanticturkey.listDragDropBind(window,tree);
+		if(responseXML != null){
+			var mainTree = window.arguments[0].parentWindow.document.getElementById("classesTree");
+			if (mainTree != null) {
+				try {
+				window.arguments[0].parentWindow.art_semanticturkey.classDragDrop_RESPONSE(responseXML,mainTree,false);
+				} catch(e) {
+				alert(e.fileName + ":" + e.lineNumber + " -> " + e.message);
 				}
-			}	
-};
+			}
+			close();
+		}	
+};7
 // NScarpato 28/05/2007 add sole annotate function ("add new annotation for
 // selected instance")
 // NScarpato 10/03/2008 add annotate function "addExistingPropValue"

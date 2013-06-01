@@ -17,16 +17,16 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 		{
 			name : "WS",
 			regex : new RegExp("^" + WS + "+"),
-			style : "sp-ws"
+			style : "prec-ws"
 		},
 
 		{
 			name : "ATOM",
 			regex : new RegExp("^" + ATOM),
-			style : "sp-var"
+			style : "prec-atom"
 		} ],
 
-		punct : /^(\(|\)|&&|\|\||\!)/
+		punct : /^(\(|\)|and|or|not)/
 	};
 
 	function gatherAvailableAtoms() {
@@ -53,42 +53,6 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 
 	var atoms = gatherAvailableAtoms();
 	atoms.sort();
-
-//	var transition_table = {
-//		'S0' : {
-//			'ATOM' : 'S1',
-//			'(' : {
-//				postcondition : function(state) {
-//					state.parentheses++
-//				},
-//				key : 'S0'
-//			},
-//			'!' : 'S2'
-//		},
-//		'S1' : {
-//			'&&' : 'S0',
-//			'||' : 'S0',
-//			')' : {
-//				precondition : function(state) {
-//					return state.parentheses > 0;
-//				},
-//				postcondition : function(state) {
-//					return state.parentheses--;
-//				},
-//				key : 'S1'
-//			}
-//		},
-//		'S2' : {
-//			'ATOM' : 'S1',
-//			'(' : {
-//				postcondition : function(state) {
-//					state.parentheses++
-//				},
-//				key : 'S0'
-//			},
-//			'!' : 'S2'
-//		}
-//	};
 	
 	var transition_table = {
 		'S0' : {
@@ -98,7 +62,7 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 				},
 				key : 'S2'
 			},
-			'!' : 'S2',
+			'not' : 'S2',
 			'ATOM' : 'S1'
 		},
 		'S1' : {
@@ -111,12 +75,12 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 				},
 				key : 'S1'
 			},
-			'&&' : 'S2',
-			'||' : 'S2'
+			'and' : 'S2',
+			'or' : 'S2'
 		},
 		'S2' : {
 			'ATOM' : 'S1',
-			'!' : 'S2',
+			'not' : 'S2',
 			'(' : {
 				postcondition : function(state) {
 					state.parentheses++;
@@ -127,37 +91,69 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 	};
 
 	function nextToken(stream) {
+		// A greedy tokenizer that tries to match the longest token. By doing so and giving priority to
+		// punctuation, the tokenizer is able to properly handle "and", "or" and "not" as punctuation.
+		
 		var consumed = null;
 
+		var length = -1;
+		var termIndex = -1;
+		var punctMatch = false;
+
 		// Tokens defined by individual regular expressions
-		for ( var i = 0; i < terminals.terminal.length; ++i) {
-			consumed = stream.match(terminals.terminal[i].regex, true, false);
+		for (var i = 0; i < terminals.terminal.length; ++i) {
+			consumed = stream.match(terminals.terminal[i].regex, false, false); // do not advance the stream
+			if (consumed) {
+				if (consumed[0].length >= length) {
+					length = consumed[0].length;
+					termIndex = i;
+				}
+			}
+		}
+
+		// Punctuation
+		consumed = stream.match(terminals.punct, false, false); // do not advance the stream
+		if (consumed) {
+			if (consumed[0].length >= length) {
+				length = consumed[0].length;
+				punctMatch = true;
+			}
+		}
+
+		// If it is the case, consume punctuation before
+		if (punctMatch) {
+			consumed = stream.match(terminals.punct, true, false);
 			if (consumed)
 				return {
-					cat : terminals.terminal[i].name,
-					style : terminals.terminal[i].style,
+					cat : consumed[0],
+					style : "prec-punc",
+					text : consumed[0]
+				};
+		}
+		
+		if (termIndex != -1) {		
+			consumed = stream.match(terminals.terminal[termIndex].regex, true, false);
+			if (consumed)
+				return {
+					cat : terminals.terminal[termIndex].name,
+					style : terminals.terminal[termIndex].style,
 					text : consumed[0]
 				};
 		}
 
-		// Punctuation
-		consumed = stream.match(terminals.punct, true, false);
-		if (consumed)
-			return {
-				cat : consumed[0],
-				style : "sp-punc",
-				text : consumed[0]
-			};
-
 		consumed = stream.match(/./, true, false);
 		return {
 			cat : "<invalid>",
-			style : "sp-invalid",
+			style : "prec-invalid",
 			text : consumed[0]
 		};
 	}
 
 	function tokenBase(stream, state) {
+		if (stream.sol()) {
+			state.line++;
+		}
+
 		var tokenObj = nextToken(stream, state);
 
 		if (tokenObj.cat == "WS") {
@@ -213,11 +209,12 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 		startState : function(base) {
 			return {
 				key : "S0",
-				line : 0,
+				line : -1,
 				parentheses : 0,
 				errorMarkers : [],
 				error : false,
 				getPossibles : function() {
+					if (this.error) return [];
 					var row = transition_table[this.key];
 					var filtered = Object.getOwnPropertyNames(row).filter(function(v) {
 						var e = row[v];
@@ -237,8 +234,8 @@ CodeMirror.defineMode("preconditions", function(config, parserConfig) {
 					return filtered;
 				},
 				isValid : function() {
-					return this.key == "S0" || (!this.error && this.errorMarkers.length == 0 && this.key == "S1"
-							&& this.parentheses == 0);
+					return !this.error && this.errorMarkers.length == 0 && this.parentheses == 0 
+						&& (this.key == "S1" || this.key == "S0");
 				}
 			};
 		},
