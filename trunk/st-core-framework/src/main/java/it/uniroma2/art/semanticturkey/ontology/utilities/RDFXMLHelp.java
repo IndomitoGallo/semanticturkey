@@ -33,10 +33,12 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFRenderer;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectList;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -193,7 +195,7 @@ public class RDFXMLHelp {
 				nodeElement.setAttribute("lang", lang);
 		}
 		nodeElement.setTextContent(node.getLabel());
-		
+
 		nodeElement.setAttribute("explicit", Boolean.toString(node.isExplicit()));
 
 		serializeMap(nodeElement, node);
@@ -317,12 +319,30 @@ public class RDFXMLHelp {
 		addRDFNodes(collectionNameElem, nodes);
 		return collectionNameElem;
 	}
-	
-	
-	
-	
-	
 
+	public static Element addPredicateObjectList(XMLResponseREPLY resp,
+			PredicateObjectList predObjList) {
+		Element dataElement = resp.getDataElement();
+		Element collectionNameElem = XMLHelp.newElement(dataElement, "collection");
+		Collection<STRDFResource> preds = predObjList.getPredicates();
+		for (STRDFResource pred : preds) {
+			Element predObjectElem = XMLHelp.newElement(collectionNameElem, "predicateObjects");
+			Element predicateElem = XMLHelp.newElement(predObjectElem, "predicate");
+			addRDFNode(predicateElem, pred);
+			Collection<STRDFNode> nodes = predObjList.getValues(pred);
+			Element valuesElem = XMLHelp.newElement(predObjectElem, "values");
+			addRDFNodes(valuesElem, nodes);
+		}
+		return collectionNameElem;
+	}
+
+	/**
+	 * serializes the series of specific info modeles as attribute/value pairs, into attribute-value pairs in
+	 * the XML representation of RDF nodes
+	 * 
+	 * @param rdfNodeXMLElement
+	 * @param node
+	 */
 	private static void serializeMap(Element rdfNodeXMLElement, STRDFNode node) {
 		Map<String, String> info = node.getInfo();
 		if (info != null)
