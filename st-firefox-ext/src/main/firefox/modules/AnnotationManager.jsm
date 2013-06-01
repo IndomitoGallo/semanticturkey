@@ -69,6 +69,7 @@ annotation.AnnotationManager = (function() {
 			parameters.event = event;
 			parameters.family = family;
 			parameters.handlers = handlers;
+			parameters.parentWindow = parentWindow;
 			var win = parentWindow.openDialog(
 					"chrome://semantic-turkey/content/annotation/functionPicker/functionPicker.xul",
 					"dlg", "modal=yes,resizable,centerscreen", parameters);
@@ -229,7 +230,7 @@ annotation.EventHandler = function(label, messageTemplate, body, defaultPrecondi
 		if (spec == "") {
 			preconditionSpec = defaultPreconditionSpec;
 		} else {
-			preconditionSpec = defaultPreconditionSpec + "&& (" + spec + ")";
+			preconditionSpec = defaultPreconditionSpec + " and (" + spec + ")";
 		}
 	
 		try {
@@ -296,7 +297,7 @@ annotation.Preconditions.False = function(event) {
 	return false;
 };
 
-function parsePrecondition(expression) {
+function parsePrecondition(expression, debug) {
     function getPreconditionObject(atom) {
         var components = atom.split(".");
         
@@ -324,7 +325,7 @@ function parsePrecondition(expression) {
     function tokenize(expression) {
         const WS = new RegExp("^[\\x20\\x09\\x0D\\x0A]+");
 		const ATOM = new RegExp("^[A-Za-z\\.]+");
-		const punct = /^(\(|\)|&&|\|\||\!)/;
+		const punct = /^(\(|\)|and|or|not)/;
 		
         var input = [];
 
@@ -336,113 +337,186 @@ function parsePrecondition(expression) {
                 continue;
             }
             
-            consumed = expression.match(ATOM);
+            var consumedAtom  = expression.match(ATOM);
+            var consumedPunct = expression.match(punct);
+
+            if (consumedAtom != null) {
+            	if (consumedPunct != null) {
+            		if (consumedPunct[0].length >= consumedAtom[0].length) {
+            			consumed = consumedPunct;
+            		} else {
+            			consumed = consumedAtom;
+            		}
+            	} else {
+            		consumed = consumedAtom;
+            	}
+            } else {
+            	consumed = consumedPunct;
+            }
             
             if (consumed != null) {
                 expression = expression.substring(consumed[0].length);
                 input.push(consumed[0]);
                 continue;
             }
-            
-            consumed = expression.match(punct);
-            
-            if (consumed != null) {
-                expression = expression.substring(consumed[0].length);
-                input.push(consumed[0]);
-                continue;
-            }
-            
+                        
             if (consumed == null) {
                 throw new Error("Cannot parse the input");
             }
         }
-
-        input.push("$");
         
         return input;
     }
     
-    var valueStack = [];
-    var opStack = [];
+    debug = debug || false;
     
-    var priority = {};
-    
-    priority["$"] = 0;
+    var prio_table = {};
+    prio_table["("] = 0;
+    prio_table["or"] = 1;
+    prio_table["and"] = 2;
+    prio_table["not"] = 3;
+    prio_table[")"] = 0;
 
-    priority["||"] = 2;
-    priority["&&"] = 3;
-    priority["!"] = 4;
-    priority["("] = 5;
-    priority[")"] = 1;
-    
     var ops = {};
-    ops["||"] = function(a1, a2) {
+    ops["or"] = function(a1, a2) {
         return function(event) {
             return a1(event) || a2(event);
         }
     };
-    ops["&&"] = function(a1, a2) {
+    ops["and"] = function(a1, a2) {
         return function(event) {
             return a1(event) && a2(event);
         }
     };
-    ops["!"] = function(a1) {
+    ops["not"] = function(a1) {
         return function(event) {
             return !a1(event);
         }
     };
+
+    var valueStack = [];
+    var opStack = [];
+
+    var valueExpected = true;  // expect a primary, ie. atom, not, (
     
     var input = tokenize(expression);
     
-    for (var i = 0 ; i < input.length ; i++) {
+    for (var i = 0 ; i < input.length ; i++) {        
         var token = input[i];
+
         
-        var prio = priority[token];
+        var prio = prio_table[token];
         
-        if (typeof prio == "undefined") {
-            var v = getPreconditionObject(token);
+        if (typeof prio == "undefined") { // terminal
+            if (!valueExpected) throw new Error("Operand expected, but operator " + token.quote() + " given");
             
-            if (v == null) {
-                throw new Error("Token " + token.quote() + " is not a valid atomic precondition");
+            var tokenObj = getPreconditionObject(token);
+            if (tokenObj == null) throw new Error("Unexisting atom " + token.quote());
+            
+            if (debug) {
+                valueStack.push(token);
+            } else {     
+                valueStack.push(getPreconditionObject(token));
             }
-
-            valueStack.push(v);
+            valueExpected = false;
         } else {
-
-            while (opStack.length > 0) {
-                var op_top = opStack[opStack.length - 1];
-                var prio_top = priority[op_top];
-                
-                if (op_top == "(") {
-                    if (token == ")") {
-                        opStack.pop();
-                        continue;
+            if (valueExpected && token != "(" && token != "not") {
+                throw new Error("Operand expected, but " + token.quote() + " given");
+            } else if (!valueExpected && (token == "(" || token == "not")) {
+                throw new Error("Operator expected, but " + token.quote() + " given");
+            }
+            
+            if (token != "(") {
+                while (opStack.length > 0) {
+                    var top_op = opStack[opStack.length - 1];
+                    var top_prio = prio_table[top_op];
+                    
+                    var isLeftAssociative = top_op != "not";
+                    var isBinary = top_op != "not";
+                    
+                    if (top_op == "(") {
+                        break;
+                    }
+                    
+                    if (top_prio > prio || (top_prio == prio && isLeftAssociative)) {
+                        if (isBinary) {
+                            var v2 = valueStack.pop();
+                            var v1 = valueStack.pop();
+                            
+                            var op = opStack.pop();
+                            
+                            if (debug) {
+                                valueStack.push("(" + v1 + " " + op + " " + v2 + ")");
+                            } else {
+                                valueStack.push(ops[op](v1, v2));
+                            }
+                        } else {
+                            var v = valueStack.pop();
+                            var op = opStack.pop();
+                            
+                            if (debug) {
+                                valueStack.push("(" + op + " " + v + ")");
+                            } else {
+                                valueStack.push(ops[op](v));
+                            }
+                        }                    
                     } else {
                         break;
                     }
                 }
-    
-                if (prio_top >= prio) {
-                    var op = opStack.pop();
-                    
-                    if (op_top != "!") {
-                        var v2 = valueStack.pop();
-                        var v1 = valueStack.pop();
-                        valueStack.push(ops[op](v1, v2));
-                    } else {
-                         var v = valueStack.pop();
-                        valueStack.push(ops[op](v));
-                    }
-
-                } else {
-                    break;
-                }
             }
-            if (token != ")" && token != "$") {
-                opStack.push(token)
+            
+            if (token == ")") {
+                if (opStack.length == 0 || opStack[opStack.length - 1] != "(") {
+                 throw new Error("Unmatched \")\"");
+                }
+                opStack.pop();
+                valueExpected = false;
+            } else {
+                valueExpected = true;
+                opStack.push(token);
             }
         }
     }
     
-    return valueStack[0];
+    if (valueExpected && opStack.length > 0) {
+        throw new Error("Operand expected, but end of expression reached");
+    }
+    
+    while (opStack.length > 0) {
+        var top_op = opStack.pop();
+        var isBinary = top_op != "not";
+        
+        if (top_op == "(") {
+            throw new Error("Unmatched \"(\"");
+        }
+        
+        if (isBinary) {
+            var v2 = valueStack.pop();
+            var v1 = valueStack.pop();
+            
+            if (debug) {
+                valueStack.push("(" + v1 + " " + top_op + " " + v2 + ")");
+            } else {
+                valueStack.push(ops[top_op](v1, v2));
+            }
+        } else {
+            var v = valueStack.pop();
+            
+            if (debug) {
+                valueStack.push("(" + top_op + " " + v + ")");
+            } else {
+                valueStack.push(ops[top_op](v));
+            }
+        }                    
+    }
+    
+    if (valueStack.length > 1) {
+        throw new Error("Parsing failure");
+    }
+    
+    return valueStack[0] || (debug ? "True" : annotation.Preconditions.True);
 }
+
+annotation.testHook = {};
+annotation.testHook.parsePrecondition = parsePrecondition;
