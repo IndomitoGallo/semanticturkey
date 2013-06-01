@@ -105,7 +105,7 @@ annotation.commons.handlers.createInstance = function(event, parentWindow) {
 	// We assume that additional information is provided by the caller
 	var tree = parentWindow.document.getElementById("classesTree");
 	if (tree != null) {
-		parentWindow.art_semanticturkey.classDragDrop_RESPONSE(response1,tree,false);	
+		parentWindow.art_semanticturkey.classDragDrop_RESPONSE(response1,tree,true, event.addons.domEvent);	
 	}
 	
 	this.furtherAnn(event2);
