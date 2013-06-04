@@ -142,7 +142,7 @@ public class Resource extends ServiceAdapter {
 		public static final String properties = "properties";
 		public static final String explicit = "explicit";
 		public static final String subProp = "subProp";
-		public static final String excludeSuperProp = "excludeSuperProp";
+		public static final String excludePropItSelf = "excludePropItSelf";
 		public static final String excludedProps = "excludedProps";
 	}
 
@@ -173,17 +173,17 @@ public class Resource extends ServiceAdapter {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
-			boolean excludeSuperProp = setHttpBooleanPar(Par.excludeSuperProp);
+			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf, false);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludeSuperProp);
+			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludePropItSelf);
 		} else if (request.equals(Req.getValuesOfPropertiesCountRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
-			boolean excludeSuperProp = setHttpBooleanPar(Par.excludeSuperProp);
+			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf, false);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties,
-					excludeSuperProp);
+					excludePropItSelf);
 		} else if (request.equals(Req.getValuesOfDatatypePropertiesRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String excludedProps = setHttpPar(Par.excludedProps);
@@ -253,7 +253,7 @@ public class Resource extends ServiceAdapter {
 	}
 
 	public Response getValuesOfProperties(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludeSuperProp) {
+			boolean excludePropItSelf) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -267,7 +267,7 @@ public class Resource extends ServiceAdapter {
 			for (String propName : propsNames) {
 
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
-				getValuesOfSubProperties(resource, property, subProp, excludeSuperProp, graphs, model,
+				getValuesOfSubProperties(resource, property, subProp, excludePropItSelf, graphs, model,
 						dataElement);
 			}
 			return response;
@@ -280,7 +280,7 @@ public class Resource extends ServiceAdapter {
 	}
 
 	private void getValuesOfSubProperties(ARTResource resource, ARTURIResource property, boolean subProp,
-			boolean excludeProp, ARTResource[] graphs, OWLModel model, Element dataElement)
+			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element dataElement)
 			throws NonExistingRDFResourceException, ModelAccessException {
 		Element extCollection = XMLHelp.newElement(dataElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
@@ -288,7 +288,7 @@ public class Resource extends ServiceAdapter {
 		Element propElem = XMLHelp.newElement(propValuesElem, "property");
 		RDFXMLHelp.addRDFResource(propElem, STRDFNodeFactory.createSTRDFURI(property, true));
 
-		if (excludeProp == false) {
+		if (excludePropItSelf == false) {
 			Element valuesElem = XMLHelp.newElement(propValuesElem, "values");
 			ARTNodeIterator it = model.listValuesOfSubjPredPair(resource, property, true, graphs);
 			Collection<ARTNode> explicitValues = RDFIterators.getCollectionFromIterator(model
@@ -319,7 +319,7 @@ public class Resource extends ServiceAdapter {
 	}
 
 	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludeSuperProp) {
+			boolean excludePropItSelf) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -332,7 +332,7 @@ public class Resource extends ServiceAdapter {
 
 			for (String propName : propsNames) {
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
-				getValuesOfPropertiesCount(resource, property, subProp, excludeSuperProp, graphs, model,
+				getValuesOfPropertiesCount(resource, property, subProp, excludePropItSelf, graphs, model,
 						dataElement);
 			}
 			return response;
@@ -345,7 +345,7 @@ public class Resource extends ServiceAdapter {
 	}
 
 	private void getValuesOfPropertiesCount(ARTResource resource, ARTURIResource property, boolean subProp,
-			boolean excludeProp, ARTResource[] graphs, OWLModel model, Element outerElement)
+			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element outerElement)
 			throws ModelAccessException {
 		Element extCollection = XMLHelp.newElement(outerElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
@@ -361,7 +361,7 @@ public class Resource extends ServiceAdapter {
 		int contAll = 0;
 		int contExplicit = 0;
 
-		if (excludeProp == false) {
+		if (excludePropItSelf == false) {
 			while (it.streamOpen()) {
 				ARTNode artNode = it.getNext();
 				++contAll;
