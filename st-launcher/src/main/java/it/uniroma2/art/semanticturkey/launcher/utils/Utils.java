@@ -17,7 +17,7 @@ import java.util.Properties;
 
 import org.apache.felix.framework.util.Util;
 
-public class utils {
+public class Utils {
 	private static ArrayList<String> newlist = new ArrayList<String>();
 	private static ArrayList<String> oldlist = new ArrayList<String>();
 	private static ArrayList<String> difflist= new ArrayList<String>();
