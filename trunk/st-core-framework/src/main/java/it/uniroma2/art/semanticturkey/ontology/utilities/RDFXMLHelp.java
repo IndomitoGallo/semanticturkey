@@ -330,7 +330,7 @@ public class RDFXMLHelp {
 			Element predicateElem = XMLHelp.newElement(predObjectElem, "predicate");
 			addRDFNode(predicateElem, pred);
 			Collection<STRDFNode> nodes = predObjList.getValues(pred);
-			Element valuesElem = XMLHelp.newElement(predObjectElem, "values");
+			Element valuesElem = XMLHelp.newElement(predObjectElem, "objects");
 			addRDFNodes(valuesElem, nodes);
 		}
 		return collectionNameElem;
