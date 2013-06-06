@@ -486,6 +486,7 @@ public class Property extends Resource {
 		propElement.setAttribute("name", ontModel.getQName(property.getURI()));
 
 		propElement.setAttribute("type", type);
+		propElement.setAttribute("uri", property.getURI());
 		propElement.setAttribute("deleteForbidden", Boolean.toString(deleteForbidden));
 
 		ARTURIResourceIterator subPropertiesIterator = ((DirectReasoning) ontModel)
