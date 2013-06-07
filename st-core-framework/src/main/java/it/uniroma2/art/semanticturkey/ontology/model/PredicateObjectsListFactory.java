@@ -1,7 +1,6 @@
 package it.uniroma2.art.semanticturkey.ontology.model;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
-import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTStatement;
 import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.models.RDFModel;
@@ -17,12 +16,18 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 
-public class PredicateObjectListFactory {
+public class PredicateObjectsListFactory {
 
 	// TODO instead of passing series of arguments for deciding if to infer roles, or force them etc...
 	// just define some generator object
 
 	/**
+	 * this method, given a collection of statements centered on one subject, will create bags of objects
+	 * grouped by common predicates. The result is a collection of structures, each one containing one
+	 * predicate and a collection of RDF nodes which are objects of that predicate in a statement from the
+	 * input collection<br/>
+	 * this method takes care of closing the input iterators
+	 * 
 	 * @param model
 	 * @param role
 	 * @param inferredStats
@@ -30,7 +35,7 @@ public class PredicateObjectListFactory {
 	 * @return
 	 * @throws ModelAccessException
 	 */
-	public static PredicateObjectList createPredicateObjectList(RDFModel model, RDFResourceRolesEnum role,
+	public static PredicateObjectsList createPredicateObjectsList(RDFModel model, RDFResourceRolesEnum role,
 			RDFIterator<ARTStatement> inferredStats, RDFIterator<ARTStatement> explicitStatementsIterator)
 			throws ModelAccessException {
 
@@ -67,6 +72,6 @@ public class PredicateObjectListFactory {
 				System.out.println("\t\tvalue: " + value + " explicit: " + value.isExplicit());
 		}
 
-		return new PredicateObjectListImpl(art2STRDFPredicates, resultPredicateObjectValues);
+		return new PredicateObjectsListImpl(art2STRDFPredicates, resultPredicateObjectValues);
 	}
 }

@@ -27,12 +27,13 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
-import it.uniroma2.art.owlart.filter.DatatypePropertyValueTriple;
+import it.uniroma2.art.owlart.filter.StatementWithDatatypePropertyPredicate_Predicate;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.NoSubclassPredicate;
 import it.uniroma2.art.owlart.filter.NoSubpropertyPredicate;
 import it.uniroma2.art.owlart.filter.NoTypePredicate;
-import it.uniroma2.art.owlart.filter.URIResourcePredicate;
+import it.uniroma2.art.owlart.filter.ResourceOfATypePredicate;
+import it.uniroma2.art.owlart.filter.StatementWithAnyOfGivenPredicates_Predicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -42,7 +43,6 @@ import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
 import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.models.SKOSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
@@ -59,9 +59,8 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
-import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectList;
-import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectListFactory;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectsList;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectsListFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNode;
@@ -79,10 +78,8 @@ import it.uniroma2.art.semanticturkey.vocabulary.STVocabUtilities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +94,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 @Component
 public class Resource extends ServiceAdapter {
@@ -133,11 +129,13 @@ public class Resource extends ServiceAdapter {
 		public static final String getPropertyValuesCountRequest = "getPropertyValuesCount";
 		public static final String getValuesOfPropertiesRequest = "getValuesOfProperties";
 		public static final String getValuesOfPropertiesCountRequest = "getValuesOfPropertiesCount";
+		public static final String getTemplatePropertiesRequest = "getTemplateProperties";
 		public static final String getValuesOfDatatypePropertiesRequest = "getValuesOfDatatypeProperties";
 	}
 
 	public static class Par {
 		public static final String resource = "resource";
+		public static final String role = "role";
 		public static final String property = "property";
 		public static final String properties = "properties";
 		public static final String explicit = "explicit";
@@ -184,6 +182,13 @@ public class Resource extends ServiceAdapter {
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties,
 					excludePropItSelf);
+		} else if (request.equals(Req.getTemplatePropertiesRequest)) {
+			String resourceQName = setHttpPar(Par.resource);
+			String roleString = setHttpPar(Par.role);
+			RDFResourceRolesEnum role = (roleString != null) ? RDFResourceRolesEnum.valueOf(roleString)
+					: null;
+			checkRequestParametersAllNotNull(Par.resource);
+			response = getTemplateProperties(resourceQName, role);
 		} else if (request.equals(Req.getValuesOfDatatypePropertiesRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String excludedProps = setHttpPar(Par.excludedProps);
@@ -390,13 +395,6 @@ public class Resource extends ServiceAdapter {
 
 		try {
 
-			HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
-			;
-			if (excludedProps != null) {
-				for (String excludedPropName : excludedProps.split("\\|_\\|"))
-					excludedPropSet.add(model.createURIResource(model.expandQName(excludedPropName)));
-			}
-
 			ARTResource[] graphs;
 
 			graphs = getUserNamedGraphs();
@@ -406,16 +404,42 @@ public class Resource extends ServiceAdapter {
 			// getting inferred triples but filtered
 			ARTStatementIterator inferredDatatypedTriples = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, true, graphs);
+
+			// basic filter on datatype prop values
+			Predicate<ARTStatement> statementFilter = StatementWithDatatypePropertyPredicate_Predicate
+					.getFilter(model);
+
+			if (excludedProps != null) {
+				HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
+				for (String excludedPropName : excludedProps.split("\\|_\\|"))
+					excludedPropSet.add(model.createURIResource(model.expandQName(excludedPropName)));
+				// only in case excludedProps is being specified, then the statementFilter is enriched with a
+				// negative filter on the set of excluded properties
+				statementFilter = Predicates.and(statementFilter, Predicates
+						.not(StatementWithAnyOfGivenPredicates_Predicate.getFilter(excludedPropSet)));
+			}
+
+			// only the inferred statement iterator is being filtered, as it is the one being used for
+			// reporting results, the explicit statement iterator is instead only used to check which of the
+			// above statements are explicit
 			Iterator<ARTStatement> inferredFilteredOnDatatypedTriples = Iterators.filter(
-					inferredDatatypedTriples, DatatypePropertyValueTriple.getFilter(model));
+					inferredDatatypedTriples, statementFilter);
 
 			ARTStatementIterator explicitStatements = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, false, getWorkingGraph());
 
-			PredicateObjectList predObjList = PredicateObjectListFactory.createPredicateObjectList(model,
+			PredicateObjectsList predObjList = PredicateObjectsListFactory.createPredicateObjectsList(model,
 					RDFResourceRolesEnum.datatypeProperty,
 					RDFIterators.createARTStatementIterator(inferredFilteredOnDatatypedTriples),
 					explicitStatements);
+
+			// TODO
+			// createPredicateObjectsList automatically closes the input iterator, but the iterator passed to
+			// it is a wrapper around the standard iterator wrapped-in-turn around inferredDatatypedTriples.
+			// This is a clear example of why I should write my own filtering iterator, maybe through a
+			// filterIterator(RDFIterator, predicate) put in RDFIterators.
+			// class "Predicate" from lib google-collections may still be used
+			inferredDatatypedTriples.close();
 
 			RDFXMLHelp.addPredicateObjectList(response, predObjList);
 
@@ -455,7 +479,7 @@ public class Resource extends ServiceAdapter {
 			// TEMPLATE PROPERTIES (properties which can be shown since the
 			// selected instance has at least a
 			// type which falls in their domain)
-			extractTemplateProperties(owlModel, resource, properties, graphs);
+			extractTemplateProperties(owlModel, resource, null, properties, graphs);
 
 			// VALUED PROPERTIES (properties over which the selected instance
 			// has one or more values)
@@ -478,6 +502,49 @@ public class Resource extends ServiceAdapter {
 
 	}
 
+	public Response getTemplateProperties(String resourceQName, RDFResourceRolesEnum role) {
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(ontModel, resourceQName, graphs);
+
+			HashSet<ARTURIResource> props = extractTemplateProperties(ontModel, resource, role, graphs);
+			Collection<STRDFResource> result = STRDFNodeFactory.createEmptyResourceCollection();
+
+			if (role == null) {
+				// if all properties, then compute the role
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop,
+							ModelUtilities.getPropertyRole(prop, ontModel), true,
+							ontModel.getQName(prop.getURI())));
+				}
+			} else {
+				// if filtered from a specific type, then forward the role to the ST RDF URI
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop, role, true,
+							ontModel.getQName(prop.getURI())));
+				}
+			}
+
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			RDFXMLHelp.addRDFNodes(response, result);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+
+	protected HashSet<ARTURIResource> extractTemplateProperties(OWLModel ontModel, ARTResource resource,
+			RDFResourceRolesEnum role, ARTResource... graphs) throws ModelAccessException {
+		HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
+		extractTemplateProperties(ontModel, resource, role, properties, graphs);
+		return properties;
+	}
+
 	// TODO generate specific filters for classes, properties and individuals
 	/**
 	 * this part runs across all the types of the explored resource, reporting all the properties
@@ -489,7 +556,13 @@ public class Resource extends ServiceAdapter {
 	 * @throws ModelAccessException
 	 */
 	protected void extractTemplateProperties(OWLModel ontModel, ARTResource resource,
-			HashSet<ARTURIResource> properties, ARTResource... graphs) throws ModelAccessException {
+			RDFResourceRolesEnum role, HashSet<ARTURIResource> properties, ARTResource... graphs)
+			throws ModelAccessException {
+
+		// by first, the specified role must be either null (all properties) or any of the property related
+		// roles
+		if (role != null && !role.isProperty())
+			throw new IllegalArgumentException("role: " + role + " is not a property role");
 
 		ARTResourceIterator types = ontModel.listTypes(resource, true, graphs);
 
@@ -502,10 +575,14 @@ public class Resource extends ServiceAdapter {
 
 		// PROPERTIES FILTER preparation
 		// template props are pruned of type/subclass/subproperty declarations
-		Collection<Predicate<ARTResource>> prunedPredicates = new ArrayList<Predicate<ARTResource>>();
-		prunedPredicates.addAll(basePropertyPruningPredicates);
-		prunedPredicates.add(NoSystemResourcePredicate.noSysResPred);
-		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(prunedPredicates);
+		Collection<Predicate<ARTResource>> pruningPredicates = new ArrayList<Predicate<ARTResource>>();
+		pruningPredicates.addAll(basePropertyPruningPredicates);
+		pruningPredicates.add(NoSystemResourcePredicate.noSysResPred);
+		// if null, all kind of properties are ok, no filtering
+		if (role != null)
+			pruningPredicates.add(ResourceOfATypePredicate.getPredicate(ontModel, role.getRDFURIResource()));
+
+		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(pruningPredicates);
 
 		logger.debug("types for " + resource + ": " + types);
 		Iterator<ARTResource> filteredTypesIterator = Iterators.filter(types, typesFilter);

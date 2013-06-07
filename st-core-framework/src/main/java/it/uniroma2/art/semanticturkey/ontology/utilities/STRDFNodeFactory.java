@@ -43,28 +43,151 @@ import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 
 import org.w3c.dom.DOMException;
 
+/**
+ * <p>
+ * factory for creating ST RDF Nodes, that is, serializable compact objects containing the strictly necessary
+ * information for showing RDF nodes in a user interface.<br/>
+ * This compact information may contain:
+ * <ul>
+ * <li>First, the nature ({@link RDFTypesEnum}) of the node is revealed, among:
+ * <ul>
+ * <li>uri</li>
+ * <li>bnode</li>
+ * <li>plainLiteral</li>
+ * <li>typedLiteral</li>
+ * </ul>
+ * </li>
+ * <li>a mere NT serialization of the node</li>
+ * <li>a human-readable representation of the node (e.g. a qname for URIs, or more complex representations for
+ * some bnodes, such as the list of values for a datarange bnode)</li>
+ * <li>in case of resources (bnodes and URIs), their "role", that is, the most important class and specific
+ * they belong to, which will be mostly used to give a specific graphical representation of the node in a User
+ * Interface</li>
+ * <li><em>explicit</em>: a boolean value, which is important in some cases to tell if the node is present in
+ * a given collection thanks to reasoning, imported ontologies etc... or has been explicitly written in the
+ * default working graph</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Armando Stellato &lt;stellato@info.uniroma2.it&gt;
+ * 
+ */
 public class STRDFNodeFactory {
 
+	/**
+	 * basic factory method for Literals. the "show" field is generated automatically by getting the nominal
+	 * value of the literal, without considering language tags or datatypes.
+	 * 
+	 * @param node
+	 * @param explicit
+	 * @return
+	 */
 	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit) {
 		return new STRDFLiteralImpl(node, explicit);
 	}
 
+	/**
+	 * as for {@link #createSTRDFLiteral(ARTLiteral, boolean)}, but can force the show field to show something
+	 * different; pls use it consistently}
+	 * 
+	 * @param node
+	 * @param explicit
+	 * @param show
+	 * @return
+	 */
 	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit, String show) {
 		return new STRDFLiteralImpl(node, explicit, show);
 	}
 
+	/**
+	 * as for {@link #createSTRDFLiteral(ARTLiteral, boolean, String)}, but can specify directly the qname of
+	 * the datatype}
+	 * 
+	 * @param node
+	 * @param explicit
+	 * @param show
+	 * @param dtQName
+	 * @return
+	 */
 	public static STRDFLiteral createSTRDFLiteral(ARTLiteral node, boolean explicit, String show,
 			String dtQName) {
 		return new STRDFLiteralImpl(node, explicit, show, dtQName);
 	}
 
-	public static STRDFURIImpl createSTRDFURI(ARTURIResource node, RDFResourceRolesEnum role,
-			boolean explicit, String show) {
+	/**
+	 * plain method for creating a ST RDF URI Resource; all method arguments will be straightly used to
+	 * construct the resource
+	 * 
+	 * @param node
+	 * @param role
+	 * @param explicit
+	 * @param show
+	 * @return
+	 */
+	public static STRDFURI createSTRDFURI(ARTURIResource node, RDFResourceRolesEnum role, boolean explicit,
+			String show) {
 		return new STRDFURIImpl(node, role, explicit, show);
 	}
 
-	public static STRDFURIImpl createSTRDFURI(ARTURIResource node, boolean explicit) {
+	/**
+	 * TODO : IMPORTANT!! not sure this creation method is appropriate, should investigate on these null
+	 * values for the 4-arg constructor. Probably it is used to create partially instantiated resources, and
+	 * then fill them on a later stage. However, think this should be made private to this class, and
+	 * externally, resources should be created when all of their arguments have been calculated,
+	 * 
+	 * 
+	 * @param node
+	 * @param explicit
+	 * @return
+	 */
+	public static STRDFURI createSTRDFURI(ARTURIResource node, boolean explicit) {
 		return new STRDFURIImpl(node, null, explicit, null);
+	}
+
+	/**
+	 * everything explicitly passed through the arguments, except the <code>show</code> field which is
+	 * calculated through the prefixMapping of the <code>model</code> if <code>rendering</code> is set to true
+	 * 
+	 * @param model
+	 * @param resource
+	 * @param role
+	 * @param explicit
+	 * @param rendering
+	 * @return
+	 * @throws ModelAccessException
+	 */
+	public static STRDFURI createSTRDFURI(RDFModel model, ARTURIResource resource, RDFResourceRolesEnum role,
+			boolean explicit, boolean rendering) throws ModelAccessException {
+		STRDFURI stURI = createSTRDFURI(resource.asURIResource(), role, explicit, null);
+		if (rendering)
+			stURI.setRendering(model.getQName(resource.getURI()));
+		return stURI;
+	}
+
+	/**
+	 * both <code>show</code> field and <code>role</code> field are calculated if their related boolean
+	 * arguments are set to true<br/>
+	 * 
+	 * @param model
+	 * @param resource
+	 * @param role
+	 *            if <code>true</code>, the <code>role</code> field of the resource is retrieved through the
+	 *            <code>model<code>
+	 * @param explicit
+	 * @param rendering
+	 *            if <code>true</code>, the <code>show</code> field of the resource is calculated through the prefixMapping
+	 *            of the <code>model</code>
+	 * @return
+	 * @throws ModelAccessException
+	 */
+	public static STRDFURI createSTRDFURI(RDFModel model, ARTURIResource resource, boolean role,
+			boolean explicit, boolean rendering) throws ModelAccessException {
+		STRDFURI stURI = createSTRDFURI(resource.asURIResource(), null, explicit, null);
+		if (role)
+			stURI.setRole(ModelUtilities.getResourceRole(resource, model));
+		if (rendering)
+			stURI.setRendering(model.getQName(resource.getURI()));
+		return stURI;
 	}
 
 	public static STRDFBNodeImpl createSTRDFBNode(ARTBNode node, RDFResourceRolesEnum role, boolean explicit,
@@ -72,16 +195,13 @@ public class STRDFNodeFactory {
 		return new STRDFBNodeImpl(node, role, explicit, show);
 	}
 
-	public static STRDFBNodeImpl createSTRDFBNode(ARTBNode node, boolean explicit) {
+	private static STRDFBNodeImpl createSTRDFBNode(ARTBNode node, boolean explicit) {
 		return new STRDFBNodeImpl(node, null, explicit, null);
 	}
 
 	/**
-	 * This method has nothing to do with an enhanced POJO which can be used to serialize RDF nodes and
-	 * accompanying information.<br/>
-	 * 
-	 * It simply renders the description of a RDF node under a an appropriate POJO, and additional information
-	 * that needs to be presented can be defined in the request. <br/>
+	 * This method renders the description of a RDF node under a an appropriate POJO, and additional
+	 * information that needs to be presented can be defined in the request. <br/>
 	 * First, the nature ({@link RDFTypesEnum}) of the node is revealed, among:
 	 * <ul>
 	 * <li>uri</li>
@@ -108,8 +228,8 @@ public class STRDFNodeFactory {
 	 * @param role
 	 *            when <code>true</code>, if the node is a resource, it tells the role of the resource (cls,
 	 *            ontology, property...). see {@link RDFResourceRolesEnum}
-	 * @param explicit 
-	 * 			  is automatically assigned to the explicit attribute of the STRDFNode resource to be created           
+	 * @param explicit
+	 *            is automatically assigned to the explicit attribute of the STRDFNode resource to be created
 	 * @param rendering
 	 *            If true, it provides a human readable representation of the node
 	 *            <ul>
@@ -199,7 +319,7 @@ public class STRDFNodeFactory {
 	public static Collection<STRDFResource> createEmptyResourceCollection() {
 		return new ArrayList<STRDFResource>();
 	}
-	
+
 	public static Collection<STRDFNode> createEmptyNodeCollection() {
 		return new ArrayList<STRDFNode>();
 	}
