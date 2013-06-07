@@ -138,6 +138,18 @@ public class RDFXMLHelp {
 		return nodeElement;
 	}
 
+	public static Element addRDFURIResource(Element parent, RDFModel model, ARTURIResource resource,
+			RDFResourceRolesEnum role, boolean rendering) throws DOMException, ModelAccessException {
+		Element nodeElement = XMLHelp.newElement(parent, RDFTypesEnum.uri.toString());
+		String uri = resource.asURIResource().getURI();
+		nodeElement.setTextContent(uri);
+		nodeElement.setAttribute("role", role.toString());
+		if (rendering) {
+			nodeElement.setAttribute("show", RDFRenderer.renderRDFNode(model, resource));
+		}
+		return nodeElement;
+	}
+
 	/**
 	 * serializes an STRDFResource under <code>parent</code> XML element
 	 * 
@@ -320,8 +332,7 @@ public class RDFXMLHelp {
 		return collectionNameElem;
 	}
 
-	public static Element addPredicateObjectList(XMLResponseREPLY resp,
-			PredicateObjectList predObjList) {
+	public static Element addPredicateObjectList(XMLResponseREPLY resp, PredicateObjectList predObjList) {
 		Element dataElement = resp.getDataElement();
 		Element collectionNameElem = XMLHelp.newElement(dataElement, "collection");
 		Collection<STRDFResource> preds = predObjList.getPredicates();

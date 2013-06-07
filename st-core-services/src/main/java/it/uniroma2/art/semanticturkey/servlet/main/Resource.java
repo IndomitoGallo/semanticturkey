@@ -716,30 +716,28 @@ public class Resource extends ServiceAdapter {
 			return "false";
 	}
 
-	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement)
-			throws ModelAccessException, NonExistingRDFResourceException {
+	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
+			boolean visualization) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
 		// TODO clearly reasoning=true requires the sole main graph (which
 		// contains reasoned triples too) but,
 		// what to do when the wgraph is not the main graph?
+
 		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, wgraph);
-		Iterator<ARTResource> filteredDomains = Iterators.filter(domains, URIResourcePredicate.uriFilter);
 		Collection<ARTResource> explicitDomains = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyDomains(property, false, wgraph));
-		System.out.println("explicitDomains: " + explicitDomains);
-		while (filteredDomains.hasNext()) {
-			ARTResource nextDomain = filteredDomains.next();
-			logger.debug("checking domain: " + nextDomain);
-			if (nextDomain.isURIResource()) { // TODO waiting for anonymous
-												// resources support
-				Element domainElement = XMLHelp.newElement(domainsElement, "domain");
-				domainElement.setAttribute("name", ontModel.getQName(nextDomain.asURIResource().getURI()));
-				if (explicitDomains.contains(nextDomain))
-					domainElement.setAttribute("explicit", "true");
-				else
-					domainElement.setAttribute("explicit", "false");
-			}
+		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
+		logger.debug("explicitDomains: " + explicitDomains);
+		while (domains.hasNext()) {
+			ARTResource nextDomain = domains.next();
+			rangesSet.add(nextDomain);
+			Element domainElement = RDFXMLHelp.addRDFNode(domainsElement, ontModel, nextDomain, true,
+					visualization);
+			if (explicitDomains.contains(nextDomain))
+				domainElement.setAttribute("explicit", "true");
+			else
+				domainElement.setAttribute("explicit", "false");
 		}
 		domains.close();
 	}
@@ -779,7 +777,7 @@ public class Resource extends ServiceAdapter {
 
 		ARTResource wgraph = getWorkingGraph();
 		// DOMAIN AND RANGES
-		injectPropertyDomainXML(ontModel, property, treeElement);
+		injectPropertyDomainXML(ontModel, property, treeElement, true);
 		injectPropertyRangeXML(ontModel, property, treeElement, true);
 
 		// FACETS
@@ -823,8 +821,9 @@ public class Resource extends ServiceAdapter {
 			Element inverseHeaderElement = XMLHelp.newElement(facetsElement, "inverseOf");
 			while (iterator.streamOpen()) {
 				ARTURIResource inverseProp = iterator.getNext().getObject().asURIResource();
-				Element transitivePropElement = XMLHelp.newElement(inverseHeaderElement, "Value");
-				transitivePropElement.setAttribute("value", ontModel.getQName(inverseProp.getURI()));
+
+				Element transitivePropElement = RDFXMLHelp.addRDFURIResource(inverseHeaderElement, ontModel,
+						inverseProp, RDFResourceRolesEnum.objectProperty, true);
 				if (ontModel.hasTriple(property, OWL.Res.INVERSEOF, inverseProp, false, wgraph))
 					transitivePropElement.setAttribute("explicit", "true");
 				else
