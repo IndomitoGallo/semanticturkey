@@ -6,7 +6,7 @@ import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 
 import java.util.Collection;
 
-public interface PredicateObjectList {
+public interface PredicateObjectsList {
 	
 	Collection<STRDFResource> getPredicates();
 	

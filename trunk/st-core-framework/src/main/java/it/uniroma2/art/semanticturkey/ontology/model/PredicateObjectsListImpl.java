@@ -10,12 +10,12 @@ import java.util.Iterator;
 
 import com.google.common.collect.HashMultimap;
 
-public class PredicateObjectListImpl implements PredicateObjectList {
+public class PredicateObjectsListImpl implements PredicateObjectsList {
 
 	HashMultimap<ARTURIResource, STRDFNode> valueMultiMap;
 	HashMap<ARTURIResource, STRDFResource> propMap;
 
-	PredicateObjectListImpl(HashMap<ARTURIResource, STRDFResource> propMap,
+	PredicateObjectsListImpl(HashMap<ARTURIResource, STRDFResource> propMap,
 			HashMultimap<ARTURIResource, STRDFNode> valueMultiMap) {
 		this.propMap = propMap;
 		this.valueMultiMap = valueMultiMap;

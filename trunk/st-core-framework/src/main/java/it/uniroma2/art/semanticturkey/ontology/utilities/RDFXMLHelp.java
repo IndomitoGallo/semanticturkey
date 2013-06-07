@@ -33,7 +33,7 @@ import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFRenderer;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
-import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectList;
+import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectsList;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -332,7 +332,7 @@ public class RDFXMLHelp {
 		return collectionNameElem;
 	}
 
-	public static Element addPredicateObjectList(XMLResponseREPLY resp, PredicateObjectList predObjList) {
+	public static Element addPredicateObjectList(XMLResponseREPLY resp, PredicateObjectsList predObjList) {
 		Element dataElement = resp.getDataElement();
 		Element collectionNameElem = XMLHelp.newElement(dataElement, "collection");
 		Collection<STRDFResource> preds = predObjList.getPredicates();
