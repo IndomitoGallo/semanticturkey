@@ -193,8 +193,9 @@ public class Property extends Resource {
 				return getSuperProperties(propertyQName);
 			} else if (request.equals(Req.getDomainRequest)) {
 				String propQName = setHttpPar(Par.propertyQNamePar);
+				String visualize = setHttpPar(Par.visualize);
 				checkRequestParametersAllNotNull(Par.propertyQNamePar);
-				return getDomain(propQName);
+				return getDomain(propQName, visualize);
 			} else if (request.equals(Req.getRangeRequest)) {
 				String propQName = setHttpPar(Par.propertyQNamePar);
 				String visualize = setHttpPar(Par.visualize);
@@ -322,7 +323,12 @@ public class Property extends Resource {
 		return getSuperTypes(propQName, RDFResourceRolesEnum.property);
 	}
 
-	public Response getDomain(String propQName) {
+	public Response getDomain(String propQName, String visualize) {
+		boolean boolVis;
+		if (visualize == null)
+			boolVis = false;
+		else
+			boolVis = Boolean.valueOf(visualize);		
 		String request = Req.getDomainRequest;
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 				RepliesStatus.ok);
@@ -334,7 +340,7 @@ public class Property extends Resource {
 			if (property == null)
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ propQName);
-			injectPropertyDomainXML(ontModel, property, dataElement);
+			injectPropertyDomainXML(ontModel, property, dataElement, boolVis);
 			return response;
 
 		} catch (ModelAccessException e) {
