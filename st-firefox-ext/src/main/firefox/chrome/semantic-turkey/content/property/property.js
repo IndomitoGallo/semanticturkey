@@ -65,18 +65,34 @@ art_semanticturkey.checkAndRemoveProp = function(removedPropertyName, node) {
 
 
 art_semanticturkey.addProperty_RESPONSE = function(responseArray) {
+	// This is a contingency path to translate from the new roles returned by the addProperty service to the
+	// old roles used by the property panel
+	const role2propTypeMapping = {};
+	role2propTypeMapping["property"] = "rdf:Property";
+	role2propTypeMapping["objectProperty"] = "owl:ObjectProperty";
+	role2propTypeMapping["datatypeProperty"] = "owl:DatatypeProperty";
+	role2propTypeMapping["annotationProperty"] = "owl:AnnotationProperty";
+	role2propTypeMapping["ontologyProperty"] = "owl:OntologyProperty";
+	
+	
 	var myTree = document.getElementById("propertiesTree");
 	
 	var newPropName = responseArray["property"].getShow();
-	var propType = responseArray["property"].getRole();
+	var role = responseArray["property"].getRole();
+	var propType = role2propTypeMapping[role];
+	// The following variable holds the value of the property that trigger the CSS rule which attaches the
+	// right icon to the property element
+	var properties = propType.substring(propType.indexOf(":") + 1); // strip the prefix
+	properties = properties.charAt(0).toUpperCase() + properties.substring(1); // capitalize the first letter
+	
 	if (typeof responseArray["superProperty"] == 'undefined') {  // add root property
 		var node = document.getElementById('rootPropertyTreeChildren'); // myTree.getElementsByTagName('treechildren')[0]; 
 		var tr = document.createElement("treerow");
 		var tc = document.createElement("treecell");
 		tc.setAttribute("label", newPropName);
 		tc.setAttribute("deleteForbidden", "false");
-		tr.setAttribute("properties", propType);
-		tc.setAttribute("properties", propType);
+		tr.setAttribute("properties", properties);
+		tc.setAttribute("properties", properties);
 		tc.setAttribute("propType", propType);
 		tc.setAttribute("isRootNode", true);
 		//tr.setAttribute("properties", "base" + propType.substring(4));
@@ -98,9 +114,9 @@ art_semanticturkey.addProperty_RESPONSE = function(responseArray) {
 		tc.setAttribute("deleteForbidden", "false");
 		tc.setAttribute("numInst", "0");
 		tc.setAttribute("isRootNode", false);
-		tc.setAttribute("properties", propType);
+		tc.setAttribute("properties", properties);
 		tc.setAttribute("propType", propType);
-		tr.setAttribute("properties", propType);
+		tr.setAttribute("properties", properties);
 		tr.appendChild(tc);
 		ti.setAttribute('container', 'false');
 		ti.setAttribute('open', 'false');
