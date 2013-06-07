@@ -23,6 +23,7 @@
 
 /*
  * Contributor(s): Armando Stellato stellato@info.uniroma2.it
+ * Contributor(s): Andrea Turbati turbati@info.uniroma2.it
  */
 package it.uniroma2.art.semanticturkey.servlet.main;
 
@@ -172,16 +173,19 @@ public class Resource extends ServiceAdapter {
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf, false);
+			String excludedProps = setHttpPar(Par.excludedProps);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
-			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludePropItSelf);
+			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludePropItSelf,
+					excludedProps);
 		} else if (request.equals(Req.getValuesOfPropertiesCountRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
 			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf, false);
+			String excludedProps = setHttpPar(Par.excludedProps);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfPropertiesCount(resourceName, propertiesNames, subproperties,
-					excludePropItSelf);
+					excludePropItSelf, excludedProps);
 		} else if (request.equals(Req.getTemplatePropertiesRequest)) {
 			String resourceQName = setHttpPar(Par.resource);
 			String roleString = setHttpPar(Par.role);
@@ -258,10 +262,11 @@ public class Resource extends ServiceAdapter {
 	}
 
 	public Response getValuesOfProperties(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludePropItSelf) {
+			boolean excludePropItSelf, String excludedProps) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
+		HashSet<String> excludedPropSet = new HashSet<String>();
 		try {
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
@@ -269,11 +274,16 @@ public class Resource extends ServiceAdapter {
 
 			Element dataElement = response.getDataElement();
 
+			if (excludedProps != null) {
+				for (String excludedPropName : excludedProps.split("\\|_\\|"))
+					excludedPropSet.add(model.expandQName(excludedPropName));
+			}
+			
 			for (String propName : propsNames) {
 
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
-				getValuesOfSubProperties(resource, property, subProp, excludePropItSelf, graphs, model,
-						dataElement);
+				getValuesOfProperties(resource, property, subProp, excludePropItSelf, graphs, model,
+						dataElement, excludedPropSet);
 			}
 			return response;
 
@@ -284,9 +294,14 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	private void getValuesOfSubProperties(ARTResource resource, ARTURIResource property, boolean subProp,
-			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element dataElement)
+	private void getValuesOfProperties(ARTResource resource, ARTURIResource property, boolean subProp,
+			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element dataElement,
+			HashSet<String> excludedPropSet)
 			throws NonExistingRDFResourceException, ModelAccessException {
+		
+		if(excludedPropSet.contains(property.getURI()))
+			return;
+		
 		Element extCollection = XMLHelp.newElement(dataElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
 
@@ -317,17 +332,19 @@ public class Resource extends ServiceAdapter {
 			ARTURIResourceIterator iter = ((DirectReasoning) model).listDirectSubProperties(property, graphs);
 			while (iter.hasNext()) {
 				ARTURIResource subPropRes = iter.next();
-				getValuesOfSubProperties(resource, subPropRes, subProp, false, graphs, model, propValuesElem);
+				getValuesOfProperties(resource, subPropRes, subProp, false, graphs, model, propValuesElem,
+						excludedPropSet);
 			}
 
 		}
 	}
 
 	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludePropItSelf) {
+			boolean excludePropItSelf, String excludedProps) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
+		HashSet<String> excludedPropSet = new HashSet<String>();
 		try {
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
@@ -335,10 +352,15 @@ public class Resource extends ServiceAdapter {
 
 			Element dataElement = response.getDataElement();
 
+			if (excludedProps != null) {
+				for (String excludedPropName : excludedProps.split("\\|_\\|"))
+					excludedPropSet.add(model.expandQName(excludedPropName));
+			}
+			
 			for (String propName : propsNames) {
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
 				getValuesOfPropertiesCount(resource, property, subProp, excludePropItSelf, graphs, model,
-						dataElement);
+						dataElement, excludedPropSet);
 			}
 			return response;
 
@@ -350,8 +372,13 @@ public class Resource extends ServiceAdapter {
 	}
 
 	private void getValuesOfPropertiesCount(ARTResource resource, ARTURIResource property, boolean subProp,
-			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element outerElement)
+			boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, Element outerElement,
+			HashSet<String> excludedPropSet)
 			throws ModelAccessException {
+		
+		if(excludedPropSet.contains(property.getURI()))
+				return;
+		
 		Element extCollection = XMLHelp.newElement(outerElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
 
@@ -384,7 +411,7 @@ public class Resource extends ServiceAdapter {
 			while (iter.hasNext()) {
 				ARTURIResource subPropRes = iter.next();
 				getValuesOfPropertiesCount(resource, subPropRes, subProp, false, graphs, model,
-						propValuesElem);
+						propValuesElem, excludedPropSet);
 			}
 		}
 	}
