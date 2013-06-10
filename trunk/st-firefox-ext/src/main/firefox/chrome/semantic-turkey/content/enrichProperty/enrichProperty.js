@@ -199,8 +199,8 @@ classHandlers.getCurrentHandler = function() {
 }
 
 window.onload = function() {
-	alert("" + window.arguments[0].parentWindow);
-	alert("" + window.arguments[0].action);
+	//alert("" + window.arguments[0].parentWindow);
+	//alert("" + window.arguments[0].action);
 	
 	art_semanticturkey.setPanel();
 	document.getElementById("checkAll").addEventListener("command",art_semanticturkey.showAllClasses,true);

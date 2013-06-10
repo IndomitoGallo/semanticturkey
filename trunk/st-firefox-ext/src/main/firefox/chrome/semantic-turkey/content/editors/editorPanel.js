@@ -143,7 +143,6 @@ window.onunload = function() {
 /** Funzione che crea gli elementi di EditorPanel in base al type */
 art_semanticturkey.init = function(type, sourceElementName, superName,
 		sourceElement) {
-	//alert("type = "+type); // da cancellare
 	var mytype = type;
 	// NScarpato 07-07-2008 add custom title to editor panel
 	var edPnl = document.getElementById("editorPanel");
@@ -159,7 +158,6 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 	lbl.setAttribute("class", "header");
 	var img = document.createElement("image");
 	var txbox = document.createElement("textbox");
-	// alert("explicit = "+window.arguments[0].explicit); // da cancellare
 	var isFirstEditor = window.arguments[0].isFirstEditor;
 	if (type.toLowerCase() == "cls") {
 		var deleteForbidden;
@@ -524,7 +522,7 @@ art_semanticturkey.getResourceDescription_RESPONSE = function(responseElement) {
 
 art_semanticturkey.getPropertyDescription_RESPONSE = function(responseElement) {
 	var sourceType = window.arguments[0].sourceType;
-	var domainNodeList = responseElement.getElementsByTagName("domain");
+	//var domainNodeList = responseElement.getElementsByTagName("domain");
 	var parentBox = document.getElementById("parentBoxRows");
 	// Types hidden for property
 	// Supertypes
@@ -532,7 +530,8 @@ art_semanticturkey.getPropertyDescription_RESPONSE = function(responseElement) {
 			.getAttribute("request");
 	var rowsBox = document.getElementById("rowsBox");
 	art_semanticturkey.parsingSuperTypes(responseElement, request);
-	art_semanticturkey.parsingDomains(domainNodeList, parentBox);
+	//art_semanticturkey.parsingDomains(domainNodeList, parentBox);
+	art_semanticturkey.parsingDomains(responseElement, sourceType, parentBox);
 	art_semanticturkey.parsingRanges(responseElement, sourceType, parentBox);
 	if (sourceType.toLowerCase().indexOf("objectproperty") != -1) {
 		art_semanticturkey.parsingFacets(responseElement, rowsBox);
@@ -1653,8 +1652,22 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 	}
 };
 
-art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
-	if (domainNodeList.length > 3) {
+art_semanticturkey.parsingDomains = function(responseElement, sourceType,
+		parentBox) {
+	
+	var domains = responseElement.getElementsByTagName("domains")[0];
+	var domainList = domains.childNodes;
+	var domainCounter = 0;
+	for (var k = 0; k < domainList.length; k++) {
+			if (typeof(domainList[k].tagName) != 'undefined') {
+				domainCounter++;
+			}	
+	}
+	if (domainCounter > 3) {
+		var separator = document.createElement("separator");
+		separator.setAttribute("class", "groove");
+		separator.setAttribute("orient", "orizontal");
+		parentBox.appendChild(separator);
 		var domainToolbox = document.createElement("toolbox");
 		var domainToolbar = document.createElement("toolbar");
 		domainToolbox.appendChild(domainToolbar);
@@ -1690,8 +1703,8 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		listhead.appendChild(listheader);
 		list.appendChild(listhead);
 		parentBox.appendChild(list);
-		for (var i = 0; i < domainNodeList.length; i++) {
-			if (domainNodeList[i].nodeType == 1) {
+		for (var i = 0; i < domainList.length; i++) {
+			if (typeof(domainList[i].tagName) != 'undefined') {
 				lsti = document.createElement("listitem");
 				lci = document.createElement("listitem-iconic");
 				img = document.createElement("image");
@@ -1700,9 +1713,9 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 								"chrome://semantic-turkey/skin/images/class20x20.png");
 				lci.appendChild(img);
 				lbl = document.createElement("label");
-				var value = domainNodeList[i].getAttribute("name");
+				var value = domainList[i].getAttribute("show");
 				lsti.setAttribute("label", value);
-				var explicit = domainNodeList[i].getAttribute("explicit");
+				var explicit = domainList[i].getAttribute("explicit");
 				lsti.setAttribute("explicit", explicit);
 				lsti.addEventListener("dblclick",
 						art_semanticturkey.resourcedblClickEvent, true);
@@ -1722,7 +1735,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				list.appendChild(lsti);
 			}
 		}
-	} else { // domainNodeList.length <= 3
+	} else { // domainList.length <= 3
 		var lbl = document.createElement("label");
 		var img = document.createElement("image");
 		img.setAttribute("src",
@@ -1730,7 +1743,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		lbl.setAttribute("value", "Domains:");
 		var row = document.createElement("row");
 		var box = document.createElement("box");
-		//row.setAttribute("flex", "4");
+		row.setAttribute("flex", "0");
 		var domainButton = document.createElement("toolbarbutton");
 		domainButton.addEventListener("click", art_semanticturkey.insertDomain,
 				true);
@@ -1742,9 +1755,9 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		box.insertBefore(img, lbl);
 		row.appendChild(box);
 		parentBox.appendChild(row);
-		for (var j = 0; j < domainNodeList.length; j++) {
-			if (domainNodeList[j].nodeType == 1) {
-				var value = domainNodeList[j].getAttribute("name");
+		for (var j = 0; j < domainList.length; j++) {
+			if (typeof(domainList[j].tagName) != 'undefined') {
+				var value = domainList[j].getAttribute("show");
 				var txbox = document.createElement("textbox");
 				txbox.setAttribute("value", value);
 				txbox.setAttribute("id", "tx" + value);
@@ -1775,7 +1788,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 				domainButton
 						.setAttribute("image",
 								"chrome://semantic-turkey/skin/images/class_delete.png");
-				var explicit = domainNodeList[j].getAttribute("explicit");
+				var explicit = domainList[j].getAttribute("explicit");
 				if (explicit == "false") {
 					domainButton.setAttribute("disabled", "true");
 				}
@@ -1788,6 +1801,7 @@ art_semanticturkey.parsingDomains = function(domainNodeList, parentBox) {
 		}
 	}
 };
+
 art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		parentBox) {
 	//var rangeList = responseElement.getElementsByTagName('range');
@@ -1946,6 +1960,7 @@ art_semanticturkey.parsingRanges = function(responseElement, sourceType,
 		}
 	}
 };
+
 /**
  * Parsing facets
  */
@@ -2016,16 +2031,13 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 	titleBox.insertBefore(box, inversBtn);
 	row.appendChild(titleBox);
 	rowBox.appendChild(row);
-
 	if (facetsList.length > 0) {
 		for (var i = 0; i < facetsList.length; i++) {
 			if (facetsList[i].nodeType == 1
 					&& facetsList[i].tagName == "inverseOf") {
-
 				var valueList = facetsList[i].childNodes;
 				var inverseValueList = responseElement
-						.getElementsByTagName("inverseOf")[0]
-						.getElementsByTagName("Value");
+						.getElementsByTagName("inverseOf")[0].childNodes;
 				if (inverseValueList.length > 10) {
 					var inverseList = document.createElement("listbox");
 					inverseList.setAttribute("id", "inverseList");
@@ -2048,9 +2060,9 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							"Remove InverseOf value");
 					titleBox.insertBefore(remInverseBtn, inversBtn);
 					titleBox.insertBefore(inversBtn, remInverseBtn);
-					for (var j = 0; j < valueList.length; j++) {
-						if (valueList[j].nodeType == 1) {
-							var value = valueList[j].getAttribute("value");
+					for (var j = 0; j < inverseValueList.length; j++) {
+						if (typeof(inverseValueList[j].tagName) != 'undefined') {
+							var value = inverseValueList[j].getAttribute("show");
 							var lsti = document.createElement("listitem");
 							var lci = document.createElement("listitem-iconic");
 							var img = document.createElement("image");
@@ -2063,7 +2075,7 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 							lbl.setAttribute("value", value);
 							lci.appendChild(lbl);
 							lsti.setAttribute("label", value);
-							var explicit = valueList[j]
+							var explicit = inverseValueList[j]
 									.getAttribute("explicit");
 							lsti.setAttribute("explicit", explicit);
 							lsti.addEventListener("dblclick",
@@ -2088,10 +2100,11 @@ art_semanticturkey.parsingFacets = function(responseElement, rowsBox) {
 					var rowInv = document.createElement("row");
 					rowInv.appendChild(inverseList);
 					rowsBox.appendChild(rowInv);
-				} else {
-					for (k = 0; k < valueList.length; k++) {
-						if (valueList[k].nodeType == 1) {
-							var value = valueList[k].getAttribute("value");
+				} else { // inverseValueList.length < 10
+					//for (k = 0; k < valueList.length; k++) {
+					for (k = 0; k < inverseValueList.length; k++) {
+						if (typeof(inverseValueList[k].tagName) != 'undefined') {
+							var value = inverseValueList[k].getAttribute("show");
 							var inverseTxbox = document
 									.createElement("textbox");
 							inverseTxbox.setAttribute("id", "inverseOf");
