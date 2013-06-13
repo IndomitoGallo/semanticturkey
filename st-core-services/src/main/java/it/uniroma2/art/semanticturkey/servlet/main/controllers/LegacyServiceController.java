@@ -87,15 +87,18 @@ public class LegacyServiceController implements ApplicationContextAware {
 	@RequestMapping(value = "/resources/stserver/STServer")
 	public void service(HttpServletRequest oReq, HttpServletResponse oRes) throws ServletException,
 			IOException {
-
-		System.out.println("response encoding: " + oRes.getCharacterEncoding());
+		
+		//System.out.println("response encoding: " + oRes.getCharacterEncoding());
+		logger.debug("response encoding: " + oRes.getCharacterEncoding());
 		oRes.setCharacterEncoding("UTF-8");
 		oRes.setHeader("Access-Control-Allow-Origin", "*");
 		ServletOutputStream out;
 
-		System.out.println("encoding: " + oRes.getCharacterEncoding());
+		//System.out.println("encoding: " + oRes.getCharacterEncoding());
+		logger.debug("encoding: " + oRes.getCharacterEncoding());
 		String serviceName = oReq.getParameter("service");
-
+		
+		
 		Response response = null;
 		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
 		if (serviceName == null) {
@@ -114,9 +117,12 @@ public class LegacyServiceController implements ApplicationContextAware {
 		} else if (serviceName.equals("plugin")) {
 			response = handlePluginRequest(oReq);
 		} else {
+			
 			response = handleServiceRequest(serviceName, oReq);
 		}
 
+		
+		
 		logger.debug("analyzing response type");
 
 		if (response != null) {
@@ -193,6 +199,7 @@ public class LegacyServiceController implements ApplicationContextAware {
 	}
 
 	private Response handleServiceRequest(String serviceName, HttpServletRequest oReq) throws IOException {
+		
 		ServiceInterface service = null;
 		Response response = null;
 		SerializationType ser_type = (new HttpServiceRequestWrapper(oReq)).getAcceptContent();
@@ -214,12 +221,19 @@ public class LegacyServiceController implements ApplicationContextAware {
 			// the service id
 			if (service == null) {
 				Object binolo = context.getBean("thirdPartyServices");
-
-				System.out.println("@@@@@" + binolo);
+				
+				//System.out.println("@@@@@" + binolo);
 				if (binolo != null) {
-					System.out.println("@@@@@" + binolo.getClass().getCanonicalName());
-					ServiceInterface si = ((List<ServiceInterface>) binolo).get(0);
-					service = si;
+					//System.out.println("@@@@@" + binolo.getClass().getCanonicalName());
+					List<ServiceInterface> serviceInterfaceList = ((List<ServiceInterface>) binolo);
+					for(ServiceInterface si : serviceInterfaceList){
+						if(si.getId().compareTo(serviceName) == 0){
+							service = si;
+							break;
+						}
+					}
+					//ServiceInterface si = ((List<ServiceInterface>) binolo).get(0);
+					//service = si;
 				}
 			}
 
