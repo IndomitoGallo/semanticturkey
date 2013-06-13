@@ -175,7 +175,7 @@ public class Resource extends ServiceAdapter {
 			String resourceName = setHttpPar(Par.resource);
 			String propertiesNames = setHttpPar(Par.properties);
 			boolean subproperties = setHttpBooleanPar(Par.subProp);
-			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf);
+			boolean excludePropItSelf = setHttpBooleanPar(Par.excludePropItSelf, false);
 			String excludedProps = setHttpPar(Par.excludedProps);
 			checkRequestParametersAllNotNull(Par.resource, Par.properties);
 			response = getValuesOfProperties(resourceName, propertiesNames, subproperties, excludePropItSelf,
