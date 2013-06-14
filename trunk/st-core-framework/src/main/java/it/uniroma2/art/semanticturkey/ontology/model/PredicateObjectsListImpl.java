@@ -6,7 +6,6 @@ import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import com.google.common.collect.HashMultimap;
 
