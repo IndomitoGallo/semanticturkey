@@ -44,13 +44,12 @@ public class PredicateObjectsListFactory {
 		HashMap<ARTURIResource, STRDFResource> art2STRDFPredicates = new HashMap<ARTURIResource, STRDFResource>();
 		HashMultimap<ARTURIResource, STRDFNode> resultPredicateObjectValues = HashMultimap.create();
 
-		while (inferredStats.hasNext()) {
+		while (inferredStats.streamOpen()) {
 
-			ARTStatement st = inferredStats.next();
+			ARTStatement st = inferredStats.getNext();
 
 			ARTURIResource predicate = st.getPredicate();
-			// TODO replace with false as soon as the equals on the statement works
-			boolean explicit = true;
+			boolean explicit = false;
 
 			System.out.println("explicit statements:\n" + explicitStatements);
 
