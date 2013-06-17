@@ -57,6 +57,7 @@
 
 	<hbox>
 		<button id="submitQuery" label="Submit Query" flex="0" disabled="true" />
+		<checkbox id="inferredStatements" label="Include inferred statements" checked="true" />
 		<spacer flex="1" />
 		<hbox flex="0" style="font-size: 70%" align="center">
 			<html:a href="http://openuplabs.tso.co.uk/demos/sparqleditor">Powered by Flint SPARQL Editor</html:a> 
