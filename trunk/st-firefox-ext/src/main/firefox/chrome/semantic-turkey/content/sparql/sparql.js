@@ -637,10 +637,11 @@ art_semanticturkey.disableSPARQLSubmitQuery = function() {
 art_semanticturkey.submitQuery = function() {
 
 	var queryText = art_semanticturkey.cm.getValue();
-
+	var inferredStat = document.getElementById("inferredStatements").hasAttribute("checked");
+	
 	try {
 		var response = art_semanticturkey.STRequests.SPARQL.resolveQuery(
-				queryText, "SPARQL", "true");
+				queryText, "SPARQL", inferredStat);
 		art_semanticturkey.resolveQuery_RESPONSE(response);
 	} catch (e) {
 		alert(e.name + ": " + e.message);
