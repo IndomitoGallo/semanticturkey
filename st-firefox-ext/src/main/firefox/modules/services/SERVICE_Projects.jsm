@@ -244,6 +244,13 @@ function setProjectProperty(propName, propValue, context) {
 	return reply;
 }
 
+
+function isCurrentProjectActive() {
+	Logger.debug('[SERVICE_Projects.jsm] isCurrentProjectActive');
+	return HttpMgr.GET(serviceName, service.isCurrentProjectActiveRequest);
+}
+
+
 // Projects SERVICE INITIALIZATION
 service.openProject = openProject;
 service.repairProject = repairProject;
@@ -261,4 +268,5 @@ service.listProjects = listProjects;
 service.getCurrentProject = getCurrentProject;
 service.getProjectProperty = getProjectProperty;
 service.setProjectProperty = setProjectProperty;
+service.isCurrentProjectActive = isCurrentProjectActive;
 

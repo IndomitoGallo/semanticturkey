@@ -46,13 +46,13 @@ import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.AbstractProject;
 import it.uniroma2.art.semanticturkey.project.Project;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.project.SaveToStoreProject;
 import it.uniroma2.art.semanticturkey.project.ProjectManager.ProjectType;
+import it.uniroma2.art.semanticturkey.project.SaveToStoreProject;
 import it.uniroma2.art.semanticturkey.resources.UpdateRoutines;
 import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.servlet.ServletUtilities;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
 import it.uniroma2.art.semanticturkey.utilities.Utilities;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
@@ -275,20 +275,30 @@ public class Projects extends ServiceAdapter {
 	}
 
 	public Response getCurrentProject() {
+		try {
 		String request = Req.getCurrentProjectRequest;
 		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
 		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
 
 		String projName = proj.getName();
+		Element projElem = null;
+
 		if (projName == null) {
-			Element projElem = XMLHelp.newElement(dataElem, projectTag);
+			projElem = XMLHelp.newElement(dataElem, projectTag);
 			projElem.setAttribute("exists", "false");
 		} else {
-			Element projElem = XMLHelp.newElement(dataElem, projectTag, projName);
+			projElem = XMLHelp.newElement(dataElem, projectTag, projName);
 			projElem.setAttribute("exists", "true");
 		}
+		
+		projElem.setAttribute("type", proj.getType());
+		projElem.setAttribute("ontoType", proj.getModelType().getCanonicalName());
+
 		return resp;
+		} catch(ProjectInconsistentException e) {
+			return logAndSendException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

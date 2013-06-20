@@ -5,57 +5,61 @@ Components.utils.import("resource://stservices/SERVICE_Projects.jsm", art_semant
 Components.utils.import("resource://stmodules/Logger.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/Preferences.jsm", art_semanticturkey);
 Components.utils.import("resource://stmodules/ProjectST.jsm", art_semanticturkey);
-
+Components.utils.import("resource://stmodules/SemTurkeyHTTP.jsm", art_semanticturkey);
+Components.utils.import("resource://stmodules/Exceptions.jsm", art_semanticturkey);
 
 /**
- * this is the entry point for Semantic Turkey Initialization this function asks ST to start
+ * this is the entry point for Semantic Turkey Initialization this function asks
+ * ST to start
  * 
  * 
  * @return
  */
 art_semanticturkey.startST = function() {
+	// art_semanticturkey.JavaFirefoxSTBridge.initialize();
 	art_semanticturkey.Logger.debug("entering startST");
-	try{
-		var isDefaultSet = art_semanticturkey.Preferences.get("extensions.semturkey.isDefaultSet", false);
-		var defaultProjectName = art_semanticturkey.Preferences.get("extensions.semturkey.defaultProjectName", "null");
-		var defaultProjectOntType = art_semanticturkey.Preferences.get("extensions.semturkey.defaultProjectOntType", "null");
+
+	var responseXML = null;
+	try {
+		responseXML = art_semanticturkey.STRequests.Projects.getCurrentProject();
+	} catch (e) {
+		if (e instanceof art_semanticturkey.HTTPError) {
+			alert("no server found! pls check that a server is listening on: "
+					+ art_semanticturkey.HttpMgr.getAuthority());
+			return;	// Leave ST unstarted
+		} // Otherwise, the server is on but no project has been loaded yet
+	}
+	
+	// Here we know that ST is listening
+	art_semanticturkey.ST_started.setStatus();
+	art_semanticturkey.registerAnnotationFamilies();	// Should we place this initialization elsewhere?
+
+	if (responseXML != null) {
+		var projectElement = responseXML.getElementsByTagName("project")[0];
+		var projectName = responseXML.textContent;
+		var type = projectElement.getAttribute("type");
+		var ontoType = projectElement.getAttribute("ontoType");
 		
-		if(isDefaultSet == true){
-			art_semanticturkey.closeProject(); // This function here it is used to inform that ST is about to change project
-			var responseXML = art_semanticturkey.STRequests.Projects.openProject(defaultProjectName);
-			art_semanticturkey.openDefProject_RESPONSE(responseXML, defaultProjectName, defaultProjectOntType);
-		}
-		else{
-			art_semanticturkey.chose_a_projects();
-		}
-		art_semanticturkey.evtMgr.fireEvent("st_started");
-	}
-	catch (e) {
-		var isDefaultSet = art_semanticturkey.Preferences.set("extensions.semturkey.isDefaultSet", false);
-		var defaultProjectName = art_semanticturkey.Preferences.set("extensions.semturkey.defaultProjectName", "null");
-		var defaultProjectOntType = art_semanticturkey.Preferences.set("extensions.semturkey.defaultProjectOntType", "null");
-		art_semanticturkey.Logger.debug("catch di startST = "+e.name + ": " + e.message);
+		art_semanticturkey.openDefProject_RESPONSE2(projectName, type, ontoType);
+	} else { // No project is open, let the user choose one
 		art_semanticturkey.chose_a_projects();
-		art_semanticturkey.evtMgr.fireEvent("st_started");
 	}
-	art_semanticturkey.Logger.debug("just after the http request=start");
 };
 
 art_semanticturkey.chose_a_projects = function() {
 	var parameters = new Object();
 	parameters.parentWindow = window;
-	
-	
-	window.openDialog(
-		"chrome://semantic-turkey/content/projects/manageProjects.xul",
-		"_blank", "modal=yes,resizable,centerscreen", parameters);
+
+	window.openDialog("chrome://semantic-turkey/content/projects/manageProjects.xul", "_blank",
+			"modal=yes,resizable,centerscreen", parameters);
 };
 
-
 art_semanticturkey.openDefProject_RESPONSE = function(responseElement, projectName, ontoType) {
-	var type =responseElement.getElementsByTagName("type")[0].textContent;
+	var type = responseElement.getElementsByTagName("type")[0].textContent;
+	art_semanticturkey.openDefProject_RESPONSE2(projectName, type, ontoType);
+};
+
+art_semanticturkey.openDefProject_RESPONSE2 = function(projectName, type, ontoType) {
 	art_semanticturkey.CurrentProject.setCurrentProjet(projectName, false, type, ontoType);
 	art_semanticturkey.projectOpened(projectName, ontoType);
 };
-
-
