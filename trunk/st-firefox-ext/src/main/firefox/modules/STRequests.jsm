@@ -287,6 +287,7 @@ STRequests.Projects.listProjectsRequest = "listProjects";
 STRequests.Projects.getCurrentProjectRequest = "getCurrentProject";
 STRequests.Projects.getProjectPropertyRequest = "getProjectProperty";
 STRequests.Projects.setProjectPropertyRequest = "setProjectProperty";
+STRequests.Projects.isCurrentProjectActiveRequest = "isCurrentProjectActive";
 
 //ontManager service request
 STRequests.OntManager.serviceName = "ontManager";

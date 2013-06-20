@@ -1,3 +1,5 @@
+Components.utils.import("resource://stmodules/stEvtMgr.jsm");
+
 var EXPORTED_SYMBOLS = [ "ST_started" ];
 
 ST_started = new function() {
@@ -7,5 +9,6 @@ ST_started = new function() {
 	};
 	this.setStatus = function() {
 		istarted = "true";
+		evtMgr.fireEvent("st_started");
 	};
 };

@@ -20,16 +20,11 @@
  * 
  */
 
-/*PATTUMIERA*/
-function readServer() {
-	return "127.0.0.1";
-}
-
-/* PATTUMIERA */
 
 Components.utils.import("resource://stmodules/Preferences.jsm");
 Components.utils.import("resource://stmodules/Logger.jsm");
 Components.utils.import("resource://stmodules/ResponseContentType.jsm");
+Components.utils.import("resource://stmodules/Exceptions.jsm");
 
 let EXPORTED_SYMBOLS = [ "HttpMgr" ];
 
@@ -55,10 +50,9 @@ HttpMgr = new function() {
 	// this.serializationType="null";
 
 	// TODO should put a listener for hot changing to these preferences
-	var serverip = Preferences.get("extensions.semturkey.server.ip", "127.0.0.1");
+	var serverhost = Preferences.get("extensions.semturkey.server.host", "127.0.0.1");
 	var serverport = Preferences.get("extensions.semturkey.server.port", "1979");
-	var serverpath = Preferences.get("extensions.semturkey.server.path",
-			"/semantic_turkey/resources/stserver/STServer");
+	var serverpath = Preferences.get("extensions.semturkey.server.path", "/semantic_turkey/resources/stserver/STServer");
 
 	this.getName = function() {
 		return 'HttpMgr';
@@ -85,7 +79,7 @@ HttpMgr = new function() {
 	 * other ones are the parameters of the http GET request
 	 */
 	this.POST = function(respType, service, request) {
-		var aURL = "http://" + serverip + ":" + serverport + serverpath;
+		var aURL = "http://" + serverhost + ":" + serverport + serverpath;
 		var realRespType;
 		var parameters;
 		if ((respType instanceof XMLRespContType) || (respType instanceof JSONRespContType)) {
@@ -118,7 +112,7 @@ HttpMgr = new function() {
 	 * other ones are the parameters of the http GET request
 	 */
 	this.GET = function(respType, service, request) {
-		var aURL = "http://" + serverip + ":" + serverport + serverpath;
+		var aURL = "http://" + serverhost + ":" + serverport + serverpath;
 		var realRespType;
 		if ((respType instanceof XMLRespContType) || (respType instanceof JSONRespContType)) {
 			realRespType = respType;
@@ -144,9 +138,10 @@ HttpMgr = new function() {
 		return this.submitHTTPRequest(realRespType, aURL, "GET", false);
 	};
 
+
 	this.submitHTTPRequest = function(respType, aURL, method, async, parameters) {
-		Logger.debug("httpRequest: " + method + ": " + aURL + "| async:" + async + " parameters: "
-				+ parameters + " port: " + serverport);
+		// Logger.debug("httpRequest: " + method + ": " + aURL + "| async:" + async + " parameters: " + parameters + " port: " + serverport);
+		Logger.debug(aURL);
 
 		var httpReq;
 		// NScarpato add try/catch block for BridgeComponents
@@ -168,6 +163,8 @@ HttpMgr = new function() {
 
 		httpReq.onerror = httpError;
 		// FINO QUI VECCHIO
+
+		Logger.debug("dopo l'assegnazione onerror");
 
 		/*
 		 * httpReq = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(); // QI the
@@ -197,16 +194,24 @@ HttpMgr = new function() {
 			httpReq.setRequestHeader("Accept", "application/json");
 		// httpReq.overrideMimeType("application/xml");
 
-		// try {
-		if (method == "GET")
-			httpReq.send(null);
-		else
-			// "POST"
-			httpReq.send(parameters);
+		Logger.debug("prima della send");
+
+		try {
+			if (method == "GET")
+				httpReq.send(null);
+			else
+				// "POST"
+				httpReq.send(parameters);
+		} catch (e) {
+			throw new HTTPError("http error...we have to customize this message! (ST authors)", httpReq.status, httpReq.statusText);
+		}
+
+		Logger.debug("prima dell'if");
 
 		if (httpErrorHappened == true) {
-			return null;
+			throw new HTTPError("http error...we have to customize this message! (ST authors)");
 		}
+		
 		// ok qua devo leggere l'header http e decidere se parsare una risposta json o xml
 		var serializationType = httpReq.getResponseHeader("Content-Type");
 
@@ -251,13 +256,15 @@ HttpMgr = new function() {
 			};
 
 			if (newResponseXML.isException()) {
-				throw new Error(newResponseXML.getElementsByTagName("msg")[0].firstChild.textContent);
+				throw new STException("java.prova.exception", newResponseXML.getElementsByTagName("msg")[0].firstChild.textContent);
 			}
+			
 			newResponseXML.isError = function() {
 				return (this.getElementsByTagName("stresponse")[0].getAttribute("type") == "error");
 			};
+			
 			if (newResponseXML.isError()) {
-				throw new Error(newResponseXML.getElementsByTagName("msg")[0].firstChild.textContent);
+				throw new STError("java.prova.exception", newResponseXML.getElementsByTagName("msg")[0].firstChild.textContent);
 			}
 			newResponseXML.getContent = function() {
 				return this.getElementsByTagName("data")[0];
@@ -307,7 +314,7 @@ HttpMgr = new function() {
 			};
 
 			if (newResponseJSON.isException()) {
-				throw new Error(JSON.stringify(newResponseJSON.stresponse.msg));
+				throw new STException("java exception to be embedded", JSON.stringify(newResponseJSON.stresponse.msg));
 			}
 
 			newResponseJSON.isError = function() {
@@ -315,7 +322,7 @@ HttpMgr = new function() {
 			};
 
 			if (newResponseJSON.isError()) {
-				throw new Error(JSON.stringify(newResponseJSON.stresponse.msg));
+				throw new STError("java exception to be embedded", JSON.stringify(newResponseJSON.stresponse.msg));
 			}
 
 			newResponseJSON.getContent = function() {
@@ -331,7 +338,7 @@ HttpMgr = new function() {
 	};
 
 	function httpError(e) {
-		logMessage("HTTP Error: " + e.target.status + " - " + e.target.statusText);
+		Logger.debug("HTTP Error: " + e.target.status + " - " + e.target.statusText);
 		// httpGetResult(RESULT_NOT_AVAILABLE);
 		httpErrorHappened = true;
 	}
@@ -343,4 +350,21 @@ HttpMgr = new function() {
 		return serializer.serializeToString(document);
 	};
 
+
+	this.getAuthority = function() {
+		return serverhost + ":" + serverport;
+	};
+	
+	this.setAuthority = function(host, port) {
+		serverhost = host;
+		serverport = port;
+		Preferences.set("extensions.semturkey.server.host", host);
+		Preferences.set("extensions.semturkey.server.port", port);
+	};
+	
+	
+	
+	
 };
+
+
