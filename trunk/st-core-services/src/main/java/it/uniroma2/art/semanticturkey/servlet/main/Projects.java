@@ -278,11 +278,13 @@ public class Projects extends ServiceAdapter {
 		try {
 		String request = Req.getCurrentProjectRequest;
 		Project<? extends RDFModel> proj = ProjectManager.getCurrentProject();
+		if (proj==null)
+			return servletUtilities.createReplyResponse(request, RepliesStatus.fail, "no project currently loaded!");
+		
 		XMLResponseREPLY resp = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 		Element dataElem = resp.getDataElement();
-
 		String projName = proj.getName();
-		Element projElem = null;
+		Element projElem;
 
 		if (projName == null) {
 			projElem = XMLHelp.newElement(dataElem, projectTag);

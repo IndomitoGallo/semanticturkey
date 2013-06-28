@@ -28,13 +28,14 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
 import it.uniroma2.art.owlart.exceptions.ModelAccessException;
-import it.uniroma2.art.owlart.filter.StatementWithDatatypePropertyPredicate_Predicate;
 import it.uniroma2.art.owlart.filter.NoLanguageResourcePredicate;
 import it.uniroma2.art.owlart.filter.NoSubclassPredicate;
 import it.uniroma2.art.owlart.filter.NoSubpropertyPredicate;
 import it.uniroma2.art.owlart.filter.NoTypePredicate;
 import it.uniroma2.art.owlart.filter.ResourceOfATypePredicate;
 import it.uniroma2.art.owlart.filter.StatementWithAnyOfGivenPredicates_Predicate;
+import it.uniroma2.art.owlart.filter.StatementWithDatatypePropertyPredicate_Predicate;
+import it.uniroma2.art.owlart.filter.SubPropertyOf_Predicate;
 import it.uniroma2.art.owlart.model.ARTLiteral;
 import it.uniroma2.art.owlart.model.ARTNode;
 import it.uniroma2.art.owlart.model.ARTResource;
@@ -71,8 +72,6 @@ import it.uniroma2.art.semanticturkey.plugin.extpts.ServiceAdapter;
 import it.uniroma2.art.semanticturkey.project.ProjectManager;
 import it.uniroma2.art.semanticturkey.servlet.Response;
 import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
-import it.uniroma2.art.semanticturkey.servlet.XMLResponseERROR;
-import it.uniroma2.art.semanticturkey.servlet.XMLResponseEXCEPTION;
 import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.servlet.main.filters.StatementWithSubPropertyPredicate_Predicate;
 import it.uniroma2.art.semanticturkey.utilities.PropertyShowOrderComparator;
@@ -102,6 +101,10 @@ import com.google.common.collect.Multimap;
 @Component
 public class Resource extends ServiceAdapter {
 
+	/**
+	 * a property filter which removes base language properties such as rdf:type, rdfs:subClassOf and
+	 * rdfs:subClassOf
+	 */
 	private ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
 
 	private ArrayList<ARTURIResource> bannedPredicatesForResourceDescription;
@@ -144,10 +147,12 @@ public class Resource extends ServiceAdapter {
 		public static final String properties = "properties";
 		public static final String explicit = "explicit";
 		public static final String subProp = "subProp";
+		public static final String subPropOf = "subPropOf";
 		public static final String excludePropItSelf = "excludePropItSelf";
 		public static final String excludedProps = "excludedProps";
+		public static final String notSubPropOf = "notSubPropOf";
 	}
-
+	
 	protected Logger getLogger() {
 		return logger;
 	}
@@ -194,8 +199,10 @@ public class Resource extends ServiceAdapter {
 			String roleString = setHttpPar(Par.role);
 			RDFResourceRolesEnum role = (roleString != null) ? RDFResourceRolesEnum.valueOf(roleString)
 					: null;
+			String rootProps = setHttpPar(Par.subPropOf);
+			String excludedRootProps = setHttpPar(Par.notSubPropOf);
 			checkRequestParametersAllNotNull(Par.resource);
-			response = getTemplateProperties(resourceQName, role);
+			response = getTemplateProperties(resourceQName, role, rootProps, excludedRootProps);
 		} else if (request.equals(Req.getValuesOfDatatypePropertiesRequest)) {
 			String resourceName = setHttpPar(Par.resource);
 			String excludedProps = setHttpPar(Par.excludedProps);
@@ -275,29 +282,28 @@ public class Resource extends ServiceAdapter {
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
-			if(excludePropItSelf && !subProp){
-				response.setReplyStatusFAIL("It is not possible to exclude the property(ies) itsself " +
-						"(themself) and the subProp as well");
+			if (excludePropItSelf && !subProp) {
+				response.setReplyStatusFAIL("It is not possible to exclude the property(ies) itself "
+						+ "(themself) and the subProp as well");
 				return response;
 			}
-			
+
 			// getting inferred triples but filtered
 			ARTStatementIterator inferredTriples = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, true, graphs);
 
 			// basic filter on subproperties prop values. There can be more than one properties
-			Predicate<ARTStatement> statementFilter = null; 
+			Predicate<ARTStatement> statementFilter = null;
 			HashSet<ARTURIResource> propSet = new HashSet<ARTURIResource>();
-			for(String propName : propertiesNames.split("\\|_\\|"))
+			for (String propName : propertiesNames.split("\\|_\\|"))
 				propSet.add(model.createURIResource(model.expandQName(propName)));
-				
-			if (subProp){ 
-				statementFilter = StatementWithSubPropertyPredicate_Predicate.getFilter(model, 
-						propSet, excludePropItSelf, getUserNamedGraphs());
-			} else{ // subProp == false
-					statementFilter = StatementWithAnyOfGivenPredicates_Predicate.getFilter(propSet);
+
+			if (subProp) {
+				statementFilter = StatementWithSubPropertyPredicate_Predicate.getFilter(model, propSet,
+						excludePropItSelf, getUserNamedGraphs());
+			} else { // subProp == false
+				statementFilter = StatementWithAnyOfGivenPredicates_Predicate.getFilter(propSet);
 			}
-			
 
 			if (excludedProps != null) {
 				HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
@@ -312,8 +318,8 @@ public class Resource extends ServiceAdapter {
 			// only the inferred statement iterator is being filtered, as it is the one being used for
 			// reporting results, the explicit statement iterator is instead only used to check which of the
 			// above statements are explicit
-			Iterator<ARTStatement> inferredFilteredOnSubPropTriples = Iterators.filter(
-					inferredTriples, statementFilter);
+			Iterator<ARTStatement> inferredFilteredOnSubPropTriples = Iterators.filter(inferredTriples,
+					statementFilter);
 
 			ARTStatementIterator explicitStatements = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, false, getWorkingGraph());
@@ -326,7 +332,7 @@ public class Resource extends ServiceAdapter {
 			// TODO
 			// createPredicateObjectsList automatically closes the input iterator, but the iterator passed to
 			// it is a wrapper around the standard iterator wrapped-in-turn around inferredDatatypedTriples.
-			// This is a clear example of why I should write my own filtering iterator, maybe through a
+			// This is a clear example of why we should write my own filtering iterator, maybe through a
 			// filterIterator(RDFIterator, predicate) put in RDFIterators.
 			// class "Predicate" from lib google-collections may still be used
 			inferredTriples.close();
@@ -340,9 +346,9 @@ public class Resource extends ServiceAdapter {
 			return logAndSendException(e);
 		}
 	}
-	
-	public Response getValuesOfPropertiesHierarchically(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludePropItSelf, String excludedProps) {
+
+	public Response getValuesOfPropertiesHierarchically(String resourceName, String propertiesNames,
+			boolean subProp, boolean excludePropItSelf, String excludedProps) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
 		ARTResource[] graphs;
@@ -358,11 +364,11 @@ public class Resource extends ServiceAdapter {
 				for (String excludedPropName : excludedProps.split("\\|_\\|"))
 					excludedPropSet.add(model.expandQName(excludedPropName));
 			}
-			
+
 			for (String propName : propsNames) {
 
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
-				getValuesOfPropertiesHierarchically(resource, property, subProp, excludePropItSelf, graphs, 
+				getValuesOfPropertiesHierarchically(resource, property, subProp, excludePropItSelf, graphs,
 						model, dataElement, excludedPropSet);
 			}
 			return response;
@@ -374,14 +380,14 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	private void getValuesOfPropertiesHierarchically(ARTResource resource, ARTURIResource property, 
-			boolean subProp, boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, 
-			Element dataElement, HashSet<String> excludedPropSet)
-			throws NonExistingRDFResourceException, ModelAccessException {
-		
-		if(excludedPropSet.contains(property.getURI()))
+	private void getValuesOfPropertiesHierarchically(ARTResource resource, ARTURIResource property,
+			boolean subProp, boolean excludePropItSelf, ARTResource[] graphs, OWLModel model,
+			Element dataElement, HashSet<String> excludedPropSet) throws NonExistingRDFResourceException,
+			ModelAccessException {
+
+		if (excludedPropSet.contains(property.getURI()))
 			return;
-		
+
 		Element extCollection = XMLHelp.newElement(dataElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
 
@@ -412,16 +418,16 @@ public class Resource extends ServiceAdapter {
 			ARTURIResourceIterator iter = ((DirectReasoning) model).listDirectSubProperties(property, graphs);
 			while (iter.hasNext()) {
 				ARTURIResource subPropRes = iter.next();
-				getValuesOfPropertiesHierarchically(resource, subPropRes, subProp, false, graphs, model, 
+				getValuesOfPropertiesHierarchically(resource, subPropRes, subProp, false, graphs, model,
 						propValuesElem, excludedPropSet);
 			}
 
 		}
 	}
-	
-	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, 
-			boolean subProp, boolean excludePropItSelf, String excludedProps) {
-		
+
+	public Response getValuesOfPropertiesCount(String resourceName, String propertiesNames, boolean subProp,
+			boolean excludePropItSelf, String excludedProps) {
+
 		OWLModel model = getOWLModel();
 		try {
 
@@ -430,10 +436,10 @@ public class Resource extends ServiceAdapter {
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
-			
-			if(excludePropItSelf && !subProp){
-				response.setReplyStatusFAIL("It is not possible to exclude the property(ies) itsself " +
-						"(themself) and the subProp as well");
+
+			if (excludePropItSelf && !subProp) {
+				response.setReplyStatusFAIL("It is not possible to exclude the property(ies) itsself "
+						+ "(themself) and the subProp as well");
 				return response;
 			}
 
@@ -442,17 +448,16 @@ public class Resource extends ServiceAdapter {
 					NodeFilters.ANY, true, graphs);
 
 			// basic filter on subproperties prop values. There can be more than one properties
-			Predicate<ARTStatement> statementFilter = null; 
+			Predicate<ARTStatement> statementFilter = null;
 			HashSet<ARTURIResource> propSet = new HashSet<ARTURIResource>();
-			for(String propName : propertiesNames.split("\\|_\\|"))
+			for (String propName : propertiesNames.split("\\|_\\|"))
 				propSet.add(model.createURIResource(model.expandQName(propName)));
-			if (subProp){ 
-				statementFilter = StatementWithSubPropertyPredicate_Predicate.getFilter(model, 
-						propSet, excludePropItSelf, getUserNamedGraphs());
-			} else{ // subProp == false
-					statementFilter = StatementWithAnyOfGivenPredicates_Predicate.getFilter(propSet);
+			if (subProp) {
+				statementFilter = StatementWithSubPropertyPredicate_Predicate.getFilter(model, propSet,
+						excludePropItSelf, getUserNamedGraphs());
+			} else { // subProp == false
+				statementFilter = StatementWithAnyOfGivenPredicates_Predicate.getFilter(propSet);
 			}
-			
 
 			if (excludedProps != null) {
 				HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
@@ -467,8 +472,8 @@ public class Resource extends ServiceAdapter {
 			// only the inferred statement iterator is being filtered, as it is the one being used for
 			// reporting results, the explicit statement iterator is instead only used to check which of the
 			// above statements are explicit
-			Iterator<ARTStatement> inferredFilteredOnSubPropTriples = Iterators.filter(
-					inferredTriples, statementFilter);
+			Iterator<ARTStatement> inferredFilteredOnSubPropTriples = Iterators.filter(inferredTriples,
+					statementFilter);
 
 			ARTStatementIterator explicitStatements = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, false, getWorkingGraph());
@@ -488,20 +493,20 @@ public class Resource extends ServiceAdapter {
 
 			Element dataElement = response.getDataElement();
 			Element extCollection = XMLHelp.newElement(dataElement, "collection");
-			for(STRDFResource pred : predObjList.getPredicates()){
+			for (STRDFResource pred : predObjList.getPredicates()) {
 				Collection<STRDFNode> values = predObjList.getValues(pred);
-				int countExplicit = 0, countTotal=0;
-				for(STRDFNode value : values){
+				int countExplicit = 0, countTotal = 0;
+				for (STRDFNode value : values) {
 					++countTotal;
-					if(value.isExplicit())
+					if (value.isExplicit())
 						++countExplicit;
 				}
-				
-				pred.setInfo("valuesCount", countTotal+"");
-				pred.setInfo("valuesExplicitCount", countExplicit+"");
+
+				pred.setInfo("valuesCount", countTotal + "");
+				pred.setInfo("valuesExplicitCount", countExplicit + "");
 				RDFXMLHelp.addRDFNode(extCollection, pred);
 			}
-			
+
 			return response;
 		} catch (ModelAccessException e) {
 			return logAndSendException(e);
@@ -510,7 +515,7 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	public Response getValuesOfPropertiesHierarchicallyCount(String resourceName, String propertiesNames, 
+	public Response getValuesOfPropertiesHierarchicallyCount(String resourceName, String propertiesNames,
 			boolean subProp, boolean excludePropItSelf, String excludedProps) {
 		String[] propsNames = propertiesNames.split("\\|_\\|");
 		OWLModel model = getOWLModel();
@@ -527,10 +532,10 @@ public class Resource extends ServiceAdapter {
 				for (String excludedPropName : excludedProps.split("\\|_\\|"))
 					excludedPropSet.add(model.expandQName(excludedPropName));
 			}
-			
+
 			for (String propName : propsNames) {
 				ARTURIResource property = model.createURIResource(model.expandQName(propName));
-				getValuesOfPropertiesHierarchicallyCount(resource, property, subProp, excludePropItSelf, 
+				getValuesOfPropertiesHierarchicallyCount(resource, property, subProp, excludePropItSelf,
 						graphs, model, dataElement, excludedPropSet);
 			}
 			return response;
@@ -542,14 +547,13 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	private void getValuesOfPropertiesHierarchicallyCount(ARTResource resource, ARTURIResource property, 
-			boolean subProp, boolean excludePropItSelf, ARTResource[] graphs, OWLModel model, 
-			Element outerElement, HashSet<String> excludedPropSet)
-			throws ModelAccessException {
-		
-		if(excludedPropSet.contains(property.getURI()))
-				return;
-		
+	private void getValuesOfPropertiesHierarchicallyCount(ARTResource resource, ARTURIResource property,
+			boolean subProp, boolean excludePropItSelf, ARTResource[] graphs, OWLModel model,
+			Element outerElement, HashSet<String> excludedPropSet) throws ModelAccessException {
+
+		if (excludedPropSet.contains(property.getURI()))
+			return;
+
 		Element extCollection = XMLHelp.newElement(outerElement, "collection");
 		Element propValuesElem = XMLHelp.newElement(extCollection, "propertyValues");
 
@@ -600,13 +604,15 @@ public class Resource extends ServiceAdapter {
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 
 			// getting inferred triples but filtered
-			ARTStatementIterator inferredDatatypedTriples = model.listStatements(resource, NodeFilters.ANY,
+			ARTStatementIterator inferredTriples = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, true, graphs);
 
 			// basic filter on datatype prop values
 			Predicate<ARTStatement> statementFilter = StatementWithDatatypePropertyPredicate_Predicate
 					.getFilter(model);
 
+			// prepare a statement filter which excludes triples where the property is a subprop of one of the
+			// excluded ones
 			if (excludedProps != null) {
 				HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
 				for (String excludedPropName : excludedProps.split("\\|_\\|"))
@@ -620,15 +626,15 @@ public class Resource extends ServiceAdapter {
 			// only the inferred statement iterator is being filtered, as it is the one being used for
 			// reporting results, the explicit statement iterator is instead only used to check which of the
 			// above statements are explicit
-			Iterator<ARTStatement> inferredFilteredOnDatatypedTriples = Iterators.filter(
-					inferredDatatypedTriples, statementFilter);
+			Iterator<ARTStatement> inferredFilteredDatatypeTriples = Iterators.filter(inferredTriples,
+					statementFilter);
 
 			ARTStatementIterator explicitStatements = model.listStatements(resource, NodeFilters.ANY,
 					NodeFilters.ANY, false, getWorkingGraph());
 
 			PredicateObjectsList predObjList = PredicateObjectsListFactory.createPredicateObjectsList(model,
 					RDFResourceRolesEnum.datatypeProperty,
-					RDFIterators.createARTStatementIterator(inferredFilteredOnDatatypedTriples),
+					RDFIterators.createARTStatementIterator(inferredFilteredDatatypeTriples),
 					explicitStatements);
 
 			// TODO
@@ -637,7 +643,7 @@ public class Resource extends ServiceAdapter {
 			// This is a clear example of why I should write my own filtering iterator, maybe through a
 			// filterIterator(RDFIterator, predicate) put in RDFIterators.
 			// class "Predicate" from lib google-collections may still be used
-			inferredDatatypedTriples.close();
+			inferredTriples.close();
 
 			RDFXMLHelp.addPredicateObjectList(response, predObjList);
 
@@ -677,7 +683,7 @@ public class Resource extends ServiceAdapter {
 			// TEMPLATE PROPERTIES (properties which can be shown since the
 			// selected instance has at least a
 			// type which falls in their domain)
-			extractTemplateProperties(owlModel, resource, null, properties, graphs);
+			extractTemplateProperties(owlModel, resource, null, properties, null, null, graphs);
 
 			// VALUED PROPERTIES (properties over which the selected instance
 			// has one or more values)
@@ -700,14 +706,19 @@ public class Resource extends ServiceAdapter {
 
 	}
 
-	public Response getTemplateProperties(String resourceQName, RDFResourceRolesEnum role) {
+	public Response getTemplateProperties(String resourceQName, RDFResourceRolesEnum role,
+			String rootPropsString, String excludedRootPropsString) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
 			ARTResource resource = retrieveExistingResource(ontModel, resourceQName, graphs);
 
-			HashSet<ARTURIResource> props = extractTemplateProperties(ontModel, resource, role, graphs);
+			HashSet<ARTURIResource> rootProps = parseURIResourceSet(ontModel, rootPropsString);
+			HashSet<ARTURIResource> excludedRootProps = parseURIResourceSet(ontModel, excludedRootPropsString);
+
+			HashSet<ARTURIResource> props = extractTemplateProperties(ontModel, resource, role, rootProps,
+					excludedRootProps, graphs);
 			Collection<STRDFResource> result = STRDFNodeFactory.createEmptyResourceCollection();
 
 			if (role == null) {
@@ -736,10 +747,21 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
+	protected HashSet<ARTURIResource> parseURIResourceSet(RDFModel model, String uris)
+			throws ModelAccessException {
+		if (uris == null)
+			return null;
+		HashSet<ARTURIResource> uriSet = new HashSet<ARTURIResource>();
+		for (String rootPropName : uris.split("\\|_\\|"))
+			uriSet.add(model.createURIResource(model.expandQName(rootPropName)));
+		return uriSet;
+	}
+
 	protected HashSet<ARTURIResource> extractTemplateProperties(OWLModel ontModel, ARTResource resource,
-			RDFResourceRolesEnum role, ARTResource... graphs) throws ModelAccessException {
+			RDFResourceRolesEnum role, HashSet<ARTURIResource> rootProps,
+			HashSet<ARTURIResource> excludedRootProps, ARTResource... graphs) throws ModelAccessException {
 		HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
-		extractTemplateProperties(ontModel, resource, role, properties, graphs);
+		extractTemplateProperties(ontModel, resource, role, properties, rootProps, excludedRootProps, graphs);
 		return properties;
 	}
 
@@ -750,12 +772,16 @@ public class Resource extends ServiceAdapter {
 	 * 
 	 * @param ontModel
 	 * @param resource
-	 * @param properties
+	 * @param targetProperties
+	 * @param rootProperties
+	 * @param excludedRootProps
+	 * @param graphs
 	 * @throws ModelAccessException
 	 */
 	protected void extractTemplateProperties(OWLModel ontModel, ARTResource resource,
-			RDFResourceRolesEnum role, HashSet<ARTURIResource> properties, ARTResource... graphs)
-			throws ModelAccessException {
+			RDFResourceRolesEnum role, HashSet<ARTURIResource> targetProperties,
+			HashSet<ARTURIResource> rootProps, HashSet<ARTURIResource> excludedRootProps,
+			ARTResource... graphs) throws ModelAccessException {
 
 		// by first, the specified role must be either null (all properties) or any of the property related
 		// roles
@@ -772,13 +798,26 @@ public class Resource extends ServiceAdapter {
 		typesFilter = Predicates.and(typesFilter, NoSystemResourcePredicate.noSysResPred);
 
 		// PROPERTIES FILTER preparation
+
+		// I had to made this very strange thing using "super", as I was not able to mix predicates on
+		// ARTResource and ARTURIResource by use of <? extends ARTResource>
+		Collection<Predicate<? super ARTURIResource>> pruningPredicates = new ArrayList<Predicate<? super ARTURIResource>>();
 		// template props are pruned of type/subclass/subproperty declarations
-		Collection<Predicate<ARTResource>> pruningPredicates = new ArrayList<Predicate<ARTResource>>();
 		pruningPredicates.addAll(basePropertyPruningPredicates);
 		pruningPredicates.add(NoSystemResourcePredicate.noSysResPred);
 		// if null, all kind of properties are ok, no filtering
 		if (role != null)
 			pruningPredicates.add(ResourceOfATypePredicate.getPredicate(ontModel, role.getRDFURIResource()));
+
+		if (rootProps != null) {
+			for (ARTURIResource prop : rootProps)
+				pruningPredicates.add(SubPropertyOf_Predicate.getPredicate(ontModel, prop));
+		}
+
+		if (excludedRootProps != null) {
+			for (ARTURIResource prop : excludedRootProps)
+				pruningPredicates.add(Predicates.not(SubPropertyOf_Predicate.getPredicate(ontModel, prop)));
+		}
 
 		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(pruningPredicates);
 
@@ -791,7 +830,7 @@ public class Resource extends ServiceAdapter {
 						.filter(ontModel.listPropertiesForDomainClass(typeCls, true, graphs),
 								propsExclusionPredicate);
 				while (filteredPropsIterator.hasNext()) {
-					properties.add(filteredPropsIterator.next());
+					targetProperties.add(filteredPropsIterator.next());
 				}
 			}
 		}
