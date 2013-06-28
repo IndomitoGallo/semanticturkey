@@ -32,7 +32,6 @@ if (typeof art_semanticturkey == 'undefined')
 window.onload = function() {
 	var parentWindow = window.arguments[0].parentWindow;
 	var propType = window.arguments[0].propType;
-	// var server = readServer(); collaborative
 	art_semanticturkey.initializePanel(propType);
 	document.getElementById("createProperty").addEventListener("click",
 			art_semanticturkey.onAccept, true);
