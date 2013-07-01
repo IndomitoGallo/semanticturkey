@@ -34,9 +34,9 @@ art_semanticturkey.startST = function() {
 	art_semanticturkey.ST_started.setStatus();
 	art_semanticturkey.registerAnnotationFamilies();	// Should we place this initialization elsewhere?
 
-	if (responseXML != null) {
+	if (responseXML != null && !responseXML.isFail()) {
 		var projectElement = responseXML.getElementsByTagName("project")[0];
-		var projectName = responseXML.textContent;
+		var projectName = projectElement.textContent;
 		var type = projectElement.getAttribute("type");
 		var ontoType = projectElement.getAttribute("ontoType");
 		
