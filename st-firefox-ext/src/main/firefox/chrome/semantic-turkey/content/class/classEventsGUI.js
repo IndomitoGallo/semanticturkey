@@ -817,9 +817,9 @@ art_semanticturkey.getImgFromType = function(type, explicit) {
 			imgType = "chrome://semantic-turkey/skin/images/prop.png";
 	} else if(type.indexOf("concept") != -1) {
 		if (explicit == "false")
-			imgType = "chrome://semantic-turkey/skin/images/skosConcept.png";
+			imgType = "chrome://semantic-turkey/skin/images/skosConcept_imported.png";
 		else
-			imgType = "chrome://semantic-turkey/skin/images/skosConcept_imported.png";		
+			imgType = "chrome://semantic-turkey/skin/images/skosConcept.png";		
 	} else if (type.indexOf("literal") != -1) {
 		// vedere se mettere img o no
 		imgType = "";

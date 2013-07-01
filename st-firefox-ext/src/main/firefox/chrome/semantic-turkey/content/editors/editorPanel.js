@@ -316,7 +316,7 @@ art_semanticturkey.init = function(type, sourceElementName, superName,
 		
 		if (deleteForbidden == "true") {
 			document.getElementById("buttonModify").disabled = true;
-			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept_imported.png");
+			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept20x20_imported.png");
 		} else {
 			img.setAttribute("src", "chrome://semantic-turkey/skin/images/skosConcept20x20.png");
 		}
@@ -1386,7 +1386,7 @@ art_semanticturkey.parsingProperties = function(responseElement) {
 							if (explicit == "false") {
 								resImg
 										.setAttribute("src",
-												"chrome://semantic-turkey/skin/images/skosConcept_imported.png");
+												"chrome://semantic-turkey/skin/images/skosConcept20x20_imported.png");
 
 							} else {
 								resImg

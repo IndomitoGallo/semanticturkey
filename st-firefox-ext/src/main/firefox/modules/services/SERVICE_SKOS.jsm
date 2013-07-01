@@ -59,7 +59,6 @@ function getAllSchemesList(lang) {
 	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, language_p));
 }
 
-//TODO fix with the new normalized answer
 function getConceptDescription(concept, method) {
 	Logger.debug('[SERVICE_SKOS.jsm] getConceptDescription');
 	var concept_p = "concept=" + concept;
@@ -68,7 +67,6 @@ function getConceptDescription(concept, method) {
 	return HttpMgr.GET(serviceName, service.getConceptDescriptionRequest,concept_p, method_p);	
 }
 
-//TODO fix with the new normalized answer
 function getConceptSchemeDescription(scheme) {
 	Logger.debug('[SERVICE_SKOS.jsm] getConceptSchemeDescription');
 	var scheme_p = "scheme=" + scheme;
@@ -165,7 +163,6 @@ function removeTopConcept(scheme, concept) {
  * @param language the default language
  * @return
  */
- //TODO fix with the new normalized answer
 function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLanguage, language) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = (broaderConcept != null) ? ("broaderConcept=" + broaderConcept) : "";
@@ -180,17 +177,15 @@ function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLang
 	
 	if (!reply.isFail()) {
 		evtMgr.fireEvent("skosConceptAdded", {
-			//getConceptQName : function(){return concept;}, 
-			getConceptQName : function(){return uriValue.getURI();}, 
-			getBroaderConceptQName : function(){return broaderConcept;}, 
-			hasSubsumees : function(){return uriValue.more == "1";}, 
-			getURI : function() {return uriValue.getURI();}, 
-			getLabel : function(){return uriValue.getShow();}
+			getConcept : function(){return uriValue;}, 
+			getBroaderConceptName : function(){return broaderConcept;} 
 		});
 	}
 	
 	return uriValue;
 }
+
+//TODO use new resource serialization
 
 /**
  * Creates a concept scheme in the KOS.
@@ -222,6 +217,8 @@ function createScheme(scheme, prefLabel, prefLabelLanguage, language) {
 	}
 	return uriValue;
 }
+
+
 
 /**
  * Deletes a concept.

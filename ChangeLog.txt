@@ -1,7 +1,12 @@
 version 0.9.0
-date: xx-xx-2013
-  * introduced Spring framework!
+date: 01-07-2013
+  * introduced Spring framework! services are still based on a wrapper from spring to the old modality
   * improved mirror-caching: now even the downloader for the mirror supports full content-negotiation
+  * bug fixing on the SKOS UI
+  * re-engineered the build scripts. Now the xpi contains only client code for firefox. The target folder
+    now hosts the client code (same as xpi, but before being xpized), the server distribution (folder "server"),
+    and a "embedded" folder (currently not working) which contains the code of the old firefox extension + 
+    java server. 
 
 version 0.8.6
 date: 04-02-2013

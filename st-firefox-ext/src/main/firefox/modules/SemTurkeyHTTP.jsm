@@ -36,7 +36,6 @@ const RESULT_NOT_AVAILABLE = 3;
 const RESULT_ERROR_FAILURE = 4;
 const RESULT_NOT_RSS = 5;
 
-httpErrorHappened = false;
 
 // TODO i've to remove this global variables!!!
 var parameters;
@@ -194,7 +193,7 @@ HttpMgr = new function() {
 			httpReq.setRequestHeader("Accept", "application/json");
 		// httpReq.overrideMimeType("application/xml");
 
-		Logger.debug("prima della send");
+		// Logger.debug("before the send");
 
 		try {
 			if (method == "GET")
@@ -203,13 +202,15 @@ HttpMgr = new function() {
 				// "POST"
 				httpReq.send(parameters);
 		} catch (e) {
-			throw new HTTPError("http error...we have to customize this message! (ST authors)", httpReq.status, httpReq.statusText);
+			throw new HTTPError(httpReq.status, httpReq.statusText);
 		}
 
-		Logger.debug("prima dell'if");
+		// Logger.debug("prima dell'if");
+		// note: now calls are always synchronous; however, with async calls, this check would be made before any reply from the server
 
-		if (httpErrorHappened == true) {
-			throw new HTTPError("http error...we have to customize this message! (ST authors)");
+		// TODO check if other codes should be ok
+		if (httpReq.status != 200) {
+			throw new HTTPError(httpReq.status, httpReq.statusText);
 		}
 		
 		// ok qua devo leggere l'header http e decidere se parsare una risposta json o xml
@@ -338,9 +339,7 @@ HttpMgr = new function() {
 	};
 
 	function httpError(e) {
-		Logger.debug("HTTP Error: " + e.target.status + " - " + e.target.statusText);
-		// httpGetResult(RESULT_NOT_AVAILABLE);
-		httpErrorHappened = true;
+		Logger.debug("HTTP Error: status: " + e.target.status + " - " + e.target.statusText);
 	}
 	;
 

@@ -30,6 +30,10 @@
 	</target>
 
 	<target name="init">
+		<!-- Set the timestamps -->
+		<tstamp>
+			<format property="builddate" pattern="yyyy-MM-d" />
+		</tstamp>
 		<!-- Get the build properties from build.properties file of parent project-->
 		<property file="../build.properties" />
 	</target>
@@ -66,8 +70,13 @@
 		</copy>
 	</target>
 
+	<!-- === Package The Standalone Server ================================================= -->
+
+	<target name="pack-standalone-server" depends="copy_jar" description="Package the standalone server">
+		<zip zipfile="../target/${stname}-server-${stpom.version}-${builddate}_b${buildversion}.zip" basedir="../${dist}" includes="st-server/**"  />
+	</target>
 
 	<!-- === Final Empty Task ================================================= -->
 
-	<target name="final" depends="copy_jar" />
+	<target name="final" depends="pack-standalone-server" />
 </project>

@@ -39,10 +39,10 @@
 	<!-- === Package The Distribution XPI ================================================= -->
 
 	<target name="xpi_client" depends="dist" description="Create the XPI extension">
-		<zip zipfile="../${stname}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.client}" includes="**" />
+		<zip zipfile="../target/${stname}-${stpom.version}-${builddate}_b${buildversion}.xpi" basedir="../${dist.client}" includes="**" />
 	</target>
 	
-	<!-- === Package The Distribution XPI ================================================= -->
+	<!-- === Create the EMBEDDED distribution folder ================================================= -->
 
 	<target name="create_embedded" depends="xpi_client" description="Create the EMBEDDED distribution folder">
 		<copy todir="../${dist.embedded}">
