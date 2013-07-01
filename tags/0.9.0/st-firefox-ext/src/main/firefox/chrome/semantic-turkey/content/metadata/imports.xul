@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="imports.css" type="text/css"?>
+<!--
+		/* * The contents of this file are subject to the Mozilla Public
+		License * Version 1.1 (the "License"); you may not use this file
+		except in compliance * with the License. You may obtain a copy of the
+		License at * http://www.mozilla.org/MPL/ * * Software distributed
+		under the License is distributed on an "AS IS" basis, * WITHOUT
+		WARRANTY OF ANY KIND, either express or implied. See the License for *
+		the specific language governing rights and limitations under the
+		License. * * The Original Code is SemanticTurkey. * * The Initial
+		Developer of the Original Code is University of Roma Tor Vergata. *
+		Portions created by University of Roma Tor Vergata are Copyright (C)
+		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
+		Artificial Intelligence Research Group * (art.uniroma2.it) at the
+		University of Roma Tor Vergata (ART) * Current information about
+		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
+		* */
+	-->
+
+<window title="Imports" id="imports-main-window"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="600" height="600">
+
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/metadata/imports.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/metadata/importsUtils.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/metadata/metadata.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/utilities/utilities.js" />
+	<script type="application/x-javascript" 
+		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+
+	<!-- 
+			<script src="chrome://global/content/nsDragAndDrop.js"/> <script
+			src="chrome://global/content/nsTransferable.js"/> <script
+			language="JavaScript" type="application/x-javascript"
+			src="chrome://semantic-turkey/content/scripts/dragDrop.js"/>
+		-->
+	
+
+	<hbox flex="1">
+		<vbox id="importsBox" flex="1" orient="vertical">
+			<toolbox>
+				<toolbar id="imports-toolbar">
+					<toolbarbutton id="infoOnProject" image="chrome://semantic-turkey/skin/images/imports_management.png" 
+								   tooltiptext="Info on the current project"/>
+				</toolbar>
+			</toolbox>
+			<vbox flex="0" orient="horizontal">
+				<vbox id="nsBox" flex="1" orient="vertical">
+					<rows flex="0">
+						<row>
+							<label value="BaseUri" />
+						</row>
+						<row>
+							<textbox flex="1" id="baseUriTxtBox" isChanged="false" />
+						</row>
+						<row>
+							<label value="Default Namespace" />
+						</row>
+						<row>
+							<textbox flex="1" id="nsTxtBox" isChanged="false"/>
+						</row>
+					</rows>
+				</vbox>
+				<splitter orient="horizontal" state="open" collapse="after"
+					resizeafter="closest" />
+				<vbox pack="center">
+					<button id="lockBtn" type="checkbox" crop="center"
+						image="chrome://semantic-turkey/skin/images/unlock.png" checked="false" label="Bind" orient="vertical"
+						dir="vertical"></button>
+				</vbox>
+			</vbox>
+
+
+			<splitter state="open" collapse="after" resizebefore="closest"
+				resizeafter="farthest">
+			</splitter>
+			<toolbox>
+				<toolbar id="prefix-toolbar">
+					<toolbarbutton id="addPrefix" image="chrome://semantic-turkey/skin/images/prefix_add.png"
+						tooltiptext="Add Prefix" />
+					<toolbarbutton id="removePrefix" image="chrome://semantic-turkey/skin/images/prefix_remove.png"
+						tooltiptext="Remove Prefix" />
+					<toolbarbutton id="changePrefix" image="chrome://semantic-turkey/skin/images/prefix_change.png"
+						tooltiptext="Change Prefix" />
+				</toolbar>
+			</toolbox>
+			<tree id="namespaceTree" disabled="false" flex="1" context="prefixMenu">
+				<treecols>
+					<treecol id="prefix" label="Prefix" flex="2" />
+					<splitter class="tree-splitter" />
+					<treecol id="namespace" label="NameSpace" flex="8" />
+				</treecols>
+				<treechildren>
+				</treechildren>
+			</tree>
+			<splitter state="open" collapse="after" resizebefore="closest"
+				resizeafter="farthest">
+			</splitter>
+			<vbox id="buttonBox" flex="0">
+				<grid flex="1">
+					<columns>
+						<column flex="1" />
+					</columns>
+					<rows>
+						<row>
+							<menulist id="import">
+								<menupopup id="addImportList">
+									<menuitem id="noSelected" label="----" selected="true" />
+									<menuitem id="AddImportFromWeb" label="Add Import From Web" />
+									<menuitem id="AddImportFromWebToMirror" label="Add Import From Web To Mirror" />
+									<menuitem id="AddImportFromLocalFile" label="Add Import From Local File" />
+									<menuitem id="AddImportFromOntologyMirror" label="Add Import From Ontology Mirror" />
+								</menupopup>
+							</menulist>
+						</row>
+					</rows>
+				</grid>
+			</vbox>
+			<popupset>
+				<menupopup id="importsClipmenu">
+					<menuitem id="remove" label="Remove Import" hidden="true" />
+					<menuitem id="mirror" label="Mirror Ontology" hidden="true" />
+					<menuitem id="downloadFromWebToMirror" label="Download from Web to Mirror"
+						hidden="true" />
+					<menuitem id="downloadFromWeb" label="Download from Web" hidden="true" />
+					<menuitem id="getFromLocalFile" label="Get from Local File" hidden="true" />
+				</menupopup>
+			</popupset>
+			<tree hidecolumnpicker="true" id="importsTree" flex="1" context="importsClipmenu">
+				<treecols>
+					<treecol ordinal="1" id="namespace" label="Imports"
+						primary="true" flex="1" />
+				</treecols>
+				<treechildren id="22">
+				</treechildren>
+			</tree>
+		</vbox>
+	</hbox>
+</window>

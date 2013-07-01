@@ -1,0 +1,82 @@
+<!--+
+    |
+    |           +=======================================+
+    |           |  Semantic Turkey Graph Build System  |
+    |           +=======================================+
+    |
+    +-->
+
+<project default="final" basedir="." name="SemanticTurkeyCorePluginManager" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+	<target name="start" depends="final">
+
+
+		<echo>
+			======================================================================
+			               ${fullname} ${version} [${year}]
+			======================================================================
+			Building with ${ant.version}
+			----------------------------------------------------------------------
+			Using build file ${ant.file}
+			----------------------------------------------------------------------
+			Running on Java version ${ant.java.version} on ${os.name}
+			----------------------------------------------------------------------
+			Compiler options:
+			 - debug ......... [${compiler.debug}]
+			 - optimize ...... [${compiler.optimize}]
+			 - deprecation ... [${compiler.deprecation}]
+			======================================================================
+		</echo>
+	</target>
+
+	<target name="init">
+		<!-- Set the timestamps -->
+		<tstamp>
+			<format property="builddate" pattern="yyyy-MM-d" />
+		</tstamp>
+		<!-- Get the build properties from build.properties file of parent project-->
+		<property file="../build.properties" />
+	</target>
+
+	<!-- === Deploy Libraries from Maven Dependencies to Semantic Turkey BM project  ========== -->
+
+	<target name="buildlib" depends="init">
+		<!--
+			<delete>
+				<fileset dir="../${dist.applet}" includes="*.jar" />
+			</delete>
+		-->
+		<!--
+		<artifact:pom id="stpom" file="pom.xml" />
+		<artifact:dependencies filesetId="dependency.fileset" pomRefId="stpom" useScope="runtime" />
+		-->
+		
+		<copy todir="../${dist.server.lib}">
+			<path path="${runtime_classpath}" />
+			<!--
+    	  <mapper classpathref="maven-ant-tasks.classpath"
+    	          classname="org.apache.maven.artifact.ant.VersionMapper"
+    	          from="${stdeps}" to="flatten" />
+    	      -->
+			<mapper type="flatten" />
+		</copy>
+	</target>
+
+	<!-- === Copy resources to distribution directory ============================================ -->
+
+	<target name="copy_jar" depends="buildlib">
+		<copy todir="../${dist.server.lib}">
+			<fileset dir="${project.build.directory}" includes="*.jar" />
+		</copy>
+	</target>
+
+	<!-- === Package The Standalone Server ================================================= -->
+
+	<target name="pack-standalone-server" depends="copy_jar" description="Package the standalone server">
+		<zip zipfile="../target/${stname}-server-${stpom.version}-${builddate}_b${buildversion}.zip" basedir="../${dist}" includes="st-server/**"  />
+	</target>
+
+	<!-- === Final Empty Task ================================================= -->
+
+	<target name="final" depends="pack-standalone-server" />
+</project>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<prefwindow xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+            title="Semantic Turkey Options"
+            width="600" height="300"
+            buttons=",">
+	<script type="application/x-javascript" src="chrome://semantic-turkey/content/scripts/options.js"/>
+    <prefpane id="annotationFamilyPane" label="Annotation Family">
+    	<deck id="familyDeck">
+    		<vbox align="center" pack="center">
+				<label value="Please, start ST to customize the annotation families" />
+			</vbox>
+    		<vbox>
+    			<label control="defaultAnnotationFamily" value="Default Family" />
+				<hbox id="default_family_box">
+					<textbox id="defaultAnnotationFamily" readonly="true" /> <button id="changeDefaultAnnotationFamily" label="Change Default Annotation Family" />
+				</hbox>
+    			<label control="annotationFamlyOptions" value="Family Options" />
+				<listbox id="annotationFamilyOptions" />
+			</vbox>
+		</deck>
+	</prefpane>
+	<prefpane id="languagePane" label="Label Languages">
+		<label control="defaultLanguage" value="Default Language"/>
+		<hbox id="default_language_box">
+			<textbox id="defaultLanguage" readonly="true" /> <button id="changeDefaultLanguage" label="Change Default Language" />
+		</hbox>
+		<box>
+			<label value="Available Languages list"/>
+			<toolbarbutton id="addLanguage" label="+" />
+			<toolbarbutton id="removeLanguage" label="-" />
+		</box>
+		<listbox id="languageOptions" rows="5" flex="1">
+		</listbox>
+	</prefpane>
+	<hbox pack="end" flex="1">
+		<button id="acceptButton" label="Ok" /> <button id="cancelButton" label="Cancel" /> 
+	</hbox>
+</prefwindow>
