@@ -199,11 +199,12 @@
 					bound._view.addRow(broaderConcept, row);
 				}, null);
 				this.stEventArray.addEventListenerToArrayAndRegister("skosBroaderConceptAdded", function(eventId, skosBroaderConceptAddedObj) {
-					var narrowerConcept = skosBroaderConceptAddedObj.getConceptName();
+					var aConcept = skosBroaderConceptAddedObj.getConcept();
+					var narrowerConcept = aConcept.getURI();
 					var broaderConcept = skosBroaderConceptAddedObj.getBroaderConceptName();
-					var u = skosBroaderConceptAddedObj.getURI();
-					var hasSubsumees = skosBroaderConceptAddedObj.hasSubsumees();
-					var l = skosBroaderConceptAddedObj.getLabel();
+					var u = aConcept.getURI();
+					var hasSubsumees = aConcept.more;
+					var l = aConcept.getShow();
 								
 					var row = new DataRow({concept : narrowerConcept, more : hasSubsumees ? "1" : "0", label : l, uri : u});
 					
@@ -230,10 +231,11 @@
 						return;
 					}
 					
-					var concept = skosTopConceptAddedObj.getConceptName();
-					var u = skosTopConceptAddedObj.getURI();
-					var hs = skosTopConceptAddedObj.hasSubsumees();
-					var l = skosTopConceptAddedObj.getLabel();
+					var topConcept = skosTopConceptAddedObj.getTopConcept();
+					var concept = topConcept.getURI();
+					var u = topConcept.getURI();
+					var hs = topConcept.more;
+					var l = topConcept.getShow();
 								
 					var row = new DataRow({concept : concept, more : hs ? "1" : "0", label : l, uri : u});
 					

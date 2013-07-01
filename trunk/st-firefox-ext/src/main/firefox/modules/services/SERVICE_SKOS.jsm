@@ -15,13 +15,13 @@ var serviceName = service.serviceName;
  * 
  * @member STRequests.SKOS
  * @param scheme the concept scheme QName
- * @param language the default language
+ * @param lang the default language
  * @return
  */
-function getTopConcepts(scheme,language) {
+function getTopConcepts(scheme,lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getTopConcepts');
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
-	var language_p = language != null ? "lang=" + language : "";
+	var language_p = lang != null ? "lang=" + lang : "";
 
 	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getTopConceptsRequest,scheme_p,language_p));
 }
@@ -32,15 +32,15 @@ function getTopConcepts(scheme,language) {
  * @member STRequests.SKOS
  * @param concept the concept QName
  * @param scheme the scheme QName
- * @param language the default language
+ * @param lang the default language
  * @return
  */
-function getNarrowerConcepts(concept, scheme, language) {
+function getNarrowerConcepts(concept, scheme, lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getNarrowerConcepts');
 	var concept_p = "concept=" + concept;
 	var scheme_p = scheme == null ? "" : "scheme=" + scheme;
 	var treeView_p ="treeView=true";
-	var language_p = language != null ? "lang=" + language : "";
+	var language_p = lang != null ? "lang=" + lang : "";
 
 	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getNarrowerConceptsRequest,concept_p, scheme_p, treeView_p, language_p));
 }
@@ -49,12 +49,12 @@ function getNarrowerConcepts(concept, scheme, language) {
  * Gets the list of all schemes.
  * 
  * @member STRequests.SKOS
- * @param language the default language
+ * @param lang the default language
  * @return
  */
-function getAllSchemesList(language) {
+function getAllSchemesList(lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getAllSchemesList');
-	var language_p = language != null ? "lang=" + language : "";
+	var language_p = lang != null ? "lang=" + lang : "";
 
 	return Deserializer.createRDFArray(HttpMgr.GET(serviceName, service.getAllSchemesListRequest, language_p));
 }
@@ -77,7 +77,6 @@ function getConceptSchemeDescription(scheme) {
 	return HttpMgr.GET(serviceName, service.getConceptSchemeDescriptionRequest,scheme_p, method_p);	
 }
 
-//TODO fix with the new normalized answer
 function getPrefLabel(concept, lang) {
 	Logger.debug('[SERVICE_SKOS.jsm] getPrefLabel');
 	var concept_p = "concept=" + concept;
@@ -86,7 +85,6 @@ function getPrefLabel(concept, lang) {
 	return HttpMgr.GET(serviceName, service.getPrefLabelRequest,concept_p, lang_p);	
 }
 
-//TODO fix with the new normalized answer
 function addBroaderConcept(concept, broaderConcept) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = "broaderConcept=" + broaderConcept;
@@ -94,11 +92,10 @@ function addBroaderConcept(concept, broaderConcept) {
 	var reply = HttpMgr.GET(serviceName, service.addBroaderConceptRequest, concept_p, broaderConcept_p);
 
 	if (!reply.isFail()) {
+		var conceptResource = Deserializer.createRDFResource(reply.getElementsByTagName("data")[0].children[0]);
+		Logger.debug(conceptResource);
 		evtMgr.fireEvent("skosBroaderConceptAdded", {
-			getConceptName : function(){return concept;}, 
-			hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, 
-			getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, 
-			getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, 
+			getConcept : function(){return conceptResource;}, 
 			getBroaderConceptName : function(){return broaderConcept}
 		});
 	}
@@ -106,7 +103,6 @@ function addBroaderConcept(concept, broaderConcept) {
 	return reply;
 }
 
-//TODO fix with the new normalized answer
 function addTopConcept(scheme, concept) {
 	var scheme_p = "scheme=" + scheme;
 	var concept_p = "concept=" + concept;
@@ -114,19 +110,16 @@ function addTopConcept(scheme, concept) {
 	var reply = HttpMgr.GET(serviceName, service.addTopConceptRequest, scheme_p, concept_p);
 
 	if (!reply.isFail()) {
+		var topConcept = Deserializer.createRDFResource(reply.getElementsByTagName("data")[0].children[0]);
 		evtMgr.fireEvent("skosTopConceptAdded", {
-			getConceptName : function(){return concept;}, 
-			hasSubsumees : function(){return reply.getElementsByTagName("concept")[0].getAttribute("more") == "1";}, 
-			getURI : function() {return reply.getElementsByTagName("concept")[0].getAttribute("uri");}, 
-			getLabel : function(){return reply.getElementsByTagName("concept")[0].getAttribute("label");}, 
-			getSchemeName : function(){return scheme}
+			getTopConcept : function(){return topConcept;},
+			getSchemeName : function(){return scheme;}
 		});
 	}
 	
 	return reply;
 }
 
-//TODO fix with the new normalized answer
 function setPrefLabel(concept, label, lang) {
 	var concept_p = "concept=" + concept;
 	var label_p = "label=" + label;
@@ -145,7 +138,6 @@ function setPrefLabel(concept, label, lang) {
 	
 }
 
-//TODO fix with the new normalized answer
 function removeTopConcept(scheme, concept) {
 	var scheme_p = "scheme=" + scheme;
 	var concept_p = "concept=" + concept;
@@ -173,6 +165,7 @@ function removeTopConcept(scheme, concept) {
  * @param language the default language
  * @return
  */
+ //TODO fix with the new normalized answer
 function createConcept(concept, broaderConcept, scheme, prefLabel, prefLabelLanguage, language) {
 	var concept_p = "concept=" + concept;
 	var broaderConcept_p = (broaderConcept != null) ? ("broaderConcept=" + broaderConcept) : "";
