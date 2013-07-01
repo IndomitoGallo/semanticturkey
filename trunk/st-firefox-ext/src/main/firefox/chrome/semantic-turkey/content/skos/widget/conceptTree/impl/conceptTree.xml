@@ -35,6 +35,7 @@
 					this.art_semanticturkey= {};
 				}
 
+				Components.utils.import("resource://stmodules/Logger.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/stEvtMgr.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stmodules/Commands.jsm", this.art_semanticturkey);
 				Components.utils.import("resource://stservices/SERVICE_SKOS.jsm", this.art_semanticturkey);
@@ -188,15 +189,15 @@
 					bound._view.removeRows(skosConceptRemovedObj.getConceptName());
 				}, null);
 				this.stEventArray.addEventListenerToArrayAndRegister("skosConceptAdded", function(eventId, skosConceptAddedObj) {
-					var narrowerConcept = skosConceptAddedObj.getConceptQName();
-					var broaderConcept = skosConceptAddedObj.getBroaderConceptQName();
-					var u = skosConceptAddedObj.getURI();
-					var hasSubsumees = skosConceptAddedObj.hasSubsumees();
-					var l = skosConceptAddedObj.getLabel();
+					var narrowerConcept = skosConceptAddedObj.getConcept();
+					var broaderConcept = skosConceptAddedObj.getBroaderConceptName();
+					var u = narrowerConcept.getURI();
+					var hasSubsumees = narrowerConcept.more;
+					var l = narrowerConcept.getShow();
 
-					var row = new DataRow({concept : narrowerConcept, more : hasSubsumees ? "1" : "0", label : l, uri : u});
+					var row = new DataRow({concept : u, more : hasSubsumees ? "1" : "0", label : l, uri : u});
 
-					bound._view.addRow(broaderConcept, row);
+					bound._view.addRow(broaderConcept, row);					
 				}, null);
 				this.stEventArray.addEventListenerToArrayAndRegister("skosBroaderConceptAdded", function(eventId, skosBroaderConceptAddedObj) {
 					var aConcept = skosBroaderConceptAddedObj.getConcept();

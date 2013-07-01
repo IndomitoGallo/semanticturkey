@@ -64,11 +64,11 @@ STFail.prototype.constructor = STFail;
 
 
 // a javascript error for errors 
-function HTTPError(message, status, statusText) {
+function HTTPError(status, statusText) {
   this.name = "HTTPError";
-  this.message = message || "";
   this.status = status || "";
   this.statusText = statusText || "";
+  this.message = statusText || "";
 }
 HTTPError.prototype = new Error();
 HTTPError.prototype.constructor = HTTPError; 
