@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="rdfnode-container-widget">
+		<content>
+			<xul:hbox flex="1" anonid="mainHbox">
+				<xul:box anonid="widgetBoxId" flex="1"/>
+				<xul:spacer />
+				<!--<xul:button anonid="boxbuttonId" /> -->
+			</xul:hbox>
+		</content>
+		<implementation>
+			<field name="rdfResource" />
+			<field name="operations" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+					var art_semanticturkey = {};
+					Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					
+					var widgetBox = document.getAnonymousElementByAttribute(this, "anonid", "widgetBoxId");
+					//var buttonsBox = document.getAnonymousElementByAttribute(this, "anonid", "boxbuttonId");
+					
+					
+					if(typeof this.rdfResource != "undefined"){
+						//bind the box with the widget rdfnode-base-widget
+						widgetBox.rdfResource = this.rdfResource;
+						widgetBox.setAttribute("class","rdfnode-base-widget");
+						
+						//now get the url of the image to use inside the button
+						if(typeof this.operations != "undefined"){
+							if(operations.contains("remove")){
+								var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource,
+							    					"remove");
+								//var button = document.getAnonymousElementByAttribute(this, "anonid", 
+								//		"boxbuttonId");
+								var button = document.createElement("button");
+								button.setAttribute("label", "remove");
+								button.setAttribute("image", imageSrc);
+								document.getAnonymousElementByAttribute(this, "anonid", "mainHbox")
+									.appendChild(button);
+							}
+						}
+						/*if(typeof this.operations != "undefined"){
+							var operationsArray = this.operations.split(';');
+							for (var i = 0; i < operationsArray.length; i++) {
+								var operation = operationsArray[i];
+							    var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource,
+							    					operation);
+								//var button = document.getAnonymousElementByAttribute(this, "anonid", "boxbuttonId");
+								var button = document.createElement("button");
+								button.setAttribute("label", operation);
+								button.setAttribute("image", imageSrc);
+								document.getAnonymousElementByAttribute(this, "anonid", "mainHbox")
+									.appendChild(button);
+							}
+						}*/
+					}
+				]]>
+			</constructor>
+			<method name="getRdfResource">
+				<body>
+				<![CDATA[
+					return this.rdfResource;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="command">
+				<![CDATA[
+					/*alert("rdfnode-container-widget: command");
+					var target = event.target;
+					alert("tag name = "+target.tagName+"\nclass = "+target.getAttribute("class"));*/
+					
+					if(event.originalTarget.tagName == "button"){
+						//stop the event propagation to not generate confusion
+						event.stopPropagation();
+					
+						var customEvent = new CustomEvent("rdfnodeContainerEvent", {
+							detail: {
+								rdfResource: this.rdfResource,
+								button: event.originalTarget
+							},
+							bubble: true,
+							cancellable: true
+						})
+						event.originalTarget.dispatchEvent(customEvent)
+					}
+				]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

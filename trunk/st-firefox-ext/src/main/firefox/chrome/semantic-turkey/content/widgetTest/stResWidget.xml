@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="rdfnode-base-widget">
+		<content>
+			<xul:hbox flex="1">
+				<xul:textbox anonid="textboxId" flex="1">
+					<xul:image anonid="imageId" />
+				</xul:textbox>
+			</xul:hbox>
+		</content>
+		<implementation>
+			<field name="rdfResource" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+					var art_semanticturkey = {};
+					Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					
+					var textbox = document.getAnonymousElementByAttribute(this, "anonid", "textboxId");
+					if(typeof this.rdfResource != "undefined"){
+						// set the values in the textbox
+						var show = this.rdfResource.getShow();
+						var uri = this.rdfResource.getURI();
+						textbox.setAttribute("value", show);
+						textbox.setAttribute("readonly", false);
+						
+						//now get the url of the image to use
+						var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource);
+						var image = document.getAnonymousElementByAttribute(this, "anonid", "imageId");
+						image.setAttribute("src", imageSrc);
+					}
+				]]>
+			</constructor>
+			<method name="getRdfRes">
+				<body>
+				<![CDATA[
+					return this.rdfResource;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="dblclick"><![CDATA[
+				var uri = this.rdfResource.getURI();
+				alert("rdfnode-base-widget : double ckick event happeneds on res with uri = "+uri);
+     		]]>
+			</handler>
+		</handlers>
+	</binding>
+	<binding id="rdfnode-container-widget">
+		<content>
+			<xul:hbox flex="1">
+				<xul:box anonid="widgetBoxId" flex="1"/>
+				<xul:spacer />
+				<xul:button anonid="boxbuttonId" />
+			</xul:hbox>
+		</content>
+		<implementation>
+			<field name="rdfResource" />
+			<field name="operations" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+					var art_semanticturkey = {};
+					Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					
+					var widgetBox = document.getAnonymousElementByAttribute(this, "anonid", "widgetBoxId");
+					var buttonsBox = document.getAnonymousElementByAttribute(this, "anonid", "boxbuttonId");
+					
+					
+					if(typeof this.rdfResource != "undefined"){
+						//bind the box with the widget rdfnode-base-widget
+						widgetBox.rdfResource = this.rdfResource;
+						widgetBox.setAttribute("class","rdfnode-base-widget");
+						
+						//now get the url of the image to use inside the button
+							if(typeof this.operations != "undefined"){
+							var operationsArray = this.operations.split(';');
+							for (var i = 0; i < operationsArray.length; i++) {
+								var operation = operationsArray[i];
+							    var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource,
+							    					operation);
+								var button = document.getAnonymousElementByAttribute(this, "anonid", 
+											"boxbuttonId");
+								button.setAttribute("label", operation);
+								button.setAttribute("image", imageSrc);
+						
+							}
+								
+						}
+					}
+				]]>
+			</constructor>
+			<method name="getRdfRes">
+				<body>
+				<![CDATA[
+					return this.rdfResource;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="command">
+			<![CDATA[
+				alert("rdfnode-container-widget: command");
+			]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

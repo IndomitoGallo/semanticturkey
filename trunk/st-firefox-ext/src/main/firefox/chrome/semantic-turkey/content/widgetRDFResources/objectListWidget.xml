@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="object-list-widget">
+		<content>
+			<xul:vbox flex="1">
+				<xul:label anonid="labelId"/>
+				<xul:hbox anonid="buttonBoxOLW" />
+				<xul:vbox anonid="mainOLWboxId" />
+			</xul:vbox>
+		</content>
+		<implementation>
+			<field name="operations" />
+			<field name="labelValue" />
+			<field name="rdfResourcesArray" />
+			<field name="addRemoveButton" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+					var art_semanticturkey = {};
+					Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					
+					var label = document.getAnonymousElementByAttribute(this, "anonid", "labelId");
+					var maindOLWbox = document.getAnonymousElementByAttribute(this, "anonid", "mainOLWboxId");
+					
+					if(typeof this.labelValue != "undefined"){
+						label.setAttribute("value", this.labelValue);
+						label.setAttribute("flex", "1");
+					}
+					
+					
+					if(typeof this.rdfResourcesArray != "undefined"){
+						maindOLWbox.setAttribute("flex", "1");
+						if(this.rdfResourcesArray.length >= 10 ){
+							//create the buttons
+							if(typeof this.addRemoveButton == "undefined" || this.addRemoveButton == true ){
+							var button = document.createElement("button");
+							button.setAttribute("label", "remove");
+							document.getAnonymousElementByAttribute(this, "anonid", "buttonBoxOLW")
+									.appendChild(button);
+							}
+							
+							//add the resources list
+							var richListBox = document.createElement("richlistbox");
+						
+							for (var i = 0; i < this.rdfResourcesArray.length; i++) {
+								rdfRes = rdfResourcesArray[i];
+								
+								var richListItem = document.createElement("richlistitem");
+								richListItem.setAttribute("flex", "1");
+								
+								var widgetBox = document.createElement("box");
+								widgetBox.setAttribute("flex", "1");
+								richListItem.appendChild(widgetBox);
+								richListBox.appendChild(richListItem);
+								widgetBox.rdfResource = rdfRes;
+								widgetBox.setAttribute("class","rdfnode-base-widget");
+							}
+							maindOLWbox.appendChild(richListBox);
+						
+						} else{ // this.rdfResourcesArray.lentgh < 10
+							for (var i = 0; i < this.rdfResourcesArray.length; i++) {
+								rdfRes = rdfResourcesArray[i];
+								
+								var widgetBox = document.createElement("box");
+								widgetBox.setAttribute("flex", "1");
+								maindOLWbox.appendChild(widgetBox);
+								
+								widgetBox.rdfResource = rdfRes;
+								//TODO check if it is correct to have just the remove button
+								widgetBox.operations = this.operations;
+								widgetBox.setAttribute("class","rdfnode-container-widget");
+							}
+						}
+					}
+				]]>
+			</constructor>
+			<method name="getObjectsArray">
+				<body>
+				<![CDATA[
+					return this.rdfResourcesArray;
+				]]>
+				</body>
+			</method>
+			<method name="getSelectedRDFResource">
+				<body>
+				<![CDATA[
+					if(typeof this.rdfResourcesArray == "undefined" || this.rdfResourcesArray.length<10)
+						return null;
+					var richlistbox =  document.getAnonymousElementByAttribute(this, "anonid", 
+								"mainOLWboxId").getElementsByTagName("richlistbox")[0];
+					var richListItem = richlistbox.selectedItem;
+					var selectedBox = richListItem.getElementsByTagName("box")[0];
+					return selectedBox.rdfResource;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="dblclick">
+				<![CDATA[
+					/*alert("object-list-widget: event.test = "+event.test);
+				
+					alert("object-list-widget : double click event happeneds ");
+					var target = event.target;
+					alert("tag name = "+target.tagName+"\nclass = "+target.getAttribute("class"));*/
+	     		]]>
+			</handler>
+			<handler event="command">
+				<![CDATA[
+					if(event.originalTarget.tagName == "button" && 
+							event.originalTarget.getAttribute("label") == "remove"){
+						
+						var richlistbox =  document.getAnonymousElementByAttribute(this, "anonid", 
+								"mainOLWboxId").getElementsByTagName("richlistbox")[0];
+						var richListItem = richlistbox.selectedItem;
+						var selectedBox = richListItem.getElementsByTagName("box")[0];
+						
+						var customEvent = new CustomEvent("objectListEvent", {
+							detail: {
+								rdfResource: selectedBox.rdfResource,
+								button: event.originalTarget
+							},
+							bubble: true,
+							cancellable: true
+						})
+						event.originalTarget.dispatchEvent(customEvent);
+					}
+				]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

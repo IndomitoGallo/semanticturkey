@@ -1,0 +1,12 @@
+box.requestbuttons {
+    -moz-binding: url('chrome://semantic-turkey/content/widgetTest/firstMiniWidget_1.xml#request');
+}
+
+
+box.testbutton {
+    -moz-binding: url('chrome://semantic-turkey/content/widgetTest/firstMiniWidget_1.xml#testbutton');
+}
+
+[anonid="testbuttons"] {
+    -moz-binding: url('chrome://semantic-turkey/content/widgetTest/firstMiniWidget_2.xml#test');
+}

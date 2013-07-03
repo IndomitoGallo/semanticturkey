@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="predicate-objects-widget">
+		<content>
+			<xul:vbox flex="1">
+				<xul:vbox anonid="innerPOWBoxId">
+					<xul:label anonid="labelSubjId"/>
+					<xul:label anonid="labelPredId"/>
+				</xul:vbox>
+				<xul:hbox anonid="buttonBoxPOLW" />
+				<xul:vbox anonid="mainPOWboxId" />
+			</xul:vbox>
+			
+		</content>
+		<implementation>
+			<field name="labelValue" />
+			<field name="rdfSubject" />
+			<field name="rdfPredicate" />
+			<field name="rdfResourcesArray" />
+			<field name="operations" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+						var art_semanticturkey = {};
+						Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					
+					if(typeof this.rdfSubject != "undefined"){
+						var subjectShow = this.rdfSubject.getShow();
+						if(typeof subjectShow != "undefined")
+							document.getAnonymousElementByAttribute(this, "anonid", "labelSubjId")
+								.setAttribute("value", "subject: "+subjectShow);
+					}
+					
+					if(typeof this.rdfPredicate != "undefined"){
+						var predicateURI = this.rdfPredicate.getShow();
+						if(typeof predicateURI != "undefined")
+							document.getAnonymousElementByAttribute(this, "anonid", "labelPredId")
+								.setAttribute("value", "predicate: "+predicateURI);
+					}
+					
+					if(typeof this.operations != "undefined"){
+					
+						//now add the buttons
+						if(this.operations.contains("add")){
+							var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource, "add");
+							var button = document.createElement("button");
+							button.setAttribute("label", "add");
+							button.setAttribute("image", imageSrc);
+							document.getAnonymousElementByAttribute(this, "anonid", "buttonBoxPOLW")
+								.appendChild(button);
+						}
+						if(this.operations.contains("remove") && this.rdfResourcesArray.length>=10){
+							var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource, "remove");
+							var button = document.createElement("button");
+							button.setAttribute("label", "remove");
+							button.setAttribute("image", imageSrc);
+							document.getAnonymousElementByAttribute(this, "anonid", "buttonBoxPOLW")
+								.appendChild(button);
+						}
+						
+						var spacer = document.createElement("spacer");
+						spacer.setAttribute("flex", "1");
+						document.getAnonymousElementByAttribute(this, "anonid", "buttonBoxPOLW")
+								.appendChild(spacer);
+						
+						/*
+						var operationsArray = this.operations.split(';');
+						for (var i = 0; i < operationsArray.length; i++) {
+							var operation = operationsArray[i];
+							var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource,
+						    					operation);
+							//var button = document.getAnonymousElementByAttribute(this, "anonid", "boxbuttonId");
+							var button = document.createElement("button");
+							button.setAttribute("label", operation);
+							button.setAttribute("image", imageSrc);
+							document.getAnonymousElementByAttribute(this, "anonid", "innerPOWBoxId")
+								.appendChild(button);
+						}
+						*/
+					}
+					
+					var mainOLWbox = document.getAnonymousElementByAttribute(this, "anonid", "mainPOWboxId");
+					mainOLWbox.labelValue = this.labelValue;
+					mainOLWbox.rdfResourcesArray = this.rdfResourcesArray;
+					mainOLWbox.operations = this.operations;
+					mainOLWbox.addRemoveButton = false;
+					mainOLWbox.setAttribute("class","object-list-widget");
+				]]>
+			</constructor>
+			<method name="getSubject">
+				<body>
+				<![CDATA[
+					return this.rdfSubject;
+				]]>
+				</body>
+			</method>
+			<method name="getPredicate">
+				<body>
+				<![CDATA[
+					return this.rdfPredicate;
+				]]>
+				</body>
+			</method>
+			<method name="getObjectsArray">
+				<body>
+				<![CDATA[
+					return this.rdfResourcesArray;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="command">
+				<![CDATA[
+					/*alert("rdfnode-container-widget: command");
+					var target = event.target;
+					alert("tag name = "+target.tagName+"\nclass = "+target.getAttribute("class"));*/
+					
+					if(event.originalTarget.tagName == "button"){
+						if(event.originalTarget.getAttribute("label") == "add"){
+							//stop the event propagation to not generate confusion
+							event.stopPropagation();
+						
+							//find the selected resources, this is usefull for the delete, not for the add
+							//mainOLWbox.getAnonymousElementByAttribute(this, "anonid",  );
+						
+							
+							var customEvent = new CustomEvent("predicateObjectsEvent", {
+								detail: {
+									rdfSubject: this.rdfSubject,
+									rdfPredicate: this.rdfPredicate,
+									button: event.originalTarget
+								},
+								bubble: true,
+								cancellable: true
+							})
+							event.originalTarget.dispatchEvent(customEvent);
+						}
+						if(event.originalTarget.getAttribute("label") == "remove"){
+							
+							var mainPOWbox = document.getAnonymousElementByAttribute(this, "anonid", 
+								"mainPOWboxId");
+							
+							var customEvent = new CustomEvent("predicateObjectsEvent", {
+								detail: {
+									rdfSubject: this.rdfSubject,
+									rdfPredicate: this.rdfPredicate,
+									rdfObject: mainPOWbox.getSelectedRDFResource(),
+									button: event.originalTarget
+								},
+								bubble: true,
+								cancellable: true
+							})
+							event.originalTarget.dispatchEvent(customEvent);
+						}
+					}
+				]]>
+			</handler>
+			<handler event="rdfnodeContainerEvent">
+				<![CDATA[
+				
+					//stop the event propagation to not generate confusion
+					event.stopPropagation();
+				
+					var customEvent = new CustomEvent("predicateObjectsEvent", {
+						detail: {
+							rdfSubject: this.rdfSubject,
+							rdfPredicate: this.rdfPredicate,
+							rdfObject: event.detail.rdfResource,
+							button: event.originalTarget
+						},
+						bubble: true,
+						cancellable: true
+					})
+					//event.originalTarget.dispatchEvent(customEvent);
+					document.getAnonymousElementByAttribute(this, "anonid", "mainPOWboxId").dispatchEvent(customEvent);
+				]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>
