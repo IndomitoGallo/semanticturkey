@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://semantic-turkey/content/widgetTest/resource/widgetTest/firstWidget.css" type="text/css"?>
+	<!--
+		/* * The contents of this file are subject to the Mozilla Public
+		License * Version 1.1 (the "License"); you may not use this file
+		except in compliance * with the License. You may obtain a copy of the
+		License at * http://www.mozilla.org/MPL/ * * Software distributed
+		under the License is distributed on an "AS IS" basis, * WITHOUT
+		WARRANTY OF ANY KIND, either express or implied. See the License for *
+		the specific language governing rights and limitations under the
+		License. * * The Original Code is SemanticTurkey. * * The Initial
+		Developer of the Original Code is University of Roma Tor Vergata. *
+		Portions created by University of Roma Tor Vergata are Copyright (C)
+		2007. * All Rights Reserved. * * SemanticTurkey was developed by the
+		Artificial Intelligence Research Group * (art.uniroma2.it) at the
+		University of Roma Tor Vergata (ART) * Current information about
+		SemanticTurkey can be obtained at * http://semanticturkey.uniroma2.it
+		* */
+	-->
+
+<window title="Projects Management" id="projects-main-window"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	width="750" height="300">
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/projects/manageProjects.js" />
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/system-start/system-start.js" />
+	<script type="application/x-javascript" 
+ 		src="chrome://semantic-turkey/content/projects/manageProjectsUtilities.js"/>
+	<script type="application/x-javascript" 
+ 		src="chrome://semantic-turkey/content/event/eventObjects.js"/>
+	
+	
+	<popupset>
+		<menupopup id="clipmenu"  align="start">
+			<menuitem id="openProject" flex="1" label="Open the selected project">
+				<!--<label value="Open the selected project"/>--> 						
+			</menuitem>
+			<menuitem id="deleteProject" flex="1" label="Delete the selected project">
+				<!--<label value="Delete the selected project" flex="0"/>--> 						
+			</menuitem>
+			<menuitem id="cloneProject" flex="1" label="Clone the selected project">
+				<!--<label value="Clone the selected project" flex="0"/>--> 						
+			</menuitem>
+			<menuitem id="setDeafultProject" flex="1" label="set the selected project as the default one">
+				<!--<label value="set the selected project as the default one" flex="0"/> -->						
+			</menuitem>
+			<menuitem id="fixProject" flex="1" label="try to fix the issues regardig this project">
+				<!--<label value="try to fix the issues regardig this project" flex="0"/> -->						
+			</menuitem>
+		</menupopup>
+	</popupset>
+	
+	<groupbox flex ="1">
+		<tree id="projectsTree" disabled="false" flex="1" seltype="single" context="clipmenu"><!-- context="mirrorMenu">  --> 
+			<treecols>
+				<treecol id="defaultProjectSel" label="D" flex="1"
+						 tooltiptext="if checkbox is enabled, the project will be loaded by default when ST is started"/>
+				<treecol id="projectName" label="Project Name" flex="7" 
+						 tooltiptext="the name of the project"/>
+				<splitter class="tree-splitter" />
+				<treecol id="tripleStore" label="Triple Store" flex="5"  
+						 tooltiptext="the triple store technology adopted to manage the project"/>
+				<splitter class="tree-splitter" />
+				<treecol id="typePrj" label="Type" flex="5"  
+						 tooltiptext="tells if data is persisted after any operation or if project need to be explicitly saved"/>
+				<splitter class="tree-splitter" />
+				<treecol id="ontoTypePrj" label="Onto Type" flex="5"  
+						 tooltiptext="the modeling vocabulary for the project (RDF RDFS OWL SKOS SKOSXL)"/>
+				<splitter class="tree-splitter" />
+				<treecol id="status" label="Issues" flex="2" 
+						 tooltiptext="reports if the project has any issue"/>
+			</treecols>
+			<treechildren id="ProjectsTreeChildren" />
+		</tree>
+	
+		<!--<hbox>
+			<hbox flex="1">
+				<button id="openProject" label="Open" flex="1" 
+						tooltiptext="Open the selected project"/>
+				<button id="openMainProject" label="Open Main" flex="1"
+						tooltiptext="Open the main Project"/>
+				<button id="imporProject" label="Import" flex="1"
+						tooltiptext="Import and open a project"/>
+				<button id="newProject" label="New" flex="1"
+						tooltiptext="Create a new empty project and open it"/>
+				<button id="newProjectFromFile" label="New From File" flex="1"
+						tooltiptext="Create a new project from a file and open it"/>
+				<button id="deleteProject" label="Delete" flex="1"
+						tooltiptext="Delete the selected project"/>
+				<button id="cloneProject" label="Clone" flex="1"
+						tooltiptext="Clone the selected project"/>	
+			</hbox>
+		</hbox>-->
+	</groupbox>
+	<hbox>
+		<!--<button id="restartFirefox" label="Restart Firefox" 
+					tooltiptext="Restart Firefox"/>-->
+		<label value="new Project: "/>
+	    <toolbox>
+			<menulist id="newProject-menulist">
+				<menupopup>
+					<menuitem id="nullAction" label ="----"/>
+					<menuitem id="newProject" label ="new Project"
+						tooltiptext="Create a new empty project and open it" />
+					<menuitem id="newProjectFromFile" label ="new Project From File"
+						tooltiptext="Create a new project from a file and open it" />
+					<menuitem id="imporProject" label ="Import Project"
+						tooltiptext="Import and open a project" />
+				</menupopup>
+			</menulist>
+		</toolbox>
+	    <spacer flex="1" />
+		<button id="close" label="Close" 
+					tooltiptext="Close this window"/>
+	</hbox>
+
+</window>

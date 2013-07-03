@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="test">
+		<content>
+			<xul:button label="Test" anonid="testButton" />
+		</content>
+		<implementation>
+			<field name="button2">
+				document.getAnonymousElementByAttribute(this,"anonid", "testButton")
+			</field>
+		</implementation>
+		<handlers>
+			<handler event="click"><![CDATA[
+				if (event.originalTarget == this.button2) 
+					alert("press the Test button");
+     		]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

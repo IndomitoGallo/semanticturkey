@@ -1,0 +1,9 @@
+.rdfnode-base-widget {
+    //-moz-binding: url('chrome://semantic-turkey/content/widgetTest/stResWidget.xml#rdfnode-base-widget');
+    -moz-binding: url('chrome://semantic-turkey/content/widgetRDFResources/rdfnodeBaseWidget.xml#rdfnode-base-widget');
+}
+
+.rdfnode-container-widget {
+    //-moz-binding: url('chrome://semantic-turkey/content/widgetTest/stResWidget.xml#rdfnode-container-widget');
+     -moz-binding: url('chrome://semantic-turkey/content/widgetRDFResources/rdfnodeContainerWidget.xml#rdfnode-container-widget');
+}

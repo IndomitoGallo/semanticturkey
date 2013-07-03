@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://semantic-turkey/content/widgetTest/firstMiniWidget.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://semantic-turkey/content/widgetTest/stResWidget.css" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript"
+		src="chrome://semantic-turkey/content/widgetTest/widget.js" />
+
+	<box class="requestbuttons" id="mainBox" />
+	<button label="Explicit" id="explicitButton" />
+	<vbox id="temp"/>
+</window>

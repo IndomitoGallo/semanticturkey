@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="request">
+		<resources>
+			<stylesheet src="firstMiniWidget.css" />
+		</resources>
+		<content>
+			<xul:button label="doRequest" anonid="buttonForRequest" />
+			<xul:box anonid="testbuttons" />
+		</content>
+		<implementation>
+			<field name="button">
+				document.getAnonymousElementByAttribute(this,
+				"anonid", "buttonForRequest");
+			</field>
+			<property name="value">
+				<getter>
+				<![CDATA[
+				alert("dentro getter");
+				]]>
+				</getter>
+			</property>
+			<constructor>
+			</constructor>
+			<method name="getValues">
+				<body>
+				<![CDATA[
+				alert("metodo definito nel binding");
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="click"><![CDATA[
+				if (event.originalTarget == this.button) 
+					alert("press the doRequest button");
+     		]]>
+			</handler>
+		</handlers>
+	</binding>
+	
+	<binding id="testbutton">
+		<content>
+			<xul:box anonid="testbuttons" />
+		</content>
+		<implementation>
+			<field name="button">
+				document.getAnonymousElementByAttribute(this,
+				"anonid", "buttonForRequest");
+			</field>
+			<field name="rdfResInternal" />
+			<property name="value">
+				<getter>
+				<![CDATA[
+				alert("dentro getter");
+				]]>
+				</getter>
+			</property>
+			<constructor>
+				<![CDATA[
+					var rdfRes = this.rdfRes;
+					alert("dentro il construttore\nrdfRes = "+rdfRes.getURI()+
+					"\nrdfResInternal = "+this.rdfResInternal.getURI());
+				]]>
+			</constructor>
+			<method name="getValues">
+				<body>
+				<![CDATA[
+				alert("metodo definito nel binding");
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="click"><![CDATA[
+				if (event.originalTarget == this.button) {
+						alert("press the doRequest button");
+					}
+     		]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

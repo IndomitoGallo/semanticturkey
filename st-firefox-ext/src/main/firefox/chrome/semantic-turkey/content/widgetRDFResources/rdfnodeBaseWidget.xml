@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+	xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<binding id="rdfnode-base-widget">
+		<content>
+			<xul:hbox flex="1">
+				<xul:vbox>
+					<xul:spacer flex="1"/>
+					<xul:image anonid="imageId" />
+					<xul:spacer flex="1"/>
+				</xul:vbox>
+				<xul:textbox anonid="textboxId" flex="1">
+					<!-- <xul:box>
+						<xul:image anonid="imageId" />
+					</xul:box> -->
+				</xul:textbox>
+			</xul:hbox>
+		</content>
+		<implementation>
+			<field name="rdfResource" />
+			<constructor>
+				<![CDATA[
+					if (typeof art_semanticturkey == 'undefined')
+					var art_semanticturkey = {};
+					Components.utils.import("resource://stmodules/StResUtils.jsm", art_semanticturkey);
+					Components.utils.import("resource://stmodules/ARTResources.jsm", art_semanticturkey);
+					
+					var textbox = document.getAnonymousElementByAttribute(this, "anonid", "textboxId");
+					if(typeof this.rdfResource != "undefined"){
+						// set the values in the textbox depending on the type of the resource
+						
+						var value;
+						if(this.rdfResource instanceof art_semanticturkey.ARTURIResource) {
+							value = this.rdfResource.getShow();
+						}else if(rdfResource instanceof art_semanticturkey.ARTLiteral){
+							value = "\""+rdfResource.getLabel()+"\"";
+							if(rdfResource.isTypedLiteral())
+								value += "^^<"+rdfResource.getDatatype()+">";
+							else
+								value += "@"+rdfResource.getLang();
+						} else if(rdfResource instanceof art_semanticturkey.ARTBNode){
+							value = rdfResource.getId();
+						}
+						
+						textbox.setAttribute("value", value);
+						textbox.setAttribute("readonly", true);
+						
+						//now get the url of the image to use
+						var imageSrc = art_semanticturkey.STResUtils.getImageSrc(this.rdfResource);
+						var image = document.getAnonymousElementByAttribute(this, "anonid", "imageId");
+						image.setAttribute("src", imageSrc);
+						image.setAttribute("maxwidth", "20");
+						image.setAttribute("maxheight", "20");
+					}
+				]]>
+			</constructor>
+			<method name="getRdfRes">
+				<body>
+				<![CDATA[
+					return this.rdfResource;
+				]]>
+				</body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="dblclick">
+				<![CDATA[
+					
+					//stop the event propagation to not generate confusion
+					event.stopPropagation();
+					
+					var event = new CustomEvent("rdfnodeBaseEvent", {
+						detail: {
+							rdfResource: this.rdfResource
+						},
+						bubble: true,
+						cancellable: true
+					})
+					var textbox = document.getAnonymousElementByAttribute(this, "anonid", "textboxId");
+					textbox.dispatchEvent(event);
+	     		]]>
+			</handler>
+		</handlers>
+	</binding>
+</bindings>
