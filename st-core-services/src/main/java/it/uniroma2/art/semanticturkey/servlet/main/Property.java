@@ -123,6 +123,10 @@ public class Property extends Resource {
 		final static public String removePropValueRequest = "removePropValue";
 		final static public String removeValueFromDatarangeRequest = "removeValueFromDatarange";
 		final static public String removeValuesFromDatarangeRequest = "removeValuesFromDatarange";
+		
+		// UPDATE REQUESTS
+		final static public String updatePropValueRequest = "updatePropValue";
+		
 	}
 
 	public static class Par {
@@ -133,11 +137,15 @@ public class Property extends Resource {
 		final static public String propertyQNamePar = "propertyQName";
 		final static public String datarangeURIPar = "datarangeURI";
 		final static public String rangeQNamePar = "rangeQName";
+		final public static String oldRangeQNamePar = "oldRangeQName";
 		final static public String domainPropertyQNamePar = "domainPropertyQName";
 		final static public String valueField = "value";
+		final static public String oldValueField = "oldValue";
 		final static public String valuesField = "values";
 		final static public String langField = "lang";
+		final public static String oldLangField = "oldLang";
 		final public static String type = "type";
+		final public static String oldType = "oldType";
 		final public static String visualize = "visualize";
 	}
 
@@ -246,7 +254,8 @@ public class Property extends Resource {
 				return editProperty(propertyQName, request, removeSuperProperty, superPropertyQName);
 			} else if (request.equals(Req.createAndAddPropValueRequest)
 					|| request.equals(Req.addExistingPropValueRequest)
-					|| request.equals(Req.removePropValueRequest)) {
+					|| request.equals(Req.removePropValueRequest)
+					|| request.equals(Req.updatePropValueRequest)) {
 				// the parameter rangeClsQName is only passed in the createAndAddPropValue request, the
 				// editPropertyValue method accepts the null (i.e. no parameter passed via http) in the
 				// two
@@ -254,17 +263,24 @@ public class Property extends Resource {
 				String instanceQName = setHttpPar(Par.instanceQNamePar);
 				String propertyQName = setHttpPar(Par.propertyQNamePar);
 				String value = setHttpPar(Par.valueField);
+				String oldValue = setHttpPar(Par.oldValueField);
 				String rangeQName = setHttpPar(Par.rangeQNamePar);
+				String oldRangeQName = setHttpPar(Par.oldRangeQNamePar);
 				String lang = setHttpPar(Par.langField);
+				String oldLang = setHttpPar(Par.oldLangField);
 				String typeArg = setHttpPar(Par.type);
+				String oldTypeArg = setHttpPar(Par.oldType);
 				checkRequestParametersAllNotNull(Par.instanceQNamePar, Par.propertyQNamePar, Par.valueField,
 						Par.type);
 				RDFTypesEnum valueType = null;
+				RDFTypesEnum oldValueType = null;
 				if (typeArg != null)
 					valueType = RDFTypesEnum.valueOf(typeArg);
+				if (oldTypeArg != null)
+					oldValueType = RDFTypesEnum.valueOf(typeArg);
 
 				return editPropertyValue(request, instanceQName, propertyQName, value, valueType, rangeQName,
-						lang);
+						lang, oldValue, oldValueType, oldRangeQName, oldLang);
 			} else if (request.equals(Req.getRangeClassesTreeRequest)) {
 				String propertyQName = setHttpPar(Par.propertyQNamePar);
 				return getRangeClassesTreeXML(propertyQName);
@@ -720,7 +736,8 @@ public class Property extends Resource {
 	 * @return
 	 */
 	public Response editPropertyValue(String request, String individualQName, String propertyQName,
-			String valueString, RDFTypesEnum valueType, String rangeQName, String lang) {
+			String valueString, RDFTypesEnum valueType, String rangeQName, String lang,
+			String oldValueString, RDFTypesEnum oldValueType, String oldRangeQName, String oldLang) {
 		OWLModel model = ProjectManager.getCurrentProject().getOWLModel();
 		ServletUtilities servletUtilities = new ServletUtilities();
 
@@ -758,7 +775,7 @@ public class Property extends Resource {
 			return ServletUtilities.getService().createExceptionResponse(request, e);
 		}
 
-		if (request.equals("createAndAddPropValue")) {
+		if (request.equals(Req.createAndAddPropValueRequest)) {
 			try {
 				if (valueType == RDFTypesEnum.plainLiteral) {
 					logger.debug("instantiating property: " + property + " with value: " + valueString
@@ -787,7 +804,7 @@ public class Property extends Resource {
 			}
 		}
 		// this one is only valid for ObjectProperties (and Normal Properties?)
-		else if (request.equals("addExistingPropValue")) {
+		else if (request.equals(Req.addExistingPropValueRequest)) {
 			String valueURI;
 			try {
 				valueURI = model.expandQName(valueString);
@@ -804,7 +821,7 @@ public class Property extends Resource {
 				return servletUtilities.createExceptionResponse(request,
 						"error in adding a newly generated property value: " + e.getMessage());
 			}
-		} else if (request.equals("removePropValue")) {
+		} else if (request.equals(Req.removePropValueRequest)) {
 			try {
 				if (valueType == RDFTypesEnum.plainLiteral)
 					model.deleteTriple(individual, property, model.createLiteral(valueString, lang));
@@ -837,6 +854,79 @@ public class Property extends Resource {
 				return servletUtilities.createExceptionResponse(request, e);
 			}
 
+		} else if(request.equals(Req.updatePropValueRequest)){
+			//first remove the value and then add the new value
+			
+			//remove the property value
+			try {
+				if (oldValueType == RDFTypesEnum.plainLiteral)
+					model.deleteTriple(individual, property, model.createLiteral(oldValueString, oldLang));
+				else if (oldValueType == RDFTypesEnum.typedLiteral) {
+					ARTURIResource oldRange = null;
+					if (oldRangeQName != null) {
+						String oldRangeURI = model.expandQName(rangeQName);
+						oldRange = model.createURIResource(oldRangeURI);
+						if (oldRange == null) {
+							logger.debug("there is no class named: " + oldRangeURI + " !");
+							return servletUtilities.createExceptionResponse(request, 
+									"there is no class named: " + oldRangeURI + " !");
+						}
+					}
+					model.deleteTriple(individual, property, model.createLiteral(oldValueString, oldRange
+							.asURIResource()));
+				} else if (RDFTypesEnum.isResource(oldValueType)) {
+					ARTResource valueResourceObject;
+					if (valueType == RDFTypesEnum.uri) {
+						String valueURI = model.expandQName(oldValueString);
+						valueResourceObject = model.createURIResource(valueURI);
+					} else { // bnode
+						valueResourceObject = model.createBNode(oldValueString);
+					}
+					if (!model.existsResource(valueResourceObject)) {
+						logger.debug("there is no object: " + valueResourceObject + " !");
+						return servletUtilities.createExceptionResponse(request, "there is no object: "
+								+ valueResourceObject + " !");
+					}
+					model.deleteTriple(individual, property, valueResourceObject);
+				} else {
+					return servletUtilities.createErrorResponse(request, "unable to delete value; type: "
+							+ valueType + " is not recognized");
+				}
+			} catch (ModelUpdateException e) {
+				logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
+				return servletUtilities.createExceptionResponse(request,
+						"error in removing a property value: " + e.getMessage());
+			} catch (ModelAccessException e) {
+				return servletUtilities.createExceptionResponse(request, e);
+			}
+			
+			// add the property value
+			try {
+				if (valueType == RDFTypesEnum.plainLiteral) {
+					logger.debug("instantiating property: " + property + " with value: " + valueString
+							+ " and lang: " + lang);
+					model.instantiatePropertyWithPlainLiteral(individual, property, valueString, lang);
+				} else if (valueType == RDFTypesEnum.typedLiteral) {
+					logger.debug("instantiating property: " + property + " with value: " + valueString
+							+ "typed after: " + rangeQName);
+					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range
+							.asURIResource());
+				} else if (valueType == RDFTypesEnum.resource) {
+					model.addInstance(model.expandQName(valueString), range);
+					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
+					model.instantiatePropertyWithResource(individual, property, objIndividual);
+				} else
+					return servletUtilities.createExceptionResponse(request, valueType
+							+ " is not an admitted type for this value; only " + RDFTypesEnum.plainLiteral
+							+ ", " + RDFTypesEnum.typedLiteral + ", and " + RDFTypesEnum.resource
+							+ " are admitted ");
+			} catch (ModelUpdateException e) {
+				// logger.debug(it.uniroma2.art.semanticturkey.utilities.Utilities.printStackTrace(e));
+				return servletUtilities.createExceptionResponse(request,
+						"error in adding a newly generated property value: " + e.getMessage());
+			} catch (ModelAccessException e) {
+				return servletUtilities.createExceptionResponse(request, e);
+			}
 		} else {
 			logger.debug("there is no handler for such request: " + request + " !");
 			return servletUtilities.createExceptionResponse(request, "there is no handler for such request: "
