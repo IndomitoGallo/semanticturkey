@@ -36,7 +36,6 @@ import it.uniroma2.art.owlart.model.ARTURIResource;
 import it.uniroma2.art.owlart.model.NodeFilters;
 import it.uniroma2.art.owlart.models.DirectReasoning;
 import it.uniroma2.art.owlart.models.OWLModel;
-import it.uniroma2.art.owlart.models.RDFSModel;
 import it.uniroma2.art.owlart.navigation.ARTLiteralIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
@@ -48,7 +47,6 @@ import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
 import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
@@ -97,13 +95,13 @@ public class Property extends Resource {
 		final static public String getAnnotationPropertiesTreeRequest = "getAnnotationPropertiesTree";
 		final static public String getOntologyPropertiesTreeRequest = "getOntologyPropertiesTree";
 		final static public String getDomainClassesTreeRequest = "getDomainClassesTree";
+		final static public String getPropertiesForDomainsRequest = "getPropertiesForDomains";
 		final static public String getRangeClassesTreeRequest = "getRangeClassesTree";
 		final static public String getSuperPropertiesRequest = "getSuperProperties";
 		final static public String parseDataRangeRequest = "parseDataRange";
 		final static public String getDomainRequest = "getDomain";
 		final static public String getRangeRequest = "getRange";
 		final static public String hasValueInDatarangeRequest = "hasValueInDatarange";
-		
 
 		// ADD REQUESTS
 		final static public String addPropertyRequest = "addProperty";
@@ -123,13 +121,14 @@ public class Property extends Resource {
 		final static public String removePropValueRequest = "removePropValue";
 		final static public String removeValueFromDatarangeRequest = "removeValueFromDatarange";
 		final static public String removeValuesFromDatarangeRequest = "removeValuesFromDatarange";
-		
+
 		// UPDATE REQUESTS
 		final static public String updatePropValueRequest = "updatePropValue";
-		
+
 	}
 
 	public static class Par {
+		public static final String role = "role";
 		final static public String inferencePar = "inference";
 		final static public String nodeTypePar = "nodeType";
 		final static public String dataRangePar = "dataRange";
@@ -147,6 +146,7 @@ public class Property extends Resource {
 		final public static String type = "type";
 		final public static String oldType = "oldType";
 		final public static String visualize = "visualize";
+		final public static String classes = "classes";
 	}
 
 	final public static String template = "template";
@@ -209,6 +209,16 @@ public class Property extends Resource {
 				String visualize = setHttpPar(Par.visualize);
 				checkRequestParametersAllNotNull(Par.propertyQNamePar);
 				return getRange(propQName, visualize);
+
+			} else if (request.equals(Req.getPropertiesForDomainsRequest)) {
+				String classNames = setHttpPar(Par.classes);
+				String roleString = setHttpPar(Par.role);
+				RDFResourceRolesEnum role = (roleString != null) ? RDFResourceRolesEnum.valueOf(roleString)
+						: null;
+				String rootProps = setHttpPar(Resource.Par.subPropOf);
+				String excludedRootProps = setHttpPar(Resource.Par.notSubPropOf);
+				checkRequestParametersAllNotNull(Par.classes);
+				return getPropertiesForDomains(classNames, role, rootProps, excludedRootProps);
 			}
 
 			else if (request.equals(Req.parseDataRangeRequest)) {
@@ -287,41 +297,41 @@ public class Property extends Resource {
 			} else if (request.equals(Req.getDomainClassesTreeRequest)) {
 				String propertyQName = setHttpPar(Par.propertyQNamePar);
 				return getDomainClassesTreeXML(propertyQName);
-			} 
-			
-			//DATARANGE METHODS
-			else if(request.equals(Req.setDataRangeRequest)){
+			}
+
+			// DATARANGE METHODS
+			else if (request.equals(Req.setDataRangeRequest)) {
 				String property = setHttpPar(Par.propertyQNamePar);
 				String values = setHttpPar(Par.valuesField);
 				checkRequestParametersAllNotNull(Par.propertyQNamePar);
 				return setDataRange(property, values);
-			} else if(request.equals(Req.addValueToDatarangeRequest)){
+			} else if (request.equals(Req.addValueToDatarangeRequest)) {
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
 				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return addValueToDatarange(datarange, value);
-			} else if(request.equals(Req.addValuesToDatarangeRequest)){
+			} else if (request.equals(Req.addValuesToDatarangeRequest)) {
 				String datarange = setHttpPar(Par.dataRangePar);
 				String values = setHttpPar(Par.valueField);
 				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return addValuesToDatarange(datarange, values);
-			} else if(request.equals(Req.hasValueInDatarangeRequest)){
+			} else if (request.equals(Req.hasValueInDatarangeRequest)) {
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
 				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return hasValueInDatarange(datarange, value);
-			} else if(request.equals(Req.removeValueFromDatarangeRequest)){
+			} else if (request.equals(Req.removeValueFromDatarangeRequest)) {
 				String datarange = setHttpPar(Par.dataRangePar);
 				String value = setHttpPar(Par.valueField);
 				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valueField);
 				return removeValueFromDatarange(datarange, value);
-			} else if(request.equals(Req.removeValuesFromDatarangeRequest)){
+			} else if (request.equals(Req.removeValuesFromDatarangeRequest)) {
 				String datarange = setHttpPar(Par.dataRangePar);
 				String values = setHttpPar(Par.valuesField);
 				checkRequestParametersAllNotNull(Par.dataRangePar, Par.valuesField);
 				return removeValuesFromDatarange(datarange, values);
 			}
-			
+
 			else
 				return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
@@ -332,9 +342,6 @@ public class Property extends Resource {
 
 	}
 
-	
-
-
 	public Response getSuperProperties(String propQName) {
 		return getSuperTypes(propQName, RDFResourceRolesEnum.property);
 	}
@@ -344,7 +351,7 @@ public class Property extends Resource {
 		if (visualize == null)
 			boolVis = false;
 		else
-			boolVis = Boolean.valueOf(visualize);		
+			boolVis = Boolean.valueOf(visualize);
 		String request = Req.getDomainRequest;
 		XMLResponseREPLY response = ServletUtilities.getService().createReplyResponse(request,
 				RepliesStatus.ok);
@@ -430,8 +437,8 @@ public class Property extends Resource {
 			// OBJECT PROPERTIES
 			if (objprops == true) {
 
-				filteredPropsIterator = Iterators.filter(ontModel.listObjectProperties(inference,
-						NodeFilters.ANY), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(
+						ontModel.listObjectProperties(inference, NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root object properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -440,8 +447,8 @@ public class Property extends Resource {
 
 			// DATATYPE PROPERTIES
 			if (datatypeprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listDatatypeProperties(inference,
-						NodeFilters.ANY), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(
+						ontModel.listDatatypeProperties(inference, NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root datatype properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -450,8 +457,8 @@ public class Property extends Resource {
 
 			// ANNOTATION PROPERTIES
 			if (annotationprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listAnnotationProperties(inference,
-						NodeFilters.ANY), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(
+						ontModel.listAnnotationProperties(inference, NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root annotation properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -460,8 +467,8 @@ public class Property extends Resource {
 
 			// ONTOLOGY PROPERTIES
 			if (ontologyprops == true) {
-				filteredPropsIterator = Iterators.filter(ontModel.listOntologyProperties(inference,
-						NodeFilters.ANY), rootUserPropsPred);
+				filteredPropsIterator = Iterators.filter(
+						ontModel.listOntologyProperties(inference, NodeFilters.ANY), rootUserPropsPred);
 				logger.debug("\n\nontology root annotation properties: \n");
 				while (filteredPropsIterator.hasNext())
 					recursiveCreatePropertiesXMLTree(ontModel, filteredPropsIterator.next(), dataElement,
@@ -469,8 +476,8 @@ public class Property extends Resource {
 			}
 
 			// BASE PROPERTIES
-			Predicate<ARTURIResource> rdfPropsPredicate = Predicates.and(BaseRDFPropertyPredicate
-					.getPredicate(ontModel), rootUserPropsPred);
+			Predicate<ARTURIResource> rdfPropsPredicate = Predicates.and(
+					BaseRDFPropertyPredicate.getPredicate(ontModel), rootUserPropsPred);
 			if (props == true) {
 				filteredPropsIterator = Iterators.filter(ontModel.listProperties(NodeFilters.ANY),
 						rdfPropsPredicate);
@@ -491,9 +498,9 @@ public class Property extends Resource {
 	 * 
 	 * @param SesameOWLModelImpl
 	 *            ontModel
-	 *@param Resource
+	 * @param Resource
 	 *            resource
-	 *@param Element
+	 * @param Element
 	 *            element :elemento xml padre delle classi (le sottoclassi e le istanze vengono aggiunte
 	 *            ricorsivamente)
 	 * @throws ModelAccessException
@@ -617,50 +624,44 @@ public class Property extends Resource {
 					superProperty = ontModel.createURIResource(ontModel.expandQName(superPropertyQName));
 
 				// RDFResourceRolesEnum role;
-				if (propertyType.equals("rdf:Property")){
+				if (propertyType.equals("rdf:Property")) {
 					ontModel.addProperty(propertyURI, superProperty);
 					// role = RDFResourceRolesEnum.property;
-				}
-				else if (propertyType.equals("owl:ObjectProperty")){
+				} else if (propertyType.equals("owl:ObjectProperty")) {
 					ontModel.addObjectProperty(propertyURI, superProperty);
 					// role = RDFResourceRolesEnum.objectProperty;
-				}
-				else if (propertyType.equals("owl:DatatypeProperty")){
+				} else if (propertyType.equals("owl:DatatypeProperty")) {
 					ontModel.addDatatypeProperty(propertyURI, superProperty);
 					// role = RDFResourceRolesEnum.datatypeProperty;
-				}
-				else if (propertyType.equals("owl:AnnotationProperty")){
+				} else if (propertyType.equals("owl:AnnotationProperty")) {
 					ontModel.addAnnotationProperty(propertyURI, superProperty);
 					// role = RDFResourceRolesEnum.annotationProperty;
-				}
-				else if (propertyType.equals("owl:OntologyProperty")){
+				} else if (propertyType.equals("owl:OntologyProperty")) {
 					ontModel.addOntologyProperty(propertyURI, superProperty);
 					// role = RDFResourceRolesEnum.ontologyProperty;
-				}
-				else
+				} else
 					return servletUtilities.createExceptionResponse(request, propertyType
 							+ " is not a recognized property type!");
-				
+
 				Element dataElement = response.getDataElement();
 				Element propertyElement = XMLHelp.newElement(dataElement, "Property");
 				STRDFResource stProperty = STRDFNodeFactory.createSTRDFResource(ontModel, property,
-						ModelUtilities.getResourceRole(property, ontModel), 
+						ModelUtilities.getResourceRole(property, ontModel),
 						servletUtilities.checkWritable(ontModel, property, wgraph), false);
 				Cls.setRendering(ontModel, stProperty, null, null, graphs);
 				RDFXMLHelp.addRDFNode(propertyElement, stProperty);
-				
-				if (superPropertyQName != null){
+
+				if (superPropertyQName != null) {
 					Element superPropertyElement = XMLHelp.newElement(dataElement, "SuperProperty");
-					STRDFResource stSuperProperty = STRDFNodeFactory.createSTRDFResource(ontModel, 
-							superProperty, ModelUtilities.getResourceRole(superProperty, ontModel), 
+					STRDFResource stSuperProperty = STRDFNodeFactory.createSTRDFResource(ontModel,
+							superProperty, ModelUtilities.getResourceRole(superProperty, ontModel),
 							servletUtilities.checkWritable(ontModel, property, wgraph), false);
 					Cls.setRendering(ontModel, stSuperProperty, null, null, graphs);
 					RDFXMLHelp.addRDFNode(superPropertyElement, stSuperProperty);
 				}
-				
+
 				break;
 			}
-				
 
 			// editProperty(propertyQName, request, addSuperProperty, superPropertyQName);
 			case addSuperProperty: {
@@ -784,8 +785,8 @@ public class Property extends Resource {
 				} else if (valueType == RDFTypesEnum.typedLiteral) {
 					logger.debug("instantiating property: " + property + " with value: " + valueString
 							+ "typed after: " + rangeQName);
-					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range
-							.asURIResource());
+					model.instantiatePropertyWithTypedLiteral(individual, property, valueString,
+							range.asURIResource());
 				} else if (valueType == RDFTypesEnum.resource) {
 					model.addInstance(model.expandQName(valueString), range);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
@@ -826,8 +827,8 @@ public class Property extends Resource {
 				if (valueType == RDFTypesEnum.plainLiteral)
 					model.deleteTriple(individual, property, model.createLiteral(valueString, lang));
 				else if (valueType == RDFTypesEnum.typedLiteral) {
-					model.deleteTriple(individual, property, model.createLiteral(valueString, range
-							.asURIResource()));
+					model.deleteTriple(individual, property,
+							model.createLiteral(valueString, range.asURIResource()));
 				} else if (RDFTypesEnum.isResource(valueType)) {
 					ARTResource valueResourceObject;
 					if (valueType == RDFTypesEnum.uri) {
@@ -854,10 +855,10 @@ public class Property extends Resource {
 				return servletUtilities.createExceptionResponse(request, e);
 			}
 
-		} else if(request.equals(Req.updatePropValueRequest)){
-			//first remove the value and then add the new value
-			
-			//remove the property value
+		} else if (request.equals(Req.updatePropValueRequest)) {
+			// first remove the value and then add the new value
+
+			// remove the property value
 			try {
 				if (oldValueType == RDFTypesEnum.plainLiteral)
 					model.deleteTriple(individual, property, model.createLiteral(oldValueString, oldLang));
@@ -868,12 +869,12 @@ public class Property extends Resource {
 						oldRange = model.createURIResource(oldRangeURI);
 						if (oldRange == null) {
 							logger.debug("there is no class named: " + oldRangeURI + " !");
-							return servletUtilities.createExceptionResponse(request, 
+							return servletUtilities.createExceptionResponse(request,
 									"there is no class named: " + oldRangeURI + " !");
 						}
 					}
-					model.deleteTriple(individual, property, model.createLiteral(oldValueString, oldRange
-							.asURIResource()));
+					model.deleteTriple(individual, property,
+							model.createLiteral(oldValueString, oldRange.asURIResource()));
 				} else if (RDFTypesEnum.isResource(oldValueType)) {
 					ARTResource valueResourceObject;
 					if (valueType == RDFTypesEnum.uri) {
@@ -899,7 +900,7 @@ public class Property extends Resource {
 			} catch (ModelAccessException e) {
 				return servletUtilities.createExceptionResponse(request, e);
 			}
-			
+
 			// add the property value
 			try {
 				if (valueType == RDFTypesEnum.plainLiteral) {
@@ -909,8 +910,8 @@ public class Property extends Resource {
 				} else if (valueType == RDFTypesEnum.typedLiteral) {
 					logger.debug("instantiating property: " + property + " with value: " + valueString
 							+ "typed after: " + rangeQName);
-					model.instantiatePropertyWithTypedLiteral(individual, property, valueString, range
-							.asURIResource());
+					model.instantiatePropertyWithTypedLiteral(individual, property, valueString,
+							range.asURIResource());
 				} else if (valueType == RDFTypesEnum.resource) {
 					model.addInstance(model.expandQName(valueString), range);
 					ARTURIResource objIndividual = model.createURIResource(model.expandQName(valueString));
@@ -943,10 +944,9 @@ public class Property extends Resource {
 		String request = Req.parseDataRangeRequest;
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		try {
-			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID, RDFTypesEnum
-					.valueOf(nodeType));
-			XMLResponseREPLY response = servletUtilities.createReplyResponse(request,
-					RepliesStatus.ok);
+			ARTResource dataRange = RDFUtilities.retrieveResource(ontModel, dataRangeID,
+					RDFTypesEnum.valueOf(nodeType));
+			XMLResponseREPLY response = servletUtilities.createReplyResponse(request, RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			ARTLiteralIterator it = ontModel.parseDataRange(dataRange, NodeFilters.MAINGRAPH);
 			while (it.streamOpen()) {
@@ -1017,30 +1017,30 @@ public class Property extends Resource {
 
 		return response;
 	}
-	
+
 	public Response setDataRange(String propertyQName, String values) {
-		
+
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		XMLResponseREPLY response;
 		try {
 			ARTURIResource property = ontModel.createURIResource(ontModel.expandQName(propertyQName));
 			List<ARTLiteral> artLiteralList = new ArrayList<ARTLiteral>();
-			if(values!=null){
+			if (values != null) {
 				String[] valuesArray = values.split("\\|_\\|");
-				for(int i=0; i< valuesArray.length; ++i){
+				for (int i = 0; i < valuesArray.length; ++i) {
 					artLiteralList.add(RDFNodeSerializer.createLiteral(valuesArray[i], ontModel));
 				}
 			}
 			RDFIterator<ARTLiteral> dataRangeIterator = new MyRDFIterator(artLiteralList.iterator());
-			
+
 			String datarange = ontModel.setDataRange(property, dataRangeIterator, getWorkingGraph());
-			
+
 			response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("name", propertyQName);
 			superClsElement.setAttribute("datarange", datarange);
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.setDataRangeRequest, e);
 		} catch (ModelUpdateException e) {
@@ -1058,13 +1058,13 @@ public class Property extends Resource {
 			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
 			ARTLiteral literal = RDFNodeSerializer.createLiteral(value, ontModel);
 			ontModel.addValueToDatarange(datarange, literal, getWorkingGraph());
-			
+
 			response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("datarange", datarangeId);
 			superClsElement.setAttribute("value", value);
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.addValueToDatarangeRequest, e);
 		} catch (ModelUpdateException e) {
@@ -1072,7 +1072,7 @@ public class Property extends Resource {
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(Req.addValueToDatarangeRequest, e);
 		}
-		
+
 		return response;
 	}
 
@@ -1083,19 +1083,19 @@ public class Property extends Resource {
 			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
 			List<ARTLiteral> artLiteralList = new ArrayList<ARTLiteral>();
 			String[] valuesArray = values.split("\\|_\\|");
-			for(int i=0; i< valuesArray.length; ++i){
+			for (int i = 0; i < valuesArray.length; ++i) {
 				artLiteralList.add(RDFNodeSerializer.createLiteral(valuesArray[i], ontModel));
 			}
 			RDFIterator<ARTLiteral> dataRangeIterator = new MyRDFIterator(artLiteralList.iterator());
-			
+
 			ontModel.addValuesToDatarange(datarange, dataRangeIterator, getWorkingGraph());
-			
+
 			response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("datarange", datarangeId);
 			superClsElement.setAttribute("values", values);
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.addValuesToDatarangeRequest, e);
 		} catch (ModelUpdateException e) {
@@ -1103,7 +1103,7 @@ public class Property extends Resource {
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(Req.addValuesToDatarangeRequest, e);
 		}
-		
+
 		return response;
 	}
 
@@ -1114,19 +1114,19 @@ public class Property extends Resource {
 			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
 			ARTLiteral literal = RDFNodeSerializer.createLiteral(value, ontModel);
 			boolean hasValue = ontModel.hasValueInDatarange(datarange, literal, getWorkingGraph());
-			
+
 			response = createBooleanResponse(hasValue);
 			Element dataElement = response.getDataElement();
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("datarange", datarangeId);
 			superClsElement.setAttribute("value", value);
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.hasValueInDatarangeRequest, e);
 		} catch (NonExistingRDFResourceException e) {
 			return logAndSendException(Req.hasValueInDatarangeRequest, e);
 		}
-		
+
 		return response;
 	}
 
@@ -1137,13 +1137,13 @@ public class Property extends Resource {
 			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
 			ARTLiteral literal = RDFNodeSerializer.createLiteral(value, ontModel);
 			ontModel.removeValueFromDatarange(datarange, literal, getWorkingGraph());
-			
+
 			response = createReplyResponse(RepliesStatus.ok);
 			Element dataElement = response.getDataElement();
 			Element superClsElement = XMLHelp.newElement(dataElement, "property");
 			superClsElement.setAttribute("datarange", datarangeId);
 			superClsElement.setAttribute("value", value);
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
 		} catch (NonExistingRDFResourceException e) {
@@ -1151,23 +1151,23 @@ public class Property extends Resource {
 		} catch (ModelUpdateException e) {
 			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
 		}
-		
+
 		return response;
 	}
-	
+
 	public Response removeValuesFromDatarange(String datarangeId, String values) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		XMLResponseREPLY response;
 		try {
 			String[] valuesArray = values.split("\\|_\\|");
 			List<ARTLiteral> artLiteralList = new ArrayList<ARTLiteral>();
-			for(int i=0; i< valuesArray.length; ++i){
+			for (int i = 0; i < valuesArray.length; ++i) {
 				artLiteralList.add(RDFNodeSerializer.createLiteral(valuesArray[i], ontModel));
 			}
-			
+
 			ARTBNode datarange = RDFNodeSerializer.createBNode(datarangeId);
 			Iterator<ARTLiteral> iter = artLiteralList.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				ARTLiteral literal = iter.next();
 				ontModel.removeValueFromDatarange(datarange, literal, getWorkingGraph());
 			}
@@ -1177,11 +1177,11 @@ public class Property extends Resource {
 			superClsElement.setAttribute("datarange", datarangeId);
 			iter = artLiteralList.iterator();
 			int cont = 0;
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 				ARTLiteral literal = iter.next();
-				superClsElement.setAttribute("value"+(++cont), literal.getNominalValue());
+				superClsElement.setAttribute("value" + (++cont), literal.getNominalValue());
 			}
-			
+
 		} catch (ModelAccessException e) {
 			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
 		} catch (NonExistingRDFResourceException e) {
@@ -1189,18 +1189,18 @@ public class Property extends Resource {
 		} catch (ModelUpdateException e) {
 			return logAndSendException(Req.removeValueFromDatarangeRequest, e);
 		}
-		
+
 		return response;
 	}
-	
-	private class MyRDFIterator extends  RDFIteratorImpl<ARTLiteral>{
+
+	private class MyRDFIterator extends RDFIteratorImpl<ARTLiteral> {
 
 		private Iterator<ARTLiteral> resIt;
-		
-		public MyRDFIterator(Iterator<ARTLiteral> resIt){
+
+		public MyRDFIterator(Iterator<ARTLiteral> resIt) {
 			this.resIt = resIt;
 		}
-		
+
 		public boolean streamOpen() throws ModelAccessException {
 			return resIt.hasNext();
 		}
