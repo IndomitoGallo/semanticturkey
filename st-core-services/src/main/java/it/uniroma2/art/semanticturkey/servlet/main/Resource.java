@@ -55,6 +55,7 @@ import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
 import it.uniroma2.art.owlart.query.GraphQuery;
 import it.uniroma2.art.owlart.query.MalformedQueryException;
+import it.uniroma2.art.owlart.navigation.RDFIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
@@ -110,9 +111,9 @@ public class Resource extends ServiceAdapter {
 	 * a property filter which removes base language properties such as rdf:type, rdfs:subClassOf and
 	 * rdfs:subClassOf
 	 */
-	private ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
+	protected ArrayList<Predicate<ARTResource>> basePropertyPruningPredicates;
 
-	private ArrayList<ARTURIResource> bannedPredicatesForResourceDescription;
+	protected ArrayList<ARTURIResource> bannedPredicatesForResourceDescription;
 
 	@Autowired
 	public Resource(@Value("Resource") String id) {
@@ -157,7 +158,7 @@ public class Resource extends ServiceAdapter {
 		public static final String excludedProps = "excludedProps";
 		public static final String notSubPropOf = "notSubPropOf";
 	}
-	
+
 	protected Logger getLogger() {
 		return logger;
 	}
@@ -733,6 +734,18 @@ public class Resource extends ServiceAdapter {
 
 	}
 
+	protected HashSet<ARTURIResource> parseURIResourceSet(RDFModel model, String uris)
+			throws ModelAccessException {
+		if (uris == null)
+			return null;
+		HashSet<ARTURIResource> uriSet = new HashSet<ARTURIResource>();
+		for (String rootPropName : uris.split("\\|_\\|"))
+			uriSet.add(model.createURIResource(model.expandQName(rootPropName)));
+		return uriSet;
+	}
+	
+	
+
 	public Response getTemplateProperties(String resourceQName, RDFResourceRolesEnum role,
 			String rootPropsString, String excludedRootPropsString) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
@@ -774,16 +787,20 @@ public class Resource extends ServiceAdapter {
 		}
 	}
 
-	protected HashSet<ARTURIResource> parseURIResourceSet(RDFModel model, String uris)
-			throws ModelAccessException {
-		if (uris == null)
-			return null;
-		HashSet<ARTURIResource> uriSet = new HashSet<ARTURIResource>();
-		for (String rootPropName : uris.split("\\|_\\|"))
-			uriSet.add(model.createURIResource(model.expandQName(rootPropName)));
-		return uriSet;
-	}
-
+	/**
+	 * same as
+	 * {@link #extractTemplateProperties(OWLModel, ARTResource, RDFResourceRolesEnum, HashSet, HashSet, HashSet, ARTResource...)}
+	 * but it builds internally the HashSet where to store the properties, and returns it.
+	 * 
+	 * @param ontModel
+	 * @param resource
+	 * @param role
+	 * @param rootProps
+	 * @param excludedRootProps
+	 * @param graphs
+	 * @return
+	 * @throws ModelAccessException
+	 */
 	protected HashSet<ARTURIResource> extractTemplateProperties(OWLModel ontModel, ARTResource resource,
 			RDFResourceRolesEnum role, HashSet<ARTURIResource> rootProps,
 			HashSet<ARTURIResource> excludedRootProps, ARTResource... graphs) throws ModelAccessException {
@@ -795,12 +812,13 @@ public class Resource extends ServiceAdapter {
 	// TODO generate specific filters for classes, properties and individuals
 	/**
 	 * this part runs across all the types of the explored resource, reporting all the properties
-	 * comprehending one of these types in their domain
+	 * comprehending one of these types in their domain and storing them into <code>targetProperties</code>
 	 * 
 	 * @param ontModel
 	 * @param resource
+	 * @param role
 	 * @param targetProperties
-	 * @param rootProperties
+	 * @param rootProps
 	 * @param excludedRootProps
 	 * @param graphs
 	 * @throws ModelAccessException
@@ -816,15 +834,96 @@ public class Resource extends ServiceAdapter {
 			throw new IllegalArgumentException("role: " + role + " is not a property role");
 
 		ARTResourceIterator types = ontModel.listTypes(resource, true, graphs);
+		extractPropertiesForDomains(ontModel, types, role, targetProperties, rootProps, excludedRootProps,
+				graphs);
+		types.close();
+	}
 
-		// TYPES FILTER preparation
+	
+	public Response getPropertiesForDomains(String classNames, RDFResourceRolesEnum role,
+			String rootPropsString, String excludedRootPropsString) {
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			
+			HashSet<ARTURIResource> domains = parseURIResourceSet(ontModel, classNames);			
+			ARTURIResourceIterator domainsIterator = RDFIterators.createARTURIResourceIterator(domains.iterator());
+			
+			HashSet<ARTURIResource> rootProps = parseURIResourceSet(ontModel, rootPropsString);
+			HashSet<ARTURIResource> excludedRootProps = parseURIResourceSet(ontModel, excludedRootPropsString);
+
+			HashSet<ARTURIResource> props = extractPropertiesForDomains(ontModel, domainsIterator, role, rootProps,
+					excludedRootProps, graphs);
+			Collection<STRDFResource> result = STRDFNodeFactory.createEmptyResourceCollection();
+
+			if (role == null) {
+				// if all properties, then compute the role
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop,
+							ModelUtilities.getPropertyRole(prop, ontModel), true,
+							ontModel.getQName(prop.getURI())));
+				}
+			} else {
+				// if filtered from a specific type, then forward the role to the ST RDF URI
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop, role, true,
+							ontModel.getQName(prop.getURI())));
+				}
+			}
+
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			RDFXMLHelp.addRDFNodes(response, result);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+	
+	
+	/**
+	 * same as
+	 * {@link #extractPropertiesForDomains(OWLModel, ARTResourceIterator, RDFResourceRolesEnum, HashSet, HashSet, HashSet, ARTResource...)}
+	 * but it builds internally the HashSet where to store the properties, and returns it.
+	 * 
+	 * @param ontModel
+	 * @param domains this iterator is not closed at the end of this method, so remember to close it
+	 * @param role
+	 * @param rootProps
+	 * @param excludedRootProps
+	 * @param graphs
+	 * @return
+	 * @throws ModelAccessException
+	 */
+	protected HashSet<ARTURIResource> extractPropertiesForDomains(OWLModel ontModel,
+			RDFIterator<? extends ARTResource> domains, RDFResourceRolesEnum role, HashSet<ARTURIResource> rootProps,
+			HashSet<ARTURIResource> excludedRootProps, ARTResource... graphs) throws ModelAccessException {
+		HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
+		extractPropertiesForDomains(ontModel, domains, role, properties, rootProps, excludedRootProps, graphs);
+		return properties;
+	}
+
+	public void extractPropertiesForDomains(OWLModel ontModel, RDFIterator<? extends ARTResource> domains,
+			RDFResourceRolesEnum role, HashSet<ARTURIResource> targetProperties,
+			HashSet<ARTURIResource> rootProps, HashSet<ARTURIResource> excludedRootProps,
+			ARTResource... graphs) throws ModelAccessException {
+		// by first, the specified role must be either null (all properties) or any of the property related
+		// roles
+		if (role != null && !role.isProperty())
+			throw new IllegalArgumentException("role: " + role + " is not a property role");
+
+		// **** TYPES FILTER preparation ****
+
 		// gets only domain types, no rdf/rdfs/owl language classes cited in the
 		// types nor, if in userStatus,
 		// any type class from any application ontology
 		Predicate<ARTResource> typesFilter = NoLanguageResourcePredicate.nlrPredicate;
 		typesFilter = Predicates.and(typesFilter, NoSystemResourcePredicate.noSysResPred);
 
-		// PROPERTIES FILTER preparation
+		// **** PROPERTIES FILTER preparation ****
 
 		// I had to made this very strange thing using "super", as I was not able to mix predicates on
 		// ARTResource and ARTURIResource by use of <? extends ARTResource>
@@ -848,8 +947,8 @@ public class Resource extends ServiceAdapter {
 
 		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(pruningPredicates);
 
-		logger.debug("types for " + resource + ": " + types);
-		Iterator<ARTResource> filteredTypesIterator = Iterators.filter(types, typesFilter);
+		logger.debug("getting properties which have domain set on the following types: " + domains);
+		Iterator<? extends ARTResource> filteredTypesIterator = Iterators.filter(domains, typesFilter);
 		while (filteredTypesIterator.hasNext()) {
 			ARTResource typeCls = (ARTResource) filteredTypesIterator.next();
 			if (typeCls.isURIResource()) {
@@ -861,7 +960,6 @@ public class Resource extends ServiceAdapter {
 				}
 			}
 		}
-		types.close();
 	}
 
 	// TODO generate specific filters for classes, properties and individuals
