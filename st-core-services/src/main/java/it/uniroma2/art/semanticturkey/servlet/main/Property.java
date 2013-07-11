@@ -28,6 +28,7 @@ import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
 import it.uniroma2.art.owlart.exceptions.UnavailableResourceException;
 import it.uniroma2.art.owlart.filter.BaseRDFPropertyPredicate;
 import it.uniroma2.art.owlart.filter.RootPropertiesResourcePredicate;
+import it.uniroma2.art.owlart.filter.SubPropertyOf_Predicate;
 import it.uniroma2.art.owlart.io.RDFNodeSerializer;
 import it.uniroma2.art.owlart.model.ARTBNode;
 import it.uniroma2.art.owlart.model.ARTLiteral;
@@ -61,6 +62,8 @@ import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
 import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -98,6 +101,7 @@ public class Property extends Resource {
 		final static public String getPropertiesForDomainsRequest = "getPropertiesForDomains";
 		final static public String getRangeClassesTreeRequest = "getRangeClassesTree";
 		final static public String getSuperPropertiesRequest = "getSuperProperties";
+		final static public String getPropertyListRequest = "getPropertyList";
 		final static public String parseDataRangeRequest = "parseDataRange";
 		final static public String getDomainRequest = "getDomain";
 		final static public String getRangeRequest = "getRange";
@@ -219,6 +223,14 @@ public class Property extends Resource {
 				String excludedRootProps = setHttpPar(Resource.Par.notSubPropOf);
 				checkRequestParametersAllNotNull(Par.classes);
 				return getPropertiesForDomains(classNames, role, rootProps, excludedRootProps);
+
+			} else if (request.equals(Req.getPropertyListRequest)) {
+				String roleString = setHttpPar(Par.role);
+				RDFResourceRolesEnum role = (roleString != null) ? RDFResourceRolesEnum.valueOf(roleString)
+						: null;
+				String rootProps = setHttpPar(Resource.Par.subPropOf);
+				String excludedRootProps = setHttpPar(Resource.Par.notSubPropOf);
+				return getPropertyList(role, rootProps, excludedRootProps);
 			}
 
 			else if (request.equals(Req.parseDataRangeRequest)) {
@@ -560,6 +572,125 @@ public class Property extends Resource {
 	public Response getPropertyInfo(String propertyQName, String method) {
 		logger.debug("getting property description for: " + propertyQName);
 		return getResourceDescription(propertyQName, RDFResourceRolesEnum.property, method);
+	}
+
+	public Response getPropertyList(RDFResourceRolesEnum role, String rootPropsString,
+			String excludedRootPropsString) {
+		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+
+			HashSet<ARTURIResource> rootProps = parseURIResourceSet(ontModel, rootPropsString);
+			HashSet<ARTURIResource> excludedRootProps = parseURIResourceSet(ontModel, excludedRootPropsString);
+
+			HashSet<ARTURIResource> props = extractProperties(ontModel, role, rootProps, excludedRootProps,
+					graphs);
+			Collection<STRDFResource> result = STRDFNodeFactory.createEmptyResourceCollection();
+
+			if (role == null) {
+				// if all properties, then compute the role
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop,
+							ModelUtilities.getPropertyRole(prop, ontModel), true,
+							ontModel.getQName(prop.getURI())));
+				}
+			} else {
+				// if filtered from a specific type, then forward the role to the ST RDF URI
+				for (ARTURIResource prop : props) {
+					result.add(STRDFNodeFactory.createSTRDFURI(prop, role, true,
+							ontModel.getQName(prop.getURI())));
+				}
+			}
+
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			RDFXMLHelp.addRDFNodes(response, result);
+			return response;
+
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+	}
+
+	/**
+	 * same as
+	 * {@link #extractProperties(OWLModel, RDFResourceRolesEnum, HashSet, HashSet, HashSet, ARTResource...)}
+	 * but it builds internally the HashSet where to store the properties, and returns it.
+	 * 
+	 * @param ontModel
+	 * @param role
+	 * @param rootProps
+	 * @param excludedRootProps
+	 * @param graphs
+	 * @return
+	 * @throws ModelAccessException
+	 */
+	protected HashSet<ARTURIResource> extractProperties(OWLModel ontModel, RDFResourceRolesEnum role,
+			HashSet<ARTURIResource> rootProps, HashSet<ARTURIResource> excludedRootProps,
+			ARTResource... graphs) throws ModelAccessException {
+		HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
+		extractProperties(ontModel, role, properties, rootProps, excludedRootProps, graphs);
+		return properties;
+	}
+
+	public void extractProperties(OWLModel ontModel, RDFResourceRolesEnum role,
+			HashSet<ARTURIResource> targetProperties, HashSet<ARTURIResource> rootProps,
+			HashSet<ARTURIResource> excludedRootProps, ARTResource... graphs) throws ModelAccessException {
+		// by first, the specified role must be either null (all properties) or any of the property related
+		// roles
+		if (role != null && !role.isProperty())
+			throw new IllegalArgumentException("role: " + role + " is not a property role");
+
+		// **** PROPERTIES FILTER preparation ****
+
+		// I had to made this very strange thing using "super", as I was not able to mix predicates on
+		// ARTResource and ARTURIResource by use of <? extends ARTResource>
+		Collection<Predicate<? super ARTURIResource>> pruningPredicates = new ArrayList<Predicate<? super ARTURIResource>>();
+		// template props are pruned of type/subclass/subproperty declarations
+		pruningPredicates.addAll(basePropertyPruningPredicates);
+		pruningPredicates.add(NoSystemResourcePredicate.noSysResPred);
+		// if null, all kind of properties are ok, no filtering
+
+		ARTURIResourceIterator propertyIterator;
+
+		if (role != null) {
+			switch (role) {
+			case objectProperty:
+				propertyIterator = ontModel.listObjectProperties(true, graphs);
+				break;
+			case datatypeProperty:
+				propertyIterator = ontModel.listDatatypeProperties(true, graphs);
+				break;
+			case annotationProperty:
+				propertyIterator = ontModel.listAnnotationProperties(true, graphs);
+				break;
+			case ontologyProperty:
+				propertyIterator = ontModel.listOntologyProperties(true, graphs);
+				break;
+			default: // property or null
+				propertyIterator = ontModel.listProperties(graphs);
+				break;
+			}
+		} else
+			propertyIterator = ontModel.listProperties(graphs);
+
+		if (rootProps != null) {
+			for (ARTURIResource prop : rootProps)
+				pruningPredicates.add(SubPropertyOf_Predicate.getPredicate(ontModel, prop));
+		}
+
+		if (excludedRootProps != null) {
+			for (ARTURIResource prop : excludedRootProps)
+				pruningPredicates.add(Predicates.not(SubPropertyOf_Predicate.getPredicate(ontModel, prop)));
+		}
+
+		Predicate<ARTURIResource> propsExclusionPredicate = Predicates.and(pruningPredicates);
+
+		Iterator<ARTURIResource> filteredPropertiesIterator = Iterators.filter(propertyIterator,
+				propsExclusionPredicate);
+		Iterators.addAll(targetProperties, filteredPropertiesIterator);
 	}
 
 	public final int addProperty = 0;
