@@ -884,11 +884,13 @@ public class Property extends Resource {
 			property = model.createURIResource(propertyURI);
 			individual = model.createURIResource(individualURI);
 
-			if (!model.existsResource(property)) {
-				logger.debug("there is no property named: " + propertyURI + " !");
-				return servletUtilities.createExceptionResponse(request, "there is no property named: "
-						+ propertyURI + " !");
-			}
+			// it should be possible, somehow, for external clients, to "cite" properties which have not been
+			// explicitly imported
+			/*
+			 * if (!model.existsResource(property)) { logger.debug("there is no property named: " +
+			 * propertyURI + " !"); return servletUtilities.createExceptionResponse(request,
+			 * "there is no property named: " + propertyURI + " !"); }
+			 */
 			if (individual == null) {
 				logger.debug("there is no individual named: " + individualURI + " !");
 				return servletUtilities.createExceptionResponse(request, "there is no individual named: "
