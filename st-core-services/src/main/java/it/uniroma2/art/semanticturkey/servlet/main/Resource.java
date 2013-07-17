@@ -66,6 +66,7 @@ import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedExcepti
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
 import it.uniroma2.art.semanticturkey.filter.NoSystemResourcePredicate;
+import it.uniroma2.art.semanticturkey.filter.StatementWithAProperty_Predicate;
 import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectsList;
 import it.uniroma2.art.semanticturkey.ontology.model.PredicateObjectsListFactory;
 import it.uniroma2.art.semanticturkey.ontology.utilities.RDFUtilities;
@@ -283,7 +284,7 @@ public class Resource extends ServiceAdapter {
 
 			ARTResource[] graphs;
 			graphs = getUserNamedGraphs();
-			
+
 			OWLModel model = getOWLModel();
 			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
 			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
@@ -293,72 +294,68 @@ public class Resource extends ServiceAdapter {
 						+ "(themself) and the subProp as well");
 				return response;
 			}
-			
-			
+
 			String resourceURI = resource.getNominalValue();
-			
-			String query ;
-			
-			query = "CONSTRUCT { <"+resourceURI+">  ?prop ?value}" +
-					"\nWHERE {";
-			
+
+			String query;
+
+			query = "CONSTRUCT { <" + resourceURI + ">  ?prop ?value}" + "\nWHERE {";
+
 			boolean first = true;
-			if(!excludePropItSelf){
-				for(String propName : propertiesNames.split("\\|_\\|")){
-					if(!first)
-						query +="\nUNION";
+			if (!excludePropItSelf) {
+				for (String propName : propertiesNames.split("\\|_\\|")) {
+					if (!first)
+						query += "\nUNION";
 					else
 						first = false;
-					query +="\n{<"+resourceURI+"> <"+model.expandQName(propName)+"> ?value . " +
-							"\nBIND ((<"+model.expandQName(propName)+">) AS ?prop)}";
+					query += "\n{<" + resourceURI + "> <" + model.expandQName(propName) + "> ?value . "
+							+ "\nBIND ((<" + model.expandQName(propName) + ">) AS ?prop)}";
 				}
 			}
-			
-			if(subProp){
-				for(String propName : propertiesNames.split("\\|_\\|")){
-					if(!first)
-						query +="\nUNION";
+
+			if (subProp) {
+				for (String propName : propertiesNames.split("\\|_\\|")) {
+					if (!first)
+						query += "\nUNION";
 					else
 						first = false;
-					query +="\n{?prop <http://www.w3.org/2000/01/rdf-schema#subPropertyOf>+ <"
-								+model.expandQName(propName)+"> . "+
-							"\n<"+resourceURI+"> ?prop ?value ." +
-							"\nFILTER(?prop != <"+model.expandQName(propName)+"> ) }";
+					query += "\n{?prop <http://www.w3.org/2000/01/rdf-schema#subPropertyOf>+ <"
+							+ model.expandQName(propName) + "> . " + "\n<" + resourceURI + "> ?prop ?value ."
+							+ "\nFILTER(?prop != <" + model.expandQName(propName) + "> ) }";
 				}
 			}
-				
+
 			query += "\n}";
-			logger.debug("query = "+query);
+			logger.debug("query = " + query);
 
 			GraphQuery graphQuery = model.createGraphQuery(query);
 			ARTStatementIterator inferretIt = graphQuery.evaluate(true);
 			ARTStatementIterator explicitIt = graphQuery.evaluate(false);
-			
-			//remove the excluded properties from the inferred list/iterator
+
+			// remove the excluded properties from the inferred list/iterator
 			List<String> excludedPropList = new ArrayList<String>();
 			if (excludedProps != null) {
-				for(String propName : excludedProps.split("\\|_\\|")){
+				for (String propName : excludedProps.split("\\|_\\|")) {
 					excludedPropList.add(model.expandQName(propName));
 				}
 			}
-			
+
 			List<ARTStatement> inferredList = new ArrayList<ARTStatement>();
-			while(inferretIt.hasNext()){
+			while (inferretIt.hasNext()) {
 				ARTStatement stat = inferretIt.getNext();
 				String predURI = stat.getPredicate().getURI();
-				if(!excludedPropList.contains(predURI)){
+				if (!excludedPropList.contains(predURI)) {
 					inferredList.add(stat);
 				}
 			}
 			inferretIt.close();
-			
-			PredicateObjectsList predObjList = PredicateObjectsListFactory.createPredicateObjectsList(
-					model, RDFResourceRolesEnum.property,
-					RDFIterators.createARTStatementIterator(inferredList.iterator()),
-					explicitIt);
-			
+
+			PredicateObjectsList predObjList = PredicateObjectsListFactory.createPredicateObjectsList(model,
+					RDFResourceRolesEnum.property,
+					RDFIterators.createARTStatementIterator(inferredList.iterator()), explicitIt);
+
 			explicitIt.close();
-			
+
 			RDFXMLHelp.addPredicateObjectList(response, predObjList);
 
 			return response;
@@ -641,14 +638,15 @@ public class Resource extends ServiceAdapter {
 
 			// prepare a statement filter which excludes triples where the property is a subprop of one of the
 			// excluded ones
-			if (excludedProps != null) {
-				HashSet<ARTURIResource> excludedPropSet = new HashSet<ARTURIResource>();
-				for (String excludedPropName : excludedProps.split("\\|_\\|"))
-					excludedPropSet.add(model.createURIResource(model.expandQName(excludedPropName)));
+			HashSet<ARTURIResource> excludedPropSet = parseURIResourceSet(model, excludedProps);
+			if (excludedPropSet != null) {
 				// only in case excludedProps is being specified, then the statementFilter is enriched with a
 				// negative filter on the set of excluded properties
-				statementFilter = Predicates.and(statementFilter, Predicates
-						.not(StatementWithAnyOfGivenPredicates_Predicate.getFilter(excludedPropSet)));
+				logger.debug("excluded props from getValuesOfDatatypeProperties: " + excludedPropSet);
+				for (ARTURIResource excludedProp : excludedPropSet) {
+					statementFilter = Predicates.and(statementFilter,
+							Predicates.not(StatementWithAProperty_Predicate.getFilter(model, excludedProp)));
+				}
 			}
 
 			// only the inferred statement iterator is being filtered, as it is the one being used for
@@ -743,8 +741,6 @@ public class Resource extends ServiceAdapter {
 			uriSet.add(model.createURIResource(model.expandQName(rootPropName)));
 		return uriSet;
 	}
-	
-	
 
 	public Response getTemplateProperties(String resourceQName, RDFResourceRolesEnum role,
 			String rootPropsString, String excludedRootPropsString) {
@@ -839,22 +835,22 @@ public class Resource extends ServiceAdapter {
 		types.close();
 	}
 
-	
 	public Response getPropertiesForDomains(String classNames, RDFResourceRolesEnum role,
 			String rootPropsString, String excludedRootPropsString) {
 		OWLModel ontModel = ProjectManager.getCurrentProject().getOWLModel();
 		ARTResource[] graphs;
 		try {
 			graphs = getUserNamedGraphs();
-			
-			HashSet<ARTURIResource> domains = parseURIResourceSet(ontModel, classNames);			
-			ARTURIResourceIterator domainsIterator = RDFIterators.createARTURIResourceIterator(domains.iterator());
-			
+
+			HashSet<ARTURIResource> domains = parseURIResourceSet(ontModel, classNames);
+			ARTURIResourceIterator domainsIterator = RDFIterators.createARTURIResourceIterator(domains
+					.iterator());
+
 			HashSet<ARTURIResource> rootProps = parseURIResourceSet(ontModel, rootPropsString);
 			HashSet<ARTURIResource> excludedRootProps = parseURIResourceSet(ontModel, excludedRootPropsString);
 
-			HashSet<ARTURIResource> props = extractPropertiesForDomains(ontModel, domainsIterator, role, rootProps,
-					excludedRootProps, graphs);
+			HashSet<ARTURIResource> props = extractPropertiesForDomains(ontModel, domainsIterator, role,
+					rootProps, excludedRootProps, graphs);
 			Collection<STRDFResource> result = STRDFNodeFactory.createEmptyResourceCollection();
 
 			if (role == null) {
@@ -882,15 +878,15 @@ public class Resource extends ServiceAdapter {
 			return logAndSendException(e);
 		}
 	}
-	
-	
+
 	/**
 	 * same as
 	 * {@link #extractPropertiesForDomains(OWLModel, ARTResourceIterator, RDFResourceRolesEnum, HashSet, HashSet, HashSet, ARTResource...)}
 	 * but it builds internally the HashSet where to store the properties, and returns it.
 	 * 
 	 * @param ontModel
-	 * @param domains this iterator is not closed at the end of this method, so remember to close it
+	 * @param domains
+	 *            this iterator is not closed at the end of this method, so remember to close it
 	 * @param role
 	 * @param rootProps
 	 * @param excludedRootProps
@@ -899,8 +895,9 @@ public class Resource extends ServiceAdapter {
 	 * @throws ModelAccessException
 	 */
 	protected HashSet<ARTURIResource> extractPropertiesForDomains(OWLModel ontModel,
-			RDFIterator<? extends ARTResource> domains, RDFResourceRolesEnum role, HashSet<ARTURIResource> rootProps,
-			HashSet<ARTURIResource> excludedRootProps, ARTResource... graphs) throws ModelAccessException {
+			RDFIterator<? extends ARTResource> domains, RDFResourceRolesEnum role,
+			HashSet<ARTURIResource> rootProps, HashSet<ARTURIResource> excludedRootProps,
+			ARTResource... graphs) throws ModelAccessException {
 		HashSet<ARTURIResource> properties = new HashSet<ARTURIResource>();
 		extractPropertiesForDomains(ontModel, domains, role, properties, rootProps, excludedRootProps, graphs);
 		return properties;
@@ -1396,17 +1393,13 @@ public class Resource extends ServiceAdapter {
 			// if (proj.getOntologyType().equals(OntologyType.SKOS))
 			return ((SKOSModel) model).getOWLModel();
 	}
-	
-	
-	
-	
+
 	// ******************************
 	// OLD METHODS, not used anymore
 	// ******************************
-	
-	
-	public Response getValuesOfProperties_NO_SPARQL(String resourceName, String propertiesNames, boolean subProp,
-			boolean excludePropItSelf, String excludedProps) {
+
+	public Response getValuesOfProperties_NO_SPARQL(String resourceName, String propertiesNames,
+			boolean subProp, boolean excludePropItSelf, String excludedProps) {
 		OWLModel model = getOWLModel();
 		try {
 
