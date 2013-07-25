@@ -41,7 +41,7 @@ public abstract class OntologyManagerFactoryImpl<MC extends ModelConfiguration> 
 		return this.getClass().getName();
 	}
 
-	protected abstract ModelFactory<MC> createModelFactory();
+	public abstract ModelFactory<MC> createModelFactory();
 
 	public ArrayList<MC> getModelConfigurations() throws UnsupportedModelConfigurationException,
 			UnloadableModelConfigurationException {
