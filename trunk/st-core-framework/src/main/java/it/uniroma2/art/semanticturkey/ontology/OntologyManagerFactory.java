@@ -28,6 +28,7 @@ package it.uniroma2.art.semanticturkey.ontology;
 
 import java.util.Collection;
 
+import it.uniroma2.art.owlart.models.ModelFactory;
 import it.uniroma2.art.owlart.models.RDFModel;
 import it.uniroma2.art.owlart.models.UnloadableModelConfigurationException;
 import it.uniroma2.art.owlart.models.UnsupportedModelConfigurationException;
@@ -37,6 +38,8 @@ import it.uniroma2.art.semanticturkey.project.Project;
 
 public interface OntologyManagerFactory<MC extends ModelConfiguration> extends STOSGIExtension {
 
+	public abstract ModelFactory<MC> createModelFactory();
+	
 	public abstract <T extends RDFModel> STOntologyManager<T> createOntologyManager(Project<T> proj);
 
 	public abstract Collection<MC> getModelConfigurations() throws UnsupportedModelConfigurationException,

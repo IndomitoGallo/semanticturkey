@@ -51,7 +51,7 @@ public class PredicateObjectsListFactory {
 			ARTURIResource predicate = st.getPredicate();
 			boolean explicit = false;
 
-			System.out.println("explicit statements:\n" + explicitStatements);
+			// System.out.println("explicit statements:\n" + explicitStatements);
 
 			if (explicitStatements.contains(st))
 				explicit = true;

@@ -40,7 +40,7 @@ public class OntologyManagerFactorySesame2Impl extends OntologyManagerFactoryImp
 
 	protected static Logger logger = LoggerFactory.getLogger(OntologyManagerFactorySesame2Impl.class);
 	
-	protected ModelFactory<Sesame2ModelConfiguration> createModelFactory() {
+	public ModelFactory<Sesame2ModelConfiguration> createModelFactory() {
 		return new ARTModelFactorySesame2Impl();
 	}
 
