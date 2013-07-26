@@ -1,5 +1,29 @@
 package it.uniroma2.art.semanticturkey.servlet.main;
 
+import it.uniroma2.art.owlart.exceptions.ModelAccessException;
+import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
+import it.uniroma2.art.owlart.io.RDFNodeSerializer;
+import it.uniroma2.art.owlart.model.ARTLiteral;
+import it.uniroma2.art.owlart.model.ARTResource;
+import it.uniroma2.art.owlart.model.ARTURIResource;
+import it.uniroma2.art.owlart.model.NodeFilters;
+import it.uniroma2.art.owlart.models.RDFModel;
+import it.uniroma2.art.owlart.models.SKOSXLModel;
+import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
+import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
+import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
+import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
+import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
+import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
+import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
+import it.uniroma2.art.semanticturkey.project.Project;
+import it.uniroma2.art.semanticturkey.project.ProjectManager;
+import it.uniroma2.art.semanticturkey.servlet.Response;
+import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
+import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
+import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,35 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import it.uniroma2.art.owlart.exceptions.ModelAccessException;
-import it.uniroma2.art.owlart.exceptions.ModelUpdateException;
-import it.uniroma2.art.owlart.io.RDFNodeSerializer;
-import it.uniroma2.art.owlart.model.ARTLiteral;
-import it.uniroma2.art.owlart.model.ARTResource;
-import it.uniroma2.art.owlart.model.ARTURIResource;
-import it.uniroma2.art.owlart.model.NodeFilters;
-import it.uniroma2.art.owlart.models.RDFModel;
-import it.uniroma2.art.owlart.models.SKOSModel;
-import it.uniroma2.art.owlart.models.SKOSXLModel;
-import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
-import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
-import it.uniroma2.art.semanticturkey.exceptions.DuplicatedResourceException;
-import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
-import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
-import it.uniroma2.art.semanticturkey.generation.annotation.STService;
-import it.uniroma2.art.semanticturkey.ontology.utilities.RDFXMLHelp;
-import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFNodeFactory;
-import it.uniroma2.art.semanticturkey.ontology.utilities.STRDFResource;
-import it.uniroma2.art.semanticturkey.project.Project;
-import it.uniroma2.art.semanticturkey.project.ProjectManager;
-import it.uniroma2.art.semanticturkey.servlet.Response;
-import it.uniroma2.art.semanticturkey.servlet.ServiceVocabulary.RepliesStatus;
-import it.uniroma2.art.semanticturkey.servlet.main.SKOS.MissingLanguageException;
-import it.uniroma2.art.semanticturkey.servlet.main.SKOS.Par;
-import it.uniroma2.art.semanticturkey.servlet.main.SKOS.Req;
-import it.uniroma2.art.semanticturkey.servlet.XMLResponseREPLY;
-import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 @Component
 public class SKOSXL extends SKOS {
@@ -63,7 +58,7 @@ public class SKOSXL extends SKOS {
 		// public static final String getSchemesMatrixPerConceptRequest = "getSchemesMatrixPerConceptRequest";
 
 		// IS REQUESTS
-		//public static final String isTopConceptRequest = "isTopConcept";
+		// public static final String isTopConceptRequest = "isTopConcept";
 
 		// ADD REQUESTS
 		// public static final String addTopConceptRequest = "addTopConcept";
@@ -74,8 +69,8 @@ public class SKOSXL extends SKOS {
 		public static final String addHiddenLabelRequest = "addHiddenLabel";
 
 		// CREATE REQUESTS
-		 public static final String createConceptRequest = "createConcept";
-		 public static final String createSchemeRequest = "createScheme";
+		public static final String createConceptRequest = "createConcept";
+		public static final String createSchemeRequest = "createScheme";
 
 		// REMOVE REQUESTS
 		// public static final String removeTopConceptRequest = "removeTopConcept";
@@ -96,19 +91,19 @@ public class SKOSXL extends SKOS {
 	// PARS
 
 	public static class Par {
-		//*final static public String broaderConcept = "broaderConcept";
-		//*final static public String concept = "concept";
+		// *final static public String broaderConcept = "broaderConcept";
+		// *final static public String concept = "concept";
 		// final static public String conceptFrom = "conceptFrom";
 		// final static public String conceptTo = "conceptTo";
 		// final static public String forceDeleteDanglingConcepts = "forceDeleteDanglingConcepts";
 		// final static public String setForceDeleteDanglingConcepts = "setForceDeleteDanglingConcepts";
-		//*final static public String label = "label";
-		//*final static public String langTag = "lang";
+		// *final static public String label = "label";
+		// *final static public String langTag = "lang";
 		// final static public String newConcept = "newConcept";
-		//*final static public String prefLabel = "prefLabel";
+		// *final static public String prefLabel = "prefLabel";
 		// final static public String relatedConcept = "relatedConcept";
 		// final static public String semanticRelation = "semanticRelation";
-		//*final static public String scheme = "scheme";
+		// *final static public String scheme = "scheme";
 		// final static public String sourceScheme = "sourceScheme";
 		// final static public String targetScheme = "targetScheme";
 		// final static public String treeView = "treeView";
@@ -166,7 +161,7 @@ public class SKOSXL extends SKOS {
 			response = createConcept(conceptName, broaderConceptName, schemeName, prefLabel,
 					prefLabelLanguage, language);
 
-		}else if (request.equals(Req.createSchemeRequest)) {
+		} else if (request.equals(Req.createSchemeRequest)) {
 			String schemeName = setHttpPar(SKOS.Par.scheme);
 			String preferredLabel = setHttpPar(SKOS.Par.prefLabel);
 			String preferredLabelLanguage = setHttpPar(SKOS.Par.prefLabelLang);
@@ -174,8 +169,8 @@ public class SKOSXL extends SKOS {
 
 			checkRequestParametersAllNotNull(SKOS.Par.scheme);
 			response = createConceptScheme(schemeName, preferredLabel, preferredLabelLanguage, language);
-		
-		}else if (request.equals(Req.setPrefLabelRequest)) {
+
+		} else if (request.equals(Req.setPrefLabelRequest)) {
 			String skosConceptName = setHttpPar(SKOS.Par.concept);
 			String lang = setHttpPar(SKOS.Par.lang);
 			String label = setHttpPar(SKOS.Par.label);
@@ -200,23 +195,22 @@ public class SKOSXL extends SKOS {
 			XLabelCreationMode xLabelCreationMode = XLabelCreationMode.valueOf(modeString);
 			response = addHiddenXLabel(skosConceptName, xLabelCreationMode, label, lang);
 		}
-		
+
 		// REMOVE
-		else if(request.equals(Req.removePrefLabelRequest)){
+		else if (request.equals(Req.removePrefLabelRequest)) {
 			String skosConceptName = setHttpPar(SKOS.Par.concept);
 			String lang = setHttpPar(SKOS.Par.lang);
 			String label = setHttpPar(SKOS.Par.label);
 			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
 			response = removePrefXLabel(skosConceptName, label, lang);
-		} else if(request.equals(Req.removeAltLabelRequest)){
+		} else if (request.equals(Req.removeAltLabelRequest)) {
 			String skosConceptName = setHttpPar(SKOS.Par.concept);
 			String lang = setHttpPar(SKOS.Par.lang);
 			String label = setHttpPar(SKOS.Par.label);
 			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
 			response = removeAltXLabel(skosConceptName, label, lang);
 		}
-		
-		
+
 		else
 			response = super.getPreCheckedResponse(request);
 
@@ -229,8 +223,6 @@ public class SKOSXL extends SKOS {
 		return logger;
 	}
 
-	
-	
 	/**
 	 * this service removes the preferred label for a given language
 	 * 
@@ -246,17 +238,20 @@ public class SKOSXL extends SKOS {
 
 		try {
 			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
-			
-			//Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
+
 			STRDFResource prefXLabel = getPrefXLabel(model, skosConcept, lang, getWorkingGraph());
-			
-			ARTURIResource tmp = prefXLabel.getARTNode().asURIResource();
-				
-			if(prefXLabel.getRendering().compareTo(label) == 0){
-				model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), tmp, getWorkingGraph());
+
+			ARTResource tmp = prefXLabel.getARTNode().asResource();
+
+			if (prefXLabel.getRendering().compareTo(label) == 0) {
+				model.deleteTriple(skosConcept, it.uniroma2.art.owlart.vocabulary.SKOSXL.Res.PREFLABEL, tmp,
+						getWorkingGraph());
+				// TODO this should be a full delete of a resource (following also BNodes).
+				// ModelUtilities#deepDeleteIndividual would be ok, but we need a simpler one with: no delTree
+				// but which automatically follows recursive elimination of bnodes
 				model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
 			}
-			
+
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
@@ -266,7 +261,7 @@ public class SKOSXL extends SKOS {
 		}
 		return response;
 	}
-	
+
 	/**
 	 * this service removes an alternative label for a given language
 	 * 
@@ -282,19 +277,22 @@ public class SKOSXL extends SKOS {
 
 		try {
 			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
-			
-			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
-			
+
+			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang,
+					getWorkingGraph()).iterator();
+
 			while (altLabelsIter.hasNext()) {
 				STRDFResource strdfRes = altLabelsIter.next();
 				ARTURIResource tmp = strdfRes.getARTNode().asURIResource();
-				
-				if(strdfRes.getRendering().compareTo(label) == 0){
-					model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), tmp, getWorkingGraph());
+
+				if (strdfRes.getRendering().compareTo(label) == 0) {
+					model.deleteTriple(skosConcept,
+							model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), tmp,
+							getWorkingGraph());
 					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
 				}
 			}
-			
+
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
 		} catch (ModelAccessException e) {
@@ -304,7 +302,7 @@ public class SKOSXL extends SKOS {
 		}
 		return response;
 	}
-	
+
 	// SERVICE METHODS
 
 	/**
@@ -439,8 +437,6 @@ public class SKOSXL extends SKOS {
 		return response;
 	}
 
-	
-	
 	public Response createConcept(String conceptName, String superConceptName, String schemeName,
 			String prefLabel, String prefLabelLang, String language) {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
@@ -464,8 +460,8 @@ public class SKOSXL extends SKOS {
 
 			logger.debug("adding concept to graph: " + wrkGraph);
 			skosxlModel.addConceptToScheme(newConcept.getURI(), superConcept, conceptScheme, wrkGraph);
-			
-			ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, 
+
+			ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel,
 					prefLabelLang, getWorkingGraph());
 			skosxlModel.setPrefXLabel(newConcept, prefXLabel, getWorkingGraph());
 
@@ -483,8 +479,8 @@ public class SKOSXL extends SKOS {
 		}
 		return response;
 	}
-	
-	public Response createConceptScheme(String schemeQName, String prefLabel, String prefLabelLang, 
+
+	public Response createConceptScheme(String schemeQName, String prefLabel, String prefLabelLang,
 			String language) {
 		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
 		logger.debug("new scheme name: " + schemeQName);
@@ -496,14 +492,14 @@ public class SKOSXL extends SKOS {
 
 			// add a new concept scheme...
 			skosxlModel.addSKOSConceptScheme(newScheme, getWorkingGraph());
-			
+
 			// add skos:preferredLabel
 			if (prefLabel != null && prefLabelLang != null) {
-				ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel, 
+				ARTURIResource prefXLabel = skosxlModel.addXLabel(createURIForXLabel(skosxlModel), prefLabel,
 						prefLabelLang, getWorkingGraph());
 				skosxlModel.setPrefXLabel(newScheme, prefXLabel, getWorkingGraph());
-				
-				//addPrefLabel(skosModel, newScheme, prefLabel, lang);
+
+				// addPrefLabel(skosModel, newScheme, prefLabel, lang);
 			}
 
 			RDFXMLHelp.addRDFNode(response, createSTScheme(skosxlModel, newScheme, true, language));
@@ -519,7 +515,7 @@ public class SKOSXL extends SKOS {
 		}
 		return response;
 	}
-	
+
 	/**
 	 * this service sets the preferred label for a given language
 	 * 
@@ -540,15 +536,20 @@ public class SKOSXL extends SKOS {
 		try {
 			ARTResource graph = getWorkingGraph();
 			ARTURIResource skosConcept = retrieveExistingURIResource(model, skosConceptName, graph);
-			
-			//change the other preferred label (of the same language) to alternative label, as only one preferred label per language can exist
+
+			// change the other preferred label (of the same language) to alternative label, as only one
+			// preferred label per language can exist
 			ARTResource oldPrefLabelRes = model.getPrefXLabel(skosConcept, lang, graph);
-			if(oldPrefLabelRes != null && oldPrefLabelRes.isURIResource()){
+			if (oldPrefLabelRes != null && oldPrefLabelRes.isURIResource()) {
 				ARTURIResource oldxlabel = oldPrefLabelRes.asURIResource();
-				model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), oldxlabel, graph);
-				model.addTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), oldxlabel, graph);
+				model.deleteTriple(skosConcept,
+						model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL),
+						oldxlabel, graph);
+				model.addTriple(skosConcept,
+						model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL),
+						oldxlabel, graph);
 			}
-			
+
 			if (mode == XLabelCreationMode.bnode)
 				model.setPrefXLabel(skosConcept, label, lang, getWorkingGraph());
 			else {
@@ -557,7 +558,6 @@ public class SKOSXL extends SKOS {
 				model.setPrefXLabel(skosConcept, prefXLabel, getWorkingGraph());
 				RDFXMLHelp.addRDFNode(response, createSTXLabel(model, prefXLabel, true));
 			}
-			
 
 		} catch (ModelUpdateException e) {
 			return logAndSendException(e);
@@ -653,7 +653,7 @@ public class SKOSXL extends SKOS {
 	public STRDFResource getPrefXLabel(SKOSXLModel model, ARTURIResource skosConcept, String lang,
 			ARTResource... graphs) throws ModelAccessException, NonExistingRDFResourceException {
 		ARTResource prefLabel = model.getPrefXLabel(skosConcept, lang, graphs);
-		if (prefLabel!=null)
+		if (prefLabel != null)
 			return createSTXLabel(model, prefLabel, true);
 		return null;
 	}
