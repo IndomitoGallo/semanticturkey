@@ -247,16 +247,14 @@ public class SKOSXL extends SKOS {
 		try {
 			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
 			
-			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
+			//Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang, getWorkingGraph()).iterator();
+			STRDFResource prefXLabel = getPrefXLabel(model, skosConcept, lang, getWorkingGraph());
 			
-			while (altLabelsIter.hasNext()) {
-				STRDFResource strdfRes = altLabelsIter.next();
-				ARTURIResource tmp = strdfRes.getARTNode().asURIResource();
+			ARTURIResource tmp = prefXLabel.getARTNode().asURIResource();
 				
-				if(strdfRes.getRendering().compareTo(label) == 0){
-					model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), tmp, getWorkingGraph());
-					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
-				}
+			if(prefXLabel.getRendering().compareTo(label) == 0){
+				model.deleteTriple(skosConcept, model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.PREFLABEL), tmp, getWorkingGraph());
+				model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
 			}
 			
 		} catch (ModelUpdateException e) {
