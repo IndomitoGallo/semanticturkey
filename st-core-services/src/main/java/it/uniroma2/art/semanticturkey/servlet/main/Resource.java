@@ -53,9 +53,9 @@ import it.uniroma2.art.owlart.navigation.ARTNodeIterator;
 import it.uniroma2.art.owlart.navigation.ARTResourceIterator;
 import it.uniroma2.art.owlart.navigation.ARTStatementIterator;
 import it.uniroma2.art.owlart.navigation.ARTURIResourceIterator;
+import it.uniroma2.art.owlart.navigation.RDFIterator;
 import it.uniroma2.art.owlart.query.GraphQuery;
 import it.uniroma2.art.owlart.query.MalformedQueryException;
-import it.uniroma2.art.owlart.navigation.RDFIterator;
 import it.uniroma2.art.owlart.utilities.ModelUtilities;
 import it.uniroma2.art.owlart.utilities.RDFIterators;
 import it.uniroma2.art.owlart.vocabulary.OWL;
@@ -90,6 +90,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1153,21 +1154,24 @@ public class Resource extends ServiceAdapter {
 	}
 
 	protected void injectPropertyDomainXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
-			boolean visualization) throws ModelAccessException, NonExistingRDFResourceException {
+			boolean visualization, boolean minimize) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element domainsElement = XMLHelp.newElement(treeElement, "domains");
 		// TODO clearly reasoning=true requires the sole main graph (which
 		// contains reasoned triples too) but,
 		// what to do when the wgraph is not the main graph?
 
-		ARTResourceIterator domains = ontModel.listPropertyDomains(property, true, wgraph);
+		Set<ARTResource> domains = RDFIterators.getSetFromIterator(ontModel.listPropertyDomains(property,
+				true, wgraph));
 		Collection<ARTResource> explicitDomains = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyDomains(property, false, wgraph));
-		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
 		logger.debug("explicitDomains: " + explicitDomains);
-		while (domains.hasNext()) {
-			ARTResource nextDomain = domains.next();
-			rangesSet.add(nextDomain);
+
+		if (minimize)
+			minimizeDomainsRanges(domains);
+
+		for (ARTResource nextDomain : domains) {
 			Element domainElement = RDFXMLHelp.addRDFNode(domainsElement, ontModel, nextDomain, true,
 					visualization);
 			if (explicitDomains.contains(nextDomain))
@@ -1175,22 +1179,23 @@ public class Resource extends ServiceAdapter {
 			else
 				domainElement.setAttribute("explicit", "false");
 		}
-		domains.close();
 	}
 
 	protected void injectPropertyRangeXML(OWLModel ontModel, ARTURIResource property, Element treeElement,
-			boolean visualization) throws ModelAccessException, NonExistingRDFResourceException {
+			boolean visualization, boolean minimize) throws ModelAccessException,
+			NonExistingRDFResourceException {
 		ARTResource wgraph = getWorkingGraph();
 		Element rangesElement = XMLHelp.newElement(treeElement, "ranges");
 		// TODO check todo when wgraph!=MAINGRAPH
-		ARTResourceIterator ranges = ontModel.listPropertyRanges(property, true, wgraph);
+		Set<ARTResource> ranges = RDFIterators.getSetFromIterator(ontModel.listPropertyRanges(property, true,
+				wgraph));
 		Collection<ARTResource> explicitRanges = RDFIterators.getCollectionFromIterator(ontModel
 				.listPropertyRanges(property, false, wgraph));
-		HashSet<ARTResource> rangesSet = new HashSet<ARTResource>();
 
-		while (ranges.hasNext()) {
-			ARTResource nextRange = ranges.next();
-			rangesSet.add(nextRange);
+		if (minimize)
+			minimizeDomainsRanges(ranges);
+
+		for (ARTResource nextRange : ranges) {
 			Element rangeElement = RDFXMLHelp.addRDFNode(rangesElement, ontModel, nextRange, true,
 					visualization);
 			if (explicitRanges.contains(nextRange))
@@ -1198,14 +1203,27 @@ public class Resource extends ServiceAdapter {
 			else
 				rangeElement.setAttribute("explicit", "false");
 		}
-		ranges.close();
 
 		try {
-			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, rangesSet)
+			rangesElement.setAttribute("rngType", RDFUtilities.getRangeType(ontModel, property, ranges)
 					.toString());
 		} catch (IncompatibleRangeException e) {
 			rangesElement.setAttribute("rngType", "inconsistent");
 		}
+	}
+
+	private void minimizeDomainsRanges(Set<ARTResource> typesSet) {
+		// TODO this should be replaced by an efficient procedure for producing the shortest number of ranges
+		// which are NOT in a hierarchical relationship among them has to be found. This can be complemented
+		// with quick heuristics. I'll write a few heuristic first, so this will not be a complete filter
+
+		// TODO also, restrictions should be reduced to a set of elements (it is possible, on a first attempt,
+		// that both OR and AND of types are translated to their sequence, as it is then up to the user, in
+		// case of an AND, to take an instance which respects all the ANDed types.
+
+		typesSet.remove(RDFS.Res.LITERAL);
+		if (typesSet.contains(RDFS.Res.RESOURCE) && typesSet.contains(OWL.Res.THING))
+			typesSet.remove(RDFS.Res.RESOURCE);
 	}
 
 	private void enrichXMLForProperty(OWLModel ontModel, ARTURIResource property, Element treeElement,
@@ -1213,8 +1231,8 @@ public class Resource extends ServiceAdapter {
 
 		ARTResource wgraph = getWorkingGraph();
 		// DOMAIN AND RANGES
-		injectPropertyDomainXML(ontModel, property, treeElement, true);
-		injectPropertyRangeXML(ontModel, property, treeElement, true);
+		injectPropertyDomainXML(ontModel, property, treeElement, true, true);
+		injectPropertyRangeXML(ontModel, property, treeElement, true, true);
 
 		// FACETS
 		Element facetsElement = XMLHelp.newElement(treeElement, "facets");
