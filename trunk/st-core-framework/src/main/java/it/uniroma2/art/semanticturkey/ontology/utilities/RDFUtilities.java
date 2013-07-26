@@ -37,7 +37,7 @@ import it.uniroma2.art.owlart.vocabulary.RDFTypesEnum;
 import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class RDFUtilities {
 	 * @throws IncompatibleRangeException
 	 */
 	public static RDFTypesEnum getRangeType(OWLModel model, ARTURIResource property,
-			HashSet<ARTResource> rangesSet) throws ModelAccessException, IncompatibleRangeException {
+			Set<ARTResource> rangesSet) throws ModelAccessException, IncompatibleRangeException {
 
 		logger.debug("determining range type for property: " + property);
 		

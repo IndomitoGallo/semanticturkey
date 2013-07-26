@@ -150,6 +150,7 @@ public class Property extends Resource {
 		final public static String type = "type";
 		final public static String oldType = "oldType";
 		final public static String visualize = "visualize";
+		final public static String minimize = "minimize";
 		final public static String classes = "classes";
 	}
 
@@ -206,13 +207,15 @@ public class Property extends Resource {
 			} else if (request.equals(Req.getDomainRequest)) {
 				String propQName = setHttpPar(Par.propertyQNamePar);
 				String visualize = setHttpPar(Par.visualize);
+				boolean minimize =  setHttpBooleanPar(Par.minimize, true);
 				checkRequestParametersAllNotNull(Par.propertyQNamePar);
-				return getDomain(propQName, visualize);
+				return getDomain(propQName, visualize, minimize);
 			} else if (request.equals(Req.getRangeRequest)) {
 				String propQName = setHttpPar(Par.propertyQNamePar);
 				String visualize = setHttpPar(Par.visualize);
+				boolean minimize =  setHttpBooleanPar(Par.minimize, true);
 				checkRequestParametersAllNotNull(Par.propertyQNamePar);
-				return getRange(propQName, visualize);
+				return getRange(propQName, visualize, minimize);
 
 			} else if (request.equals(Req.getPropertiesForDomainsRequest)) {
 				String classNames = setHttpPar(Par.classes);
@@ -358,7 +361,7 @@ public class Property extends Resource {
 		return getSuperTypes(propQName, RDFResourceRolesEnum.property);
 	}
 
-	public Response getDomain(String propQName, String visualize) {
+	public Response getDomain(String propQName, String visualize, boolean minimize) {
 		boolean boolVis;
 		if (visualize == null)
 			boolVis = false;
@@ -375,7 +378,7 @@ public class Property extends Resource {
 			if (property == null)
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ propQName);
-			injectPropertyDomainXML(ontModel, property, dataElement, boolVis);
+			injectPropertyDomainXML(ontModel, property, dataElement, boolVis, minimize);
 			return response;
 
 		} catch (ModelAccessException e) {
@@ -385,7 +388,7 @@ public class Property extends Resource {
 		}
 	}
 
-	public Response getRange(String propQName, String visualize) {
+	public Response getRange(String propQName, String visualize, boolean minimize) {
 		boolean boolVis;
 		if (visualize == null)
 			boolVis = false;
@@ -402,7 +405,7 @@ public class Property extends Resource {
 			if (property == null)
 				return servletUtilities.createExceptionResponse(request, "there is no resource with name: "
 						+ propQName);
-			injectPropertyRangeXML(ontModel, property, dataElement, boolVis);
+			injectPropertyRangeXML(ontModel, property, dataElement, boolVis, minimize);
 			return response;
 
 		} catch (ModelAccessException e) {
