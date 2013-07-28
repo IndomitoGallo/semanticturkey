@@ -26,7 +26,6 @@ import it.uniroma2.art.semanticturkey.utilities.XMLHelp;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -78,6 +77,7 @@ public class SKOSXL extends SKOS {
 		// public static final String deleteSchemeRequest = "deleteScheme";
 		public static final String removePrefLabelRequest = "removePrefLabel";
 		public static final String removeAltLabelRequest = "removeAltLabel";
+		public static final String removeHiddenLabelRequest = "removeHiddenLabel";
 		// public static final String removeConceptFromSchemeRequest = "removeConceptFromScheme";
 		// public static final String removeBroaderConcept = "removeBroaderConcept";
 
@@ -209,6 +209,12 @@ public class SKOSXL extends SKOS {
 			String label = setHttpPar(SKOS.Par.label);
 			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
 			response = removeAltXLabel(skosConceptName, label, lang);
+		} else if (request.equals(Req.removeHiddenLabelRequest)) {
+			String skosConceptName = setHttpPar(SKOS.Par.concept);
+			String lang = setHttpPar(SKOS.Par.lang);
+			String label = setHttpPar(SKOS.Par.label);
+			checkRequestParametersAllNotNull(SKOS.Par.concept, SKOS.Par.lang, SKOS.Par.label);
+			response = removeHiddenXLabel(skosConceptName, label, lang);
 		}
 
 		else
@@ -278,17 +284,17 @@ public class SKOSXL extends SKOS {
 		try {
 			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
 
-			Iterator<STRDFResource> altLabelsIter = listAltXLabels(model, skosConcept, lang,
-					getWorkingGraph()).iterator();
+			Collection<STRDFResource> altLabels = listAltXLabels(model, skosConcept, lang, getWorkingGraph());
 
-			while (altLabelsIter.hasNext()) {
-				STRDFResource strdfRes = altLabelsIter.next();
-				ARTURIResource tmp = strdfRes.getARTNode().asURIResource();
-
+			for (STRDFResource strdfRes : altLabels) {
 				if (strdfRes.getRendering().compareTo(label) == 0) {
+					ARTResource tmp = strdfRes.getARTNode().asResource();
 					model.deleteTriple(skosConcept,
 							model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.ALTLABEL), tmp,
 							getWorkingGraph());
+					// TODO this should be a full delete of a resource (following also BNodes).
+					// ModelUtilities#deepDeleteIndividual would be ok, but we need a simpler one with: no delTree
+					// but which automatically follows recursive elimination of bnodes
 					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
 				}
 			}
@@ -303,6 +309,48 @@ public class SKOSXL extends SKOS {
 		return response;
 	}
 
+	
+	/**
+	 * this service removes an hidden label for a given language
+	 * 
+	 * @param skosConceptName
+	 * @param label
+	 * @param lang
+	 * @return
+	 */
+	public Response removeHiddenXLabel(String skosConceptName, String label, String lang) {
+		SKOSXLModel model = getSKOSXLModel();
+
+		XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+
+		try {
+			ARTURIResource skosConcept = model.createURIResource(model.expandQName(skosConceptName));
+
+			Collection<STRDFResource> hiddenLabels = listHiddenXLabels(model, skosConcept, lang, getWorkingGraph());
+
+			for (STRDFResource strdfRes : hiddenLabels) {
+				if (strdfRes.getRendering().compareTo(label) == 0) {
+					ARTResource tmp = strdfRes.getARTNode().asResource();
+					model.deleteTriple(skosConcept,
+							model.createURIResource(it.uniroma2.art.owlart.vocabulary.SKOSXL.HIDDENLABEL), tmp,
+							getWorkingGraph());
+					// TODO this should be a full delete of a resource (following also BNodes).
+					// ModelUtilities#deepDeleteIndividual would be ok, but we need a simpler one with: no delTree
+					// but which automatically follows recursive elimination of bnodes
+					model.deleteTriple(tmp, NodeFilters.ANY, NodeFilters.ANY, getWorkingGraph());
+				}
+			}
+
+		} catch (ModelUpdateException e) {
+			return logAndSendException(e);
+		} catch (ModelAccessException e) {
+			return logAndSendException(e);
+		} catch (NonExistingRDFResourceException e) {
+			return logAndSendException(e);
+		}
+		return response;
+	}
+	
 	// SERVICE METHODS
 
 	/**
