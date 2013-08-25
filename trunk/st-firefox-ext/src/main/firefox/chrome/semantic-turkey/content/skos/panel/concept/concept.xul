@@ -31,5 +31,10 @@
         xmlns:st="http://semanticturkey.uniroma2.it/xmlns/widget#">
 	<script type="text/javascript" src="concept.js" />
 	<script type="text/javascript" src="chrome://semantic-turkey/content/event/eventObjects.js" />
-	<st:conceptTree id="conceptTree" xul:flex="1" hideheading="true" />
+	<stack flex="1">
+		<st:conceptTree id="conceptTree" xul:flex="1" hideheading="true" />
+		<vbox id="stackedMessages">
+			<description id="selectSchemeMsg">Please, select a concept scheme</description>
+		</vbox>
+	</stack>
 </window>

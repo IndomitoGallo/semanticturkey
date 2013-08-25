@@ -10,6 +10,11 @@ Components.utils.import("resource://stmodules/AnnotationManager.jsm", art_semant
 
 art_semanticturkey.init = function() {
 	var conceptTree = document.getElementById("conceptTree");
+
+	// Delay the registration of the listener, after the execution of the binding constructor
+	window.setTimeout(function() {
+		conceptTree._addStateChangedListener(art_semanticturkey.conceptTreeStateChanged);
+	}, 0);
 	
 	conceptTree.conceptScheme = art_semanticturkey.STRequests.Projects.getProjectProperty("skos.selected_scheme", null).getElementsByTagName("property")[0].getAttribute("value");		
 	
@@ -82,5 +87,10 @@ art_semanticturkey.init = function() {
 		stEventArray.deregisterAllListener();		
 	}, false);
 }
+
+art_semanticturkey.conceptTreeStateChanged = function(state) {
+	var selectSchemeMsg = document.getElementById("selectSchemeMsg");
+	selectSchemeMsg.style.visibility = state.indexOf("conceptSchemeSelected") == -1 ? "visible" : "hidden";
+};
 
 window.addEventListener("load", art_semanticturkey.init, false);
