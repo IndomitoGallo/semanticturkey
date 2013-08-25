@@ -21,3 +21,8 @@ treechildren::-moz-tree-checkbox(disabled)
      in your extension or elsewhere. */
   list-style-image: url("chrome://global/skin/checkbox/cbox-check-dis.gif");
 }
+
+toolbar[ano_id="taxonomyToolbar"] toolbarbutton[disabled="true"] image{
+	filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");
+	opacity: 0.5;
+}
