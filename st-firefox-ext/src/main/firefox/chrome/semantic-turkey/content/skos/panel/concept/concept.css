@@ -1,1 +1,21 @@
 @charset "UTF-8";
+
+vbox#stackedMessages {
+	margin: 15px;
+	-moz-box-pack: center;
+}
+
+vbox#stackedMessages description {
+	background-color: lightyellow;
+	padding: 10px 5px;
+	text-align:center;
+	font-size: 150%;
+	border: 1px solid black;
+	border-radius: 5px;
+	box-shadow: 3px 3px 5px 6px #ccc;
+	box-flex: 0;	
+}
+
+description#selectSchemeMsg {
+	visibility: hidden; /* Hidden by default */
+}
