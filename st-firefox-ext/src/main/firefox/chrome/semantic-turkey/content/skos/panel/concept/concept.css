@@ -3,6 +3,7 @@
 vbox#stackedMessages {
 	margin: 15px;
 	-moz-box-pack: center;
+	pointer-events: none; /* Makes the overlay transparent for the pointer events */
 }
 
 vbox#stackedMessages description {
