@@ -34,6 +34,11 @@ art_semanticturkey.init = function() {
 	};
 	
 	conceptTree.addEventListener("dragstart", function(event){
+		if (event.originalTarget.tagName != "xul:treechildren") {
+			event.preventDefault();
+			return;
+		}
+		
 		event.dataTransfer.setData("application/skos.concept", conceptTree.selectedConcept);
 	}, false);
 	
