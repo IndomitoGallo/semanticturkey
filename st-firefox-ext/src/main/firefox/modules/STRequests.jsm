@@ -93,6 +93,10 @@ STRequests.Projects = new Object();
  * @class
  */
 STRequests.OntManager = new Object();
+/**
+ * @class
+ */
+STRequests.Resource = new Object();
 
 
 //systemStart service requests
@@ -301,3 +305,7 @@ STRequests.OntoSearch.searchOntologyRequest = "searchOntology";
 STRequests.Statement.serviceName = "statement";
 STRequests.Statement.getStatementsRequest = "getStatements";
 STRequests.Statement.hasStatementRequest = "hasStatement";
+
+//Resource service request
+STRequests.Resource.serviceName = "resource";
+STRequests.Resource.getRoleRequest = "getRole";

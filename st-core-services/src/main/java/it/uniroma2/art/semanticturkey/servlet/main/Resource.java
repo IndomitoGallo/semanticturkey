@@ -62,6 +62,7 @@ import it.uniroma2.art.owlart.vocabulary.OWL;
 import it.uniroma2.art.owlart.vocabulary.RDF;
 import it.uniroma2.art.owlart.vocabulary.RDFResourceRolesEnum;
 import it.uniroma2.art.owlart.vocabulary.RDFS;
+import it.uniroma2.art.owlart.vocabulary.XmlSchema;
 import it.uniroma2.art.semanticturkey.exceptions.HTTPParameterUnspecifiedException;
 import it.uniroma2.art.semanticturkey.exceptions.IncompatibleRangeException;
 import it.uniroma2.art.semanticturkey.exceptions.NonExistingRDFResourceException;
@@ -146,6 +147,7 @@ public class Resource extends ServiceAdapter {
 		public static final String getValuesOfPropertiesCountRequest = "getValuesOfPropertiesCount";
 		public static final String getTemplatePropertiesRequest = "getTemplateProperties";
 		public static final String getValuesOfDatatypePropertiesRequest = "getValuesOfDatatypeProperties";
+		public static final String getRoleRequest = "getRole";
 	}
 
 	public static class Par {
@@ -216,11 +218,35 @@ public class Resource extends ServiceAdapter {
 			String excludedProps = setHttpPar(Par.excludedProps);
 			checkRequestParametersAllNotNull(Par.resource);
 			response = getValuesOfDatatypeProperties(resourceName, excludedProps);
+		} else if (request.equals(Req.getRoleRequest )) {
+			String resourceName = setHttpPar(Par.resource);
+			response = getRole(resourceName);
 		} else
 			return servletUtilities.createNoSuchHandlerExceptionResponse(request);
 
 		this.fireServletEvent();
 		return response;
+	}
+
+	private Response getRole(String resourceName) {
+		OWLModel model = getOWLModel();
+		ARTResource[] graphs;
+		try {
+			graphs = getUserNamedGraphs();
+			ARTResource resource = retrieveExistingResource(model, resourceName, graphs);
+			RDFResourceRolesEnum role = ModelUtilities.getResourceRole(resource, model);
+			XMLResponseREPLY response = createReplyResponse(RepliesStatus.ok);
+			Element data = response.getDataElement();
+			Element roleElement = XMLHelp.newElement(data, "value", role.toString());
+			roleElement.setAttribute("type", XmlSchema.STRING);
+			return response;
+		} catch (NonExistingRDFResourceException e) {
+			e.printStackTrace();
+			return logAndSendException(e);
+		} catch (ModelAccessException e) {
+			e.printStackTrace();
+			return logAndSendException(e);
+		}
 	}
 
 	public Response getPropertyValues(String resourceName, String propertyName) {
